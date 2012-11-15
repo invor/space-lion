@@ -1,0 +1,44 @@
+//#pragma once
+#include "GL\glew.h"
+//openGL Math Lib
+#include <glm/glm.hpp>
+#include <glm/core/type_vec3.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include <string>
+#include <iostream>
+
+
+class GLSLProgram
+{
+private:
+	int id;
+	GLuint handle;
+	bool linkStatus;
+	std::string shaderlog;
+	char* readShaderFile(const char *path);
+	GLuint getUniformLocation(const char *name);
+public:
+	GLSLProgram(void);
+	~GLSLProgram(void);
+
+	bool compileShaderFromFile(const char *path, GLenum shaderType);
+	bool link();
+	bool use();
+	std::string getLog();
+	GLuint getHandle();
+	bool isLinked();
+	void bindAttribLocation(GLuint location, const char *name);
+	void bindFragDataLocation(GLuint location, const char *name);
+	void setUniform(const char *name, const glm::vec3 &v);
+	void setUniform(const char *name, const glm::vec4 &v);
+	void setUniform(const char *name, const glm::mat4 &m);
+	void setUniform(const char *name, const glm::mat3 &m);
+	void setUniform(const char *name, int i);
+	void setUniform(const char *name, float f);
+	void setUniform(const char *name, bool b);
+	void printActiveUniforms();
+	void printActiveAttributes();
+};
+
