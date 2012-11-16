@@ -12,7 +12,7 @@ texture::~texture(void)
 
 
 bool texture::loadFromFile(const char* path)
-{
+{/*
 	handle = SOIL_load_OGL_texture(
 			path,
 			SOIL_LOAD_AUTO,
@@ -25,6 +25,6 @@ bool texture::loadFromFile(const char* path)
 			printf( "SOIL loading error: '%s'\n", SOIL_last_result() );
 			return false;
 	}
-
+	*/
 	return true;
 }

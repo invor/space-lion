@@ -1,7 +1,13 @@
-//#pragma once
+#ifndef texture_h
+#define texture_h
+
 #include "GL\glew.h"
-#include "SOIL.h"
 #include <iostream>
+
+//pragmas seem to be only necessary in windows
+#ifdef _WIN32
+	#pragma comment(lib,"glew32.lib")
+#endif
 
 class texture
 {
@@ -14,6 +20,7 @@ public:
 	~texture(void);
 
 	bool loadFromFile(const char *path);
-	virtual void texParameteri(GLenum, GLenum) = 0;
+	//virtual void texParameteri(GLenum, GLenum) = 0;
 };
 
+#endif

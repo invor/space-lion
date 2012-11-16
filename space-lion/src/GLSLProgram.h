@@ -1,4 +1,6 @@
-//#pragma once
+#ifndef GLSLProgram_h
+#define GLSLProgram_h
+
 #include "GL\glew.h"
 //openGL Math Lib
 #include <glm/glm.hpp>
@@ -8,6 +10,11 @@
 
 #include <string>
 #include <iostream>
+
+//pragmas seem to be only necessary in windows
+#ifdef _WIN32
+	#pragma comment(lib,"glew32.lib")
+#endif
 
 
 class GLSLProgram
@@ -20,8 +27,8 @@ private:
 	char* readShaderFile(const char *path);
 	GLuint getUniformLocation(const char *name);
 public:
-	GLSLProgram(void);
-	~GLSLProgram(void);
+	GLSLProgram();
+	~GLSLProgram();
 
 	bool compileShaderFromFile(const char *path, GLenum shaderType);
 	bool link();
@@ -42,3 +49,4 @@ public:
 	void printActiveAttributes();
 };
 
+#endif GLSLProgram

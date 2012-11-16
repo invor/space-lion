@@ -161,3 +161,14 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+
+############
+## Include&Libraries
+############
+
+space-lion/glew
+space-lion/glfw
+space-lion/glm
+space-lion/soil
+space-lion/x64
+x64

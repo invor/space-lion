@@ -1,7 +1,13 @@
-//#pragma once
-#include "GL\glew.h"
+#ifndef vertexBufferObject_h
+#define vertexBufferObject_h
 
+#include "GL\glew.h"
 #include "vertexStructs.h"
+
+//pragma seem to be only necessary in windows
+#ifdef _WIN32
+	#pragma comment(lib,"glew32.lib")
+#endif
 
 class vertexBufferObject
 {
@@ -25,3 +31,5 @@ public:
 	bool setVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);
 	bool setVertexAttribLPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);
 };
+
+#endif

@@ -1,4 +1,5 @@
-//#pragma once
+#ifndef sceneEntity_h
+#define sceneEntity_h
 
 //openGL Math Lib
 #include <glm/glm.hpp>
@@ -23,3 +24,4 @@ public:
 	~sceneEntity(void);
 };
 
+#endif sceneEntity

@@ -3,6 +3,7 @@
 
 scene::scene(void)
 {
+	glfwInit();
 }
 
 

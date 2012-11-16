@@ -1,12 +1,12 @@
 #include "GLSLProgram.h"
 
-GLSLProgram::GLSLProgram(void)
+GLSLProgram::GLSLProgram()
 {
 	handle = glCreateProgram();
 	linkStatus = false;
 }
 
-GLSLProgram::~GLSLProgram(void)
+GLSLProgram::~GLSLProgram()
 {
 }
 

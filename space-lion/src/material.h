@@ -1,4 +1,6 @@
-//#pragma once
+#ifndef material_h
+#define material_h
+
 #include "GLSLProgram.h"
 #include "texture.h"
 
@@ -33,3 +35,4 @@ public:
 	void setSpecularColor(glm::vec3 specColor);
 };
 
+#endif
