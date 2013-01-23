@@ -7,32 +7,32 @@
 class material
 {
 private:
-	int id;
+	const int id;
 
-	const GLSLProgram *shaderProgram;
+	GLSLProgram * const shaderProgram;
 
-	const texture *diffuseMap;
-	const texture *specularMap;
-	const texture *normalMap;
-	const texture *alphaMap;
+	texture * const diffuseMap;
+	texture * const specularMap;
+	texture * const normalMap;
+	texture * const alphaMap;
 
-	float opacity;
-	glm::vec3 diffuseColor;
-	glm::vec3 specularColor;
+	const float opacity;
+	const glm::vec3 diffuseColor;
 public:
 	material(void);
 	~material(void);
-	
-	int getId();
-	void setShaderProgram(const GLSLProgram *shrPtr);
-	void setDiffuseMap(const texture *texPtr);
-	void setSpecularMap(const texture *texPtr);
-	void setNormalMap(const texture *texPtr);
-	void setAlphaMap(const texture *texPtr);
 
-	void setOpacity(float op);
-	void setDiffuseColor(glm::vec3 diffColor);
-	void setSpecularColor(glm::vec3 specColor);
+	material(int,GLSLProgram*,texture *,texture *,texture *,texture *,float,glm::vec3);
+	
+	const int getId();
+	GLSLProgram * const getShaderProgram();
+	texture * const getDiffuseMap();
+	texture * const getSpecularMap();
+	texture * const getNormalMap();
+	texture * const getAlphaMap();
+
+	const float getOpacity();
+	const glm::vec3 getDiffuseColor();
 };
 
 #endif

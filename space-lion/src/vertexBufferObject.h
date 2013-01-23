@@ -12,13 +12,15 @@
 class vertexBufferObject
 {
 private:
-	int id;
+	const int id;
 
 	GLuint handle;
 
 public:
 	vertexBufferObject(void);
 	~vertexBufferObject(void);
+
+	vertexBufferObject(int);
 
 	bool bufferDataFromArray(const vertex3 *vertexArray);
 	bool bufferDataFromFile(const char *path);

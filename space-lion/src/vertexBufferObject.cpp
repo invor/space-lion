@@ -1,12 +1,16 @@
 #include "vertexBufferObject.h"
 
 
-vertexBufferObject::vertexBufferObject(void)
+vertexBufferObject::vertexBufferObject(void) : id()
 {
 }
 
 
 vertexBufferObject::~vertexBufferObject(void)
+{
+}
+
+vertexBufferObject::vertexBufferObject(int in_id) : id(in_id)
 {
 }
 

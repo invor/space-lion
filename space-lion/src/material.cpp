@@ -1,7 +1,7 @@
 #include "material.h"
 
 
-material::material(void)
+material::material() : id(), shaderProgram(), diffuseMap(), specularMap(), normalMap(), alphaMap(), opacity(), diffuseColor()
 {
 }
 
@@ -10,47 +10,47 @@ material::~material(void)
 {
 }
 
-int material::getId()
+material::material(int in_id,GLSLProgram*prgm,texture*diff,texture*spec,texture*normal,texture*alpha,float op,glm::vec3 diffColor) :
+	id(in_id), shaderProgram(prgm), diffuseMap(diff), specularMap(spec), normalMap(normal), alphaMap(alpha), opacity(op), diffuseColor(diffColor)
+{
+}
+
+const int material::getId()
 {
 	return id;
 }
 
-void material::setShaderProgram(const GLSLProgram *shrPtr)
+GLSLProgram * const material::getShaderProgram()
 {
-	shaderProgram = shrPtr;
+	return shaderProgram;
 }
 
-void material::setDiffuseMap(const texture *texPtr)
+texture * const material::getDiffuseMap()
 {
-	diffuseMap = texPtr;
+	return diffuseMap;
 }
 
-void material::setSpecularMap(const texture *texPtr)
+texture * const material::getSpecularMap()
 {
-	specularMap = texPtr;
+	return specularMap;
 }
 
-void material::setNormalMap(const texture *texPtr)
+texture * const material::getNormalMap()
 {
-	normalMap = texPtr;
+	return normalMap;
 }
 
-void material::setAlphaMap(const texture *texPtr)
+texture * const material::getAlphaMap()
 {
-	alphaMap = texPtr;
+	return alphaMap;
 }
 
-void material::setOpacity(float op)
+const float material::getOpacity()
 {
-	opacity = op;
+	return opacity;
 }
 
-void material::setDiffuseColor(glm::vec3 diffColor)
+const glm::vec3 material::getDiffuseColor()
 {
-	diffuseColor = diffColor;
-}
-
-void material::setSpecularColor(glm::vec3 specColor)
-{
-	specularColor = specColor;
+	return diffuseColor;
 }

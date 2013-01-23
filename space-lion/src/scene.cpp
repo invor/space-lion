@@ -3,10 +3,13 @@
 
 scene::scene(void)
 {
-	glfwInit();
 }
 
 
 scene::~scene(void)
+{
+}
+
+void scene::render()
 {
 }
