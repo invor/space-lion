@@ -33,17 +33,14 @@
     <ClInclude Include="src\texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\vertexBufferObject.h">
+    <ClInclude Include="src\renderHub.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\renderHub.h">
+    <ClInclude Include="src\vertexGeometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\vertexBufferObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\GLSLProgram.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -63,6 +60,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\renderHub.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vertexGeometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

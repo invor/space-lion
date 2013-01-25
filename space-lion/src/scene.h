@@ -4,7 +4,7 @@
 #include <list>
 
 #include "sceneEntity.h"
-#include "vertexBufferObject.h"
+#include "vertexGeometry.h"
 #include "material.h"
 #include "texture.h"
 #include "GLSLProgram.h"
@@ -18,23 +18,23 @@ class scene
 {
 private:
 	std::list<sceneEntity> scenegraph;
-	std::list<vertexBufferObject> vboList;
+	std::list<vertexGeometry> vboList;
 	std::list<material> materialList;
 	std::list<texture> textureList;
 	std::list<GLSLProgram> shaderProgramList;
 
 	//	create a simple box object for debugging purposes 
-	bool createVertexBufferObject();
+	vertexGeometry* createVertexGeometry();
 	//	create geometry from a local file
-	bool createVertexBufferObject(const char * const path);
+	vertexGeometry* createVertexGeometry(const char * const path);
 
 	//	create default material for debugging purposes
-	bool createMaterial();
+	material* createMaterial();
 	//	create material from local file
-	bool createMaterial(const char * const path);
+	material* createMaterial(const char * const path);
 
-	bool createTexture();
-	bool createShaderProgram();
+	texture* createTexture();
+	GLSLProgram* createShaderProgram();
 
 	glm::mat4 computeMVP(const glm::vec3 position, const glm::vec4 orientation);
 

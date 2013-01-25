@@ -7,7 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "vertexBufferObject.h"
+#include "vertexGeometry.h"
 #include "material.h"
 
 class sceneEntity
@@ -19,16 +19,16 @@ private:
 
 	bool isRendered;
 
-	vertexBufferObject *geometry;
+	vertexGeometry *geometry;
 	material *matl;
 public:
 	sceneEntity(void);
 	~sceneEntity(void);
 
-	void setPosition(const glm::vec3 inPosition);
-	glm::vec3 getPosition();
-	void setOrientation(const glm::vec4 inOrientation);
-	glm::vec4 getOrientation();
+	void setPosition(const glm::vec3 inPosition) {position = inPosition;}
+	glm::vec3 getPosition() {return position;}
+	void setOrientation(const glm::vec4 inOrientation) {orientation = inOrientation;}
+	glm::vec4 getOrientation() {return orientation;}
 };
 
 #endif sceneEntity

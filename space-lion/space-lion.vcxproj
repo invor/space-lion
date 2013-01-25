@@ -140,7 +140,7 @@
     <ClInclude Include="src\scene.h" />
     <ClInclude Include="src\sceneEntity.h" />
     <ClInclude Include="src\texture.h" />
-    <ClInclude Include="src\vertexBufferObject.h" />
+    <ClInclude Include="src\vertexGeometry.h" />
     <ClInclude Include="src\vertexStructs.h" />
   </ItemGroup>
   <ItemGroup>
@@ -151,7 +151,7 @@
     <ClCompile Include="src\scene.cpp" />
     <ClCompile Include="src\sceneEntity.cpp" />
     <ClCompile Include="src\texture.cpp" />
-    <ClCompile Include="src\vertexBufferObject.cpp" />
+    <ClCompile Include="src\vertexGeometry.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -24,15 +24,15 @@ public:
 
 	material(int,GLSLProgram*,texture *,texture *,texture *,texture *,float,glm::vec3);
 	
-	const int getId();
-	GLSLProgram * const getShaderProgram();
-	texture * const getDiffuseMap();
-	texture * const getSpecularMap();
-	texture * const getNormalMap();
-	texture * const getAlphaMap();
+	const int getId() {return id;}
+	GLSLProgram * const getShaderProgram() {return shaderProgram;}
+	texture * const getDiffuseMap() {return diffuseMap;}
+	texture * const getSpecularMap() {return specularMap;}
+	texture * const getNormalMap() {return normalMap;}
+	texture * const getAlphaMap() {return alphaMap;}
 
-	const float getOpacity();
-	const glm::vec3 getDiffuseColor();
+	const float getOpacity() {return opacity;}
+	const glm::vec3 getDiffuseColor() {return diffuseColor;}
 };
 
 #endif

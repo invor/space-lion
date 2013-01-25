@@ -1,5 +1,5 @@
-#ifndef vertexBufferObject_h
-#define vertexBufferObject_h
+#ifndef vertexGeometry_h
+#define vertexGeometry_h
 
 #include "GL\glew.h"
 #include "vertexStructs.h"
@@ -9,29 +9,32 @@
 	#pragma comment(lib,"glew32.lib")
 #endif
 
-class vertexBufferObject
+class vertexGeometry
 {
 private:
 	const int id;
 
-	GLuint handle;
+	GLuint vaHandle;
+	GLuint vboHandle;
 
 public:
-	vertexBufferObject(void);
-	~vertexBufferObject(void);
+	vertexGeometry(void);
+	~vertexGeometry(void);
 
-	vertexBufferObject(int);
+	vertexGeometry(int);
 
 	bool bufferDataFromArray(const vertex3 *vertexArray);
 	bool bufferDataFromFile(const char *path);
 
-	void bindBuffer();
+	void bindVertexBuffer();
 	void bindVertexArray();
 	void draw(GLenum type, GLint count);
 
 	bool setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
 	bool setVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);
 	bool setVertexAttribLPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);
+
+	const int getId() {return id;}
 };
 
 #endif
