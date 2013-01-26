@@ -25,11 +25,12 @@ vertexGeometry* scene::createVertexGeometry()
 	}
 
 	//	if default box not already in list, continue here
-	vertex3 *vertexArray = new vertex3[4];
+	vertex3 *vertexArray = new vertex3[8];
+	GLubyte *indexArray = new GLubyte[10];
 
 	vboList.push_back(vertexGeometry(0));
 	std::list<vertexGeometry>::iterator lastElement = --(vboList.end());
-	lastElement->bufferDataFromArray(vertexArray);
+	lastElement->bufferDataFromArray(vertexArray,indexArray);
 }
 
 material* scene::createMaterial()

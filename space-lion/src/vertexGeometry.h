@@ -14,8 +14,12 @@ class vertexGeometry
 private:
 	const int id;
 
+	//vertex array
 	GLuint vaHandle;
+	//vertex buffer object
 	GLuint vboHandle;
+	//index buffer object
+	GLuint iboHandle;
 
 public:
 	vertexGeometry(void);
@@ -23,7 +27,7 @@ public:
 
 	vertexGeometry(int);
 
-	bool bufferDataFromArray(const vertex3 *vertexArray);
+	bool bufferDataFromArray(const vertex3 *vertexArray, const GLubyte *indexArray);
 	bool bufferDataFromFile(const char *path);
 
 	void bindVertexBuffer();
