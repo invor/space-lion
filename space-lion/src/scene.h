@@ -17,6 +17,13 @@
 class scene
 {
 private:
+	/*	
+	/	Some textures are not loaded from a file. Therefore an id will be generated for them by the scene.
+	/	Texture id's below 10000 belong to textures loaded from a file. Id's above 10000 are given by the system.
+	/	The most recently assigned id is saved in this variable.
+	*/
+	unsigned int lastTextureId;
+
 	std::list<sceneEntity> scenegraph;
 	std::list<vertexGeometry> vboList;
 	std::list<material> materialList;
@@ -32,9 +39,24 @@ private:
 	material* createMaterial();
 	//	create material from local file
 	material* createMaterial(const char * const path);
+	//	for later use, when some kind of editor allows to change material properties at runtime
+	bool reloadMaterial();
 
-	texture* createTexture();
+	//	create default shader program
 	GLSLProgram* createShaderProgram();
+	//	create shader program from file
+	GLSLProgram* createShaderProgram(const char * const path);
+
+	//	create a texture from an array of float values
+	/*	
+	/	Exercise some caution when using this function. It will always create a new texture object,
+	/	since for now there is no reasonable way to check if an identical texture already exsists.
+	*/
+	texture* createTexture(int dimX, int dimY, float* data);
+	//	create a texture from file
+	texture* createTexture(const char * const path);
+	//	in case a texture file is changed during runtime
+	bool reloadTexture();
 
 	glm::mat4 computeMVP(const glm::vec3 position, const glm::vec4 orientation);
 

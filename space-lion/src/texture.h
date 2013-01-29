@@ -16,11 +16,15 @@ private:
 
 	GLuint handle;
 public:
-	texture(void);
-	~texture(void);
+	texture();
+	texture(int inputId);
+	~texture();
 
-	bool loadFromFile(const char *path);
-	//virtual void texParameteri(GLenum, GLenum) = 0;
+	//	load a texture from a local file
+	bool load(const char *path);
+	//	load a texture from an array of floats
+	bool load(int dimX, int dimY, float* data);
+	void texParameteri(GLenum, GLenum);
 };
 
 #endif

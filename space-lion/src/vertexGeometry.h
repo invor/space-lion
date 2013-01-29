@@ -32,7 +32,7 @@ public:
 
 	void bindVertexBuffer();
 	void bindVertexArray();
-	void draw(GLenum type, GLint count);
+	void draw(GLenum type, GLint count, int indexOffset);
 
 	bool setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
 	bool setVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);

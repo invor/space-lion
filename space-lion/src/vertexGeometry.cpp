@@ -26,19 +26,22 @@ bool vertexGeometry::bufferDataFromArray(const vertex3 *vertexArray, const GLuby
 		glGenVertexArrays(1, &vaHandle);
 		glBindVertexArray(vaHandle);
 		glGenBuffers(1, &vboHandle);
-		glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
+		//glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
 		glGenBuffers(1, &iboHandle);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboHandle);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboHandle);
 	}
 	else
 	{
 		glBindVertexArray(vaHandle);
-		glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboHandle);
+		//glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboHandle);
 	}
 
+	glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexArray), vertexArray, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboHandle);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexArray), indexArray, GL_STATIC_DRAW);
+	glBindBuffer(0,0);
 	glBindVertexArray(0);
 
 	return true;
@@ -54,10 +57,10 @@ void vertexGeometry::bindVertexArray()
 	glBindVertexArray(vaHandle);
 }
 
-void vertexGeometry::draw(GLenum type, GLint count)
+void vertexGeometry::draw(GLenum type, GLint count, int indexOffset)
 {
 	glBindVertexArray(vaHandle);
-	glDrawArrays(type, 0, count);
+	glDrawElements(type, count, GL_UNSIGNED_BYTE, (GLvoid*)(sizeof(GLubyte) * indexOffset));
 }
 
 bool vertexGeometry::setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer)

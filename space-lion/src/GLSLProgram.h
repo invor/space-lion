@@ -30,6 +30,8 @@ public:
 	GLSLProgram();
 	~GLSLProgram();
 
+	int getId() {return id;}
+
 	bool compileShaderFromFile(const char *path, GLenum shaderType);
 	bool link();
 	bool use();
