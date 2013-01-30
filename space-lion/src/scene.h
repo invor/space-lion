@@ -47,8 +47,9 @@ private:
 	//	create shader program from file
 	GLSLProgram* createShaderProgram(const char * const path);
 
-	//	create a texture from an array of float values
-	/*	
+	/*
+	/	create a texture from an array of float values
+	/
 	/	Exercise some caution when using this function. It will always create a new texture object,
 	/	since for now there is no reasonable way to check if an identical texture already exsists.
 	*/
@@ -61,8 +62,8 @@ private:
 	glm::mat4 computeMVP(const glm::vec3 position, const glm::vec4 orientation);
 
 public:
-	scene(void);
-	~scene(void);
+	scene();
+	~scene();
 
 	//	create a scene entity with default geometry and default material
 	bool createSceneEntity(const glm::vec3 position, const glm::vec4 orientation);
