@@ -36,3 +36,10 @@ bool texture::load(int dimX, int dimY, float *data)
 
 	return true;
 }
+
+void texture::texParameteri(GLenum param_1, GLenum param_2)
+{
+	glBindTexture(GL_TEXTURE_2D, handle);
+	glTexParameteri(GL_TEXTURE_2D, param_1, param_2);
+	glBindTexture(GL_TEXTURE_2D,0);
+}

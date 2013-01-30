@@ -16,11 +16,12 @@
 	#pragma comment(lib,"glew32.lib")
 #endif
 
+enum shaderType {PHONG};
 
 class GLSLProgram
 {
 private:
-	int id;
+	shaderType type;
 	GLuint handle;
 	bool linkStatus;
 	std::string shaderlog;
@@ -30,7 +31,7 @@ public:
 	GLSLProgram();
 	~GLSLProgram();
 
-	int getId() {return id;}
+	int getType() {return type;}
 
 	bool compileShaderFromFile(const char *path, GLenum shaderType);
 	bool link();

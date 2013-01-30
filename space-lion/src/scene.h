@@ -42,10 +42,8 @@ private:
 	//	for later use, when some kind of editor allows to change material properties at runtime
 	bool reloadMaterial();
 
-	//	create default shader program
-	GLSLProgram* createShaderProgram();
-	//	create shader program from file
-	GLSLProgram* createShaderProgram(const char * const path);
+	//	create a shader program
+	GLSLProgram* createShaderProgram(shaderType);
 
 	/*
 	/	create a texture from an array of float values

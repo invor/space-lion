@@ -6,7 +6,6 @@ scene::scene(void)
 	lastTextureId = 10000;
 }
 
-
 scene::~scene(void)
 {
 }
@@ -68,17 +67,28 @@ material* scene::createMaterial()
 	//normal pointing upwards
 	normalData[0]=0.0f; normalData[1]=1.0f; normalData[2]=0.0f; normalData[3]=0.0f;
 	
-	materialList.push_back(material(0,createShaderProgram(),createTexture(1,1,diffuseData),createTexture(1,1,specularData),createTexture(1,1,normalData)));
+	materialList.push_back(material(0,createShaderProgram(PHONG),createTexture(1,1,diffuseData),createTexture(1,1,specularData),createTexture(1,1,normalData)));
 }
 
-GLSLProgram* scene::createShaderProgram()
+GLSLProgram* scene::createShaderProgram(shaderType type)
 {
-	//	check list of shader programs for default shader program(id=0)
+	//	check list of shader programs for the shader type
 	for(std::list<GLSLProgram>::iterator i = shaderProgramList.begin(); i != shaderProgramList.end(); ++i)
 	{
-		if((i->getId())==0){
+		if((i->getType())==type){
 			return &*i;
 		}
+	}
+
+	//	create a shader program object of specified type
+	switch(type)
+	{
+	case PHONG :
+		GLSLProgram shaderPrg;
+		shaderPrg.compileShaderFromFile("..\..\space-lion\src\shader\v_phong.glsl",GL_VERTEX_SHADER);
+		shaderPrg.compileShaderFromFile("..\..\space-lion\src\shader\f_phong.glsl",GL_VERTEX_SHADER);
+
+		shaderPrg.link();
 	}
 }
 

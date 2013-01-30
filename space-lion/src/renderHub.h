@@ -28,9 +28,9 @@ public:
 	bool addScene();
 	bool deleteScene();
 	bool setSceneParameters();
-	scene getScene(const int index);
+	scene* getScene(const int index);
 	void setActiveScene(const int index);
-	scene getActiveScene();
+	scene* getActiveScene();
 	//	Render a frame of the active scene and check eventqueue
 	void run();
 
