@@ -25,11 +25,17 @@ vertexGeometry* scene::createVertexGeometry()
 	}
 
 	//	if default box not already in list, continue here
-	vertex3 *vertexArray = new vertex3[8];
+	vertex3 *vertexArray = new vertex12[24];
 	GLubyte *indexArray = new GLubyte[10];
 
-	vertexArray[0]=vertex3(-0.5,-0.5,-0.5);vertexArray[1]=vertex3(0.5,-0.5,-0.5);
-	vertexArray[2]=vertex3(0.5,-0.5,0.5);vertexArray[3]=vertex3(-0.5,-0.5,0.5);
+	//	front face
+	vertexArray[0]=vertex12(-0.5,-0.5,0.5,0.0,0.0,1.0,255,0,0,128,0.0,0.0);vertexArray[1]=vertex12(-0.5,0.5,0.5,0.0,0.0,1.0,255,0,0,128,0.0,1.0);
+	vertexArray[2]=vertex12(0.5,0.5,0.5,0.0,0.0,1.0,255,0,0,128,1.0,1.0);vertexArray[3]=vertex12(0.5,-0.5,0.5,0.0,0.0,1.0,255,0,0,128,1.0,0.0);
+
+	//	back face
+	vertexArray[20]=vertex12(-0.5,-0.5,-0.5,0.0,0.0,-1.0,255,0,0,128,0.0,0.0);vertexArray[21]=vertex12(-0.5,0.5,-0.5,0.0,0.0,-1.0,255,0,0,128,0.0,1.0);
+	vertexArray[22]=vertex12(0.5,0.5,-0.5,0.0,0.0,-1.0,255,0,0,128,1.0,1.0);vertexArray[23]=vertex12(0.5,-0.5,-0.5,0.0,0.0,-1.0,255,0,0,128,1.0,0.0);
+
 	vertexArray[4]=vertex3(-0.5,0.5,-0.5);vertexArray[5]=vertex3(0.5,0.5,-0.5);
 	vertexArray[6]=vertex3(0.5,0.5,0.5);vertexArray[7]=vertex3(-0.5,0.5,0.5);
 
@@ -85,8 +91,8 @@ GLSLProgram* scene::createShaderProgram(shaderType type)
 	{
 	case PHONG :
 		GLSLProgram shaderPrg;
-		shaderPrg.compileShaderFromFile("..\..\space-lion\src\shader\v_phong.glsl",GL_VERTEX_SHADER);
-		shaderPrg.compileShaderFromFile("..\..\space-lion\src\shader\f_phong.glsl",GL_VERTEX_SHADER);
+		shaderPrg.compileShaderFromFile("../../space-lion/src/shader/v_phong.glsl",GL_VERTEX_SHADER);
+		shaderPrg.compileShaderFromFile("../../space-lion/src/shader/f_phong.glsl",GL_VERTEX_SHADER);
 
 		shaderPrg.link();
 	}

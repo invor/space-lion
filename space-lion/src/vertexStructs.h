@@ -37,12 +37,12 @@ struct vertex5 : public vertex3
 
 struct vertex6 : public vertex3
 {
-	vertex6() : vertex3(), a1(0.0), a2(0.0), a3(0.0) {}
-	vertex6(float tx, float ty, float tz, float ta1, float ta2, float ta3) :
-		vertex3(tx,ty,tz), a1(ta1), a2(ta2), a3(ta3) {}
-	float a1;
-	float a2;
-	float a3;
+	vertex6() : vertex3(), nx(0.0), ny(0.0), nz(0.0) {}
+	vertex6(float tx, float ty, float tz, float tnx, float tny, float tnz) :
+		vertex3(tx,ty,tz), nx(tnx), ny(tny), nz(tnz) {}
+	float nx;
+	float ny;
+	float nz;
 };
 
 struct vertex8 : public vertex6
@@ -54,21 +54,22 @@ struct vertex8 : public vertex6
 	float v;
 };
 
-struct vertex9 : public vertex6
+struct vertex10 : public vertex6
 {
-	vertex9() : vertex6(), b1(0.0), b2(0.0), b3(0.0) {}
-	vertex9(float tx, float ty, float tz, float ta1, float ta2, float ta3, float tb1, float tb2, float tb3) :
-		vertex6(tx,ty,tz,ta1,ta2,ta3), b1(tb1), b2(tb2), b3(tb3) {}
-	float b1;
-	float b2;
-	float b3;
+	vertex10() : vertex6(), r(0), g(0), b(0), a(0) {}
+	vertex10(float tx, float ty, float tz, float tnx, float tny, float tnz, GLubyte tr, GLubyte tg, GLubyte tb, GLubyte ta) :
+		vertex6(tx,ty,tz,tnx,tny,tnz), r(tr), g(tg), b(tb), a(ta) {}
+	GLubyte r;
+	GLubyte g;
+	GLubyte b;
+	GLubyte a;
 };
 
-struct vertex11 : public vertex9
+struct vertex12 : public vertex10
 {
-	vertex11() : vertex9(), u(0.0), v(0.0) {}
-	vertex11(float tx, float ty, float tz, float ta1, float ta2, float ta3, float tb1, float tb2, float tb3, float tu, float tv) :
-		vertex9(tx,ty,tz,ta1,ta2,ta3,tb1,tb2,tb3), u(tu), v(tv) {}
+	vertex12() : vertex10(), u(0.0), v(0.0) {}
+	vertex12(float tx, float ty, float tz, float tnx, float tny, float tnz, GLubyte tr, GLubyte tg, GLubyte tb, GLubyte ta, float tu, float tv) :
+		vertex10(tx,ty,tz,tx,ty,tz,tr,tg,tb,ta), u(tu), v(tv) {}
 	float u;
 	float v;
 };

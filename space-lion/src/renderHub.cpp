@@ -33,7 +33,7 @@ bool renderHub::setSceneParameters()
 {
 }
 
-scene renderHub::getScene(const int index)
+scene* renderHub::getScene(const int index)
 {
 }
 
