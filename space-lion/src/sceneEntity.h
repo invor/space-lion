@@ -13,7 +13,7 @@
 class sceneEntity
 {
 private:
-	int id;
+	const int id;
 
 	glm::vec3 position;
 	//orentation is saved as a quaternion, thus a vec4
@@ -22,12 +22,14 @@ private:
 	bool isRendered;
 
 	vertexGeometry *geometry;
-	material *matl;
+	material *mtl;
 public:
-	sceneEntity(void);
-	~sceneEntity(void);
+	sceneEntity();
+	~sceneEntity();
 
-	int getId() {return id;}
+	sceneEntity(const int, vertexGeometry*, material*);
+
+	const int getId() {return id;}
 	void setPosition(const glm::vec3 inPosition) {position = inPosition;}
 	glm::vec3 getPosition() {return position;}
 	void setOrientation(const glm::vec4 inOrientation) {orientation = inOrientation;}

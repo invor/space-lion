@@ -1,12 +1,12 @@
 #include "scene.h"
 
 
-scene::scene(void)
+scene::scene()
 {
 	lastTextureId = 10000;
 }
 
-scene::~scene(void)
+scene::~scene()
 {
 }
 
@@ -68,6 +68,11 @@ vertexGeometry* scene::createVertexGeometry()
 	vboList.push_back(vertexGeometry(0));
 	std::list<vertexGeometry>::iterator lastElement = --(vboList.end());
 	lastElement->bufferDataFromArray(vertexArray,indexArray);
+	lastElement->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(vertex15),0);
+	lastElement->setVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(vertex15),(GLvoid*) sizeof(vertex3));
+	lastElement->setVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,sizeof(vertex15),(GLvoid*) sizeof(vertex6));
+	lastElement->setVertexAttribPointer(3,4,GL_UNSIGNED_BYTE,GL_FALSE,sizeof(vertex15),(GLvoid*) sizeof(vertex9));
+	lastElement->setVertexAttribPointer(4,2,GL_FLOAT,GL_FALSE,sizeof(vertex15),(GLvoid*) sizeof(vertex13));
 
 	return &(*lastElement);
 }
@@ -111,11 +116,17 @@ GLSLProgram* scene::createShaderProgram(shaderType type)
 	switch(type)
 	{
 	case PHONG :
-		GLSLProgram shaderPrg;
+		GLSLProgram shaderPrg(PHONG);
 		shaderPrg.compileShaderFromFile("../../space-lion/src/shader/v_phong.glsl",GL_VERTEX_SHADER);
 		shaderPrg.compileShaderFromFile("../../space-lion/src/shader/f_phong.glsl",GL_VERTEX_SHADER);
-
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vNormal");
+		shaderPrg.bindAttribLocation(2,"vTangent");
+		shaderPrg.bindAttribLocation(3,"vColour");
+		shaderPrg.bindAttribLocation(4,"vUVCoord");
 		shaderPrg.link();
+		shaderPrg.getLog();
+		glUseProgram(0);
 	}
 }
 
@@ -132,7 +143,17 @@ texture* scene::createTexture(int dimX, int dimY, float* data)
 	return &(*lastElement);
 }
 
-bool scene::createSceneEntity(const glm::vec3 position, const glm::vec4 orientation)
+bool scene::createSceneEntity(const int id, const glm::vec3 position, const glm::vec4 orientation)
 {
+	scenegraph.push_back(sceneEntity(id,createVertexGeometry(),createMaterial()));
+
 	return true;
+}
+
+void scene::render()
+{
+	for(std::list<sceneEntity>::iterator i = scenegraph.begin(); i != scenegraph.end(); ++i)
+	{
+		//	access each entity of the scene and draw it
+	}
 }

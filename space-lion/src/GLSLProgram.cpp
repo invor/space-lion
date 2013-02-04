@@ -10,6 +10,13 @@ GLSLProgram::~GLSLProgram()
 {
 }
 
+GLSLProgram::GLSLProgram(shaderType inType)
+{
+	handle = glCreateProgram();
+	linkStatus = false;
+	type = inType;
+}
+
 char* GLSLProgram::readShaderFile(const char *path)
 {
 	FILE* in = fopen(path, "rb");

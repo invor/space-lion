@@ -18,6 +18,8 @@ class scene
 {
 private:
 	/*	
+	/	The following has become somewhat obsolete with the introdcution of filenames as identifier
+	/
 	/	Some textures are not loaded from a file. Therefore an id will be generated for them by the scene.
 	/	Texture id's below 10000 belong to textures loaded from a file. Id's above 10000 are given by the system.
 	/	The most recently assigned id is saved in this variable.
@@ -64,11 +66,11 @@ public:
 	~scene();
 
 	//	create a scene entity with default geometry and default material
-	bool createSceneEntity(const glm::vec3 position, const glm::vec4 orientation);
+	bool createSceneEntity(const int id, const glm::vec3 position, const glm::vec4 orientation);
 	//	create a scene entity with default geometry
-	bool createSceneEntity(const glm::vec3 position, const glm::vec4 orientation, const char * const geometryPath);
+	bool createSceneEntity(const int id, const glm::vec3 position, const glm::vec4 orientation, const char * const geometryPath);
 	//	create a scene entity
-	bool createSceneEntity(const glm::vec3 position, const glm::vec4 orientation, const char * const geometryPath, const char * const materialPath);
+	bool createSceneEntity(const int id, const glm::vec3 position, const glm::vec4 orientation, const char * const geometryPath, const char * const materialPath);
 
 	void render();
 };

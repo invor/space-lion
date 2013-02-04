@@ -25,11 +25,14 @@ private:
 	GLuint handle;
 	bool linkStatus;
 	std::string shaderlog;
+
 	char* readShaderFile(const char *path);
 	GLuint getUniformLocation(const char *name);
 public:
 	GLSLProgram();
 	~GLSLProgram();
+
+	GLSLProgram(shaderType);
 
 	int getType() {return type;}
 

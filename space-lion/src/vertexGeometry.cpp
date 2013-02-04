@@ -1,12 +1,12 @@
 #include "vertexGeometry.h"
 
 
-vertexGeometry::vertexGeometry(void) : filename("0")
+vertexGeometry::vertexGeometry() : filename("0")
 {
 }
 
 
-vertexGeometry::~vertexGeometry(void)
+vertexGeometry::~vertexGeometry()
 {
 }
 
