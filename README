@@ -4,19 +4,32 @@ Space Lion
 A prototype of a multipurpose (render)engine. It is to be used for both
 computer games and as a visualization framework for scientific applications.
 
+-Update 1-
+Since my head feels like it's about to explode from thinking about complex concepts
+way ahead of time, I tweaked the first two milestones a bit.
+Milestone can now consist of several "wayppoints" to split work into more balanced parts.
+
 
 Current milestone:
 codename 'melanchony'
-	Create a working OpenGL framework. Required features include
-	loading/creation of surface representations(meshes) and basic
-	shading.
+	
+	Waypoint Alpha
+		- creation of debug surface representations(meshes) e.g. a cube
+		- basic geometry, texture and material handling for scene objects
+		- basic phong shading (single light source)
+	Waypoint Bravo
+		- file loading (geometry, texture, materials)
+		- decide on a normal mapping scheme (depends on used geometry filetype)
+	Waypoint Charlie
+		- multiple light sources
+		- multimaterial objects
 
 Next milestone:
 codename 'sigh'
-	Expand the OpenGL framework and integrate the render component
-	of the engine into the 'pferd' project. Required features include
-	all necessary shaders for graph visualization and basic
-	volume rendering.
+	
+		- research more advanced lighting schemes
+		- optimizations
+		- research possible adaption of deferred rendering
 	
 
 Dependencies:

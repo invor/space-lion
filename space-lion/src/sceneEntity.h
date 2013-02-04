@@ -13,6 +13,8 @@
 class sceneEntity
 {
 private:
+	int id;
+
 	glm::vec3 position;
 	//orentation is saved as a quaternion, thus a vec4
 	glm::vec4 orientation;
@@ -25,6 +27,7 @@ public:
 	sceneEntity(void);
 	~sceneEntity(void);
 
+	int getId() {return id;}
 	void setPosition(const glm::vec3 inPosition) {position = inPosition;}
 	glm::vec3 getPosition() {return position;}
 	void setOrientation(const glm::vec4 inOrientation) {orientation = inOrientation;}

@@ -1,7 +1,7 @@
 #include "vertexGeometry.h"
 
 
-vertexGeometry::vertexGeometry(void) : id()
+vertexGeometry::vertexGeometry(void) : filename("0")
 {
 }
 
@@ -10,7 +10,7 @@ vertexGeometry::~vertexGeometry(void)
 {
 }
 
-vertexGeometry::vertexGeometry(int in_id) : id(in_id)
+vertexGeometry::vertexGeometry(const char *fn) : filename(fn)
 {
 }
 

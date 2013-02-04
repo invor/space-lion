@@ -5,9 +5,8 @@ texture::texture(void)
 {
 }
 
-texture::texture(int inputId)
+texture::texture(const char *fn) : filename(fn)
 {
-	id = inputId;
 }
 
 

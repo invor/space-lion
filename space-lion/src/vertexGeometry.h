@@ -12,7 +12,7 @@
 class vertexGeometry
 {
 private:
-	const int id;
+	const char *filename;
 
 	//vertex array
 	GLuint vaHandle;
@@ -25,7 +25,7 @@ public:
 	vertexGeometry(void);
 	~vertexGeometry(void);
 
-	vertexGeometry(int);
+	vertexGeometry(const char*);
 
 	bool bufferDataFromArray(const vertex3 *vertexArray, const GLubyte *indexArray);
 	bool bufferDataFromFile(const char *path);
@@ -38,7 +38,7 @@ public:
 	bool setVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);
 	bool setVertexAttribLPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);
 
-	const int getId() {return id;}
+	const char* getFilename() {return filename;}
 };
 
 #endif

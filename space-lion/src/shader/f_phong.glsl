@@ -5,14 +5,13 @@ uniform sampler2d diffuseMap;
 uniform sampler2d specularMap;
 uniform sampler2d normalMap;
 
-uniform vec3 lightPosition[10];
-uniform vec4 lightColour[10];
+uniform vec4 lightColour;
 
 in vec3 position;
 in vec4 colour;
 in vec2 uvCoord;
-in vec3 viewerDirection
-in mat3 tangentSpaceMatrix;
+in vec3 viewerDirection;
+in vec3 lightDirection;
 
 out vec4 fragColour;
 
@@ -41,12 +40,8 @@ void main()
 	//	fetch normal vector from normal map
 	vec3 tNormal = texture2D(normalMap, uvCoord).xyz;
 
-	for(i=0; i<10; i++)
-	{
-		//	computer phong lighting for each light source
-		tLightDirection = tangentSpaceMatrix * (lightPosition[i] - position);
-		fragColour += phongShading(tSpecFactor, tColour, tNormal, tLightDirection, tLightColour[i]);
-	}	
+	//	compute phong lighting
+	fragColour += phongShading(tSpecFactor, tColour, tNormal, LightDirection, lightColour);
 	
 	//fragColour = vec4(1.0);
 }

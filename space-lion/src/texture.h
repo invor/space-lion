@@ -12,12 +12,13 @@
 class texture
 {
 private:
-	int id;
+	//	Integer ids seemed like a bad idea for loading texture files, that themselves -unlike custom material files- won't contain that id.
+	const char *filename;
 
 	GLuint handle;
 public:
 	texture();
-	texture(int inputId);
+	texture(const char*);
 	~texture();
 
 	//	load a texture from a local file
@@ -25,6 +26,8 @@ public:
 	//	load a texture from an array of floats
 	bool load(int dimX, int dimY, float* data);
 	void texParameteri(GLenum, GLenum);
+
+	const char* getFilename() {return filename;}
 };
 
 #endif

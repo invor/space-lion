@@ -5,6 +5,8 @@ uniform mat3 normalMatrix;
 uniform mat4 modelViewMatrix;
 uniform mat4 modelViewProjectionMatrix;
 
+uniform vec3 lightPosition;
+
 in vec3 vPosition;
 in vec3 vNormal;
 in vec3 vTangent;
@@ -15,7 +17,7 @@ out vec3 position;
 out vec4 colour;
 out vec2 uvCoord;
 out vec3 viewerDirection;
-out mat3 tangentSpaceMatrix;
+out vec3 lightDirection;
 
 void main()
 {
@@ -28,13 +30,14 @@ void main()
 
 	vec3 bitangent = normalize( cross(normal, tangent) ) * vTangent.w;
 
-	tangentSpaceMatrix = mat3(
+	mat3 tangentSpaceMatrix = mat3(
 		tangent.x, bitangent.x, normal.x,
 		tangent.y, bitangent.y, normal.y,
 		tangent.z, bitangent.z, normal.z) ;
 		
 	position = (modelViewMatrix * vec4(vPosition,1.0)).xyz;
 	viewerDirection = tangentSpaceMatrix * normalize( -position );
+	lightDirection = tangentSpaceMatrix * ((modelViewMatrix * vec4(lightPosition,1.0)).xyz - position);
 
 	colour = vColour;
 	uvCoord = vUVCoord;
