@@ -16,7 +16,7 @@ private:
 	const int id;
 
 	glm::vec3 position;
-	//orentation is saved as a quaternion, thus a vec4
+	//	orentation is saved as a quaternion, thus a vec4 is used
 	glm::vec4 orientation;
 
 	bool isRendered;

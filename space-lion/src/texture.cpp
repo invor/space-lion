@@ -14,6 +14,10 @@ texture::~texture(void)
 {
 }
 
+void texture::bindTexture()
+{
+	glBindTexture(GL_TEXTURE_2D, handle);
+}
 
 bool texture::load(const char* path)
 {

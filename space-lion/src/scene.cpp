@@ -10,13 +10,14 @@ scene::~scene()
 {
 }
 
-vertexGeometry* scene::createVertexGeometry()
+bool scene::createVertexGeometry(vertexGeometry*& inOutGeomPtr)
 {
 	//	check list of vertexBufferObjects for default box object(filename="0")
 	for(std::list<vertexGeometry>::iterator i = vboList.begin(); i != vboList.end(); ++i)
 	{
 		if((i->getFilename())=="0"){
-			return &(*i);
+			inOutGeomPtr = &(*i);
+			return true;
 		}
 	}
 
@@ -58,31 +59,34 @@ vertexGeometry* scene::createVertexGeometry()
 
 	vboList.push_back(vertexGeometry(0));
 	std::list<vertexGeometry>::iterator lastElement = --(vboList.end());
-	lastElement->bufferDataFromArray(vertexArray,indexArray);
+	if(!(lastElement->bufferDataFromArray(vertexArray,indexArray))) return false;
 	lastElement->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(vertex15),0);
 	lastElement->setVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(vertex15),(GLvoid*) sizeof(vertex3));
 	lastElement->setVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,sizeof(vertex15),(GLvoid*) sizeof(vertex6));
 	lastElement->setVertexAttribPointer(3,4,GL_UNSIGNED_BYTE,GL_FALSE,sizeof(vertex15),(GLvoid*) sizeof(vertex9));
 	lastElement->setVertexAttribPointer(4,2,GL_FLOAT,GL_FALSE,sizeof(vertex15),(GLvoid*) sizeof(vertex13));
 
-	return &(*lastElement);
+	inOutGeomPtr = &(*lastElement);
+	return true;
 }
 
-material* scene::createMaterial()
+bool scene::createMaterial(material*& inOutMtlPtr)
 {
 	//	check list of materials for default material(id=0)
 	for(std::list<material>::iterator i = materialList.begin(); i != materialList.end(); ++i)
 	{
-		if((i->getId())==0){
-			return &*i;
+		if((i->getId())==0)
+		{
+			inOutMtlPtr = &*i;
+			return true;
 		}
 	}
 
 	//	if default material is not already in list, create it and add it to list
+
 	float* diffuseData = new float[4];
 	float* specularData = new float[4];
 	float* normalData = new float[4];
-	
 	//white diffuse texture
 	diffuseData[0]=1.0f; diffuseData[1]=1.0f; diffuseData[2]=1.0f; diffuseData[3]=1.0f;
 	//dark grey specular texture
@@ -90,19 +94,30 @@ material* scene::createMaterial()
 	//normal pointing upwards
 	normalData[0]=0.0f; normalData[1]=1.0f; normalData[2]=0.0f; normalData[3]=0.0f;
 	
-	materialList.push_back(material(0,createShaderProgram(PHONG),createTexture(1,1,diffuseData),createTexture(1,1,specularData),createTexture(1,1,normalData)));
+	GLSLProgram* prgPtr;
+	texture* texPtr1;
+	texture* texPtr2;
+	texture* texPtr3;
+	if(!createShaderProgram(PHONG,prgPtr)) return false;
+	if(!createTexture(1,1,diffuseData,texPtr1)) return false;
+	if(!createTexture(1,1,specularData,texPtr2)) return false;
+	if(!createTexture(1,1,normalData,texPtr3)) return false;
+
+	materialList.push_back(material(0,prgPtr,texPtr1,texPtr2,texPtr3));
 
 	std::list<material>::iterator lastElement = --(materialList.end());
-	return &(*lastElement);
+	inOutMtlPtr = &(*lastElement);
+	return true;
 }
 
-GLSLProgram* scene::createShaderProgram(shaderType type)
+bool scene::createShaderProgram(shaderType type, GLSLProgram*& inOutPrgPtr)
 {
 	//	check list of shader programs for the shader type
 	for(std::list<GLSLProgram>::iterator i = shaderProgramList.begin(); i != shaderProgramList.end(); ++i)
 	{
 		if((i->getType())==type){
-			return &*i;
+			inOutPrgPtr = &*i;
+			return true;
 		}
 	}
 
@@ -113,25 +128,26 @@ GLSLProgram* scene::createShaderProgram(shaderType type)
 		GLSLProgram shaderPrg(PHONG);
 		//shaderPrg.compileShaderFromFile("../../space-lion/src/shader/v_phong.glsl",GL_VERTEX_SHADER);
 		//shaderPrg.compileShaderFromFile("../../space-lion/src/shader/f_phong.glsl",GL_FRAGMENT_SHADER);
-		shaderPrg.compileShaderFromFile("v_phong.glsl",GL_VERTEX_SHADER);
-		shaderPrg.compileShaderFromFile("f_phong.glsl",GL_FRAGMENT_SHADER);
+		if(!shaderPrg.compileShaderFromFile("v_phong.glsl",GL_VERTEX_SHADER)) return false;
+		if(!shaderPrg.compileShaderFromFile("f_phong.glsl",GL_FRAGMENT_SHADER)) return false;
 		shaderPrg.bindAttribLocation(0,"vPosition");
 		shaderPrg.bindAttribLocation(1,"vNormal");
 		shaderPrg.bindAttribLocation(2,"vTangent");
 		shaderPrg.bindAttribLocation(3,"vColour");
 		shaderPrg.bindAttribLocation(4,"vUVCoord");
-		shaderPrg.link();
+		if(!shaderPrg.link()) return false;
 		std::cout<<shaderPrg.getLog();
 		glUseProgram(0);
 		shaderProgramList.push_back(shaderPrg);
 		std::list<GLSLProgram>::iterator lastElement = --(shaderProgramList.end());
-		return &(*lastElement);
+		inOutPrgPtr = &(*lastElement);
+		return true;
 		break;
 	}
-	return NULL;
+	return false;
 }
 
-texture* scene::createTexture(int dimX, int dimY, float* data)
+bool scene::createTexture(int dimX, int dimY, float* data, texture*& inOutTexPtr)
 {
 	++lastTextureId;
 	//	somewhat messy, but will hopefully hold the code together for now
@@ -139,15 +155,20 @@ texture* scene::createTexture(int dimX, int dimY, float* data)
 	//_itoa(lastTextureId,tstr,10);
 	textureList.push_back(texture(tstr));
 	std::list<texture>::iterator lastElement = --(textureList.end());
-	lastElement->load(dimX, dimY, data);
+	if(!(lastElement->load(dimX, dimY, data))) return false;
 
-	return &(*lastElement);
+	inOutTexPtr = &(*lastElement);
+	return true;
 }
 
 bool scene::createSceneEntity(const int id, const glm::vec3 position, const glm::vec4 orientation)
 {
-	scenegraph.push_back(sceneEntity(id,createVertexGeometry(),createMaterial()));
+	vertexGeometry* geomPtr;
+	material* mtlPtr;
+	if(!createVertexGeometry(geomPtr)) return false;
+	if(!createMaterial(mtlPtr)) return false;
 
+	scenegraph.push_back(sceneEntity(id,geomPtr,mtlPtr));
 	return true;
 }
 

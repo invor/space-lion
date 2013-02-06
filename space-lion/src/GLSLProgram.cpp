@@ -94,7 +94,26 @@ bool GLSLProgram::link()
 {
 	glLinkProgram(handle);
 
-	return true;
+	GLint status = GL_FALSE;
+	glGetShaderiv(handle, GL_LINK_STATUS, &status);
+	if(status == GL_FALSE)
+	{
+		GLint logLen;
+		glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &logLen);
+		if(logLen > 0)
+		{
+			char *log = (char *)malloc(logLen);
+			GLsizei written;
+			glGetShaderInfoLog(handle, logLen, &written, log);
+			std::cout<<"Shader info log:\n"
+				<<log;
+			free(log);
+		}
+		return false;
+	}
+
+	linkStatus = true;
+	return linkStatus;
 }
 
 bool GLSLProgram::use()

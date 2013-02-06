@@ -32,30 +32,30 @@ private:
 	std::list<texture> textureList;
 	std::list<GLSLProgram> shaderProgramList;
 
-	//	create a simple box object for debugging purposes 
-	vertexGeometry* createVertexGeometry();
+	//	create a simple box object for debugging purposes, obtains a reference to the newly created vertex geometry via in-out parameter
+	bool createVertexGeometry(vertexGeometry*& inOutGeomPtr);
 	//	create geometry from a local file
-	vertexGeometry* createVertexGeometry(const char * const path);
+	bool createVertexGeometry(const char * const path, vertexGeometry*& inOutGeomPtr);
 
-	//	create default material for debugging purposes
-	material* createMaterial();
-	//	create material from local file
-	material* createMaterial(const char * const path);
+	//	create default material for debugging purposes, obtains a reference to the newly created material via in-out parameter
+	bool createMaterial(material*& inOutMtlPtr);
+	//	create material from local file, obtains a reference to the newly created material via in-out parameter
+	bool createMaterial(const char * const path, material*& inOutMtlPtr);
 	//	for later use, when some kind of editor allows to change material properties at runtime
 	bool reloadMaterial();
 
-	//	create a shader program
-	GLSLProgram* createShaderProgram(shaderType);
+	//	create a shader program, obtains a reference to the newly created shader program via in-out parameter
+	bool createShaderProgram(shaderType, GLSLProgram*& inOutPrgPtr);
 
 	/*
-	/	create a texture from an array of float values
+	/	create a texture from an array of float values, obtains a reference to the newly created texture via in-out parameter
 	/
 	/	Exercise some caution when using this function. It will always create a new texture object,
 	/	since for now there is no reasonable way to check if an identical texture already exsists.
 	*/
-	texture* createTexture(int dimX, int dimY, float* data);
-	//	create a texture from file
-	texture* createTexture(const char * const path);
+	bool createTexture(int dimX, int dimY, float* data, texture*& inOutTexPtr);
+	//	create a texture from file, obtains a reference to the newly created texture via in-out parameter
+	bool createTexture(const char * const path, texture*& inOutTexPtr);
 	//	in case a texture file is changed during runtime
 	bool reloadTexture();
 

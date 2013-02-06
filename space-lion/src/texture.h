@@ -21,6 +21,8 @@ public:
 	texture(const char*);
 	~texture();
 
+	void bindTexture();
+
 	//	load a texture from a local file
 	bool load(const char *path);
 	//	load a texture from an array of floats
