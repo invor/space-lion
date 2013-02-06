@@ -10,10 +10,6 @@ scene::~scene()
 {
 }
 
-void scene::render()
-{
-}
-
 vertexGeometry* scene::createVertexGeometry()
 {
 	//	check list of vertexBufferObjects for default box object(filename="0")
@@ -31,23 +27,18 @@ vertexGeometry* scene::createVertexGeometry()
 	//	front face
 	vertexArray[0]=vertex15(-0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[1]=vertex15(-0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,255,0,0,128,0.0,1.0);
 	vertexArray[2]=vertex15(0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[3]=vertex15(0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,255,0,0,128,1.0,0.0);
-
 	//	right face
 	vertexArray[4]=vertex15(0.5,-0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,255,0,0,128,0.0,0.0);vertexArray[5]=vertex15(0.5,0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,255,0,0,128,0.0,1.0);
 	vertexArray[6]=vertex15(0.5,0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,255,0,0,128,1.0,1.0);vertexArray[7]=vertex15(0.5,-0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,255,0,0,128,1.0,0.0);
-
 	//	left face
 	vertexArray[8]=vertex15(-0.5,-0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,255,0,0,128,0.0,0.0);vertexArray[9]=vertex15(-0.5,0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,255,0,0,128,0.0,1.0);
 	vertexArray[10]=vertex15(-0.5,0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,255,0,0,128,1.0,1.0);vertexArray[11]=vertex15(-0.5,-0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,255,0,0,128,1.0,0.0);
-
 	//	back face
 	vertexArray[12]=vertex15(0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[13]=vertex15(0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,255,0,0,128,0.0,1.0);
 	vertexArray[14]=vertex15(-0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[15]=vertex15(-0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,255,0,0,128,1.0,0.0);
-
 	//	bottom face
 	vertexArray[16]=vertex15(-0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[17]=vertex15(-0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,1.0);
 	vertexArray[18]=vertex15(0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[19]=vertex15(0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,0.0);
-
 	//	top face
 	vertexArray[20]=vertex15(-0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[21]=vertex15(-0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,1.0);
 	vertexArray[22]=vertex15(0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[23]=vertex15(0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,0.0);
@@ -100,6 +91,9 @@ material* scene::createMaterial()
 	normalData[0]=0.0f; normalData[1]=1.0f; normalData[2]=0.0f; normalData[3]=0.0f;
 	
 	materialList.push_back(material(0,createShaderProgram(PHONG),createTexture(1,1,diffuseData),createTexture(1,1,specularData),createTexture(1,1,normalData)));
+
+	std::list<material>::iterator lastElement = --(materialList.end());
+	return &(*lastElement);
 }
 
 GLSLProgram* scene::createShaderProgram(shaderType type)
@@ -117,25 +111,32 @@ GLSLProgram* scene::createShaderProgram(shaderType type)
 	{
 	case PHONG :
 		GLSLProgram shaderPrg(PHONG);
-		shaderPrg.compileShaderFromFile("../../space-lion/src/shader/v_phong.glsl",GL_VERTEX_SHADER);
-		shaderPrg.compileShaderFromFile("../../space-lion/src/shader/f_phong.glsl",GL_VERTEX_SHADER);
+		//shaderPrg.compileShaderFromFile("../../space-lion/src/shader/v_phong.glsl",GL_VERTEX_SHADER);
+		//shaderPrg.compileShaderFromFile("../../space-lion/src/shader/f_phong.glsl",GL_FRAGMENT_SHADER);
+		shaderPrg.compileShaderFromFile("v_phong.glsl",GL_VERTEX_SHADER);
+		shaderPrg.compileShaderFromFile("f_phong.glsl",GL_FRAGMENT_SHADER);
 		shaderPrg.bindAttribLocation(0,"vPosition");
 		shaderPrg.bindAttribLocation(1,"vNormal");
 		shaderPrg.bindAttribLocation(2,"vTangent");
 		shaderPrg.bindAttribLocation(3,"vColour");
 		shaderPrg.bindAttribLocation(4,"vUVCoord");
 		shaderPrg.link();
-		shaderPrg.getLog();
+		std::cout<<shaderPrg.getLog();
 		glUseProgram(0);
+		shaderProgramList.push_back(shaderPrg);
+		std::list<GLSLProgram>::iterator lastElement = --(shaderProgramList.end());
+		return &(*lastElement);
+		break;
 	}
+	return NULL;
 }
 
 texture* scene::createTexture(int dimX, int dimY, float* data)
 {
 	++lastTextureId;
 	//	somewhat messy, but will hopefully hold the code together for now
-	char* tstr;
-	_itoa(lastTextureId,tstr,10);
+	char* tstr = "0";
+	//_itoa(lastTextureId,tstr,10);
 	textureList.push_back(texture(tstr));
 	std::list<texture>::iterator lastElement = --(textureList.end());
 	lastElement->load(dimX, dimY, data);
@@ -152,6 +153,7 @@ bool scene::createSceneEntity(const int id, const glm::vec3 position, const glm:
 
 void scene::render()
 {
+	glClear( GL_COLOR_BUFFER_BIT );
 	for(std::list<sceneEntity>::iterator i = scenegraph.begin(); i != scenegraph.end(); ++i)
 	{
 		//	access each entity of the scene and draw it

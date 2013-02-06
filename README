@@ -7,11 +7,11 @@ computer games and as a visualization framework for scientific applications.
 -Update 1-
 Since my head feels like it's about to explode from thinking about complex concepts
 way ahead of time, I tweaked the first two milestones a bit.
-Milestone can now consist of several "wayppoints" to split work into more balanced parts.
+Milestone can now consist of several "waypoints" to split work into more balanced parts.
 
 
 Current milestone:
-codename 'melanchony'
+codename 'melancholy'
 	
 	Waypoint Alpha
 		- creation of debug surface representations(meshes) e.g. a cube

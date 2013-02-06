@@ -24,6 +24,7 @@ public:
 
 	//	Initialize OpenGL context and create a window
 	bool init();
+
 	//	Scene handling
 	bool addScene();
 	bool deleteScene();
@@ -31,7 +32,8 @@ public:
 	scene* getScene(const int index);
 	void setActiveScene(const int index);
 	scene* getActiveScene();
-	//	Render a frame of the active scene and check eventqueue
+
+	//	Render a frame of the active scene and check event-queue
 	void run();
 
 private:

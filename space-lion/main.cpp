@@ -5,8 +5,12 @@ int main( void )
 {
 	//Let's do some tests
 	renderHub testRenderer;
-	testRenderer.init();
-	testRenderer.run();
+	if(testRenderer.init())
+	{
+		testRenderer.addScene();
+		testRenderer.setActiveScene(0);
+		testRenderer.run();
+	}
 
 	return 0;
 }

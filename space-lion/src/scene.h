@@ -59,7 +59,8 @@ private:
 	//	in case a texture file is changed during runtime
 	bool reloadTexture();
 
-	glm::mat4 computeMVP(const glm::vec3 position, const glm::vec4 orientation);
+	glm::mat4 computeModelView(const glm::vec3 position, const glm::vec4 orientation);
+	glm::mat4 computeModelViewProjection(const glm::vec3 position, const glm::vec4 orientation);
 
 public:
 	scene();

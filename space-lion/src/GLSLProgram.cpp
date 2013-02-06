@@ -53,6 +53,7 @@ bool GLSLProgram::compileShaderFromFile(const char *path, GLenum shaderType)
 	const GLchar* shaderSource = readShaderFile(path);
 	if (shaderSource == NULL)
 	{
+		std::cout<<"Shader file not found.";
 		return false;
 	}
 
@@ -67,6 +68,18 @@ bool GLSLProgram::compileShaderFromFile(const char *path, GLenum shaderType)
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_ok);
 	if(compile_ok == GL_FALSE)
 	{
+		GLint logLen;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLen);
+		if(logLen > 0)
+		{
+			char *log = (char *)malloc(logLen);
+			GLsizei written;
+			glGetShaderInfoLog(shader, logLen, &written, log);
+			std::cout<<"Shader info log:\n"
+				<<log;
+			free(log);
+		}
+
 		glDeleteShader(shader);
 		return false;
 	}
