@@ -16,24 +16,15 @@ private:
 	const int id;
 
 	glm::vec3 position;
-	//	orentation is saved as a quaternion, thus a vec4 is used
-	glm::vec4 orientation;
-
-	bool isRendered;
-
-	vertexGeometry *geometry;
-	material *mtl;
 public:
 	sceneEntity();
 	~sceneEntity();
 
-	sceneEntity(const int, vertexGeometry*, material*);
+	sceneEntity(const int);
 
 	const int getId() {return id;}
 	void setPosition(const glm::vec3 inPosition) {position = inPosition;}
 	glm::vec3 getPosition() {return position;}
-	void setOrientation(const glm::vec4 inOrientation) {orientation = inOrientation;}
-	glm::vec4 getOrientation() {return orientation;}
 };
 
 #endif sceneEntity

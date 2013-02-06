@@ -161,14 +161,14 @@ bool scene::createTexture(int dimX, int dimY, float* data, texture*& inOutTexPtr
 	return true;
 }
 
-bool scene::createSceneEntity(const int id, const glm::vec3 position, const glm::vec4 orientation)
+bool scene::createStaticSceneObject(const int id, const glm::vec3 position, const glm::vec4 orientation)
 {
 	vertexGeometry* geomPtr;
 	material* mtlPtr;
 	if(!createVertexGeometry(geomPtr)) return false;
 	if(!createMaterial(mtlPtr)) return false;
 
-	scenegraph.push_back(sceneEntity(id,geomPtr,mtlPtr));
+	scenegraph.push_back(staticSceneObject(id,geomPtr,mtlPtr));
 	return true;
 }
 

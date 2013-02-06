@@ -138,7 +138,10 @@
     <ClInclude Include="src\material.h" />
     <ClInclude Include="src\renderHub.h" />
     <ClInclude Include="src\scene.h" />
+    <ClInclude Include="src\sceneCamera.h" />
     <ClInclude Include="src\sceneEntity.h" />
+    <ClInclude Include="src\sceneLightSource.h" />
+    <ClInclude Include="src\staticSceneObject.h" />
     <ClInclude Include="src\texture.h" />
     <ClInclude Include="src\vertexGeometry.h" />
     <ClInclude Include="src\vertexStructs.h" />
@@ -149,7 +152,10 @@
     <ClCompile Include="src\material.cpp" />
     <ClCompile Include="src\renderHub.cpp" />
     <ClCompile Include="src\scene.cpp" />
+    <ClCompile Include="src\sceneCamera.cpp" />
     <ClCompile Include="src\sceneEntity.cpp" />
+    <ClCompile Include="src\sceneLightSource.cpp" />
+    <ClCompile Include="src\staticSceneObject.cpp" />
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\vertexGeometry.cpp" />
   </ItemGroup>

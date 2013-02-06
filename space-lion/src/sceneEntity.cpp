@@ -9,8 +9,6 @@ sceneEntity::~sceneEntity()
 {
 }
 
-sceneEntity::sceneEntity(const int inId, vertexGeometry* inGeom, material* inMtl) : id(inId)
+sceneEntity::sceneEntity(const int inId) : id(inId)
 {
-	geometry = inGeom;
-	mtl = inMtl;
 }
