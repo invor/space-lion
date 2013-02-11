@@ -11,6 +11,8 @@ private:
 public:
 	sceneLightSource();
 	~sceneLightSource();
+
+	sceneLightSource(int,glm::vec3,glm::vec4);
 };
 
 #endif sceneLightSource

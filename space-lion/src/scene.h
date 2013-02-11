@@ -31,7 +31,7 @@ private:
 
 	std::list<sceneLightSource> lightSourceList;
 	std::list<sceneCamera> cameraList;
-	std::list<sceneEntity> scenegraph;
+	std::list<staticSceneObject> scenegraph;
 	std::list<vertexGeometry> vboList;
 	std::list<material> materialList;
 	std::list<texture> textureList;
@@ -64,19 +64,23 @@ private:
 	//	in case a texture file is changed during runtime
 	bool reloadTexture();
 
-	glm::mat4 computeModelView(const glm::vec3 position, const glm::vec4 orientation, sceneCamera* const);
-	glm::mat4 computeModelViewProjection(const glm::vec3 position, const glm::vec4 orientation, sceneCamera* const);
+	glm::mat4 computeModelMatrix(const glm::vec3 position, const glm::quat orientation);
 
 public:
 	scene();
 	~scene();
 
 	//	create a scene entity with default geometry and default material
-	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::vec4 orientation);
+	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation);
 	//	create a scene entity with default geometry
-	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::vec4 orientation, char * const geometryPath);
+	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, char * const geometryPath);
 	//	create a scene entity
-	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::vec4 orientation, const char * const geometryPath, const char * const materialPath);
+	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const char * const geometryPath, const char * const materialPath);
+
+	//	create a scene light source
+	bool createSceneLight(const int id, const glm::vec3 position, glm::vec4 lightColour);
+	//	create a scene camera
+	bool createSceneCamera(const int id, const glm::vec3 position, const glm::quat orientations, float aspect, float fov);
 
 	//	create a
 	void render();

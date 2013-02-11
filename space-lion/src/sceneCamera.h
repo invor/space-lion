@@ -8,15 +8,32 @@ class sceneCamera : public sceneEntity
 {
 private:
 	glm::quat orientation;
-	float aspectRation;
+
+	float aspectRatio;
 	float fieldOfView;
 
 public:
 	sceneCamera();
 	~sceneCamera();
 
+	sceneCamera(const int,glm::vec3,glm::quat,float,float);
+
+	void rotateCamera(const glm::quat rotation);
 	void setOrientation(const glm::quat inOrientation) {orientation = inOrientation;}
 	glm::quat getOrientation() {return orientation;}
+	void setAspectRation(const float inAspectRation) {aspectRatio = inAspectRation;}
+	float getAspectRatio() {return aspectRatio;}
+	void setFieldOfView(const float inFieldOfView) {fieldOfView = inFieldOfView;}
+	float getFieldOfView() {return fieldOfView;}
+
+	//	The initial camera orientation is defined as (0,0,-1)
+	//	The current orientation is obtained by applying the orientation quaternion to the respective vectors 
+	glm::vec3 computeFrontVector();
+	glm::vec3 computeUpVector();
+	glm::vec3 computeRightHandVector();
+
+	glm::mat4 computeViewMatrix();
+	glm::mat4 computeProjectionMatrix(float nearClippingPlane, float farClippingPlane);
 };
 
 #endif sceneCamera

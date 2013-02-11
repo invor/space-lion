@@ -161,21 +161,36 @@ bool scene::createTexture(int dimX, int dimY, float* data, texture*& inOutTexPtr
 	return true;
 }
 
-bool scene::createStaticSceneObject(const int id, const glm::vec3 position, const glm::vec4 orientation)
+bool scene::createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation)
 {
 	vertexGeometry* geomPtr;
 	material* mtlPtr;
 	if(!createVertexGeometry(geomPtr)) return false;
 	if(!createMaterial(mtlPtr)) return false;
 
-	scenegraph.push_back(staticSceneObject(id,geomPtr,mtlPtr));
+	scenegraph.push_back(staticSceneObject(id,position,geomPtr,mtlPtr));
 	return true;
+}
+
+bool scene::createSceneLight(const int id, const glm::vec3 position, glm::vec4 colour)
+{
+	lightSourceList.push_back(sceneLightSource(id, position, colour));
+}
+
+bool scene::createSceneCamera(const int id, const glm::vec3 position, const glm::quat orientations, float aspect, float fov)
+{
+	cameraList.push_back(sceneCamera(id, position, orientations, aspect, fov));
+}
+
+glm::mat4 scene::computeModelMatrix(const glm::vec3 position, const glm::quat orientation)
+{
+	return glm::translate(glm::rotate(glm::mat4(1.0),orientation.w,glm::vec3(orientation.x,orientation.y,orientation.z)),position);
 }
 
 void scene::render()
 {
 	glClear( GL_COLOR_BUFFER_BIT );
-	for(std::list<sceneEntity>::iterator i = scenegraph.begin(); i != scenegraph.end(); ++i)
+	for(std::list<staticSceneObject>::iterator i = scenegraph.begin(); i != scenegraph.end(); ++i)
 	{
 		//	access each entity of the scene and draw it
 	}

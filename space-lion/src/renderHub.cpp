@@ -77,7 +77,10 @@ void renderHub::run()
 	/	Just for testing and debug purposes I am ignoring the event-queue concept I want to take up later
 	/	and manually add a single entity to the active scene
 	*/
-	activeScene->createStaticSceneObject(0,glm::vec3(0.0),glm::vec4(1.0,0.0,0.0,0.0));
+	if(!(activeScene->createStaticSceneObject(0,glm::vec3(0.0),glm::quat(1.0,0.0,0.0,0.0))))
+	{
+		std::cout<<"Failed to create scene object";
+	}
 
 	while(running)
 	{

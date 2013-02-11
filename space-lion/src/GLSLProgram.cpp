@@ -76,13 +76,27 @@ bool GLSLProgram::compileShaderFromFile(const char *path, GLenum shaderType)
 			GLsizei written;
 			glGetShaderInfoLog(shader, logLen, &written, log);
 			std::cout<<"Shader info log:\n"
-				<<log;
+				<<log
+				<<"\n";
 			free(log);
 		}
 
 		glDeleteShader(shader);
 		return false;
 	}
+
+	GLint logLen;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLen);
+		if(logLen > 0)
+		{
+			char *log = (char *)malloc(logLen);
+			GLsizei written;
+			glGetShaderInfoLog(shader, logLen, &written, log);
+			std::cout<<"Shader info log:\n"
+				<<log
+				<<"\n";
+			free(log);
+		}
 
 	//attach shader to program
 	glAttachShader(handle, shader);
@@ -95,7 +109,7 @@ bool GLSLProgram::link()
 	glLinkProgram(handle);
 
 	GLint status = GL_FALSE;
-	glGetShaderiv(handle, GL_LINK_STATUS, &status);
+	glGetProgramiv(handle, GL_LINK_STATUS, &status);
 	if(status == GL_FALSE)
 	{
 		GLint logLen;
@@ -104,13 +118,25 @@ bool GLSLProgram::link()
 		{
 			char *log = (char *)malloc(logLen);
 			GLsizei written;
-			glGetShaderInfoLog(handle, logLen, &written, log);
+			glGetProgramInfoLog(handle, logLen, &written, log);
 			std::cout<<"Shader info log:\n"
 				<<log;
 			free(log);
 		}
 		return false;
 	}
+
+	GLint logLen;
+		glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &logLen);
+		if(logLen > 0)
+		{
+			char *log = (char *)malloc(logLen);
+			GLsizei written;
+			glGetProgramInfoLog(handle, logLen, &written, log);
+			std::cout<<"Shader info log:\n"
+				<<log;
+			free(log);
+		}
 
 	linkStatus = true;
 	return linkStatus;

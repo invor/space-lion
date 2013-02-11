@@ -12,15 +12,15 @@
 
 class sceneEntity
 {
-private:
+protected:
 	const int id;
 
 	glm::vec3 position;
 public:
-	sceneEntity();
+	sceneEntity() : id(0), position(glm::vec3(0.0f)) {}
 	~sceneEntity();
 
-	sceneEntity(const int);
+	sceneEntity(const int inId, glm::vec3 inPosition) : id(inId), position(inPosition){}
 
 	const int getId() {return id;}
 	void setPosition(const glm::vec3 inPosition) {position = inPosition;}

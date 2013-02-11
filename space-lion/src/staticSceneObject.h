@@ -17,10 +17,12 @@ public:
 	staticSceneObject();
 	~staticSceneObject();
 
-	staticSceneObject(const int, vertexGeometry*, material*);
+	staticSceneObject(const int, glm::vec3, vertexGeometry*, material*);
 
+	void rotate(const glm::quat rotation);
 	void setOrientation(const glm::quat inOrientation) {orientation = inOrientation;}
-	glm::quat getOrientation() {return orientation;}
+
+	glm::mat4 computeModelMatrix();
 };
 
 #endif sceneEntity
