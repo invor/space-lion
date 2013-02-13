@@ -7,8 +7,6 @@
 class staticSceneObject : public sceneEntity
 {
 private:
-	glm::quat orientation;
-
 	bool isRendered;
 
 	vertexGeometry *geometry;
@@ -19,8 +17,8 @@ public:
 
 	staticSceneObject(const int, glm::vec3, vertexGeometry*, material*);
 
-	void rotate(const glm::quat rotation);
-	void setOrientation(const glm::quat inOrientation) {orientation = inOrientation;}
+	vertexGeometry* getGeometry() {return geometry;}
+	material* getMaterial() {return mtl;}
 
 	glm::mat4 computeModelMatrix();
 };

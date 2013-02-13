@@ -1,9 +1,9 @@
 //	temporary default fragment shader
-#version 420
+#version 330
 
-uniform sampler2d diffuseMap;
-uniform sampler2d specularMap;
-uniform sampler2d normalMap;
+uniform sampler2D diffuseMap;
+uniform sampler2D specularMap;
+uniform sampler2D normalMap;
 
 uniform vec4 lightColour;
 
@@ -15,13 +15,13 @@ in vec3 lightDirection;
 
 out vec4 fragColour;
 
-vec3 phongShading(in float specFactor ,in vec3 sColour , in vec3 sNormal, in vec3 lightDirection, in vec4 lightColour)
+vec3 phongShading(in float specFactor ,in vec3 sColour , in vec3 sNormal, in vec3 lightDir, in vec4 lightColour)
 {
 	vec3 n = normalize(sNormal);
-	vec3 reflection = reflect(-lightDirection, n);
+	vec3 reflection = reflect(-lightDir, n);
 
 	return lightColour.w *
-		( sColour*max( dot(ligthDirection, n), 0.0) +
+		( sColour*max( dot(lightDir, n), 0.0) +
 		specFactor*lightColour.xyz*pow(max(dot(reflection,viewerDirection),0.0),22.0) );
 }
 
@@ -41,7 +41,5 @@ void main()
 	vec3 tNormal = texture2D(normalMap, uvCoord).xyz;
 
 	//	compute phong lighting
-	fragColour += phongShading(tSpecFactor, tColour, tNormal, LightDirection, lightColour);
-	
-	//fragColour = vec4(1.0);
+	fragColour = vec4(phongShading(tSpecFactor, tColour, tNormal, lightDirection, lightColour),1.0);
 }

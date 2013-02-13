@@ -11,13 +11,9 @@ sceneCamera::~sceneCamera()
 
 sceneCamera::sceneCamera(int inId, glm::vec3 inPosition, glm::quat inOrientation, float inAspect, float inFov) : sceneEntity(inId,inPosition)
 {
+	orientation = inOrientation;
 	aspectRatio = inAspect;
 	fieldOfView = inFov;
-}
-
-void sceneCamera::rotateCamera(const glm::quat rotation)
-{
-	orientation = orientation * rotation;
 }
 
 glm::vec3 sceneCamera::computeFrontVector()

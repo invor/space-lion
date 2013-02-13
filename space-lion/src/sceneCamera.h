@@ -7,8 +7,6 @@
 class sceneCamera : public sceneEntity
 {
 private:
-	glm::quat orientation;
-
 	float aspectRatio;
 	float fieldOfView;
 
@@ -18,9 +16,6 @@ public:
 
 	sceneCamera(const int,glm::vec3,glm::quat,float,float);
 
-	void rotateCamera(const glm::quat rotation);
-	void setOrientation(const glm::quat inOrientation) {orientation = inOrientation;}
-	glm::quat getOrientation() {return orientation;}
 	void setAspectRation(const float inAspectRation) {aspectRatio = inAspectRation;}
 	float getAspectRatio() {return aspectRatio;}
 	void setFieldOfView(const float inFieldOfView) {fieldOfView = inFieldOfView;}

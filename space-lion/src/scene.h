@@ -37,6 +37,10 @@ private:
 	std::list<texture> textureList;
 	std::list<GLSLProgram> shaderProgramList;
 
+	sceneCamera* activeCamera;
+
+	//	debug method, create a triangle
+	bool createTriangle(vertexGeometry*& inOutGeomPtr);
 	//	create a simple box object for debugging purposes, obtains a reference to the newly created vertex geometry via in-out parameter
 	bool createVertexGeometry(vertexGeometry*& inOutGeomPtr);
 	//	create geometry from a local file
@@ -81,6 +85,8 @@ public:
 	bool createSceneLight(const int id, const glm::vec3 position, glm::vec4 lightColour);
 	//	create a scene camera
 	bool createSceneCamera(const int id, const glm::vec3 position, const glm::quat orientations, float aspect, float fov);
+
+	void setActiveCamera(const int);
 
 	//	create a
 	void render();

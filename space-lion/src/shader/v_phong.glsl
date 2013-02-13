@@ -1,5 +1,5 @@
 //	temporary default vertex shader
-#version 420
+#version 330
 
 uniform mat3 normalMatrix;
 uniform mat4 modelViewMatrix;
@@ -9,7 +9,7 @@ uniform vec3 lightPosition;
 
 in vec3 vPosition;
 in vec3 vNormal;
-in vec3 vTangent;
+in vec4 vTangent;
 in vec4 vColour;
 in vec2 vUVCoord;
 

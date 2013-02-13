@@ -16,7 +16,7 @@
 	#pragma comment(lib,"glew32.lib")
 #endif
 
-enum shaderType {PHONG};
+enum shaderType {PHONG,FLAT};
 
 class GLSLProgram
 {

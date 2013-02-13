@@ -5,10 +5,10 @@ vertexGeometry::vertexGeometry() : filename("0")
 {
 }
 
-
 vertexGeometry::~vertexGeometry()
 {
 }
+
 
 vertexGeometry::vertexGeometry(const char *fn) : filename(fn)
 {
@@ -41,7 +41,8 @@ bool vertexGeometry::bufferDataFromArray(const vertex3 *vertexArray, const GLuby
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexArray), vertexArray, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboHandle);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexArray), indexArray, GL_STATIC_DRAW);
-	glBindBuffer(0,0);
+	glBindBuffer(GL_ARRAY_BUFFER,0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
 	return true;
@@ -65,6 +66,7 @@ void vertexGeometry::bindIndexBuffer()
 void vertexGeometry::draw(GLenum type, GLint count, int indexOffset)
 {
 	glBindVertexArray(vaHandle);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboHandle);
 	glDrawElements(type, count, GL_UNSIGNED_BYTE, (GLvoid*)(sizeof(GLubyte) * indexOffset));
 }
 
