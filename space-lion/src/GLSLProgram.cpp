@@ -113,7 +113,7 @@ bool GLSLProgram::link()
 	if(status == GL_FALSE)
 	{
 		GLint logLen;
-		glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &logLen);
+		glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &logLen);
 		if(logLen > 0)
 		{
 			char *log = (char *)malloc(logLen);
@@ -127,16 +127,16 @@ bool GLSLProgram::link()
 	}
 
 	GLint logLen;
-		glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &logLen);
-		if(logLen > 0)
-		{
-			char *log = (char *)malloc(logLen);
-			GLsizei written;
-			glGetProgramInfoLog(handle, logLen, &written, log);
-			std::cout<<"Shader info log:\n"
-				<<log;
-			free(log);
-		}
+	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &logLen);
+	if(logLen > 0)
+	{
+		char *log = (char *)malloc(logLen);
+		GLsizei written;
+		glGetProgramInfoLog(handle, logLen, &written, log);
+		std::cout<<"Shader info log:\n"
+			<<log;
+		free(log);
+	}
 
 	linkStatus = true;
 	return linkStatus;

@@ -27,7 +27,7 @@ public:
 
 	vertexGeometry(const char*);
 
-	bool bufferDataFromArray(const vertex3 *vertexArray, const GLubyte *indexArray);
+	bool bufferDataFromArray(const vertex3 *vertexArray, const GLubyte *indexArray, const GLsizei vaSize, const GLsizei viSize);
 	bool bufferDataFromFile(const char *path);
 
 	void bindVertexBuffer();

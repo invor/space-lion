@@ -19,8 +19,9 @@ bool renderHub::init()
 	glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 3);
+	glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	if(!glfwOpenWindow(300,300,0,0,0,0,0,0,GLFW_WINDOW))
+	if(!glfwOpenWindow(512,512,0,0,0,0,32,0,GLFW_WINDOW))
 	{
 		return false;
 	}
@@ -36,6 +37,8 @@ bool renderHub::init()
 				<<"Error: "<<glewGetErrorString(error);
 		return false;
 	}
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	return true;
 }
@@ -99,5 +102,6 @@ void renderHub::run()
 	{
 		activeScene->render();
 		glfwSwapBuffers();
+		glfwSleep(0.01);
 	}
 }

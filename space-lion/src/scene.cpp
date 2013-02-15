@@ -13,18 +13,18 @@ scene::~scene()
 
 bool scene::createTriangle(vertexGeometry*& inOutGeomPtr)
 {
-	vertex3 *vertexArray = new vertex6[3];
+	vertex6 *vertexArray = new vertex6[3];
 	GLubyte *indexArray = new GLubyte[3];
 
-	vertexArray[0]=vertex6(-1.0,-1.0,-1.0,1.0,1.0,1.0);
-	vertexArray[1]=vertex6(0.0,1.0,-1.0,1.0,1.0,1.0);
-	vertexArray[2]=vertex6(1.0,-1.0,-1.0,1.0,1.0,1.0);
+	vertexArray[0]=vertex6(-0.5f,0.0f,0.0f,1.0f,0.0f,0.0f);
+	vertexArray[1]=vertex6(0.5f,0.0f,0.0f,0.0f,1.0f,0.0f);
+	vertexArray[2]=vertex6(0.0f,0.5f,0.0f,0.0f,0.0f,1.0f);
 
 	indexArray[0]=0;indexArray[1]=1;indexArray[2]=2;
 
 	vboList.push_back(vertexGeometry("0"));
 	std::list<vertexGeometry>::iterator lastElement = --(vboList.end());
-	if(!(lastElement->bufferDataFromArray(vertexArray,indexArray))) return false;
+	if(!(lastElement->bufferDataFromArray(vertexArray,indexArray,sizeof(vertex6)*3,sizeof(GLubyte)*3))) return false;
 	lastElement->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(vertex6),0);
 	lastElement->setVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(vertex6),(GLvoid*) sizeof(vertex3));
 
@@ -44,7 +44,7 @@ bool scene::createVertexGeometry(vertexGeometry*& inOutGeomPtr)
 	}
 
 	//	if default box not already in list, continue here
-	vertex3 *vertexArray = new vertex15[24];
+	vertex15 *vertexArray = new vertex15[24];
 	GLubyte *indexArray = new GLubyte[36];
 
 	//	front face
@@ -81,7 +81,7 @@ bool scene::createVertexGeometry(vertexGeometry*& inOutGeomPtr)
 
 	vboList.push_back(vertexGeometry("0"));
 	std::list<vertexGeometry>::iterator lastElement = --(vboList.end());
-	if(!(lastElement->bufferDataFromArray(vertexArray,indexArray))) return false;
+	if(!(lastElement->bufferDataFromArray(vertexArray,indexArray,sizeof(vertex15)*24,sizeof(GLubyte)*36))) return false;
 	lastElement->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(vertex15),0);
 	lastElement->setVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(vertex15),(GLvoid*) sizeof(vertex3));
 	lastElement->setVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,sizeof(vertex15),(GLvoid*) sizeof(vertex6));
@@ -170,10 +170,11 @@ bool scene::createShaderProgram(shaderType type, GLSLProgram*& inOutPrgPtr)
 		if(!shaderPrg.compileShaderFromFile("../../space-lion/src/shader/v_flat.glsl",GL_VERTEX_SHADER)) return false;
 		if(!shaderPrg.compileShaderFromFile("../../space-lion/src/shader/f_flat.glsl",GL_FRAGMENT_SHADER)) return false;
 		shaderPrg.bindAttribLocation(0,"vPosition");
-		shaderPrg.bindAttribLocation(1,"vNormal");
-		shaderPrg.bindAttribLocation(2,"vTangent");
-		shaderPrg.bindAttribLocation(3,"vColour");
-		shaderPrg.bindAttribLocation(4,"vUVCoord");
+		shaderPrg.bindAttribLocation(1,"vColour");
+		//shaderPrg.bindAttribLocation(1,"vNormal");
+		//shaderPrg.bindAttribLocation(2,"vTangent");
+		//shaderPrg.bindAttribLocation(3,"vColour");
+		//shaderPrg.bindAttribLocation(4,"vUVCoord");
 		if(!shaderPrg.link()) return false;
 		std::cout<<shaderPrg.getLog();
 		glUseProgram(0);
@@ -257,8 +258,6 @@ void scene::setActiveCamera(const int inId)
 */
 void scene::render()
 {
-	glClear( GL_COLOR_BUFFER_BIT );
-
 	//	obtain transformation matrices
 	glm::mat4 modelViewMx;
 	glm::mat4 modelViewProjectionMx;
@@ -287,7 +286,7 @@ void scene::render()
 		currentPrgm->use();
 		//currentPrgm->setUniform("normalMatrix",normalMx);
 		//currentPrgm->setUniform("modelViewMatrix",modelViewMx);
-		currentPrgm->setUniform("modelViewProjectionMatrix",modelViewProjectionMx);
+		currentPrgm->setUniform("modelViewProjectionMatrix",glm::mat4(1.0));
 		//currentPrgm->setUniform("lightPosition",(lightSourceList.begin())->getPosition());
 		//currentPrgm->setUniform("lightColour",(lightSourceList.begin())->getColour());
 
@@ -302,8 +301,6 @@ void scene::render()
 		//currentPrgm->setUniform("normalMap",2);
 		//currentMtl->getNormalMap()->bindTexture();
 
-		glDisable(GL_CULL_FACE);
-		//((i->getGeometry())->bindVertexArray();
-		(i->getGeometry())->draw(GL_TRIANGLES,1,0);
+		(i->getGeometry())->draw(GL_TRIANGLES,3,0);
 	}
 }
