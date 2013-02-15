@@ -18,17 +18,18 @@ out vec4 colour;
 out vec2 uvCoord;
 out vec3 viewerDirection;
 out vec3 lightDirection;
+out vec3 normal;
 
 void main()
 {
 	//	just to be on the safe side, normalize input vectors again
-	vec3 normal = normalize(vNormal);
+	normal = normalize(vNormal);
 	normal = normalize( normalMatrix * normal);
 
-	vec3 tangent = normalize(vTangent);
+	vec3 tangent = normalize(vTangent.xyz);
 	tangent = normalize( normalMatrix * tangent);
 
-	vec3 bitangent = normalize( cross(normal, tangent) ) * vTangent.w;
+	vec3 bitangent = normalize( cross(normal, tangent) );// * vTangent.w;
 
 	mat3 tangentSpaceMatrix = mat3(
 		tangent.x, bitangent.x, normal.x,
@@ -37,7 +38,8 @@ void main()
 		
 	position = (modelViewMatrix * vec4(vPosition,1.0)).xyz;
 	viewerDirection = tangentSpaceMatrix * normalize( -position );
-	lightDirection = tangentSpaceMatrix * ((modelViewMatrix * vec4(lightPosition,1.0)).xyz - position);
+	//lightDirection = tangentSpaceMatrix * normalize((modelViewMatrix * vec4(lightPosition,1.0)).xyz - position);
+	lightDirection = tangentSpaceMatrix * normalize((modelViewMatrix * vec4(lightPosition,1.0)).xyz);
 
 	colour = vColour;
 	uvCoord = vUVCoord;

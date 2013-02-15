@@ -23,7 +23,7 @@ public:
 	~sceneEntity();
 
 	void translate(glm::vec3);
-	void rotate(const float angle,const glm::vec3 axis) {orientation = glm::rotate(orientation,angle,axis);}
+	void rotate(const float angle,const glm::vec3 axis) {orientation = glm::normalize(glm::rotate(orientation,angle,axis));}
 
 	const int getId() {return id;}
 

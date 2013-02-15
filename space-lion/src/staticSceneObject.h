@@ -20,7 +20,7 @@ public:
 	vertexGeometry* getGeometry() {return geometry;}
 	material* getMaterial() {return mtl;}
 
-	glm::mat4 computeModelMatrix();
+	glm::mat4 computeModelMatrix() {return glm::translate(glm::mat4_cast(orientation),position);}
 };
 
 #endif sceneEntity

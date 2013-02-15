@@ -18,7 +18,7 @@ bool scene::createTriangle(vertexGeometry*& inOutGeomPtr)
 
 	vertexArray[0]=vertex6(-0.5f,0.0f,0.0f,1.0f,0.0f,0.0f);
 	vertexArray[1]=vertex6(0.5f,0.0f,0.0f,0.0f,1.0f,0.0f);
-	vertexArray[2]=vertex6(0.0f,0.5f,0.0f,0.0f,0.0f,1.0f);
+	vertexArray[2]=vertex6(0.0f,1.0f,0.0f,0.0f,0.0f,1.0f);
 
 	indexArray[0]=0;indexArray[1]=1;indexArray[2]=2;
 
@@ -48,14 +48,14 @@ bool scene::createVertexGeometry(vertexGeometry*& inOutGeomPtr)
 	GLubyte *indexArray = new GLubyte[36];
 
 	//	front face
-	vertexArray[0]=vertex15(-0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[1]=vertex15(-0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,255,0,0,128,0.0,1.0);
+	vertexArray[0]=vertex15(-0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,255,0,0,0,0.0,0.0);vertexArray[1]=vertex15(-0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,255,0,0,128,0.0,1.0);
 	vertexArray[2]=vertex15(0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[3]=vertex15(0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,255,0,0,128,1.0,0.0);
 	//	right face
 	vertexArray[4]=vertex15(0.5,-0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,255,0,0,128,0.0,0.0);vertexArray[5]=vertex15(0.5,0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,255,0,0,128,0.0,1.0);
 	vertexArray[6]=vertex15(0.5,0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,255,0,0,128,1.0,1.0);vertexArray[7]=vertex15(0.5,-0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,255,0,0,128,1.0,0.0);
 	//	left face
 	vertexArray[8]=vertex15(-0.5,-0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,255,0,0,128,0.0,0.0);vertexArray[9]=vertex15(-0.5,0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,255,0,0,128,0.0,1.0);
-	vertexArray[10]=vertex15(-0.5,0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,255,0,0,128,1.0,1.0);vertexArray[11]=vertex15(-0.5,-0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,255,0,0,128,1.0,0.0);
+	vertexArray[10]=vertex15(-0.5,0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,255,0,0,128,1.0,1.0);vertexArray[11]=vertex15(-0.5,-0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,255,0,0,128,1.0,0.0);
 	//	back face
 	vertexArray[12]=vertex15(0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[13]=vertex15(0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,255,0,0,128,0.0,1.0);
 	vertexArray[14]=vertex15(-0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[15]=vertex15(-0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,255,0,0,128,1.0,0.0);
@@ -66,18 +66,18 @@ bool scene::createVertexGeometry(vertexGeometry*& inOutGeomPtr)
 	vertexArray[20]=vertex15(-0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[21]=vertex15(-0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,1.0);
 	vertexArray[22]=vertex15(0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[23]=vertex15(0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,0.0);
 
-	indexArray[0]=0;indexArray[1]=1;indexArray[2]=2;
-	indexArray[3]=1;indexArray[4]=2;indexArray[5]=3;
-	indexArray[6]=4;indexArray[7]=5;indexArray[8]=6;
-	indexArray[9]=5;indexArray[10]=6;indexArray[11]=7;
-	indexArray[12]=8;indexArray[13]=9;indexArray[14]=10;
-	indexArray[15]=9;indexArray[16]=10;indexArray[17]=11;
-	indexArray[18]=12;indexArray[19]=13;indexArray[20]=14;
-	indexArray[21]=13;indexArray[22]=14;indexArray[23]=15;
+	indexArray[0]=0;indexArray[1]=2;indexArray[2]=1;
+	indexArray[3]=2;indexArray[4]=0;indexArray[5]=3;
+	indexArray[6]=4;indexArray[7]=6;indexArray[8]=5;
+	indexArray[9]=6;indexArray[10]=4;indexArray[11]=7;
+	indexArray[12]=8;indexArray[13]=10;indexArray[14]=9;
+	indexArray[15]=10;indexArray[16]=8;indexArray[17]=11;
+	indexArray[18]=12;indexArray[19]=14;indexArray[20]=13;
+	indexArray[21]=14;indexArray[22]=12;indexArray[23]=15;
 	indexArray[24]=16;indexArray[25]=17;indexArray[26]=18;
-	indexArray[27]=17;indexArray[28]=18;indexArray[29]=19;
-	indexArray[30]=20;indexArray[31]=21;indexArray[32]=22;
-	indexArray[33]=21;indexArray[34]=22;indexArray[35]=23;
+	indexArray[27]=18;indexArray[28]=19;indexArray[29]=16;
+	indexArray[30]=20;indexArray[31]=22;indexArray[32]=21;
+	indexArray[33]=22;indexArray[34]=20;indexArray[35]=23;
 
 	vboList.push_back(vertexGeometry("0"));
 	std::list<vertexGeometry>::iterator lastElement = --(vboList.end());
@@ -120,7 +120,7 @@ bool scene::createMaterial(material*& inOutMtlPtr)
 	texture* texPtr1;
 	texture* texPtr2;
 	texture* texPtr3;
-	if(!createShaderProgram(FLAT,prgPtr)) return false;
+	if(!createShaderProgram(PHONG,prgPtr)) return false;
 	if(!createTexture(1,1,diffuseData,texPtr1)) return false;
 	if(!createTexture(1,1,specularData,texPtr2)) return false;
 	if(!createTexture(1,1,normalData,texPtr3)) return false;
@@ -170,11 +170,10 @@ bool scene::createShaderProgram(shaderType type, GLSLProgram*& inOutPrgPtr)
 		if(!shaderPrg.compileShaderFromFile("../../space-lion/src/shader/v_flat.glsl",GL_VERTEX_SHADER)) return false;
 		if(!shaderPrg.compileShaderFromFile("../../space-lion/src/shader/f_flat.glsl",GL_FRAGMENT_SHADER)) return false;
 		shaderPrg.bindAttribLocation(0,"vPosition");
-		shaderPrg.bindAttribLocation(1,"vColour");
-		//shaderPrg.bindAttribLocation(1,"vNormal");
-		//shaderPrg.bindAttribLocation(2,"vTangent");
-		//shaderPrg.bindAttribLocation(3,"vColour");
-		//shaderPrg.bindAttribLocation(4,"vUVCoord");
+		shaderPrg.bindAttribLocation(1,"vNormal");
+		shaderPrg.bindAttribLocation(2,"vTangent");
+		shaderPrg.bindAttribLocation(3,"vColour");
+		shaderPrg.bindAttribLocation(4,"vUVCoord");
 		if(!shaderPrg.link()) return false;
 		std::cout<<shaderPrg.getLog();
 		glUseProgram(0);
@@ -205,8 +204,8 @@ bool scene::createStaticSceneObject(const int id, const glm::vec3 position, cons
 {
 	vertexGeometry* geomPtr;
 	material* mtlPtr;
-	//if(!createVertexGeometry(geomPtr)) return false;
-	if(!createTriangle(geomPtr)) return false;
+	if(!createVertexGeometry(geomPtr)) return false;
+	//if(!createTriangle(geomPtr)) return false;
 	if(!createMaterial(mtlPtr)) return false;
 
 	scenegraph.push_back(staticSceneObject(id,position,geomPtr,mtlPtr));
@@ -225,11 +224,6 @@ bool scene::createSceneCamera(const int id, const glm::vec3 position, const glm:
 	return true;
 }
 
-glm::mat4 scene::computeModelMatrix(const glm::vec3 position, const glm::quat orientation)
-{
-	return glm::translate(glm::rotate(glm::mat4(1.0),orientation.w,glm::vec3(orientation.x,orientation.y,orientation.z)),position);
-}
-
 void scene::setActiveCamera(const int inId)
 {
 	//	check camera list
@@ -240,18 +234,36 @@ void scene::setActiveCamera(const int inId)
 			activeCamera = &(*i);
 		}
 	}
-	
-	activeCamera->rotate(36.0,glm::vec3(-4.0,2.0,0.0));
-	glm::quat tVec = activeCamera->getOrientation();
-	/*std::cout<<tVec.x
-			<<"\n"
-			<<tVec.y
-			<<"\n"
-			<<tVec.z
-			<<"\n"
-			<<tVec.w
-			<<"\n";*/
 }
+
+void scene::testing()
+{
+	//	Ehhh, a few lines for testing
+	//activeCamera->rotate(45.0,glm::vec3(0.0,1.0,0.0));
+	//activeCamera->rotate(-45.0,glm::vec3(1.0,0.0,0.0));
+	
+	//scenegraph.begin()->rotate(180,glm::vec3(0.0,1.0,0.0));
+	
+	std::cout<<vboList.size()<<"\n";
+	std::cout<<scenegraph.size();
+
+	//activeCamera->rotate(45.0,glm::vec3(0.0,1.0,0.0));
+	//activeCamera->rotate(-45.0,glm::vec3(1.0,0.0,0.0));
+	//glm::quat tVec = activeCamera->getOrientation();
+	//std::cout<<"Orientation: "<<tVec.x<<" "<<tVec.y<<" "<<tVec.z<<" "<<tVec.w<<"\n";
+	//
+	//glm::vec3 fVec = activeCamera->computeFrontVector();
+	//std::cout<<"Front: "<<fVec.x<<" "<<fVec.y<<" "<<fVec.z<<"\n";
+	//glm::vec3 uVec = activeCamera->computeUpVector();
+	//std::cout<<"Up: "<<uVec.x<<" "<<uVec.y<<" "<<uVec.z<<"\n";
+	//glm::vec3 rVec = activeCamera->computeRightHandVector();
+	//std::cout<<"Righthand: "<<rVec.x<<" "<<rVec.y<<" "<<rVec.z<<"\n";
+	//
+	//glm::vec3 lookat = ((activeCamera->getPosition())+(activeCamera->computeFrontVector()));
+	//std::cout<<"Loookat: "<<lookat.x<<" "<<lookat.y<<" "<<lookat.z<<"\n";
+}
+
+
 
 /*
 /	Temporary render method
@@ -261,46 +273,45 @@ void scene::render()
 	//	obtain transformation matrices
 	glm::mat4 modelViewMx;
 	glm::mat4 modelViewProjectionMx;
-	glm::mat4 normalMx;
+	glm::mat3 normalMx;
 
 	glm::mat4 modelMx;
-	//glm::mat4 viewMx = activeCamera->computeViewMatrix();
-	//glm::mat4 projectionMx = activeCamera->computeProjectionMatrix(0.01f,100.0f);
-	glm::mat4 viewMx = glm::mat4(1.0);
-	glm::mat4 projectionMx = glm::mat4(1.0);
+	glm::mat4 viewMx = activeCamera->computeViewMatrix();
+	glm::mat4 projectionMx = activeCamera->computeProjectionMatrix(0.01f,100.0f);
+	//glm::mat4 viewMx = glm::mat4(1.0);
+	//glm::mat4 projectionMx = glm::mat4(1.0);
 
 	////
 	//	access each entity of the scene and draw it
 	////
 	for(std::list<staticSceneObject>::iterator i = scenegraph.begin(); i != scenegraph.end(); ++i)
 	{
-		//modelMx = i->computeModelMatrix();
-		//modelViewMx = viewMx * modelMx;
-		//modelViewProjectionMx = projectionMx * viewMx * modelMx;
-		modelMx = glm::mat4(1.0);
+		modelMx = i->computeModelMatrix();
+		modelViewMx = viewMx * modelMx;
+		normalMx = glm::transpose(glm::inverse(glm::mat3(modelViewMx)));
 		modelViewProjectionMx = projectionMx * viewMx * modelMx;
 
 		GLSLProgram* currentPrgm = (i->getMaterial())->getShaderProgram();
 		material* currentMtl = i->getMaterial();
 
 		currentPrgm->use();
-		//currentPrgm->setUniform("normalMatrix",normalMx);
-		//currentPrgm->setUniform("modelViewMatrix",modelViewMx);
-		currentPrgm->setUniform("modelViewProjectionMatrix",glm::mat4(1.0));
-		//currentPrgm->setUniform("lightPosition",(lightSourceList.begin())->getPosition());
-		//currentPrgm->setUniform("lightColour",(lightSourceList.begin())->getColour());
+		currentPrgm->setUniform("normalMatrix",normalMx);
+		currentPrgm->setUniform("modelViewMatrix",modelViewMx);
+		currentPrgm->setUniform("modelViewProjectionMatrix",modelViewProjectionMx);
+		currentPrgm->setUniform("lightPosition",(lightSourceList.begin())->getPosition());
+		currentPrgm->setUniform("lightColour",(lightSourceList.begin())->getColour());
 
-		//glEnable(GL_TEXTURE_2D);
-		//glActiveTexture(GL_TEXTURE0);
-		//currentPrgm->setUniform("diffuseMap",0);
-		//currentMtl->getDiffuseMap()->bindTexture();
-		//glActiveTexture(GL_TEXTURE1);
-		//currentPrgm->setUniform("specularMap",1);
-		//currentMtl->getSpecularMap()->bindTexture();
-		//glActiveTexture(GL_TEXTURE2);
-		//currentPrgm->setUniform("normalMap",2);
-		//currentMtl->getNormalMap()->bindTexture();
+		glEnable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
+		currentPrgm->setUniform("diffuseMap",0);
+		currentMtl->getDiffuseMap()->bindTexture();
+		glActiveTexture(GL_TEXTURE1);
+		currentPrgm->setUniform("specularMap",1);
+		currentMtl->getSpecularMap()->bindTexture();
+		glActiveTexture(GL_TEXTURE2);
+		currentPrgm->setUniform("normalMap",2);
+		currentMtl->getNormalMap()->bindTexture();
 
-		(i->getGeometry())->draw(GL_TRIANGLES,3,0);
+		(i->getGeometry())->draw(GL_TRIANGLES,36,0);
 	}
 }

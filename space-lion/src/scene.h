@@ -55,7 +55,7 @@ private:
 
 	//	create a shader program, obtains a reference to the newly created shader program via in-out parameter
 	bool createShaderProgram(shaderType, GLSLProgram*& inOutPrgPtr);
-
+	
 	/*
 	/	create a texture from an array of float values, obtains a reference to the newly created texture via in-out parameter
 	/
@@ -67,8 +67,6 @@ private:
 	bool createTexture(const char * const path, texture*& inOutTexPtr);
 	//	in case a texture file is changed during runtime
 	bool reloadTexture();
-
-	glm::mat4 computeModelMatrix(const glm::vec3 position, const glm::quat orientation);
 
 public:
 	scene();
@@ -87,6 +85,8 @@ public:
 	bool createSceneCamera(const int id, const glm::vec3 position, const glm::quat orientations, float aspect, float fov);
 
 	void setActiveCamera(const int);
+
+	void testing();
 
 	//	create a
 	void render();

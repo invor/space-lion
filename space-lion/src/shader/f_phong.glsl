@@ -12,6 +12,7 @@ in vec4 colour;
 in vec2 uvCoord;
 in vec3 viewerDirection;
 in vec3 lightDirection;
+in vec3 normal;
 
 out vec4 fragColour;
 
@@ -32,7 +33,7 @@ void main()
 
 	//	fetch colour from diffuse map and blend it with vertex colour
 	vec3 tColour = texture2D(diffuseMap, uvCoord).xyz;
-	tColour += (colour.xyz * colour.w);
+	//tColour = mix(colour.xyz,tColour,colour.w);
 
 	//	fetch specular factor from specular map
 	float tSpecFactor = texture2D(specularMap, uvCoord).x;
@@ -41,5 +42,6 @@ void main()
 	vec3 tNormal = texture2D(normalMap, uvCoord).xyz;
 
 	//	compute phong lighting
-	fragColour = vec4(phongShading(tSpecFactor, tColour, tNormal, lightDirection, lightColour),1.0);
+	//fragColour = vec4(phongShading(tSpecFactor, tColour, tNormal, lightDirection, lightColour),1.0);
+	fragColour = vec4(lightDirection,1.0);
 }
