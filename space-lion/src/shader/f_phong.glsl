@@ -22,8 +22,8 @@ vec3 phongShading(in float specFactor ,in vec3 sColour , in vec3 sNormal, in vec
 	vec3 reflection = reflect(-lightDir, n);
 
 	return lightColour.w *
-		( sColour*max( dot(lightDir, n), 0.0) +
-		specFactor*lightColour.xyz*pow(max(dot(reflection,viewerDirection),0.0),22.0) );
+		( sColour*max( dot(lightDir, n), 0.0)) +
+			(specFactor*lightColour.xyz*pow(max(dot(reflection,viewerDirection),0.0),22.0) );
 }
 
 void main()
@@ -42,6 +42,6 @@ void main()
 	vec3 tNormal = texture2D(normalMap, uvCoord).xyz;
 
 	//	compute phong lighting
-	//fragColour = vec4(phongShading(tSpecFactor, tColour, tNormal, lightDirection, lightColour),1.0);
-	fragColour = vec4(lightDirection,1.0);
+	fragColour = vec4(phongShading(tSpecFactor, tColour, tNormal, lightDirection, lightColour),1.0);
+	//fragColour = vec4(viewerDirection,1.0);
 }

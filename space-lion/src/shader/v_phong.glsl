@@ -2,6 +2,7 @@
 #version 330
 
 uniform mat3 normalMatrix;
+uniform mat4 viewMatrix;
 uniform mat4 modelViewMatrix;
 uniform mat4 modelViewProjectionMatrix;
 
@@ -35,11 +36,10 @@ void main()
 		tangent.x, bitangent.x, normal.x,
 		tangent.y, bitangent.y, normal.y,
 		tangent.z, bitangent.z, normal.z) ;
-		
+	
 	position = (modelViewMatrix * vec4(vPosition,1.0)).xyz;
 	viewerDirection = tangentSpaceMatrix * normalize( -position );
-	//lightDirection = tangentSpaceMatrix * normalize((modelViewMatrix * vec4(lightPosition,1.0)).xyz - position);
-	lightDirection = tangentSpaceMatrix * normalize((modelViewMatrix * vec4(lightPosition,1.0)).xyz);
+	lightDirection = tangentSpaceMatrix * normalize((viewMatrix * vec4(lightPosition,1.0)).xyz - position);
 
 	colour = vColour;
 	uvCoord = vUVCoord;

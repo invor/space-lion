@@ -19,9 +19,9 @@ bool renderHub::init()
 	glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 3);
-	glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	//glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	if(!glfwOpenWindow(512,512,8,8,8,8,32,0,GLFW_WINDOW))
+	if(!glfwOpenWindow(800,450,8,8,8,8,32,0,GLFW_WINDOW))
 	{
 		return false;
 	}
@@ -78,7 +78,7 @@ void renderHub::run()
 
 	/*	
 	/	Just for testing and debug purposes I am ignoring the event-queue concept I want to take up later
-	/	and manually add a single entity to the active scene
+	/	and manually add entities to the active scene
 	*/
 	if(!(activeScene->createStaticSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat())))
 	{
@@ -96,12 +96,12 @@ void renderHub::run()
 				<<"\n";
 	}
 
-	if(!(activeScene->createSceneCamera(0,glm::vec3(0.0,0.5,5.0),glm::quat(),1.0f,60.0f)))
+	if(!(activeScene->createSceneCamera(0,glm::vec3(3.0,3.0,3.0),glm::quat(),16.0f/9.0f,55.0f)))
 	{
 		std::cout<<"Failed to create camera"
 				<<"\n";
 	}
-	if(!(activeScene->createSceneLight(0,glm::vec3(0.0,0.5,5.0),glm::vec4(1.0,1.0,1.0,1.0))))
+	if(!(activeScene->createSceneLight(0,glm::vec3(-3.0,3.0,3.0),glm::vec4(1.0,1.0,1.0,1.0))))
 	{
 		std::cout<<"Failed to create light"
 				<<"\n";

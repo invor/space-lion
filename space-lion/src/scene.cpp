@@ -63,8 +63,8 @@ bool scene::createVertexGeometry(vertexGeometry*& inOutGeomPtr)
 	vertexArray[16]=vertex15(-0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[17]=vertex15(-0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,1.0);
 	vertexArray[18]=vertex15(0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[19]=vertex15(0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,0.0);
 	//	top face
-	vertexArray[20]=vertex15(-0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[21]=vertex15(-0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,1.0);
-	vertexArray[22]=vertex15(0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[23]=vertex15(0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,0.0);
+	vertexArray[20]=vertex15(-0.5,0.5,0.5,0.0,1.0,0.0,-1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[21]=vertex15(-0.5,0.5,-0.5,0.0,1.0,0.0,-1.0,0.0,0.0,255,0,0,128,0.0,1.0);
+	vertexArray[22]=vertex15(0.5,0.5,-0.5,0.0,1.0,0.0,-1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[23]=vertex15(0.5,0.5,0.5,0.0,1.0,0.0,-1.0,0.0,0.0,255,0,0,128,1.0,0.0);
 
 	indexArray[0]=0;indexArray[1]=2;indexArray[2]=1;
 	indexArray[3]=2;indexArray[4]=0;indexArray[5]=3;
@@ -114,7 +114,7 @@ bool scene::createMaterial(material*& inOutMtlPtr)
 	//dark grey specular texture
 	specularData[0]=0.3f; specularData[1]=0.3f; specularData[2]=0.3f; specularData[3]=1.0f;
 	//normal pointing upwards
-	normalData[0]=0.0f; normalData[1]=1.0f; normalData[2]=0.0f; normalData[3]=0.0f;
+	normalData[0]=0.0f; normalData[1]=0.0f; normalData[2]=1.0f; normalData[3]=0.0f;
 	
 	GLSLProgram* prgPtr;
 	texture* texPtr1;
@@ -239,13 +239,13 @@ void scene::setActiveCamera(const int inId)
 void scene::testing()
 {
 	//	Ehhh, a few lines for testing
-	//activeCamera->rotate(45.0,glm::vec3(0.0,1.0,0.0));
-	//activeCamera->rotate(-45.0,glm::vec3(1.0,0.0,0.0));
+	activeCamera->rotate(45.0,glm::vec3(0.0,1.0,0.0));
+	activeCamera->rotate(-45.0,glm::vec3(1.0,0.0,0.0));
 	
 	//scenegraph.begin()->rotate(180,glm::vec3(0.0,1.0,0.0));
 	
-	std::cout<<vboList.size()<<"\n";
-	std::cout<<scenegraph.size();
+	//std::cout<<vboList.size()<<"\n";
+	//std::cout<<scenegraph.size();
 
 	//activeCamera->rotate(45.0,glm::vec3(0.0,1.0,0.0));
 	//activeCamera->rotate(-45.0,glm::vec3(1.0,0.0,0.0));
@@ -262,7 +262,6 @@ void scene::testing()
 	//glm::vec3 lookat = ((activeCamera->getPosition())+(activeCamera->computeFrontVector()));
 	//std::cout<<"Loookat: "<<lookat.x<<" "<<lookat.y<<" "<<lookat.z<<"\n";
 }
-
 
 
 /*
@@ -296,6 +295,7 @@ void scene::render()
 
 		currentPrgm->use();
 		currentPrgm->setUniform("normalMatrix",normalMx);
+		currentPrgm->setUniform("viewMatrix", viewMx);
 		currentPrgm->setUniform("modelViewMatrix",modelViewMx);
 		currentPrgm->setUniform("modelViewProjectionMatrix",modelViewProjectionMx);
 		currentPrgm->setUniform("lightPosition",(lightSourceList.begin())->getPosition());
