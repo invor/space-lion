@@ -27,8 +27,8 @@ public:
 	glm::vec3 computeUpVector();
 	glm::vec3 computeRightHandVector();
 
-	glm::mat4 computeViewMatrix();
-	glm::mat4 computeProjectionMatrix(float nearClippingPlane, float farClippingPlane);
+	glm::mat4 computeViewMatrix(){ return glm::lookAt(position,position+computeFrontVector(),computeUpVector()); }
+	glm::mat4 computeProjectionMatrix(float nearClippingPlane, float farClippingPlane) { return glm::perspective(fieldOfView,aspectRatio,nearClippingPlane,farClippingPlane); }
 };
 
 #endif sceneCamera

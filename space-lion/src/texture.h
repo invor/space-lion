@@ -2,6 +2,7 @@
 #define texture_h
 
 #include "GL\glew.h"
+#include "glfw.h"
 #include <iostream>
 
 //pragmas seem to be only necessary in windows

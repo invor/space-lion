@@ -15,7 +15,7 @@
 	#pragma comment(lib,"glew32.lib")
 #endif
 
-//Basic Vertex with x,y and z component
+//	Basic Vertex with x,y and z component
 struct vertex3
 {
 	vertex3() : x(0.0), y(0.0), z(0.0) {}

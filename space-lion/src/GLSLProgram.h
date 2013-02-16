@@ -2,7 +2,7 @@
 #define GLSLProgram_h
 
 #include "GL\glew.h"
-//openGL Math Lib
+//	OpenGL Math Library
 #include <glm/glm.hpp>
 #include <glm/core/type_vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>

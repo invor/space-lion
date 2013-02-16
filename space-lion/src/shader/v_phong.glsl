@@ -40,7 +40,7 @@ void main()
 	position = (modelViewMatrix * vec4(vPosition,1.0)).xyz;
 	viewerDirection = tangentSpaceMatrix * normalize( -position );
 	lightDirection = tangentSpaceMatrix * normalize((viewMatrix * vec4(lightPosition,1.0)).xyz - position);
-
+	
 	colour = vColour;
 	uvCoord = vUVCoord;
 	

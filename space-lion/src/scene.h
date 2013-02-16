@@ -39,6 +39,7 @@ private:
 
 	sceneCamera* activeCamera;
 
+
 	//	debug method, create a triangle
 	bool createTriangle(vertexGeometry*& inOutGeomPtr);
 	//	create a simple box object for debugging purposes, obtains a reference to the newly created vertex geometry via in-out parameter

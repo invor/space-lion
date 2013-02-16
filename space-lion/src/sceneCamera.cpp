@@ -45,13 +45,3 @@ glm::vec3 sceneCamera::computeRightHandVector()
 
 	return glm::normalize(glm::vec3(qRighthand.x,qRighthand.y,qRighthand.z));
 }
-
-glm::mat4 sceneCamera::computeViewMatrix()
-{
-	return glm::lookAt(position,position+computeFrontVector(),computeUpVector());
-}
-
-glm::mat4 sceneCamera::computeProjectionMatrix(float nearClippingPlane, float farClippingPlane)
-{
-	return glm::perspective(fieldOfView,aspectRatio,nearClippingPlane,farClippingPlane);
-}

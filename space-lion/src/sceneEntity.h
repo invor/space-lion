@@ -22,7 +22,7 @@ public:
 	sceneEntity(const int inId, glm::vec3 inPosition) : id(inId), position(inPosition){}
 	~sceneEntity();
 
-	void translate(glm::vec3);
+	void translate(glm::vec3 tvec) { position = position + tvec; }
 	void rotate(const float angle,const glm::vec3 axis) {orientation = glm::normalize(glm::rotate(orientation,angle,axis));}
 
 	const int getId() {return id;}
@@ -31,7 +31,7 @@ public:
 	glm::vec3 getPosition() {return position;}
 
 	void setOrientation(const glm::quat inOrientation) {orientation = inOrientation;}
-	void setOrientation(const float angle, const glm::vec3 axis) {orientation = glm::rotate(glm::quat(0.0f,0.0f,0.0f,0.0f),angle,axis);}
+	void setOrientation(const float angle, const glm::vec3 axis) {orientation = glm::rotate(glm::quat(),angle,axis);}
 	glm::quat getOrientation() {return orientation;}
 };
 

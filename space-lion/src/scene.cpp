@@ -63,8 +63,8 @@ bool scene::createVertexGeometry(vertexGeometry*& inOutGeomPtr)
 	vertexArray[16]=vertex15(-0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[17]=vertex15(-0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,1.0);
 	vertexArray[18]=vertex15(0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[19]=vertex15(0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,0.0);
 	//	top face
-	vertexArray[20]=vertex15(-0.5,0.5,0.5,0.0,1.0,0.0,-1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[21]=vertex15(-0.5,0.5,-0.5,0.0,1.0,0.0,-1.0,0.0,0.0,255,0,0,128,0.0,1.0);
-	vertexArray[22]=vertex15(0.5,0.5,-0.5,0.0,1.0,0.0,-1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[23]=vertex15(0.5,0.5,0.5,0.0,1.0,0.0,-1.0,0.0,0.0,255,0,0,128,1.0,0.0);
+	vertexArray[20]=vertex15(-0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[21]=vertex15(-0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,1.0);
+	vertexArray[22]=vertex15(0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[23]=vertex15(0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,0.0);
 
 	indexArray[0]=0;indexArray[1]=2;indexArray[2]=1;
 	indexArray[3]=2;indexArray[4]=0;indexArray[5]=3;
@@ -121,10 +121,12 @@ bool scene::createMaterial(material*& inOutMtlPtr)
 	texture* texPtr2;
 	texture* texPtr3;
 	if(!createShaderProgram(PHONG,prgPtr)) return false;
-	if(!createTexture(1,1,diffuseData,texPtr1)) return false;
-	if(!createTexture(1,1,specularData,texPtr2)) return false;
-	if(!createTexture(1,1,normalData,texPtr3)) return false;
-
+	//if(!createTexture(1,1,diffuseData,texPtr1)) return false;
+	//if(!createTexture(1,1,specularData,texPtr2)) return false;
+	//if(!createTexture(1,1,normalData,texPtr3)) return false;
+	if(!createTexture("textest.tga",texPtr1)) return false;
+	if(!createTexture("textest_s.tga",texPtr2)) return false;
+	if(!createTexture("textest_n.tga",texPtr3)) return false;
 	materialList.push_back(material(0,prgPtr,texPtr1,texPtr2,texPtr3));
 
 	std::list<material>::iterator lastElement = --(materialList.end());
@@ -200,6 +202,25 @@ bool scene::createTexture(int dimX, int dimY, float* data, texture*& inOutTexPtr
 	return true;
 }
 
+bool scene::createTexture(const char* const path, texture*& inOutTexPtr)
+{
+	for(std::list<texture>::iterator i = textureList.begin(); i != textureList.end(); ++i)
+	{
+		if((i->getFilename())==path)
+		{
+			inOutTexPtr = &*i;
+			return true;
+		}
+	}
+
+	textureList.push_back(texture(path));
+	std::list<texture>::iterator lastElement = --(textureList.end());
+	if(!(lastElement->load(path))) return false;
+
+	inOutTexPtr = &(*lastElement);
+	return true;
+}
+
 bool scene::createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation)
 {
 	vertexGeometry* geomPtr;
@@ -244,6 +265,7 @@ void scene::testing()
 	
 	//scenegraph.begin()->rotate(180,glm::vec3(0.0,1.0,0.0));
 	
+	//std::cout<<textureList.size();
 	//std::cout<<vboList.size()<<"\n";
 	//std::cout<<scenegraph.size();
 
@@ -262,7 +284,6 @@ void scene::testing()
 	//glm::vec3 lookat = ((activeCamera->getPosition())+(activeCamera->computeFrontVector()));
 	//std::cout<<"Loookat: "<<lookat.x<<" "<<lookat.y<<" "<<lookat.z<<"\n";
 }
-
 
 /*
 /	Temporary render method
@@ -313,5 +334,6 @@ void scene::render()
 		currentMtl->getNormalMap()->bindTexture();
 
 		(i->getGeometry())->draw(GL_TRIANGLES,36,0);
+		//i->rotate(0.1,glm::vec3(0.0,1.0,0.0));
 	}
 }
