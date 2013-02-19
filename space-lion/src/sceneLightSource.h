@@ -17,4 +17,4 @@ public:
 	glm::vec4 getColour() {return lightColour;}
 };
 
-#endif sceneLightSource
+#endif

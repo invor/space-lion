@@ -23,4 +23,4 @@ public:
 	glm::mat4 computeModelMatrix() {return (glm::translate(glm::mat4(1.0),position))*(glm::mat4_cast(orientation));}
 };
 
-#endif sceneEntity
+#endif

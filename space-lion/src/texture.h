@@ -1,7 +1,7 @@
 #ifndef texture_h
 #define texture_h
 
-#include "GL\glew.h"
+#include "GL/glew.h"
 #include "glfw.h"
 #include <iostream>
 

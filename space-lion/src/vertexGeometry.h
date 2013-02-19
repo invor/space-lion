@@ -1,7 +1,7 @@
 #ifndef vertexGeometry_h
 #define vertexGeometry_h
 
-#include "GL\glew.h"
+#include "GL/glew.h"
 #include "vertexStructs.h"
 
 //pragma seem to be only necessary in windows

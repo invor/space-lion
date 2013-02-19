@@ -26,7 +26,7 @@ bool scene::createTriangle(vertexGeometry*& inOutGeomPtr)
 	std::list<vertexGeometry>::iterator lastElement = --(vboList.end());
 	if(!(lastElement->bufferDataFromArray(vertexArray,indexArray,sizeof(vertex6)*3,sizeof(GLubyte)*3))) return false;
 	lastElement->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(vertex6),0);
-	lastElement->setVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(vertex6),(GLvoid*) sizeof(vertex3));
+	lastElement->setVertexAttribPointer(3,3,GL_FLOAT,GL_FALSE,sizeof(vertex6),(GLvoid*) sizeof(vertex3));
 
 	inOutGeomPtr = &(*lastElement);
 	return true;
@@ -92,6 +92,11 @@ bool scene::createVertexGeometry(vertexGeometry*& inOutGeomPtr)
 	return true;
 }
 
+bool scene::createVertexGeometry(const char * const path, vertexGeometry*& inOutGeomPtr)
+{
+	return false;
+}
+
 bool scene::createMaterial(material*& inOutMtlPtr)
 {
 	//	check list of materials for default material(id=0)
@@ -132,6 +137,11 @@ bool scene::createMaterial(material*& inOutMtlPtr)
 	std::list<material>::iterator lastElement = --(materialList.end());
 	inOutMtlPtr = &(*lastElement);
 	return true;
+}
+
+bool scene::createMaterial(const char * const path, material*& inOutMtlPtr)
+{
+	return false;
 }
 
 bool scene::createShaderProgram(shaderType type, GLSLProgram*& inOutPrgPtr)
@@ -233,6 +243,28 @@ bool scene::createStaticSceneObject(const int id, const glm::vec3 position, cons
 	return true;
 }
 
+bool scene::createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const char * const geometryPath)
+{
+	vertexGeometry* geomPtr;
+	material* mtlPtr;
+	if(!createVertexGeometry(geometryPath,geomPtr)) return false;
+	if(!createMaterial(mtlPtr)) return false;
+
+	scenegraph.push_back(staticSceneObject(id,position,geomPtr,mtlPtr));
+	return true;
+}
+
+bool scene::createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const char * const geometryPath, const char * const materialPath)
+{
+	vertexGeometry* geomPtr;
+	material* mtlPtr;
+	if(!createVertexGeometry(geometryPath,geomPtr)) return false;
+	if(!createMaterial(materialPath,mtlPtr)) return false;
+
+	scenegraph.push_back(staticSceneObject(id,position,geomPtr,mtlPtr));
+	return true;
+}
+
 bool scene::createSceneLight(const int id, const glm::vec3 position, glm::vec4 colour)
 {
 	lightSourceList.push_back(sceneLightSource(id, position, colour));
@@ -298,12 +330,25 @@ void scene::render()
 	glm::mat4 modelMx;
 	glm::mat4 viewMx = activeCamera->computeViewMatrix();
 	glm::mat4 projectionMx = activeCamera->computeProjectionMatrix(0.01f,100.0f);
-	//glm::mat4 viewMx = glm::mat4(1.0);
-	//glm::mat4 projectionMx = glm::mat4(1.0);
 
 	////
 	//	access each entity of the scene and draw it
 	////
+	GLSLProgram* currentPrgm = &(*shaderProgramList.begin());
+	material* currentMtl = &(*materialList.begin());
+	currentPrgm->use();
+
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	currentPrgm->setUniform("diffuseMap",0);
+	currentMtl->getDiffuseMap()->bindTexture();
+	glActiveTexture(GL_TEXTURE1);
+	currentPrgm->setUniform("specularMap",1);
+	currentMtl->getSpecularMap()->bindTexture();
+	glActiveTexture(GL_TEXTURE2);
+	currentPrgm->setUniform("normalMap",2);
+	currentMtl->getNormalMap()->bindTexture();
+
 	for(std::list<staticSceneObject>::iterator i = scenegraph.begin(); i != scenegraph.end(); ++i)
 	{
 		modelMx = i->computeModelMatrix();
@@ -311,10 +356,11 @@ void scene::render()
 		normalMx = glm::transpose(glm::inverse(glm::mat3(modelViewMx)));
 		modelViewProjectionMx = projectionMx * viewMx * modelMx;
 
-		GLSLProgram* currentPrgm = (i->getMaterial())->getShaderProgram();
-		material* currentMtl = i->getMaterial();
+		//currentPrgm = (i->getMaterial())->getShaderProgram();
+		//currentMtl = i->getMaterial();
 
-		currentPrgm->use();
+		//currentPrgm->use();
+
 		currentPrgm->setUniform("normalMatrix",normalMx);
 		currentPrgm->setUniform("viewMatrix", viewMx);
 		currentPrgm->setUniform("modelViewMatrix",modelViewMx);
@@ -322,18 +368,18 @@ void scene::render()
 		currentPrgm->setUniform("lightPosition",(lightSourceList.begin())->getPosition());
 		currentPrgm->setUniform("lightColour",(lightSourceList.begin())->getColour());
 
-		glEnable(GL_TEXTURE_2D);
-		glActiveTexture(GL_TEXTURE0);
-		currentPrgm->setUniform("diffuseMap",0);
-		currentMtl->getDiffuseMap()->bindTexture();
-		glActiveTexture(GL_TEXTURE1);
-		currentPrgm->setUniform("specularMap",1);
-		currentMtl->getSpecularMap()->bindTexture();
-		glActiveTexture(GL_TEXTURE2);
-		currentPrgm->setUniform("normalMap",2);
-		currentMtl->getNormalMap()->bindTexture();
+		//glEnable(GL_TEXTURE_2D);
+		//glActiveTexture(GL_TEXTURE0);
+		//currentPrgm->setUniform("diffuseMap",0);
+		//currentMtl->getDiffuseMap()->bindTexture();
+		//glActiveTexture(GL_TEXTURE1);
+		//currentPrgm->setUniform("specularMap",1);
+		//currentMtl->getSpecularMap()->bindTexture();
+		//glActiveTexture(GL_TEXTURE2);
+		//currentPrgm->setUniform("normalMap",2);
+		//currentMtl->getNormalMap()->bindTexture();
 
 		(i->getGeometry())->draw(GL_TRIANGLES,36,0);
-		//i->rotate(0.1,glm::vec3(0.0,1.0,0.0));
+		i->rotate(0.1f,glm::vec3(0.0f,1.0f,0.0f));
 	}
 }

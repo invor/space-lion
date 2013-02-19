@@ -31,4 +31,4 @@ public:
 	glm::mat4 computeProjectionMatrix(float nearClippingPlane, float farClippingPlane) { return glm::perspective(fieldOfView,aspectRatio,nearClippingPlane,farClippingPlane); }
 };
 
-#endif sceneCamera
+#endif

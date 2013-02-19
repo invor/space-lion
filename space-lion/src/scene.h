@@ -76,7 +76,7 @@ public:
 	//	create a scene entity with default geometry and default material
 	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation);
 	//	create a scene entity with default geometry
-	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, char * const geometryPath);
+	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const char * const geometryPath);
 	//	create a scene entity
 	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const char * const geometryPath, const char * const materialPath);
 

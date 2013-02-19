@@ -1,7 +1,7 @@
 #ifndef GLSLProgram_h
 #define GLSLProgram_h
 
-#include "GL\glew.h"
+#include "GL/glew.h"
 //	OpenGL Math Library
 #include <glm/glm.hpp>
 #include <glm/core/type_vec3.hpp>
@@ -55,4 +55,4 @@ public:
 	void printActiveAttributes();
 };
 
-#endif GLSLProgram
+#endif

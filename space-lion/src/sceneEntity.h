@@ -35,4 +35,4 @@ public:
 	glm::quat getOrientation() {return orientation;}
 };
 
-#endif sceneEntity
+#endif
