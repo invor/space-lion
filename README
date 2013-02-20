@@ -35,3 +35,5 @@ codename 'sigh'
 Dependencies:
 	glew for obtaining OpenGL function pointers
 		http://glew.sourceforge.net/
+	glfw for window and context management
+		http://www.glfw.org/

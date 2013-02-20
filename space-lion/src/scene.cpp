@@ -129,9 +129,9 @@ bool scene::createMaterial(material*& inOutMtlPtr)
 	//if(!createTexture(1,1,diffuseData,texPtr1)) return false;
 	//if(!createTexture(1,1,specularData,texPtr2)) return false;
 	//if(!createTexture(1,1,normalData,texPtr3)) return false;
-	if(!createTexture("textest.tga",texPtr1)) return false;
-	if(!createTexture("textest_s.tga",texPtr2)) return false;
-	if(!createTexture("textest_n.tga",texPtr3)) return false;
+	if(!createTexture("../resources/textures/textest.tga",texPtr1)) return false;
+	if(!createTexture("../resources/textures/textest_s.tga",texPtr2)) return false;
+	if(!createTexture("../resources/textures/textest_n.tga",texPtr3)) return false;
 	materialList.push_back(material(0,prgPtr,texPtr1,texPtr2,texPtr3));
 
 	std::list<material>::iterator lastElement = --(materialList.end());
@@ -160,8 +160,8 @@ bool scene::createShaderProgram(shaderType type, GLSLProgram*& inOutPrgPtr)
 	{
 	case PHONG : {
 		GLSLProgram shaderPrg(PHONG);
-		if(!shaderPrg.compileShaderFromFile("../../space-lion/src/shader/v_phong.glsl",GL_VERTEX_SHADER)) return false;
-		if(!shaderPrg.compileShaderFromFile("../../space-lion/src/shader/f_phong.glsl",GL_FRAGMENT_SHADER)) return false;
+		if(!shaderPrg.compileShaderFromFile("../resources/shaders/v_phong.glsl",GL_VERTEX_SHADER)) return false;
+		if(!shaderPrg.compileShaderFromFile("../resources/shaders/f_phong.glsl",GL_FRAGMENT_SHADER)) return false;
 		//if(!shaderPrg.compileShaderFromFile("v_phong.glsl",GL_VERTEX_SHADER)) return false;
 		//if(!shaderPrg.compileShaderFromFile("f_phong.glsl",GL_FRAGMENT_SHADER)) return false;
 		shaderPrg.bindAttribLocation(0,"vPosition");
@@ -179,8 +179,8 @@ bool scene::createShaderProgram(shaderType type, GLSLProgram*& inOutPrgPtr)
 		break; }
 	case FLAT : {
 		GLSLProgram shaderPrg(FLAT);
-		if(!shaderPrg.compileShaderFromFile("../../space-lion/src/shader/v_flat.glsl",GL_VERTEX_SHADER)) return false;
-		if(!shaderPrg.compileShaderFromFile("../../space-lion/src/shader/f_flat.glsl",GL_FRAGMENT_SHADER)) return false;
+		if(!shaderPrg.compileShaderFromFile("../resources/shaders/v_flat.glsl",GL_VERTEX_SHADER)) return false;
+		if(!shaderPrg.compileShaderFromFile("../resources/shaders/f_flat.glsl",GL_FRAGMENT_SHADER)) return false;
 		shaderPrg.bindAttribLocation(0,"vPosition");
 		shaderPrg.bindAttribLocation(1,"vNormal");
 		shaderPrg.bindAttribLocation(2,"vTangent");
