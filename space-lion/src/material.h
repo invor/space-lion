@@ -4,6 +4,15 @@
 #include "GLSLProgram.h"
 #include "texture.h"
 
+struct materialInfo
+{
+	materialInfo() : id(0) {}
+	int id;
+	char* diff_path;
+	char* spec_path;
+	char* normal_path;
+};
+
 class material
 {
 private:

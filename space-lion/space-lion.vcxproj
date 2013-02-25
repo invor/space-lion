@@ -138,6 +138,7 @@
     <ClInclude Include="src\GLSLProgram.h" />
     <ClInclude Include="src\material.h" />
     <ClInclude Include="src\renderHub.h" />
+    <ClInclude Include="src\renderParser.h" />
     <ClInclude Include="src\scene.h" />
     <ClInclude Include="src\sceneCamera.h" />
     <ClInclude Include="src\sceneEntity.h" />
@@ -152,6 +153,7 @@
     <ClCompile Include="src\GLSLProgram.cpp" />
     <ClCompile Include="src\material.cpp" />
     <ClCompile Include="src\renderHub.cpp" />
+    <ClCompile Include="src\renderParser.cpp" />
     <ClCompile Include="src\scene.cpp" />
     <ClCompile Include="src\sceneCamera.cpp" />
     <ClCompile Include="src\sceneEntity.cpp" />

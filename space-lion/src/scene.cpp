@@ -125,13 +125,10 @@ bool scene::createMaterial(material*& inOutMtlPtr)
 	texture* texPtr1;
 	texture* texPtr2;
 	texture* texPtr3;
-	if(!createShaderProgram(PHONG,prgPtr)) return false;
-	//if(!createTexture(1,1,diffuseData,texPtr1)) return false;
-	//if(!createTexture(1,1,specularData,texPtr2)) return false;
-	//if(!createTexture(1,1,normalData,texPtr3)) return false;
-	if(!createTexture("../resources/textures/textest.tga",texPtr1)) return false;
-	if(!createTexture("../resources/textures/textest_s.tga",texPtr2)) return false;
-	if(!createTexture("../resources/textures/textest_n.tga",texPtr3)) return false;
+	if(!createShaderProgram(FLAT,prgPtr)) return false;
+	if(!createTexture(1,1,diffuseData,texPtr1)) return false;
+	if(!createTexture(1,1,specularData,texPtr2)) return false;
+	if(!createTexture(1,1,normalData,texPtr3)) return false;
 	materialList.push_back(material(0,prgPtr,texPtr1,texPtr2,texPtr3));
 
 	std::list<material>::iterator lastElement = --(materialList.end());
@@ -141,7 +138,32 @@ bool scene::createMaterial(material*& inOutMtlPtr)
 
 bool scene::createMaterial(const char * const path, material*& inOutMtlPtr)
 {
-	return false;
+	materialInfo inOutMtlInfo;
+	if(!parser.parseMaterial(path,inOutMtlInfo))return false;
+
+	//	check list of materials for default material(id=0)
+	for(std::list<material>::iterator i = materialList.begin(); i != materialList.end(); ++i)
+	{
+		if((i->getId())==inOutMtlInfo.id)
+		{
+			inOutMtlPtr = &*i;
+			return true;
+		}
+	}
+
+	GLSLProgram* prgPtr;
+	texture* texPtr1;
+	texture* texPtr2;
+	texture* texPtr3;
+	if(!createShaderProgram(PHONG,prgPtr)) return false;
+	if(!createTexture(inOutMtlInfo.diff_path,texPtr1)) return false;
+	if(!createTexture(inOutMtlInfo.spec_path,texPtr2)) return false;
+	if(!createTexture(inOutMtlInfo.normal_path,texPtr3)) return false;
+	materialList.push_back(material(inOutMtlInfo.id,prgPtr,texPtr1,texPtr2,texPtr3));
+
+	std::list<material>::iterator lastElement = --(materialList.end());
+	inOutMtlPtr = &(*lastElement);
+	return true;
 }
 
 bool scene::createShaderProgram(shaderType type, GLSLProgram*& inOutPrgPtr)
@@ -243,12 +265,25 @@ bool scene::createStaticSceneObject(const int id, const glm::vec3 position, cons
 	return true;
 }
 
-bool scene::createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const char * const geometryPath)
+bool scene::createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const char * const path, const bool flag)
 {
 	vertexGeometry* geomPtr;
 	material* mtlPtr;
-	if(!createVertexGeometry(geometryPath,geomPtr)) return false;
-	if(!createMaterial(mtlPtr)) return false;
+
+	if(flag==0)
+	{
+		if(!createVertexGeometry(path,geomPtr)) return false;
+		if(!createMaterial(mtlPtr)) return false;
+	}
+	else if(flag==1)
+	{
+		if(!createVertexGeometry(geomPtr)) return false;
+		if(!createMaterial(path,mtlPtr)) return false;
+	}
+	else
+	{
+		return false;
+	}
 
 	scenegraph.push_back(staticSceneObject(id,position,geomPtr,mtlPtr));
 	return true;
@@ -314,7 +349,7 @@ void scene::testing()
 	//std::cout<<"Righthand: "<<rVec.x<<" "<<rVec.y<<" "<<rVec.z<<"\n";
 	//
 	//glm::vec3 lookat = ((activeCamera->getPosition())+(activeCamera->computeFrontVector()));
-	//std::cout<<"Loookat: "<<lookat.x<<" "<<lookat.y<<" "<<lookat.z<<"\n";
+	//std::cout<<"Loookat: "<<lookat.x<<" "<<lookat.y<<" "<<lookat.z<<"\n
 }
 
 /*
@@ -334,6 +369,8 @@ void scene::render()
 	////
 	//	access each entity of the scene and draw it
 	////
+	if(materialList.size() > 0)
+	{
 	GLSLProgram* currentPrgm = &(*shaderProgramList.begin());
 	material* currentMtl = &(*materialList.begin());
 	currentPrgm->use();
@@ -381,5 +418,6 @@ void scene::render()
 
 		(i->getGeometry())->draw(GL_TRIANGLES,36,0);
 		i->rotate(0.1f,glm::vec3(0.0f,1.0f,0.0f));
+	}
 	}
 }

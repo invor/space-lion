@@ -11,6 +11,7 @@
 #include "material.h"
 #include "texture.h"
 #include "GLSLProgram.h"
+#include "renderParser.h"
 
 //pragmas seem to be only necessary in windows
 #ifdef _WIN32
@@ -28,6 +29,7 @@ private:
 	/	The most recently assigned id is saved in this variable.
 	*/
 	unsigned int lastTextureId;
+	renderParser parser;
 
 	std::list<sceneLightSource> lightSourceList;
 	std::list<sceneCamera> cameraList;
@@ -75,8 +77,8 @@ public:
 
 	//	create a scene entity with default geometry and default material
 	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation);
-	//	create a scene entity with default geometry
-	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const char * const geometryPath);
+	//	create a scene entity with default material or default geometry, based on the value of flag
+	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const char * const path, const bool flag);
 	//	create a scene entity
 	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const char * const geometryPath, const char * const materialPath);
 
