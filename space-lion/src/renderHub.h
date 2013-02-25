@@ -8,7 +8,7 @@
 */
 
 #include "scene.h"
-#include "glfw.h"
+#include "GL/glfw.h"
 
 //pragmas seem to be only necessary in windows
 #ifdef _WIN32
