@@ -21,7 +21,7 @@ bool vertexGeometry::bufferDataFromFile(const char *path)
 
 bool vertexGeometry::bufferDataFromArray(const vertex3 *vertexArray, const GLubyte *indexArray, const GLsizei vaSize, const GLsizei viSize)
 {
-	if(vaHandle == NULL || vboHandle == NULL || iboHandle)
+	if(vaHandle == NULL || vboHandle == NULL || iboHandle == NULL)
 	{
 		glGenVertexArrays(1, &vaHandle);
 		glGenBuffers(1, &vboHandle);

@@ -8,6 +8,8 @@
 */
 
 #include "scene.h"
+#include "postProcessor.h"
+#include "framebufferObject.h"
 #include "GL/glfw.h"
 
 //pragmas seem to be only necessary in windows
@@ -35,10 +37,18 @@ public:
 
 	//	Render a frame of the active scene and check event-queue
 	void run();
+	//
+	void runPoissonImageEditing();
 
 private:
+	std::list<framebufferObject> framebufferList;
 	std::list<scene> sceneList;
+	std::list<postProcessor> postProcessorList;
+
+	framebufferObject *activeFramebuffer;
 	scene *activeScene;
+	postProcessor *activePostProcessor;
+
 	bool running;
 };
 

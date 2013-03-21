@@ -216,6 +216,10 @@ bool scene::createShaderProgram(shaderType type, GLSLProgram*& inOutPrgPtr)
 		inOutPrgPtr = &(*lastElement);
 		return true;
 		break; }
+	default : {
+		std::cout<<"Shader type unsuitable for a scene entity.\n";
+		return false;
+		break; }
 	}
 	return false;
 }
