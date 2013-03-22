@@ -51,10 +51,13 @@
     <ClInclude Include="src\renderParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\postProcessor.h">
+    <ClInclude Include="src\framebufferObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\framebufferObject.h">
+    <ClInclude Include="src\abstractPostProcessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\poissonImageProcessor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -95,10 +98,13 @@
     <ClCompile Include="src\renderParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\postProcessor.cpp">
+    <ClCompile Include="src\framebufferObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\framebufferObject.cpp">
+    <ClCompile Include="src\abstractPostProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\poissonImageProcessor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

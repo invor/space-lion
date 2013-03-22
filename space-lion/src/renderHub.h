@@ -8,8 +8,8 @@
 */
 
 #include "scene.h"
-#include "postProcessor.h"
-#include "framebufferObject.h"
+//#include "abstractPostProcessor.h"
+//#include "framebufferObject.h"
 #include "GL/glfw.h"
 
 //pragmas seem to be only necessary in windows
@@ -41,13 +41,11 @@ public:
 	void runPoissonImageEditing();
 
 private:
-	std::list<framebufferObject> framebufferList;
+	//std::list<framebufferObject> framebufferList;
 	std::list<scene> sceneList;
-	std::list<postProcessor> postProcessorList;
 
-	framebufferObject *activeFramebuffer;
+	//framebufferObject *activeFramebuffer;
 	scene *activeScene;
-	postProcessor *activePostProcessor;
 
 	bool running;
 };

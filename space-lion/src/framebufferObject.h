@@ -7,8 +7,6 @@ class framebufferObject
 public:
 	framebufferObject();
 	~framebufferObject();
-
-private:
 };
 
 #endif
