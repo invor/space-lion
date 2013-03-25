@@ -113,6 +113,14 @@ void renderHub::run()
 		std::cout<<"Failed to create scene object"
 				<<"\n";
 	}
+	//for(int i=2;i<10000;i++)
+	//{
+	//if(!(activeScene->createStaticSceneObject(i,glm::vec3(-i*2.0,-i*1.5,-i*2.0),glm::quat(),"../resources/materials/demoMaterial.slmtl",1)))
+	//{
+	//	std::cout<<"Failed to create scene object"
+	//			<<"\n";
+	//}
+	//}
 
 
 	if(!(activeScene->createSceneCamera(0,glm::vec3(1.0,2.0,1.0),glm::quat(),16.0f/9.0f,55.0f)))
@@ -141,16 +149,31 @@ void renderHub::run()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		activeScene->render();
 		glfwSwapBuffers();
-		glfwSleep(0.01);
+		//glfwSleep(0.01);
 	}
 }
 
 void renderHub::runPoissonImageEditing()
 {
+	//	This is all just experimental stuff
 	running = true;
 	glClearColor(0.0f,0.0f,0.0f,1.0f);
 
 	GLuint placeholder;
+
+
+	glGenTextures(1, &placeholder);
+	glBindTexture(GL_TEXTURE_2D, placeholder);
+
+	glfwLoadTexture2D("../resources/textures/textest.tga",0);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glBindTexture(GL_TEXTURE_2D,0);
+
+
 	poissonImageProcessor pIp;
 	if(!pIp.init())
 	{

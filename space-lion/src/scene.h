@@ -29,7 +29,7 @@ private:
 	/	The most recently assigned id is saved in this variable.
 	*/
 	unsigned int lastTextureId;
-	renderParser parser;
+	renderParser resouceParser;
 
 	std::list<sceneLightSource> lightSourceList;
 	std::list<sceneCamera> cameraList;

@@ -1,62 +1,43 @@
 CC = g++
-CPPFLAGS = -Wall -g -Llib/ -Ilib/ -Wl,-Rlib/
-LFLAGS = -lGLEW -lGL -lglfw
+CPPFLAGS = -Wall -g -I./external/include/
+LFLAGS = -lGLEW -lGL -lglfw -L./external/lib/ -Wl,-R./../external/lib/
 BIN = ./x64/main
-SRC = space-lion/src
-OBJ = $(SRC)/GLSLProgram.o \
+SRC = ./space-lion/src
+OBJ = \
+		$(SRC)/abstractPostProcessor.o \
+		$(SRC)/framebufferObject.o \
+		$(SRC)/GLSLProgram.o \
 		$(SRC)/material.o \
+		$(SRC)/poissonImageProcessor.o \
 		$(SRC)/renderHub.o \
+		$(SRC)/renderParser.o \
+		$(SRC)/scene.o \
 		$(SRC)/sceneCamera.o \
 		$(SRC)/sceneEntity.o \
-		$(SRC)/scene.o \
 		$(SRC)/sceneLightSource.o \
 		$(SRC)/staticSceneObject.o \
 		$(SRC)/texture.o \
-		$(SRC)/vertexGeometry.o \
-		$(SRC)/renderParser.o
+		$(SRC)/vertexGeometry.o 
+
 DEPENDFILE = .depend
 
-.PHONY: dep lib
+.PHONY: dep externalclean
 
 all: $(BIN)
 	$(info ~~)
 	$(info ~<= SPACE-LION COMPILED =>~)
 	$(info ~~)
 
-lib: 
-	mkdir -p lib
-	export PATH="${PWD}/lib/wget-git/src:${PATH}"
-	cp build_libs.makefile lib/Makefile
-	make -C lib
+run: all
+	cd ./x64 && ./main
 
-libclean: 
-	rm -rf lib
+ext: 
+	mkdir -p ./external
+	cp build_external.makefile external/Makefile
+	make -C ./external
 
-.PHONY: help
-help:
-	$(info ~~)
-	$(info ~<= HELP =>~)
-	$(info ~~)
-	$(info If you are using a Linux computer of which you are not)
-	$(info 	sure whether it has installed the required libraries)
-	$(info 	first try simply compiling space-lion itself. )
-	$(info 	If compiling space-lion fails (there is no 'main' in ./x86))
-	$(info 	to download and compile needed libraries)
-	$(info 	execute: 	)
-	$(info 				make lib)
-	$(info )
-	$(info To build space-lion )
-	$(info 	execute:)
-	$(info 				make)
-	$(info )
-	$(info To clear all compiled space-lion objects, )
-	$(info 	execute: )
-	$(info 				make clean)
-	$(info )
-	$(info To delete built libraries)
-	$(info 	execute: )
-	$(info 				make libclean)
-	$(info )
+extclean: 
+	rm -rf ./external
 
 $(BIN): $(OBJ)
 	mkdir -p ./x64

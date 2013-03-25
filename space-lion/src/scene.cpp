@@ -139,7 +139,7 @@ bool scene::createMaterial(material*& inOutMtlPtr)
 bool scene::createMaterial(const char * const path, material*& inOutMtlPtr)
 {
 	materialInfo inOutMtlInfo;
-	if(!parser.parseMaterial(path,inOutMtlInfo))return false;
+	if(!resouceParser.parseMaterial(path,inOutMtlInfo))return false;
 
 	//	check list of materials for default material(id=0)
 	for(std::list<material>::iterator i = materialList.begin(); i != materialList.end(); ++i)
