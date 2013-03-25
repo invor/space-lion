@@ -10,12 +10,6 @@ GLSLProgram::~GLSLProgram()
 {
 }
 
-GLSLProgram::GLSLProgram(shaderType inType)
-{
-	handle = glCreateProgram();
-	linkStatus = false;
-	type = inType;
-}
 
 char* GLSLProgram::readShaderFile(const char *path)
 {
@@ -47,13 +41,63 @@ GLuint GLSLProgram::getUniformLocation(const char *name)
 	return glGetUniformLocation(handle, name);
 }
 
+bool GLSLProgram::initShaders(const shaderType inType)
+{
+	type = inType;
+
+	switch(type)
+	{
+	case PHONG : {
+		if(!compileShaderFromFile("../resources/shaders/v_phong.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_phong.glsl",GL_FRAGMENT_SHADER)) return false;
+		bindAttribLocation(0,"vPosition");
+		bindAttribLocation(1,"vNormal");
+		bindAttribLocation(2,"vTangent");
+		bindAttribLocation(3,"vColour");
+		bindAttribLocation(4,"vUVCoord");
+		if(!link()) return false;
+		std::cout<<getLog();
+		glUseProgram(0);
+		return true;
+		break; }
+	case FLAT : {
+		if(!compileShaderFromFile("../resources/shaders/v_flat.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_flat.glsl",GL_FRAGMENT_SHADER)) return false;
+		bindAttribLocation(0,"vPosition");
+		bindAttribLocation(1,"vNormal");
+		bindAttribLocation(2,"vTangent");
+		bindAttribLocation(3,"vColour");
+		bindAttribLocation(4,"vUVCoord");
+		if(!link()) return false;
+		std::cout<<getLog();
+		glUseProgram(0);
+		return true;
+		break; }
+	case POISSON : {
+		if(!compileShaderFromFile("../resources/shaders/v_poisson.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_poisson.glsl",GL_FRAGMENT_SHADER)) return false;
+		bindAttribLocation(0,"vPosition");
+		bindAttribLocation(1,"vUVCoord");
+		if(!link()) return false;
+		std::cout<<getLog();
+		glUseProgram(0);
+		return true;
+		break; }
+	default : {
+		return false;
+		break; }
+	}
+
+	return false;
+}
+
 bool GLSLProgram::compileShaderFromFile(const char *path, GLenum shaderType)
 {
 	//read shader source code
 	const GLchar* shaderSource = readShaderFile(path);
 	if (shaderSource == NULL)
 	{
-		std::cout<<"Shader file not found.";
+		std::cout<<"Shader file not found."<<std::endl;
 		return false;
 	}
 

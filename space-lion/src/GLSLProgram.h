@@ -27,16 +27,16 @@ private:
 	std::string shaderlog;
 
 	char* readShaderFile(const char *path);
+	bool compileShaderFromFile(const char *path, GLenum shaderType);
 	GLuint getUniformLocation(const char *name);
 public:
 	GLSLProgram();
 	~GLSLProgram();
 
-	GLSLProgram(shaderType);
+	shaderType getType() {return type;}
 
-	int getType() {return type;}
-
-	bool compileShaderFromFile(const char *path, GLenum shaderType);
+	bool initShaders(const shaderType);
+	//bool compileShaderFromFile(const char *path, GLenum shaderType);
 	bool link();
 	bool use();
 	std::string getLog();

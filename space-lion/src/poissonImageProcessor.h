@@ -9,8 +9,7 @@ public:
 	poissonImageProcessor() : abstractPostProcessor() {}
 	~poissonImageProcessor() {}
 
-	//void render(framebufferObject inputFbo);
-	void render();
+	void render(GLuint inputImage);
 protected:
 	bool initShaderProgram();
 };

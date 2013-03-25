@@ -7,9 +7,10 @@ int main( void )
 	renderHub testRenderer;
 	if(testRenderer.init())
 	{
-		testRenderer.addScene();
-		testRenderer.setActiveScene(0);
-		testRenderer.run();
+		//testRenderer.addScene();
+		//testRenderer.setActiveScene(0);
+		//testRenderer.run();
+		testRenderer.runPoissonImageEditing();
 	}
 
 	return 0;

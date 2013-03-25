@@ -12,8 +12,7 @@ public:
 	~abstractPostProcessor();
 
 	bool init();
-	//virtual void render(framebufferObject inputFbo) = 0;
-	virtual void render() = 0;
+	virtual void render(GLuint inputImage) = 0;
 
 	std::string getLog() {return log;}
 

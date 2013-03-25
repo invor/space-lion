@@ -177,51 +177,12 @@ bool scene::createShaderProgram(shaderType type, GLSLProgram*& inOutPrgPtr)
 		}
 	}
 
-	//	create a shader program object of specified type
-	switch(type)
-	{
-	case PHONG : {
-		GLSLProgram shaderPrg(PHONG);
-		if(!shaderPrg.compileShaderFromFile("../resources/shaders/v_phong.glsl",GL_VERTEX_SHADER)) return false;
-		if(!shaderPrg.compileShaderFromFile("../resources/shaders/f_phong.glsl",GL_FRAGMENT_SHADER)) return false;
-		//if(!shaderPrg.compileShaderFromFile("v_phong.glsl",GL_VERTEX_SHADER)) return false;
-		//if(!shaderPrg.compileShaderFromFile("f_phong.glsl",GL_FRAGMENT_SHADER)) return false;
-		shaderPrg.bindAttribLocation(0,"vPosition");
-		shaderPrg.bindAttribLocation(1,"vNormal");
-		shaderPrg.bindAttribLocation(2,"vTangent");
-		shaderPrg.bindAttribLocation(3,"vColour");
-		shaderPrg.bindAttribLocation(4,"vUVCoord");
-		if(!shaderPrg.link()) return false;
-		std::cout<<shaderPrg.getLog();
-		glUseProgram(0);
-		shaderProgramList.push_back(shaderPrg);
-		std::list<GLSLProgram>::iterator lastElement = --(shaderProgramList.end());
-		inOutPrgPtr = &(*lastElement);
-		return true;
-		break; }
-	case FLAT : {
-		GLSLProgram shaderPrg(FLAT);
-		if(!shaderPrg.compileShaderFromFile("../resources/shaders/v_flat.glsl",GL_VERTEX_SHADER)) return false;
-		if(!shaderPrg.compileShaderFromFile("../resources/shaders/f_flat.glsl",GL_FRAGMENT_SHADER)) return false;
-		shaderPrg.bindAttribLocation(0,"vPosition");
-		shaderPrg.bindAttribLocation(1,"vNormal");
-		shaderPrg.bindAttribLocation(2,"vTangent");
-		shaderPrg.bindAttribLocation(3,"vColour");
-		shaderPrg.bindAttribLocation(4,"vUVCoord");
-		if(!shaderPrg.link()) return false;
-		std::cout<<shaderPrg.getLog();
-		glUseProgram(0);
-		shaderProgramList.push_back(shaderPrg);
-		std::list<GLSLProgram>::iterator lastElement = --(shaderProgramList.end());
-		inOutPrgPtr = &(*lastElement);
-		return true;
-		break; }
-	default : {
-		std::cout<<"Shader type unsuitable for a scene entity.\n";
-		return false;
-		break; }
-	}
-	return false;
+	GLSLProgram shaderPrg;
+	if(!shaderPrg.initShaders(type)) return false;
+	shaderProgramList.push_back(shaderPrg);
+	std::list<GLSLProgram>::iterator lastElement = --(shaderProgramList.end());
+	inOutPrgPtr = &(*lastElement);
+	return true;
 }
 
 bool scene::createTexture(int dimX, int dimY, float* data, texture*& inOutTexPtr)

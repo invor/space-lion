@@ -8,8 +8,9 @@
 */
 
 #include "scene.h"
-//#include "abstractPostProcessor.h"
-//#include "framebufferObject.h"
+#include "abstractPostProcessor.h"
+#include "poissonImageProcessor.h"
+#include "framebufferObject.h"
 #include "GL/glfw.h"
 
 //pragmas seem to be only necessary in windows
@@ -37,14 +38,14 @@ public:
 
 	//	Render a frame of the active scene and check event-queue
 	void run();
-	//
+	//	Run poisson image editing on an input famebuffer
 	void runPoissonImageEditing();
 
 private:
-	//std::list<framebufferObject> framebufferList;
+	//std::vector<framebufferObject> framebufferList;
 	std::list<scene> sceneList;
 
-	//framebufferObject *activeFramebuffer;
+	framebufferObject *activeFramebuffer;
 	scene *activeScene;
 
 	bool running;

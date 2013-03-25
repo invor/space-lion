@@ -37,6 +37,11 @@ bool renderHub::init()
 
 	if(!glfwOpenWindow(1200,675,8,8,8,8,32,0,GLFW_WINDOW))
 	{
+		std::cout<<"-----\n"
+				<<"The time is out of joint - O cursed spite,\n"
+				<<"That ever I was born to set it right!\n"
+				<<"-----\n"
+				<<"Error: Couldn't open glfw window";
 		return false;
 	}
 
@@ -137,5 +142,26 @@ void renderHub::run()
 		activeScene->render();
 		glfwSwapBuffers();
 		glfwSleep(0.01);
+	}
+}
+
+void renderHub::runPoissonImageEditing()
+{
+	running = true;
+	glClearColor(0.0f,0.0f,0.0f,1.0f);
+
+	GLuint placeholder;
+	poissonImageProcessor pIp;
+	if(!pIp.init())
+	{
+		std::cout<<"Failed to create poission image processor"
+				<<"\n";
+	}
+	
+	while(running && glfwGetWindowParam(GLFW_OPENED))
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		pIp.render(placeholder);
+		glfwSwapBuffers();
 	}
 }
