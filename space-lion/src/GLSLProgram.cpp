@@ -83,6 +83,16 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		glUseProgram(0);
 		return true;
 		break; }
+	case FXAA : {
+		if(!compileShaderFromFile("../resources/shaders/v_fxaa.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_fxaa.glsl",GL_FRAGMENT_SHADER)) return false;
+		bindAttribLocation(0,"vPosition");
+		bindAttribLocation(1,"vUVCoord");
+		if(!link()) return false;
+		std::cout<<getLog();
+		glUseProgram(0);
+		return true;
+		break; }
 	default : {
 		return false;
 		break; }

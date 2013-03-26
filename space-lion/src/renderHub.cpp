@@ -72,10 +72,12 @@ bool renderHub::addScene()
 
 bool renderHub::deleteScene()
 {
+	return false;
 }
 
 bool renderHub::setSceneParameters()
 {
+	return false;
 }
 
 scene* renderHub::getScene(const int index)

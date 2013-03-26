@@ -7,9 +7,10 @@ int main( void )
 	renderHub testRenderer;
 	if(testRenderer.init())
 	{
-		testRenderer.addScene();
-		testRenderer.setActiveScene(0);
-		testRenderer.run();
+		std::cout<<"Oh my god, why?";
+		//testRenderer.addScene();
+		//testRenderer.setActiveScene(0);
+		//testRenderer.run();
 		//testRenderer.runPoissonImageEditing();
 	}
 

@@ -7,6 +7,7 @@
 /	is handled here.
 */
 
+#include <vector>
 #include "scene.h"
 #include "abstractPostProcessor.h"
 #include "poissonImageProcessor.h"
@@ -42,7 +43,7 @@ public:
 	void runPoissonImageEditing();
 
 private:
-	//std::vector<framebufferObject> framebufferList;
+	std::vector<framebufferObject> framebufferList;
 	std::list<scene> sceneList;
 
 	framebufferObject *activeFramebuffer;
