@@ -19,18 +19,29 @@ bool renderHub::init()
 	}
 	std::cout<<"Initializing GLFW\n";
 
+	//#ifdef _WIN32
+	//	//	Get highest openGL Version (doesn't work on linux right now)
+	//	//	The glfwGetGLVersion function seems somewhat broken on windows too. When certain, seemingly random
+	//	//	conditions are met.
+	//
+	//	int maj, min, rev;
+	//    glfwGetGLVersion(&maj, &min, &rev);
+	//
+	//	//	Open a glfw window
+	//	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, maj);
+	//	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, min);
+	//	//glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	//	//glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	//#else
+	//	//	Better be save than sorry and choose a low GL version on linux
+	//	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2);
+	//	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
+	//#endif
+
 	#ifdef _WIN32
-		//	Get highest openGL Version (doesn't work on linux right now)
-		int maj, min, rev;
-	    glfwGetGLVersion(&maj, &min, &rev);
-	
-		//	Open a glfw window
-		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, maj);
-		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, min);
-		//glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-		//glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
+		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 3);
 	#else
-		//	Better be save than sorry and choose a low GL version on linux
 		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2);
 		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
 	#endif
