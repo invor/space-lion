@@ -12,7 +12,7 @@ public:
 	sceneLightSource();
 	~sceneLightSource();
 
-	sceneLightSource(int,glm::vec3,glm::vec4);
+	sceneLightSource(int, const glm::vec3&, const glm::vec4&);
 
 	glm::vec4 getColour() {return lightColour;}
 };

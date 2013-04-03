@@ -203,7 +203,7 @@ bool GLSLProgram::use()
 	return true;
 }
 
-std::string GLSLProgram::getLog()
+const std::string& GLSLProgram::getLog()
 {
 	return shaderlog;
 }

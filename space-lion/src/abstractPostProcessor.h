@@ -14,7 +14,7 @@ public:
 	bool init();
 	virtual void render(GLuint inputImage) = 0;
 
-	std::string getLog() {return log;}
+	const std::string& getLog() {return log;}
 
 protected:
 	std::string log;

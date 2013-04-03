@@ -34,9 +34,9 @@ public:
 
 	int getId() {return id;}
 	GLSLProgram* getShaderProgram() {return shaderProgram;}
-	texture* getDiffuseMap() {return diffuseMap;}
-	texture* getSpecularMap() {return specularMap;}
-	texture* getNormalMap() {return normalMap;}
+	const texture* getDiffuseMap() {return diffuseMap;}
+	const texture* getSpecularMap() {return specularMap;}
+	const texture* getNormalMap() {return normalMap;}
 };
 
 #endif

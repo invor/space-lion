@@ -14,7 +14,7 @@ public:
 	sceneCamera();
 	~sceneCamera();
 
-	sceneCamera(const int,glm::vec3,glm::quat,float,float);
+	sceneCamera(const int, const glm::vec3&, const glm::quat&,float,float);
 
 	void setAspectRation(const float inAspectRation) {aspectRatio = inAspectRation;}
 	float getAspectRatio() {return aspectRatio;}

@@ -10,7 +10,7 @@ public:
 	renderParser();
 	~renderParser();
 
-	bool parseMaterial(const char* const,materialInfo&);
+	bool parseMaterial(const char* const materialPath, materialInfo& inOutMtlInfo);
 };
 
 #endif

@@ -39,7 +39,7 @@ public:
 	//bool compileShaderFromFile(const char *path, GLenum shaderType);
 	bool link();
 	bool use();
-	std::string getLog();
+	const std::string& getLog();
 	GLuint getHandle();
 	bool isLinked();
 	void bindAttribLocation(GLuint location, const char *name);

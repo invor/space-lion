@@ -329,16 +329,16 @@ void scene::render()
 	glm::mat3 normalMx;
 
 	glm::mat4 modelMx;
-	glm::mat4 viewMx = activeCamera->computeViewMatrix();
-	glm::mat4 projectionMx = activeCamera->computeProjectionMatrix(0.01f,100.0f);
+	glm::mat4 viewMx(activeCamera->computeViewMatrix());
+	glm::mat4 projectionMx(activeCamera->computeProjectionMatrix(0.01f,100.0f));
 
 	////
 	//	access each entity of the scene and draw it
 	////
 	if(materialList.size() > 0)
 	{
-	GLSLProgram* currentPrgm = &(*shaderProgramList.begin());
-	material* currentMtl = &(*materialList.begin());
+	GLSLProgram* currentPrgm(&(*shaderProgramList.begin()));
+	material* currentMtl(&(*materialList.begin()));
 	currentPrgm->use();
 
 	glEnable(GL_TEXTURE_2D);

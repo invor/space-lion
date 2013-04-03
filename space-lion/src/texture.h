@@ -22,7 +22,7 @@ public:
 	texture(const char*);
 	~texture();
 
-	void bindTexture();
+	void bindTexture() const;
 
 	//	load a texture from a local file
 	bool load(const char *path);

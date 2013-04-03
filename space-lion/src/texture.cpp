@@ -14,7 +14,7 @@ texture::~texture(void)
 {
 }
 
-void texture::bindTexture()
+void texture::bindTexture() const
 {
 	glBindTexture(GL_TEXTURE_2D, handle);
 }

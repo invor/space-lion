@@ -15,7 +15,7 @@ public:
 	staticSceneObject();
 	~staticSceneObject();
 
-	staticSceneObject(const int, glm::vec3, vertexGeometry*, material*);
+	staticSceneObject(const int, const glm::vec3&, vertexGeometry*, material*);
 
 	vertexGeometry* getGeometry() {return geometry;}
 	material* getMaterial() {return mtl;}

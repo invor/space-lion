@@ -19,20 +19,20 @@ protected:
 	glm::quat orientation;
 public:
 	sceneEntity() : id(0), position(glm::vec3(0.0f)) {}
-	sceneEntity(const int inId, glm::vec3 inPosition) : id(inId), position(inPosition){}
+	sceneEntity(const int inId, const glm::vec3& inPosition, const glm::quat& inOrientation = glm::quat()) : id(inId), position(inPosition), orientation(inOrientation){}
 	~sceneEntity();
 
-	void translate(glm::vec3 tvec) { position = position + tvec; }
-	void rotate(const float angle,const glm::vec3 axis) {orientation = glm::normalize(glm::rotate(orientation,angle,axis));}
+	void translate(const glm::vec3& tvec) { position = position + tvec; }
+	void rotate(const float angle,const glm::vec3& axis) {orientation = glm::normalize(glm::rotate(orientation,angle,axis));}
 
 	const int getId() {return id;}
 
-	void setPosition(const glm::vec3 inPosition) {position = inPosition;}
+	void setPosition(const glm::vec3& inPosition) {position = inPosition;}
 	glm::vec3 getPosition() {return position;}
 
-	void setOrientation(const glm::quat inOrientation) {orientation = inOrientation;}
-	void setOrientation(const float angle, const glm::vec3 axis) {orientation = glm::rotate(glm::quat(),angle,axis);}
-	glm::quat getOrientation() {return orientation;}
+	void setOrientation(const glm::quat& inOrientation) {orientation = inOrientation;}
+	void setOrientation(const float angle, const glm::vec3& axis) {orientation = glm::rotate(glm::quat(),angle,axis);}
+	const glm::quat& getOrientation() {return orientation;}
 };
 
 #endif
