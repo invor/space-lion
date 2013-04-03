@@ -21,7 +21,7 @@ OBJ = \
 
 DEPENDFILE = .depend
 
-.PHONY: dep externalclean
+.PHONY: dep extclean
 
 all: $(BIN)
 	$(info ~~)

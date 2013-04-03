@@ -1,14 +1,13 @@
 #include "vertexGeometry.h"
 
 
-vertexGeometry::vertexGeometry() : filename("0")
+vertexGeometry::vertexGeometry() : filename("0"), vaHandle(0), vboHandle(0), iboHandle(0)
 {
 }
 
 vertexGeometry::~vertexGeometry()
 {
 }
-
 
 vertexGeometry::vertexGeometry(const char *fn) : filename(fn)
 {
@@ -21,7 +20,7 @@ bool vertexGeometry::bufferDataFromFile(const char *path)
 
 bool vertexGeometry::bufferDataFromArray(const vertex3 *vertexArray, const GLubyte *indexArray, const GLsizei vaSize, const GLsizei viSize)
 {
-	if(vaHandle == NULL || vboHandle == NULL || iboHandle == NULL)
+	if(vaHandle == 0 || vboHandle == 0 || iboHandle == 0)
 	{
 		glGenVertexArrays(1, &vaHandle);
 		glGenBuffers(1, &vboHandle);

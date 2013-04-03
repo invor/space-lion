@@ -37,7 +37,8 @@ bool scene::createVertexGeometry(vertexGeometry*& inOutGeomPtr)
 	//	check list of vertexBufferObjects for default box object(filename="0")
 	for(std::list<vertexGeometry>::iterator i = vboList.begin(); i != vboList.end(); ++i)
 	{
-		if((i->getFilename())=="0"){
+		//	The "1024" is ugly but this should be changed later anyway.
+		if(strncmp((i->getFilename()),"0",1024)){
 			inOutGeomPtr = &(*i);
 			return true;
 		}
@@ -188,8 +189,8 @@ bool scene::createShaderProgram(shaderType type, GLSLProgram*& inOutPrgPtr)
 bool scene::createTexture(int dimX, int dimY, float* data, texture*& inOutTexPtr)
 {
 	++lastTextureId;
-	//	somewhat messy, but will hopefully hold the code together for now
-	char* tstr = "0";
+	//	somewhat messy
+	const char* tstr = "0";
 	//_itoa(lastTextureId,tstr,10);
 	textureList.push_back(texture(tstr));
 	std::list<texture>::iterator lastElement = --(textureList.end());
