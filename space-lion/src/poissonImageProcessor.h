@@ -10,6 +10,9 @@ public:
 	~poissonImageProcessor() {}
 
 	void render(GLuint inputImage);
+	void render(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations);
+private:
+	framebufferObject B;
 protected:
 	bool initShaderProgram();
 };

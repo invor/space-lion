@@ -168,9 +168,13 @@ void renderHub::run()
 
 void renderHub::runPoissonImageEditing()
 {
-	//	This is all just experimental stuff
+	/*
+	/	This is all just experimental stuff
+	*/
 	running = true;
 	glClearColor(0.0f,0.0f,0.0f,1.0f);
+
+	framebufferObject testFBO(512,512,true,true,false);
 
 	GLuint placeholder;
 
@@ -194,10 +198,18 @@ void renderHub::runPoissonImageEditing()
 				<<"\n";
 	}
 	
+	testFBO.bind();
+	glViewport(0,0,testFBO.getWidth(),testFBO.getHeight());
+	glEnable(GL_DEPTH);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	pIp.render(placeholder);
+
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
+		glBindFramebuffer(GL_FRAMEBUFFER,0);
+		glViewport(0,0,1200,675);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		pIp.render(placeholder);
+		pIp.render(&testFBO, &testFBO, 1);
 		glfwSwapBuffers();
 	}
 }
