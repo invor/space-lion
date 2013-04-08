@@ -12,7 +12,7 @@ public:
 	poissonImageProcessor(int w, int h) : abstractPostProcessor(), B(w,h,true,true,false) {}
 
 	void render(GLuint inputImage);
-	void render(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations);
+	void render(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, glm::vec2 lowerBound, glm::vec2 upperBound);
 private:
 	framebufferObject B;
 protected:

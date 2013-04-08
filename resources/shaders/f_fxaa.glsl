@@ -127,9 +127,9 @@ vec3 fxaa()
 	float rangeMin = min( lumaM,min( min(lumaN,lumaW),min(lumaS,lumaE) ) );
 	float rangeMax = max( lumaM,max( max(lumaN,lumaW),max(lumaS,lumaE) ) );
 	float range = rangeMax - rangeMin;
-	if(range < max( fxaa_edge_threshold_min, rangeMax*fxaa_edge_threshold ))
+	if(range < max( FXAA_EDGE_THRESHOLD_MIN, rangeMax*FXAA_EDGE_THRESHOLD ))
 	{
-		return vec4(rgbM,1.0f);
+		return rgbM;
 	}
 	#if FXAA_SUBPIX > 0
 		#if FXAA_SUBPIX_FASTER 
@@ -157,11 +157,10 @@ vec3 fxaa()
 	/*
 	/	VERTICAL AND HORIZONTAL EDGE SEARCH
 	*/
-	vec3 rgbL = rgbN + rgbW + rgbM + rgbE + rgbS;
 	vec3 rgbNW = texture2D(inputImage,uvCoord+vec2(-h.x,h.y)).xyz;
 	vec3 rgbNE = texture2D(inputImage,uvCoord+vec2(h.x,h.y)).xyz;
 	vec3 rgbSW = texture2D(inputImage,uvCoord+vec2(-h.x,-h.y)).xyz;
-	vec3 rgbSW = texture2D(inputImage,uvCoord+vec2(h.x,-h.y)).xyz;
+	vec3 rgbSE = texture2D(inputImage,uvCoord+vec2(h.x,-h.y)).xyz;
 	#if (FXAA_SUBPIX_FASTER == 0) && (FXAA_SUBPIX >0)
 		rgbL += (rgbNW + rgbNE + rgbSW + rgbSE);
 		rgbL *= vec3(1.0f/9.0f);
@@ -174,7 +173,7 @@ vec3 fxaa()
 	float edgeVertical = abs( (0.25f * lumaNW) + (-0.5f * lumaN) + (0.25f * lumaNE) ) +
 					 abs( (0.35f * lumaW) + (-1.0f * lumaM) + (0.5f * lumaE) ) +
 					 abs( (0.25f * lumaSW) + (-0.5f *lumaS) + (0.25f * lumaSE));
-	float edgeHorizonal = abs( (0.25f * lumaNW) + (-0.5f * lumaN) + (0.25f * lumaSW) ) +
+	float edgeHorizontal = abs( (0.25f * lumaNW) + (-0.5f * lumaN) + (0.25f * lumaSW) ) +
 					 abs( (0.35f * lumaN) + (-1.0f * lumaM) + (0.5f * lumaS) ) +
 					 abs( (0.25f * lumaNE) + (-0.5f *lumaE) + (0.25f * lumaSE));
 	bool horzSpan = edgeHorizontal >= edgeVertical;
@@ -198,8 +197,8 @@ vec3 fxaa()
     if(!pairN) gradientN = gradientS;
     if(!pairN) lengthSign *= -1.0f;
 	vec2 posN;
-    posN.x = pos.x + (horzSpan ? 0.0f : lengthSign * 0.5f);
-    posN.y = pos.y + (horzSpan ? lengthSign * 0.5f : 0.0f);
+    posN.x = uvCoord.x + (horzSpan ? 0.0f : lengthSign * 0.5f);
+    posN.y = uvCoord.y + (horzSpan ? lengthSign * 0.5f : 0.0f);
 	
 	/*
 	/	CHOOSE SEARCH LIMITING VALUES
@@ -247,22 +246,21 @@ vec3 fxaa()
 		}
 		else
 		{
-			if(!doneN) lumaEndN = FxaaLuma(textureGrad(inputImage, posN, offNP, offNP)).xyz);
-			if(!doneP) lumaEndP = FxaaLuma(textureGrad(inputImage, posP, offNP, offNP)).xyz);
+			if(!doneN) lumaEndN = FxaaLuma(textureGrad(inputImage, posN, offNP, offNP).xyz);
+			if(!doneP) lumaEndP = FxaaLuma(textureGrad(inputImage, posP, offNP, offNP).xyz);
 		}
-		//	This seems weird...
-		doneN = doneN || (abs(lumEndN - lumN) >= gradientN);
-		doneP = doneP || (abs(lumEndP - lumN) >= gradientN);
+		doneN = doneN || (abs(lumaEndN - lumaN) >= gradientN);
+		doneP = doneP || (abs(lumaEndP - lumaN) >= gradientN);
 		if(doneN && doneP) break;
 		if(!doneN) posN -= offNP;
-		if(!doneN) posN += offNP))
+		if(!doneN) posN += offNP;
 	}
 	
 	/*
 	/	HANDLE IF CENTER IS ON POSITIVE OR NEGATIVE SIDE
 	*/
-	float dstN = horzSpan ? pos.x - posN.x : pos.y - posN.y;
-    float dstP = horzSpan ? posP.x - pos.x : posP.y - pos.y;
+	float dstN = horzSpan ? uvCoord.x - posN.x : uvCoord.y - posN.y;
+    float dstP = horzSpan ? posP.x - uvCoord.x : posP.y - uvCoord.y;
 	bool directionN = dstN < dstP;
 	lumaEndN = directionN ? lumaEndN : lumaEndP;
 	
@@ -281,11 +279,11 @@ vec3 fxaa()
     dstN = directionN ? dstN : dstP;
 	float subPixelOffset = (0.5 + (dstN * (-1.0/spanLength))) * lengthSign;
 	
-	float3 rgbF = textureLod(tex, vec2(pos.x + (horzSpan ? 0.0 : subPixelOffset),pos.y + (horzSpan ? subPixelOffset : 0.0)),0.0).xyz;
+	vec3 rgbF = textureLod(inputImage, vec2(uvCoord.x + (horzSpan ? 0.0 : subPixelOffset),uvCoord.y + (horzSpan ? subPixelOffset : 0.0)),0.0).xyz;
 	#if FXAA_SUBPIX == 0
 		return rgbF;
 	#else
-		return mix(rgbF, rgbL, blendL));
+		return mix(rgbF, rgbL, blendL);
 	#endif
 }
 

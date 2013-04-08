@@ -19,7 +19,7 @@ void poissonImageProcessor::render(GLuint inputImage)
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void poissonImageProcessor::render(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations)
+void poissonImageProcessor::render(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, glm::vec2 lowerBound, glm::vec2 upperBound)
 {
 	shaderPrg.use();
 	glEnable(GL_TEXTURE_2D);
@@ -29,24 +29,22 @@ void poissonImageProcessor::render(framebufferObject *currentFrame, framebufferO
 		glViewport(0,0,B.getWidth(),B.getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
-		shaderPrg.setUniform("lowerBound", glm::vec2(0.0f,0.0f));
-		shaderPrg.setUniform("upperBound", glm::vec2(1.0f,1.0f));
+		shaderPrg.setUniform("lowerBound", lowerBound);
+		shaderPrg.setUniform("upperBound", upperBound);
 		glActiveTexture(GL_TEXTURE0);
 		shaderPrg.setUniform("inputImage",0);
 		currentFrame->bindColorbuffer();
-
 		renderPlane.draw(GL_TRIANGLES,6,0);
 
 		currentFrame->bind();
 		glViewport(0,0,currentFrame->getWidth(),currentFrame->getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
-		shaderPrg.setUniform("lowerBound", glm::vec2(0.0f,0.0f));
-		shaderPrg.setUniform("upperBound", glm::vec2(1.0f,1.0f));
+		shaderPrg.setUniform("lowerBound", lowerBound);
+		shaderPrg.setUniform("upperBound", upperBound);
 		glActiveTexture(GL_TEXTURE0);
 		shaderPrg.setUniform("inputImage",0);
 		B.bindColorbuffer();
-		
 		renderPlane.draw(GL_TRIANGLES,6,0);
 	}
 }

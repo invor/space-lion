@@ -46,7 +46,7 @@ bool renderHub::init()
 		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
 	#endif
 
-	if(!glfwOpenWindow(512,512,8,8,8,8,32,0,GLFW_WINDOW))
+	if(!glfwOpenWindow(1200,675,8,8,8,8,32,0,GLFW_WINDOW))
 	{
 		std::cout<<"-----\n"
 				<<"The time is out of joint - O cursed spite,\n"
@@ -151,6 +151,9 @@ void renderHub::run()
 	
 	activeScene->testing();
 
+	framebufferObject testFBO(1200,675,true,true,false);
+	fxaaPostProcessor fxaaPP;
+	fxaaPP.init();
 
 	running = true;
 	glClearColor(0.0f,0.0f,0.0f,1.0f);
@@ -159,10 +162,18 @@ void renderHub::run()
 
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
+		testFBO.bind();
+		glViewport(0,0,1200,675);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		activeScene->render();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0,0,1200,675);
+		fxaaPP.render(&testFBO);
+
 		glfwSwapBuffers();
-		//glfwSleep(0.01);
+		glfwSleep(0.01);
 	}
 }
 
@@ -181,7 +192,7 @@ void renderHub::runPoissonImageEditing()
 	glGenTextures(1, &placeholder);
 	glBindTexture(GL_TEXTURE_2D, placeholder);
 
-	glfwLoadTexture2D("../resources/textures/sometest.tga",0);
+	glfwLoadTexture2D("../resources/textures/textest.tga",0);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -208,7 +219,7 @@ void renderHub::runPoissonImageEditing()
 
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
-		pIp.render(&testFBO, &testFBO, 1);
+		pIp.render(&testFBO, &testFBO, 100, glm::vec2(0.05f,0.05f), glm::vec2(0.95f,0.95f));
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,512,512);

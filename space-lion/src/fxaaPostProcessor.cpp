@@ -18,3 +18,15 @@ void fxaaPostProcessor::render(GLuint inputImage)
 
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
+
+void fxaaPostProcessor::render(framebufferObject *currentFrame)
+{
+	shaderPrg.use();
+	shaderPrg.setUniform("imgDim", glm::vec2(currentFrame->getWidth(), currentFrame->getHeight()));
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	shaderPrg.setUniform("inputImage",0);
+	currentFrame->bindColorbuffer();
+
+	renderPlane.draw(GL_TRIANGLES,6,0);
+}

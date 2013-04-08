@@ -10,6 +10,7 @@ public:
 	~fxaaPostProcessor() {}
 
 	void render(GLuint inputImage);
+	void render(framebufferObject *currentFrame);
 protected:
 	bool initShaderProgram();
 };
