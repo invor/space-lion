@@ -11,6 +11,7 @@
 #include "scene.h"
 #include "abstractPostProcessor.h"
 #include "poissonImageProcessor.h"
+#include "idlePostProcessor.h"
 #include "framebufferObject.h"
 #include "GL/glfw.h"
 

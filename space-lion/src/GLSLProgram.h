@@ -16,7 +16,7 @@
 	#pragma comment(lib,"glew32.lib")
 #endif
 
-enum shaderType {PHONG,FLAT,POISSON,FXAA};
+enum shaderType {PHONG,FLAT,POISSON,FXAA,IDLE};
 
 class GLSLProgram
 {
@@ -44,6 +44,7 @@ public:
 	bool isLinked();
 	void bindAttribLocation(GLuint location, const char *name);
 	void bindFragDataLocation(GLuint location, const char *name);
+	void setUniform(const char *name, const glm::vec2 &v);
 	void setUniform(const char *name, const glm::vec3 &v);
 	void setUniform(const char *name, const glm::vec4 &v);
 	void setUniform(const char *name, const glm::mat4 &m);

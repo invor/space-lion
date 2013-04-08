@@ -6,8 +6,10 @@
 class poissonImageProcessor : public abstractPostProcessor
 {
 public:
-	poissonImageProcessor() : abstractPostProcessor() {}
+	poissonImageProcessor() : abstractPostProcessor(), B(0,0,false,false,false) {}
 	~poissonImageProcessor() {}
+
+	poissonImageProcessor(int w, int h) : abstractPostProcessor(), B(w,h,true,true,false) {}
 
 	void render(GLuint inputImage);
 	void render(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations);

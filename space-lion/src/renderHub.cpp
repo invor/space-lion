@@ -46,7 +46,7 @@ bool renderHub::init()
 		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
 	#endif
 
-	if(!glfwOpenWindow(1200,675,8,8,8,8,32,0,GLFW_WINDOW))
+	if(!glfwOpenWindow(512,512,8,8,8,8,32,0,GLFW_WINDOW))
 	{
 		std::cout<<"-----\n"
 				<<"The time is out of joint - O cursed spite,\n"
@@ -178,38 +178,43 @@ void renderHub::runPoissonImageEditing()
 
 	GLuint placeholder;
 
-
 	glGenTextures(1, &placeholder);
 	glBindTexture(GL_TEXTURE_2D, placeholder);
 
-	glfwLoadTexture2D("../resources/textures/textest.tga",0);
+	glfwLoadTexture2D("../resources/textures/sometest.tga",0);
 	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glBindTexture(GL_TEXTURE_2D,0);
 
 
-	poissonImageProcessor pIp;
+	poissonImageProcessor pIp(512,512);
 	if(!pIp.init())
 	{
 		std::cout<<"Failed to create poission image processor"
 				<<"\n";
 	}
+
+	idlePostProcessor passThrough;
+	passThrough.init();
 	
 	testFBO.bind();
 	glViewport(0,0,testFBO.getWidth(),testFBO.getHeight());
 	glEnable(GL_DEPTH);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	pIp.render(placeholder);
+	passThrough.render(placeholder);
 
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER,0);
-		glViewport(0,0,1200,675);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pIp.render(&testFBO, &testFBO, 1);
+
+		glBindFramebuffer(GL_FRAMEBUFFER,0);
+		glViewport(0,0,512,512);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		passThrough.render(&testFBO);
 		glfwSwapBuffers();
+		//glfwSleep(0.002);
 	}
 }

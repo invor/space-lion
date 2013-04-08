@@ -93,6 +93,16 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		glUseProgram(0);
 		return true;
 		break; }
+	case IDLE : {
+		if(!compileShaderFromFile("../resources/shaders/v_idle.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_idle.glsl",GL_FRAGMENT_SHADER)) return false;
+		bindAttribLocation(0,"vPosition");
+		bindAttribLocation(1,"vUVCoord");
+		if(!link()) return false;
+		std::cout<<getLog();
+		glUseProgram(0);
+		return true;
+		break; }
 	default : {
 		return false;
 		break; }
@@ -226,6 +236,11 @@ void GLSLProgram::bindAttribLocation(GLuint location, const char *name)
 void GLSLProgram::bindFragDataLocation(GLuint location, const char *name)
 {
 	glBindFragDataLocation(handle, location, name);
+}
+
+void GLSLProgram::setUniform(const char *name, const glm::vec2 &v)
+{
+	glUniform2fv(getUniformLocation(name), 1, glm::value_ptr(v));
 }
 
 void GLSLProgram::setUniform(const char *name, const glm::vec3 &v)
