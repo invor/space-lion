@@ -9,10 +9,7 @@
 
 #include <vector>
 #include "scene.h"
-#include "abstractPostProcessor.h"
-#include "poissonImageProcessor.h"
-#include "idlePostProcessor.h"
-#include "fxaaPostProcessor.h"
+#include "postProcessor.h"
 #include "framebufferObject.h"
 #include "GL/glfw.h"
 

@@ -31,9 +31,20 @@ private:
 	unsigned int lastTextureId;
 	renderParser resouceParser;
 
+	/*
+	/	The following lists contain all entities (objects if you will) that are part of the scene.
+	/	The currently used std::list datastructures are to be replaced with a more sophisticated concept in the near future.
+	*/
 	std::list<sceneLightSource> lightSourceList;
 	std::list<sceneCamera> cameraList;
 	std::list<staticSceneObject> scenegraph;
+
+	/*
+	/	The following lists contain all resources that are in use by an entity of this scene.
+	/	There is only a single "instance" of any (uniquely identifiable) resouce kept in these lists.
+	/	Different entities making use of the same resource, will both be refering to the single instance kept
+	/	within these lists.
+	*/
 	std::list<vertexGeometry> vboList;
 	std::list<material> materialList;
 	std::list<texture> textureList;

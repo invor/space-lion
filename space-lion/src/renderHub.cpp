@@ -152,8 +152,8 @@ void renderHub::run()
 	activeScene->testing();
 
 	framebufferObject testFBO(1200,675,true,true,false);
-	fxaaPostProcessor fxaaPP;
-	fxaaPP.init();
+	postProcessor pP;
+	pP.init();
 
 	running = true;
 	glClearColor(0.0f,0.0f,0.0f,1.0f);
@@ -170,7 +170,7 @@ void renderHub::run()
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0,0,1200,675);
-		fxaaPP.render(&testFBO);
+		pP.applyFxaa(&testFBO);
 
 		glfwSwapBuffers();
 		glfwSleep(0.01);
@@ -218,18 +218,12 @@ void renderHub::runPoissonImageEditing()
 	/*
 	/	Create and initialize the post-processer
 	*/
-	poissonImageProcessor pIp(512,512);
-	if(!pIp.init())
+	postProcessor pP(512,512);
+	if(!pP.init())
 	{
-		std::cout<<"Failed to create poission image processor"
+		std::cout<<"Failed to create post processor"
 				<<"\n";
 	}
-
-	/*
-	/	Create a post-processer helpfer for copying image data da framebuffer objects.
-	*/
-	idlePostProcessor passThrough;
-	passThrough.init();
 	
 	/*
 	/	Copy image data to the framebuffer object.
@@ -238,24 +232,24 @@ void renderHub::runPoissonImageEditing()
 	glViewport(0,0,mainFbo.getWidth(),mainFbo.getHeight());
 	glEnable(GL_DEPTH);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	passThrough.render(placeholder);
+	pP.imageToFBO(placeholder);
 	fakePreviousFbo.bind();
 	glViewport(0,0,fakePreviousFbo.getWidth(),fakePreviousFbo.getHeight());
 	glEnable(GL_DEPTH);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	passThrough.render(placeholder2);
+	pP.imageToFBO(placeholder2);
 
 	/*
 	/	Render Loop.
 	*/
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
-		pIp.render(&mainFbo, &fakePreviousFbo, 10, glm::vec2(0.05f,0.05f), glm::vec2(0.95f,0.95f));
+		pP.applyPoisson(&mainFbo, &fakePreviousFbo, 10, glm::vec2(0.05f,0.05f), glm::vec2(0.95f,0.95f));
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,512,512);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		passThrough.render(&mainFbo);
+		pP.FBOToFBO(&mainFbo);
 		glfwSwapBuffers();
 		//glfwSleep(0.002);
 	}

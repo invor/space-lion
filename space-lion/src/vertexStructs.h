@@ -16,70 +16,70 @@
 #endif
 
 //	Basic Vertex with x,y and z component
-struct vertex3
+struct vertex_p
 {
-	vertex3() : x(0.0), y(0.0), z(0.0) {}
-	vertex3(float tx, float ty, float tz) : 
+	vertex_p() : x(0.0), y(0.0), z(0.0) {}
+	vertex_p(float tx, float ty, float tz) : 
 		x(tx), y(ty), z(tz) {}
 	float x;
 	float y;
 	float z;
 };
 
-struct vertex5 : public vertex3
+struct vertex_pu : public vertex_p
 {
-	vertex5() : vertex3(), u(0.0), v(0.0) {}
-	vertex5(float tx, float ty, float tz, float tu, float tv) :
-		vertex3(tx,ty,tz), u(tu), v(tv) {}
+	vertex_pu() : vertex_p(), u(0.0), v(0.0) {}
+	vertex_pu(float tx, float ty, float tz, float tu, float tv) :
+		vertex_p(tx,ty,tz), u(tu), v(tv) {}
 	float u;
 	float v;
 };
 
-struct vertex6 : public vertex3
+struct vertex_pn : public vertex_p
 {
-	vertex6() : vertex3(), nx(0.0), ny(0.0), nz(0.0) {}
-	vertex6(float tx, float ty, float tz, float tnx, float tny, float tnz) :
-		vertex3(tx,ty,tz), nx(tnx), ny(tny), nz(tnz) {}
+	vertex_pn() : vertex_p(), nx(0.0), ny(0.0), nz(0.0) {}
+	vertex_pn(float tx, float ty, float tz, float tnx, float tny, float tnz) :
+		vertex_p(tx,ty,tz), nx(tnx), ny(tny), nz(tnz) {}
 	float nx;
 	float ny;
 	float nz;
 };
 
-struct vertex8 : public vertex6
+struct vertex_pnu : public vertex_pn
 {
-	vertex8() : vertex6(), u(0.0), v(0.0) {}
-	vertex8(float tx, float ty, float tz, float tnx, float tny, float tnz, float ttx, float tty, float ttz, float tu, float tv) :
-		vertex6(tx,ty,tz,tnx,tny,tnz), u(tu), v(tv) {}
+	vertex_pnu() : vertex_pn(), u(0.0), v(0.0) {}
+	vertex_pnu(float tx, float ty, float tz, float tnx, float tny, float tnz, float ttx, float tty, float ttz, float tu, float tv) :
+		vertex_pn(tx,ty,tz,tnx,tny,tnz), u(tu), v(tv) {}
 	float u;
 	float v;
 };
 
-struct vertex9 : public vertex6
+struct vertex_pnt : public vertex_pn
 {
-	vertex9() : vertex6(), tx(0.0), ty(0.0), tz(0.0) {}
-	vertex9(float tx, float ty, float tz, float tnx, float tny, float tnz, float ttx, float tty, float ttz) :
-		vertex6(tx,ty,tz,tnx,tny,tnz), tx(ttx), ty(tty), tz(ttz) {}
+	vertex_pnt() : vertex_pn(), tx(0.0), ty(0.0), tz(0.0) {}
+	vertex_pnt(float tx, float ty, float tz, float tnx, float tny, float tnz, float ttx, float tty, float ttz) :
+		vertex_pn(tx,ty,tz,tnx,tny,tnz), tx(ttx), ty(tty), tz(ttz) {}
 	float tx;
 	float ty;
 	float tz;
 };
 
-struct vertex13 : public vertex9
+struct vertex_pntc : public vertex_pnt
 {
-	vertex13() : vertex9(), r(0), g(0), b(0), a(0) {}
-	vertex13(float tx, float ty, float tz, float tnx, float tny, float tnz, float ttx, float tty, float ttz, GLubyte tr, GLubyte tg, GLubyte tb, GLubyte ta) :
-		vertex9(tx,ty,tz,tnx,tny,tnz,ttx,tty,ttz), r(tr), g(tg), b(tb), a(ta) {}
+	vertex_pntc() : vertex_pnt(), r(0), g(0), b(0), a(0) {}
+	vertex_pntc(float tx, float ty, float tz, float tnx, float tny, float tnz, float ttx, float tty, float ttz, GLubyte tr, GLubyte tg, GLubyte tb, GLubyte ta) :
+		vertex_pnt(tx,ty,tz,tnx,tny,tnz,ttx,tty,ttz), r(tr), g(tg), b(tb), a(ta) {}
 	GLubyte r;
 	GLubyte g;
 	GLubyte b;
 	GLubyte a;
 };
 
-struct vertex15 : public vertex13
+struct vertex_pntcu : public vertex_pntc
 {
-	vertex15() : vertex13(), u(0.0), v(0.0) {}
-	vertex15(float tx, float ty, float tz, float tnx, float tny, float tnz, float ttx, float tty, float ttz, GLubyte tr, GLubyte tg, GLubyte tb, GLubyte ta, float tu, float tv) :
-		vertex13(tx,ty,tz,tnx,tny,tnz,ttx,tty,ttz,tr,tg,tb,ta), u(tu), v(tv) {}
+	vertex_pntcu() : vertex_pntc(), u(0.0), v(0.0) {}
+	vertex_pntcu(float tx, float ty, float tz, float tnx, float tny, float tnz, float ttx, float tty, float ttz, GLubyte tr, GLubyte tg, GLubyte tb, GLubyte ta, float tu, float tv) :
+		vertex_pntc(tx,ty,tz,tnx,tny,tnz,ttx,tty,ttz,tr,tg,tb,ta), u(tu), v(tv) {}
 	float u;
 	float v;
 };

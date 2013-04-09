@@ -4,11 +4,10 @@ LFLAGS = -lGLEW -lGL -lglfw -L./external/lib/ -Wl,-R./../external/lib/
 BIN = ./x64/main
 SRC = ./space-lion/src
 OBJ = \
-		$(SRC)/abstractPostProcessor.o \
+		$(SRC)/postProcessor.o \
 		$(SRC)/framebufferObject.o \
 		$(SRC)/GLSLProgram.o \
 		$(SRC)/material.o \
-		$(SRC)/poissonImageProcessor.o \
 		$(SRC)/renderHub.o \
 		$(SRC)/renderParser.o \
 		$(SRC)/scene.o \

@@ -18,7 +18,7 @@ bool vertexGeometry::bufferDataFromFile(const char *path)
 	return false;
 }
 
-bool vertexGeometry::bufferDataFromArray(const vertex3 *vertexArray, const GLubyte *indexArray, const GLsizei vaSize, const GLsizei viSize)
+bool vertexGeometry::bufferDataFromArray(const vertex_p *vertexArray, const GLubyte *indexArray, const GLsizei vaSize, const GLsizei viSize)
 {
 	if(vaHandle == 0 || vboHandle == 0 || iboHandle == 0)
 	{
