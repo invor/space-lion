@@ -4,11 +4,7 @@ Space Lion
 A prototype of a multipurpose (render)engine. It is to be used for both
 computer games and as a visualization framework for scientific applications.
 
--Update 1-
-Since my head feels like it's about to explode from thinking about complex concepts
-way ahead of time, I tweaked the first two milestones a bit.
-Milestone can now consist of several "waypoints" to split work into more balanced parts.
-
+(Readme revision 2)
 
 Current milestone:
 codename 'melancholy'
@@ -18,6 +14,7 @@ codename 'melancholy'
 		- basic geometry, texture and material handling for scene objects
 		- basic phong shading (single light source)
 	Waypoint Bravo
+		- post processing
 		- file loading (geometry, texture, materials)
 		- decide on a normal mapping scheme (depends on used geometry filetype)
 	Waypoint Charlie
@@ -27,9 +24,10 @@ codename 'melancholy'
 Next milestone:
 codename 'sigh'
 	
-		- research more advanced lighting schemes
+		- visibility test (on seperate thread)
+		- research physically based lighting schemes
 		- optimizations
-		- research possible adaption of deferred rendering
+		- research possible adaption of deferred or forward+ rendering
 	
 
 Dependencies:
@@ -37,3 +35,5 @@ Dependencies:
 		http://glew.sourceforge.net/
 	glfw for window and context management
 		http://www.glfw.org/
+	glm for OpenGL related maths
+		http://glm.g-truc.net/

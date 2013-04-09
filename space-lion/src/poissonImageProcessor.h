@@ -13,6 +13,7 @@ public:
 
 	void render(GLuint inputImage);
 	void render(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, glm::vec2 lowerBound, glm::vec2 upperBound);
+	void render(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, GLuint);
 private:
 	framebufferObject B;
 protected:

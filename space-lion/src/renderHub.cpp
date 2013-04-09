@@ -46,7 +46,7 @@ bool renderHub::init()
 		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
 	#endif
 
-	if(!glfwOpenWindow(1200,675,8,8,8,8,32,0,GLFW_WINDOW))
+	if(!glfwOpenWindow(512,512,8,8,8,8,32,0,GLFW_WINDOW))
 	{
 		std::cout<<"-----\n"
 				<<"The time is out of joint - O cursed spite,\n"
@@ -185,13 +185,28 @@ void renderHub::runPoissonImageEditing()
 	running = true;
 	glClearColor(0.0f,0.0f,0.0f,1.0f);
 
-	framebufferObject testFBO(512,512,true,true,false);
+	/*
+	/	Create framebuffers to work with.
+	*/
+	framebufferObject mainFbo(512,512,true,true,false);
+	framebufferObject fakePreviousFbo(512,512,true,true,false);
 
+	/*
+	/	Load textures to work with.
+	*/
 	GLuint placeholder;
-
 	glGenTextures(1, &placeholder);
 	glBindTexture(GL_TEXTURE_2D, placeholder);
-
+	glfwLoadTexture2D("../resources/textures/sometest.tga",0);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glBindTexture(GL_TEXTURE_2D,0);
+	GLuint placeholder2;
+	glGenTextures(1, &placeholder2);
+	glBindTexture(GL_TEXTURE_2D, placeholder2);
 	glfwLoadTexture2D("../resources/textures/textest.tga",0);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -200,7 +215,9 @@ void renderHub::runPoissonImageEditing()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glBindTexture(GL_TEXTURE_2D,0);
 
-
+	/*
+	/	Create and initialize the post-processer
+	*/
 	poissonImageProcessor pIp(512,512);
 	if(!pIp.init())
 	{
@@ -208,23 +225,37 @@ void renderHub::runPoissonImageEditing()
 				<<"\n";
 	}
 
+	/*
+	/	Create a post-processer helpfer for copying image data da framebuffer objects.
+	*/
 	idlePostProcessor passThrough;
 	passThrough.init();
 	
-	testFBO.bind();
-	glViewport(0,0,testFBO.getWidth(),testFBO.getHeight());
+	/*
+	/	Copy image data to the framebuffer object.
+	*/
+	mainFbo.bind();
+	glViewport(0,0,mainFbo.getWidth(),mainFbo.getHeight());
 	glEnable(GL_DEPTH);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	passThrough.render(placeholder);
+	fakePreviousFbo.bind();
+	glViewport(0,0,fakePreviousFbo.getWidth(),fakePreviousFbo.getHeight());
+	glEnable(GL_DEPTH);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	passThrough.render(placeholder2);
 
+	/*
+	/	Render Loop.
+	*/
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
-		pIp.render(&testFBO, &testFBO, 100, glm::vec2(0.05f,0.05f), glm::vec2(0.95f,0.95f));
+		pIp.render(&mainFbo, &fakePreviousFbo, 10, glm::vec2(0.05f,0.05f), glm::vec2(0.95f,0.95f));
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,512,512);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		passThrough.render(&testFBO);
+		passThrough.render(&mainFbo);
 		glfwSwapBuffers();
 		//glfwSleep(0.002);
 	}

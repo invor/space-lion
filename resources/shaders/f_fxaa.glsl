@@ -133,7 +133,8 @@ vec3 fxaa()
 	}
 	#if FXAA_SUBPIX > 0
 		#if FXAA_SUBPIX_FASTER 
-			vec3 rgbL = (rgbN + rgbW + rgbE +rgbS +rgbM) * vec3(1.0f/5.0f);
+			//vec3 rgbL = (rgbN + rgbW + rgbE +rgbS +rgbM) * vec3(1.0f/5.0f);
+			vec3 rgbL = (rgbN + rgbW + rgbE +rgbS +rgbM) * (1.0f/5.0f);
 		#else
 			vec3 rgbL = rgbN + rgbW + rgbM + rgbE + rgbS;
 		#endif
@@ -163,7 +164,8 @@ vec3 fxaa()
 	vec3 rgbSE = texture2D(inputImage,uvCoord+vec2(h.x,-h.y)).xyz;
 	#if (FXAA_SUBPIX_FASTER == 0) && (FXAA_SUBPIX >0)
 		rgbL += (rgbNW + rgbNE + rgbSW + rgbSE);
-		rgbL *= vec3(1.0f/9.0f);
+		//rgbL *= vec3(1.0f/9.0f);
+		rgbL *= (1.0f/9.0f);
 	#endif
 	float lumaNW = FxaaLuma(rgbNW);
     float lumaNE = FxaaLuma(rgbNE);
@@ -171,13 +173,25 @@ vec3 fxaa()
     float lumaSE = FxaaLuma(rgbSE);
 	
 	float edgeVertical = abs( (0.25f * lumaNW) + (-0.5f * lumaN) + (0.25f * lumaNE) ) +
-					 abs( (0.35f * lumaW) + (-1.0f * lumaM) + (0.5f * lumaE) ) +
+					 abs( (0.5f * lumaW) + (-1.0f * lumaM) + (0.5f * lumaE) ) +
 					 abs( (0.25f * lumaSW) + (-0.5f *lumaS) + (0.25f * lumaSE));
 	float edgeHorizontal = abs( (0.25f * lumaNW) + (-0.5f * lumaN) + (0.25f * lumaSW) ) +
-					 abs( (0.35f * lumaN) + (-1.0f * lumaM) + (0.5f * lumaS) ) +
+					 abs( (0.5f * lumaN) + (-1.0f * lumaM) + (0.5f * lumaS) ) +
 					 abs( (0.25f * lumaNE) + (-0.5f *lumaE) + (0.25f * lumaSE));
 	bool horzSpan = edgeHorizontal >= edgeVertical;
-	float lengthSign = horzSpan ? -h.y : -h.x;
+	//if(horzSpan)
+	//{
+	//	return vec3(1.0,0.0,0.0);
+	//}
+	//else
+	//{
+	//	return vec3(0.0,0.0,1.0);
+	//}
+	//float lengthSign = horzSpan ? -h.y : -h.x;
+	/*
+	/	In openGL the origin is in the lower left corner, not the upper left
+	*/
+	float lengthSign = horzSpan ? h.y : -h.x;
 	//	both the vertical and the horizontal case use the same variables
 	if(!horzSpan) lumaN = lumaW;
     if(!horzSpan) lumaS = lumaE;
@@ -253,7 +267,7 @@ vec3 fxaa()
 		doneP = doneP || (abs(lumaEndP - lumaN) >= gradientN);
 		if(doneN && doneP) break;
 		if(!doneN) posN -= offNP;
-		if(!doneN) posN += offNP;
+		if(!doneN) posP += offNP;
 	}
 	
 	/*
