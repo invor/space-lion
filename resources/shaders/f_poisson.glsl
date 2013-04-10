@@ -45,34 +45,39 @@ vec3 calcGuidanceVectorY(vec2 pos, vec2 h)
 
 vec3 poissonImageEditing(vec2 pos, vec2 h)
 {
-	vec3 rgbN = texture2D(inputImage,pos+vec2(0.0f,h.y)).xyz;
-	vec3 rgbW = texture2D(inputImage,pos+vec2(-h.x,0.0f)).xyz;
-	vec3 rgbE = texture2D(inputImage,pos+vec2(h.x,0.0f)).xyz;
-	vec3 rgbS = texture2D(inputImage,pos+vec2(0.0f,-h.y)).xyz;
+	vec2 vN = vec2(0.0f,h.y);
+	vec2 vW = vec2(-h.x,0.0f);
+	vec2 vE = vec2(h.x,0.0f);
+	vec2 vS = vec2(0.0f,-h.y);
+
+	vec3 rgbN = texture2D(inputImage,pos+vN).xyz;
+	vec3 rgbW = texture2D(inputImage,pos+vW).xyz;
+	vec3 rgbE = texture2D(inputImage,pos+vE).xyz;
+	vec3 rgbS = texture2D(inputImage,pos+vS).xyz;
 	
-	vec3 guideNx = calcGuidanceVectorX( (pos+pos+vec2(0.0f,h.y))*0.5f, h );
-	vec3 guideNy = calcGuidanceVectorY( (pos+pos+vec2(0.0f,h.y))*0.5f, h );
-	vec3 guideWx = calcGuidanceVectorX( (pos+pos+vec2(-h.x,0.0f))*0.5f, h );
-	vec3 guideWy = calcGuidanceVectorY( (pos+pos+vec2(-h.x,0.0f))*0.5f, h );
-	vec3 guideEx = calcGuidanceVectorX( (pos+pos+vec2(h.x,0.0f))*0.5f, h );
-	vec3 guideEy = calcGuidanceVectorY( (pos+pos+vec2(h.x,0.0f))*0.5f, h );
-	vec3 guideSx = calcGuidanceVectorX( (pos+pos+vec2(0.0f,-h.y))*0.5f, h );
-	vec3 guideSy = calcGuidanceVectorY( (pos+pos+vec2(0.0f,-h.y))*0.5f, h );
+	vec3 guideNx = calcGuidanceVectorX( (pos+pos+vN)*0.5f, h );
+	vec3 guideNy = calcGuidanceVectorY( (pos+pos+vN)*0.5f, h );
+	vec3 guideWx = calcGuidanceVectorX( (pos+pos+vW)*0.5f, h );
+	vec3 guideWy = calcGuidanceVectorY( (pos+pos+vW)*0.5f, h );
+	vec3 guideEx = calcGuidanceVectorX( (pos+pos+vE)*0.5f, h );
+	vec3 guideEy = calcGuidanceVectorY( (pos+pos+vE)*0.5f, h );
+	vec3 guideSx = calcGuidanceVectorX( (pos+pos+vS)*0.5f, h );
+	vec3 guideSy = calcGuidanceVectorY( (pos+pos+vS)*0.5f, h );
 	
-	vec3 vN = vec3( dot(vec2(guideNx.r,guideNy.r), vec2(0.0f,h.y)),
-					dot(vec2(guideNx.g,guideNy.g), vec2(0.0f,h.y)),
-					dot(vec2(guideNx.b,guideNy.b), vec2(0.0f,h.y)));
-	vec3 vW = vec3( dot(vec2(guideWx.r,guideWy.r), vec2(-h.x,0.0f)),
-					dot(vec2(guideWx.g,guideWy.g), vec2(-h.x,0.0f)),
-					dot(vec2(guideWx.b,guideWy.b), vec2(-h.x,0.0f)));				
-	vec3 vE = vec3( dot(vec2(guideEx.r,guideEy.r), vec2(h.x,0.0f)),
-					dot(vec2(guideEx.g,guideEy.g), vec2(h.x,0.0f)),
-					dot(vec2(guideEx.b,guideEy.b), vec2(h.x,0.0f)));
-	vec3 vS = vec3( dot(vec2(guideSx.r,guideSy.r), vec2(0.0f,-h.y)),
-					dot(vec2(guideSx.g,guideSy.g), vec2(0.0f,-h.y)),
-					dot(vec2(guideSx.b,guideSy.b), vec2(0.0f,-h.y)));
+	vec3 projN = vec3( dot(vec2(guideNx.r,guideNy.r), vN),
+					dot(vec2(guideNx.g,guideNy.g), vN),
+					dot(vec2(guideNx.b,guideNy.b), vN));
+	vec3 projW = vec3( dot(vec2(guideWx.r,guideWy.r), vW),
+					dot(vec2(guideWx.g,guideWy.g), vW),
+					dot(vec2(guideWx.b,guideWy.b), vW));				
+	vec3 projE = vec3( dot(vec2(guideEx.r,guideEy.r), vE),
+					dot(vec2(guideEx.g,guideEy.g), vE),
+					dot(vec2(guideEx.b,guideEy.b), vE));
+	vec3 projS = vec3( dot(vec2(guideSx.r,guideSy.r), vS),
+					dot(vec2(guideSx.g,guideSy.g), vS),
+					dot(vec2(guideSx.b,guideSy.b), vS));
 	
-	vec3 rgbF = (rgbN + rgbW + rgbE + rgbS - vN - vW - vE - vS) * 0.25;
+	vec3 rgbF = (rgbN + rgbW + rgbE + rgbS - projN - projW - projE - projS) * 0.25;
 	//rgbF = (rgbN + rgbW + rgbE + rgbS) * 0.25;
 	
 	return rgbF;
@@ -99,7 +104,7 @@ vec3 seamlessCloning(vec2 pos, vec2 h)
 
 void main()
 {
-	if(uvCoord.x > lowerBound && uvCoord.x < upperBound && uvCoord.y > lowerBound && uvCoord.y < upperBound)
+	if((uvCoord.x > lowerBound.x) && (uvCoord.x < upperBound.x) && (uvCoord.y > lowerBound.y) && (uvCoord.y < upperBound.y))
 	{
 		vec2 h = vec2(1.0f/imgDim.x, 1.0f/imgDim.y);
 		
