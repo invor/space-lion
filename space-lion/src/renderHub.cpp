@@ -244,7 +244,9 @@ void renderHub::runPoissonImageEditing()
 	*/
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
-		pP.applyPoisson(&mainFbo, &fakePreviousFbo, 10, glm::vec2(0.05f,0.05f), glm::vec2(0.95f,0.95f));
+		pP.applyPoisson(&mainFbo, &fakePreviousFbo, 10, glm::vec2(26.0f/512.0f,29.0f/512.0f), glm::vec2(484.0f/512.0f,483.0f/512.0f));
+		//pP.applyPoisson(&mainFbo, &fakePreviousFbo, 10, glm::vec2(9.0f/512.0f,193.0f/512.0f), glm::vec2(100.0f/512.0f,309.0f/512.0f));
+		//pP.applyPoisson(&mainFbo, &fakePreviousFbo, 10, placeholder);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,512,512);

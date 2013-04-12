@@ -88,6 +88,7 @@ void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObj
 		B.bind();
 		glViewport(0,0,B.getWidth(),B.getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		poissonShaderPrg.setUniform("iteration", iterationCounter);
 		poissonShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
 		glActiveTexture(GL_TEXTURE0);
 		poissonShaderPrg.setUniform("inputImage",0);
@@ -96,10 +97,12 @@ void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObj
 		poissonShaderPrg.setUniform("previousFrame",1);
 		previousFrame->bindColorbuffer();
 		renderPlane.draw(GL_TRIANGLES,6,0);
+		iterationCounter++;
 
 		currentFrame->bind();
 		glViewport(0,0,currentFrame->getWidth(),currentFrame->getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		poissonShaderPrg.setUniform("iteration", iterationCounter);
 		poissonShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
 		glActiveTexture(GL_TEXTURE0);
 		poissonShaderPrg.setUniform("inputImage",0);
@@ -108,10 +111,48 @@ void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObj
 		poissonShaderPrg.setUniform("previousFrame",1);
 		previousFrame->bindColorbuffer();
 		renderPlane.draw(GL_TRIANGLES,6,0);
+		iterationCounter++;
 	}
 }
 
-void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, GLuint)
+void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, GLuint mask)
 {
-}
+	poissonShaderPrg.use();
 
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	poissonShaderPrg.setUniform("mask",0);
+	glBindTexture(GL_TEXTURE_2D, mask);
+
+	for(int i=0; i<iterations; i++)
+	{
+		B.bind();
+		glViewport(0,0,B.getWidth(),B.getHeight());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		poissonShaderPrg.setUniform("iteration", iterationCounter);
+		poissonShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+		glActiveTexture(GL_TEXTURE1);
+		poissonShaderPrg.setUniform("inputImage",1);
+		currentFrame->bindColorbuffer();
+		glActiveTexture(GL_TEXTURE2);
+		poissonShaderPrg.setUniform("previousFrame",2);
+		previousFrame->bindColorbuffer();
+		renderPlane.draw(GL_TRIANGLES,6,0);
+		iterationCounter++;
+
+		currentFrame->bind();
+		glViewport(0,0,currentFrame->getWidth(),currentFrame->getHeight());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		poissonShaderPrg.setUniform("iteration", iterationCounter);
+		poissonShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+		glActiveTexture(GL_TEXTURE1);
+		poissonShaderPrg.setUniform("inputImage",1);
+		B.bindColorbuffer();
+		glActiveTexture(GL_TEXTURE2);
+		poissonShaderPrg.setUniform("previousFrame",2);
+		previousFrame->bindColorbuffer();
+		renderPlane.draw(GL_TRIANGLES,6,0);
+		iterationCounter++;
+
+	}
+}
