@@ -188,16 +188,26 @@ void renderHub::runPoissonImageEditing()
 	/*
 	/	Create framebuffers to work with.
 	*/
-	framebufferObject mainFbo(512,512,true,true,false);
-	framebufferObject fakePreviousFbo(512,512,true,true,false);
+	framebufferObject mainFbo(400,400,true,true,false);
+	framebufferObject fakePreviousFbo(400,400,true,true,false);
 
 	/*
 	/	Load textures to work with.
 	*/
-	GLuint placeholder;
-	glGenTextures(1, &placeholder);
-	glBindTexture(GL_TEXTURE_2D, placeholder);
-	glfwLoadTexture2D("../resources/textures/sometest.tga",0);
+	GLuint ftle;
+	glGenTextures(1, &ftle);
+	glBindTexture(GL_TEXTURE_2D, ftle);
+	glfwLoadTexture2D("../resources/textures/fault_tolerant_vis/fault_test.tga",0);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glBindTexture(GL_TEXTURE_2D,0);
+	GLuint ftle_mask;
+	glGenTextures(1, &ftle_mask);
+	glBindTexture(GL_TEXTURE_2D, ftle_mask);
+	glfwLoadTexture2D("../resources/textures/fault_tolerant_vis/ftle_mask.tga",0);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -218,7 +228,7 @@ void renderHub::runPoissonImageEditing()
 	/*
 	/	Create and initialize the post-processer
 	*/
-	postProcessor pP(512,512);
+	postProcessor pP(400,400);
 	if(!pP.init())
 	{
 		std::cout<<"Failed to create post processor"
@@ -232,27 +242,28 @@ void renderHub::runPoissonImageEditing()
 	glViewport(0,0,mainFbo.getWidth(),mainFbo.getHeight());
 	glEnable(GL_DEPTH);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	pP.imageToFBO(placeholder);
+	//pP.imageToFBO(ftle_mask);
+	pP.applyMaskToImageToFBO(ftle,ftle_mask,400,400);
 	fakePreviousFbo.bind();
 	glViewport(0,0,fakePreviousFbo.getWidth(),fakePreviousFbo.getHeight());
 	glEnable(GL_DEPTH);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	pP.imageToFBO(placeholder2);
+	pP.imageToFBO(ftle);
 
 	/*
 	/	Render Loop.
 	*/
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
-		pP.applyPoisson(&mainFbo, &fakePreviousFbo, 10, glm::vec2(26.0f/512.0f,29.0f/512.0f), glm::vec2(484.0f/512.0f,483.0f/512.0f));
+		//pP.applyPoisson(&mainFbo, &fakePreviousFbo, 10, glm::vec2(26.0f/512.0f,29.0f/512.0f), glm::vec2(484.0f/512.0f,483.0f/512.0f));
 		//pP.applyPoisson(&mainFbo, &fakePreviousFbo, 10, glm::vec2(9.0f/512.0f,193.0f/512.0f), glm::vec2(100.0f/512.0f,309.0f/512.0f));
-		//pP.applyPoisson(&mainFbo, &fakePreviousFbo, 10, placeholder);
+		pP.applyPoisson(&mainFbo, &fakePreviousFbo, 1, ftle_mask);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,512,512);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&mainFbo);
 		glfwSwapBuffers();
-		//glfwSleep(0.002);
+		glfwSleep(0.1);
 	}
 }

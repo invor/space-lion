@@ -24,6 +24,7 @@ bool postProcessor::init()
 	if(!fxaaShaderPrg.initShaders(FXAA)) return false;
 	if(!poissonShaderPrg.initShaders(POISSON)) return false;
 	if(!idleShaderPrg.initShaders(IDLE)) return false;
+	if(!stampShaderPrg.initShaders(STAMP)) return false;
 
 	return true;
 }
@@ -48,6 +49,23 @@ void postProcessor::applyFxaa(framebufferObject *currentFrame)
 	glActiveTexture(GL_TEXTURE0);
 	fxaaShaderPrg.setUniform("inputImage",0);
 	currentFrame->bindColorbuffer();
+
+	renderPlane.draw(GL_TRIANGLES,6,0);
+}
+
+void postProcessor::applyMaskToImageToFBO(GLuint inputImage, GLuint mask, int w, int h)
+{
+	stampShaderPrg.use();
+	stampShaderPrg.setUniform("imgDim", glm::vec2(w, h));
+
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	stampShaderPrg.setUniform("inputImage",0);
+	glBindTexture(GL_TEXTURE_2D, inputImage);
+
+	glActiveTexture(GL_TEXTURE1);
+	stampShaderPrg.setUniform("mask",1);
+	glBindTexture(GL_TEXTURE_2D, mask);
 
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }

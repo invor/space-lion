@@ -21,6 +21,11 @@ public:
 	void applyFxaa(framebufferObject *currentFrame);
 
 	/*
+	/	Render the input texture to the currently bound framebuffer using a mask.
+	/	Pixels covered by black areas of the mask are rendered black.
+	*/
+	void applyMaskToImageToFBO(GLuint inputImage, GLuint mask, int w, int h);
+	/*
 	/	Render the input texture to the currently bound framebuffer.
 	*/
 	void imageToFBO(GLuint inputImage);
@@ -49,6 +54,7 @@ private:
 	GLSLProgram fxaaShaderPrg;
 	GLSLProgram poissonShaderPrg;
 	GLSLProgram idleShaderPrg;
+	GLSLProgram stampShaderPrg;
 };
 
 #endif
