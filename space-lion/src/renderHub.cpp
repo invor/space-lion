@@ -46,7 +46,7 @@ bool renderHub::init()
 		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
 	#endif
 
-	if(!glfwOpenWindow(512,512,8,8,8,8,32,0,GLFW_WINDOW))
+	if(!glfwOpenWindow(400,400,8,8,8,8,32,0,GLFW_WINDOW))
 	{
 		std::cout<<"-----\n"
 				<<"The time is out of joint - O cursed spite,\n"
@@ -190,6 +190,7 @@ void renderHub::runPoissonImageEditing()
 	*/
 	framebufferObject mainFbo(400,400,true,true,false);
 	framebufferObject fakePreviousFbo(400,400,true,true,false);
+	framebufferObject distanceMap(400,400,true,false,false);
 
 	/*
 	/	Load textures to work with.
@@ -197,7 +198,7 @@ void renderHub::runPoissonImageEditing()
 	GLuint ftle;
 	glGenTextures(1, &ftle);
 	glBindTexture(GL_TEXTURE_2D, ftle);
-	glfwLoadTexture2D("../resources/textures/fault_tolerant_vis/fault_test.tga",0);
+	glfwLoadTexture2D("../resources/textures/fault_tolerant_vis/ftle.tga",0);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -208,16 +209,6 @@ void renderHub::runPoissonImageEditing()
 	glGenTextures(1, &ftle_mask);
 	glBindTexture(GL_TEXTURE_2D, ftle_mask);
 	glfwLoadTexture2D("../resources/textures/fault_tolerant_vis/ftle_mask.tga",0);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glBindTexture(GL_TEXTURE_2D,0);
-	GLuint placeholder2;
-	glGenTextures(1, &placeholder2);
-	glBindTexture(GL_TEXTURE_2D, placeholder2);
-	glfwLoadTexture2D("../resources/textures/textest.tga",0);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -249,21 +240,23 @@ void renderHub::runPoissonImageEditing()
 	glEnable(GL_DEPTH);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	pP.imageToFBO(ftle);
+	distanceMap.bind();
+	glViewport(0,0,distanceMap.getWidth(),distanceMap.getHeight());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	pP.generateDistanceMap(ftle_mask,400,400);
 
 	/*
 	/	Render Loop.
 	*/
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
-		//pP.applyPoisson(&mainFbo, &fakePreviousFbo, 10, glm::vec2(26.0f/512.0f,29.0f/512.0f), glm::vec2(484.0f/512.0f,483.0f/512.0f));
-		//pP.applyPoisson(&mainFbo, &fakePreviousFbo, 10, glm::vec2(9.0f/512.0f,193.0f/512.0f), glm::vec2(100.0f/512.0f,309.0f/512.0f));
-		pP.applyPoisson(&mainFbo, &fakePreviousFbo, 1, ftle_mask);
+		pP.applyPoisson(&mainFbo, &fakePreviousFbo, 1, ftle_mask, &distanceMap);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
-		glViewport(0,0,512,512);
+		glViewport(0,0,400,400);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&mainFbo);
 		glfwSwapBuffers();
-		glfwSleep(0.1);
+		//glfwSleep(0.001);
 	}
 }

@@ -113,6 +113,26 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		glUseProgram(0);
 		return true;
 		break; }
+	case INPAINTING : {
+		if(!compileShaderFromFile("../resources/shaders/v_imageInpainting.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_imageInpainting.glsl",GL_FRAGMENT_SHADER)) return false;
+		bindAttribLocation(0,"vPosition");
+		bindAttribLocation(1,"vUVCoord");
+		if(!link()) return false;
+		std::cout<<getLog();
+		glUseProgram(0);
+		return true;
+		break; }
+	case DISTANCEMAPPING : {
+		if(!compileShaderFromFile("../resources/shaders/v_distanceMapping.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_distanceMapping.glsl",GL_FRAGMENT_SHADER)) return false;
+		bindAttribLocation(0,"vPosition");
+		bindAttribLocation(1,"vUVCoord");
+		if(!link()) return false;
+		std::cout<<getLog();
+		glUseProgram(0);
+		return true;
+		break; }
 	default : {
 		return false;
 		break; }

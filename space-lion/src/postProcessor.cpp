@@ -23,8 +23,10 @@ bool postProcessor::init()
 	*/
 	if(!fxaaShaderPrg.initShaders(FXAA)) return false;
 	if(!poissonShaderPrg.initShaders(POISSON)) return false;
+	if(!inpaintingShaderPrg.initShaders(INPAINTING)) return false;
 	if(!idleShaderPrg.initShaders(IDLE)) return false;
 	if(!stampShaderPrg.initShaders(STAMP)) return false;
+	if(!distanceShaderPrg.initShaders(DISTANCEMAPPING)) return false;
 
 	return true;
 }
@@ -49,6 +51,19 @@ void postProcessor::applyFxaa(framebufferObject *currentFrame)
 	glActiveTexture(GL_TEXTURE0);
 	fxaaShaderPrg.setUniform("inputImage",0);
 	currentFrame->bindColorbuffer();
+
+	renderPlane.draw(GL_TRIANGLES,6,0);
+}
+
+void postProcessor::generateDistanceMap(GLuint mask, int w, int h)
+{
+	distanceShaderPrg.use();
+	distanceShaderPrg.setUniform("imgDim", glm::vec2(w, h));
+
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	distanceShaderPrg.setUniform("mask",0);
+	glBindTexture(GL_TEXTURE_2D, mask);
 
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
@@ -93,6 +108,7 @@ void postProcessor::FBOToFBO(framebufferObject *inputFBO)
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
+/*
 void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, glm::vec2 lowerBound, glm::vec2 upperBound)
 {
 	poissonShaderPrg.use();
@@ -132,10 +148,55 @@ void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObj
 		iterationCounter++;
 	}
 }
+*/
 
-void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, GLuint mask)
+void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, GLuint mask, framebufferObject *distanceMap)
 {
 	poissonShaderPrg.use();
+
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	poissonShaderPrg.setUniform("mask",0);
+	glBindTexture(GL_TEXTURE_2D, mask);
+	glActiveTexture(GL_TEXTURE1);
+	poissonShaderPrg.setUniform("distanceMap",1);
+	distanceMap->bindColorbuffer();
+
+	for(int i=0; i<iterations; i++)
+	{
+		B.bind();
+		glViewport(0,0,B.getWidth(),B.getHeight());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		poissonShaderPrg.setUniform("iteration", iterationCounter);
+		poissonShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+		glActiveTexture(GL_TEXTURE2);
+		poissonShaderPrg.setUniform("inputImage",2);
+		currentFrame->bindColorbuffer();
+		glActiveTexture(GL_TEXTURE3);
+		poissonShaderPrg.setUniform("previousFrame",3);
+		previousFrame->bindColorbuffer();
+		renderPlane.draw(GL_TRIANGLES,6,0);
+		iterationCounter++;
+
+		currentFrame->bind();
+		glViewport(0,0,currentFrame->getWidth(),currentFrame->getHeight());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		poissonShaderPrg.setUniform("iteration", iterationCounter);
+		poissonShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+		glActiveTexture(GL_TEXTURE2);
+		poissonShaderPrg.setUniform("inputImage",2);
+		B.bindColorbuffer();
+		glActiveTexture(GL_TEXTURE3);
+		poissonShaderPrg.setUniform("previousFrame",3);
+		previousFrame->bindColorbuffer();
+		renderPlane.draw(GL_TRIANGLES,6,0);
+		iterationCounter++;
+	}
+}
+
+void postProcessor::applyImageInpainting(framebufferObject *currentFrame, GLuint mask, int iterations)
+{
+	inpaintingShaderPrg.use();
 
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
@@ -152,9 +213,6 @@ void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObj
 		glActiveTexture(GL_TEXTURE1);
 		poissonShaderPrg.setUniform("inputImage",1);
 		currentFrame->bindColorbuffer();
-		glActiveTexture(GL_TEXTURE2);
-		poissonShaderPrg.setUniform("previousFrame",2);
-		previousFrame->bindColorbuffer();
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
 
@@ -166,11 +224,7 @@ void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObj
 		glActiveTexture(GL_TEXTURE1);
 		poissonShaderPrg.setUniform("inputImage",1);
 		B.bindColorbuffer();
-		glActiveTexture(GL_TEXTURE2);
-		poissonShaderPrg.setUniform("previousFrame",2);
-		previousFrame->bindColorbuffer();
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
-
 	}
 }
