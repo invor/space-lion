@@ -46,7 +46,7 @@ bool renderHub::init()
 		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
 	#endif
 
-	if(!glfwOpenWindow(400,400,8,8,8,8,32,0,GLFW_WINDOW))
+	if(!glfwOpenWindow(512,512,8,8,8,8,32,0,GLFW_WINDOW))
 	{
 		std::cout<<"-----\n"
 				<<"The time is out of joint - O cursed spite,\n"
@@ -253,10 +253,10 @@ void renderHub::runPoissonImageEditing()
 		pP.applyPoisson(&mainFbo, &fakePreviousFbo, 1, ftle_mask, &distanceMap);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
-		glViewport(0,0,400,400);
+		glViewport(0,0,512,512);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&mainFbo);
 		glfwSwapBuffers();
-		//glfwSleep(0.001);
+		//glfwSleep(0.1);
 	}
 }
