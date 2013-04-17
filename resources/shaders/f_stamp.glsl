@@ -34,7 +34,7 @@ void main()
 	
 	if(rgbM.x < 0.5f)
 	{
-		fragColour = vec4(0.0,0.0,0.0,1.0);
+		fragColour = vec4(0.0,0.0,0.0,0.0);
 	}
 	else
 	{

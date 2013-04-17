@@ -63,6 +63,14 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	/
 	/	Position M inside the stencil equals the position of the current fragment.
 	*/
+	vec4 rgbaM = texture2D(inputImage,pos);
+	/*
+	/	If the pixel at M has already been inpainted, exit early.
+	*/
+	if(rgbaM.a > 0.0f)
+	{
+		return rgbaM;
+	}
 	vec4 rgbaN = texture2D(inputImage,pos+vN);
 	vec4 rgbaNE = texture2D(inputImage,pos+vNE);
 	vec4 rgbaE = texture2D(inputImage,pos+vE);
@@ -71,7 +79,14 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	vec4 rgbaSW = texture2D(inputImage,pos+vSW);
 	vec4 rgbaW = texture2D(inputImage,pos+vW);
 	vec4 rgbaNW = texture2D(inputImage,pos+vNW);
-	vec4 rgbaM = texture2D(inputImage,pos);
+	/*
+	/	If all stencil pixels have opacity = 0, then exit early as this pixel
+	/	will be inpainted in an upcoming iterations.
+	*/
+	if((rgbaN.a+rgbaNE.a+rgbaE.a+rgbaSE.a+rgbaS.a+rgbaSW.a+rgbaW.a+rgbaNW.a)<0.1)
+	{
+		return vec4(0.0);
+	}
 	
 	/*
 	/	Obtain some more values around the stencil.
@@ -137,13 +152,13 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	/	NW -> f in t, b in s
 	*/
 	vec2 isoN = vec2( -(lumaNN-lumaN) , (lumaNE-lumaNW)*0.5f );
-	vec2 isoNE = vec2( -(lumaNN-lumaN) , (lumaNEE-lumaNE) );
+	vec2 isoNE = vec2( -(lumaNNE-lumaNE) , (lumaNEE-lumaNE) );
 	vec2 isoE = vec2( -(lumaNE-lumaSE)*0.5f , (lumaEE-lumaE) );
 	vec2 isoSE = vec2( -(lumaSE-lumaSSE) , (lumaSEE-lumaSE) );
 	vec2 isoS = vec2( -(lumaS-lumaSS) , (lumaSE-lumaSW)*0.5f );
 	vec2 isoSW = vec2( -(lumaSW-lumaSSW) , (lumaSW-lumaSWW) );
 	vec2 isoW = vec2( -(lumaNW-lumaSW)*0.5f , (lumaW-lumaWW) );
-	vec2 isoNW = vec2( -(lumaNW-lumaNNW) , (lumaNW-lumaNWW) );
+	vec2 isoNW = vec2( -(lumaNNW-lumaNW) , (lumaNW-lumaNWW) );
 	
 	/*
 	/	Check if the isophotes are pointing towards our center pixel M by projecting
@@ -164,9 +179,8 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	/*
 	/	Sum up all stencil pixels but M and weight them together.
 	*/
-	float counter = 0.0f;
-	float increment = 0.0f;
-	vec4 rgbF = vec4(0.0f);
+	float weightSum = 0.0f;
+	vec3 rgbF = vec3(0.0f);
 	
 	/*
 	/	Pixels inside the inpainting domain that have not been inpainted yet are expected
@@ -175,13 +189,30 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	/	here. Therefore we multiply by the alpha channel before adding them our final pixel
 	/	color rgbF.
 	*/
-	rgbF += (rgbaN.rgb * projN * rgbaN.a);
-	increment = (1.0f * rgbaN.a);
-	couter += increment;
+	rgbF += ((rgbaN.rgb) * isoProjN * rgbaN.a);
+	weightSum += (isoProjN * rgbaN.a);
+	rgbF += ((rgbaNE.rgb) * isoProjNE * rgbaNE.a);
+	weightSum += (isoProjNE * rgbaNE.a);
+	rgbF += ((rgbaE.rgb) * isoProjE * rgbaE.a);
+	weightSum += (isoProjE * rgbaE.a);
+	rgbF += ((rgbaSE.rgb)	* isoProjSE * rgbaSE.a);
+	weightSum += (isoProjSE * rgbaSE.a);
+	rgbF += ((rgbaS.rgb) * isoProjS * rgbaS.a);
+	weightSum += (isoProjS * rgbaS.a);
+	rgbF += ((rgbaSW.rgb) * isoProjSW * rgbaSW.a);
+	weightSum += (isoProjSW * rgbaSW.a);
+	rgbF += ((rgbaW.rgb) * isoProjW * rgbaW.a);
+	weightSum += (isoProjW * rgbaW.a);
+	rgbF += ((rgbaNW.rgb) * isoProjNW * rgbaNW.a);
+	weightSum += (isoProjNW * rgbaNW.a);
 	
-	//TODO: The rest of the stencil
+	rgbF = rgbF / weightSum;
+	//if(rgbaM.a > 0.0)
+	//{
+	//	return vec4(0.0,1.0,0.0,1.0);
+	//}
 	
-	return vec4(1.0);
+	return vec4(rgbF,1.0f);
 }
 
 void main()
@@ -202,6 +233,6 @@ void main()
 	}
 	else
 	{	
-		fragColour = vec4(texture2D(inputImage,uvCoord));
+		fragColour = vec4(texture2D(inputImage,uvCoord).xyz,1.0);
 	}
 }

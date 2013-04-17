@@ -200,7 +200,7 @@ void postProcessor::applyImageInpainting(framebufferObject *currentFrame, GLuint
 
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
-	poissonShaderPrg.setUniform("mask",0);
+	inpaintingShaderPrg.setUniform("mask",0);
 	glBindTexture(GL_TEXTURE_2D, mask);
 
 	for(int i=0; i<iterations; i++)
@@ -208,10 +208,10 @@ void postProcessor::applyImageInpainting(framebufferObject *currentFrame, GLuint
 		B.bind();
 		glViewport(0,0,B.getWidth(),B.getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		poissonShaderPrg.setUniform("iteration", iterationCounter);
-		poissonShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+		inpaintingShaderPrg.setUniform("iteration", iterationCounter);
+		inpaintingShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
 		glActiveTexture(GL_TEXTURE1);
-		poissonShaderPrg.setUniform("inputImage",1);
+		inpaintingShaderPrg.setUniform("inputImage",1);
 		currentFrame->bindColorbuffer();
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
@@ -219,10 +219,10 @@ void postProcessor::applyImageInpainting(framebufferObject *currentFrame, GLuint
 		currentFrame->bind();
 		glViewport(0,0,currentFrame->getWidth(),currentFrame->getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		poissonShaderPrg.setUniform("iteration", iterationCounter);
-		poissonShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+		inpaintingShaderPrg.setUniform("iteration", iterationCounter);
+		inpaintingShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
 		glActiveTexture(GL_TEXTURE1);
-		poissonShaderPrg.setUniform("inputImage",1);
+		inpaintingShaderPrg.setUniform("inputImage",1);
 		B.bindColorbuffer();
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
