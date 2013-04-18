@@ -198,7 +198,7 @@ void renderHub::runPoissonImageEditing()
 	GLuint ftle;
 	glGenTextures(1, &ftle);
 	glBindTexture(GL_TEXTURE_2D, ftle);
-	glfwLoadTexture2D("../resources/textures/fault_tolerant_vis/fault_test.tga",0);
+	glfwLoadTexture2D("../resources/textures/fault_tolerant_vis/ftle.tga",0);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

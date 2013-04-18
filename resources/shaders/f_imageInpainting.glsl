@@ -62,15 +62,11 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	/	SW | S | SE
 	/
 	/	Position M inside the stencil equals the position of the current fragment.
-	*/
-	vec4 rgbaM = texture2D(inputImage,pos);
-	/*
+	/
 	/	If the pixel at M has already been inpainted, exit early.
 	*/
-	if(rgbaM.a > 0.0f)
-	{
-		return rgbaM;
-	}
+	vec4 rgbaM = texture2D(inputImage,pos);
+	//if(rgbaM.a > 0.0f) return rgbaM;
 	vec4 rgbaN = texture2D(inputImage,pos+vN);
 	vec4 rgbaNE = texture2D(inputImage,pos+vNE);
 	vec4 rgbaE = texture2D(inputImage,pos+vE);
@@ -80,13 +76,22 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	vec4 rgbaW = texture2D(inputImage,pos+vW);
 	vec4 rgbaNW = texture2D(inputImage,pos+vNW);
 	/*
-	/	If all stencil pixels have opacity = 0, then exit early as this pixel
+	/	If all stencil pixels have opacity = 0, then exit early as the current pixel
 	/	will be inpainted in an upcoming iterations.
 	*/
-	if((rgbaN.a+rgbaNE.a+rgbaE.a+rgbaSE.a+rgbaS.a+rgbaSW.a+rgbaW.a+rgbaNW.a)<0.1)
-	{
-		return vec4(0.0);
-	}
+	if((rgbaN.a+rgbaNE.a+rgbaE.a+rgbaSE.a+rgbaS.a+rgbaSW.a+rgbaW.a+rgbaNW.a)<0.1) return vec4(0.0);
+	/*
+	/	Also, we now have enough information to find out a bit more about our stencil's
+	/	position within the inpainting region. Specifically we want to know if the
+	/	pixels north,south,west and east of M have valid values (since we assume
+	/	inpainting regions to be rectangular, this four will give us all the information
+	/	we need). This will help with more accurate finite differentials later on.
+	*/
+	bool validN = ((rgbaN.a > 0.0f) ? true : false);
+	bool validE = ((rgbaE.a > 0.0f) ? true : false);
+	bool validS = ((rgbaS.a > 0.0f) ? true : false);
+	bool validW = ((rgbaW.a > 0.0f) ? true : false);
+	
 	
 	/*
 	/	Obtain some more values around the stencil.
@@ -132,8 +137,9 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	
 	/*
 	/	Calculate the isophote directions (orthogonal to the gradient).
-	/	Depening on the position inside the stencil a different discrete differantial scheme
-	/	is used to avoid hitting pixels in the inpainting domain that haven't been set yet:
+	/	Depening on the position inside the stencil, as well as the stencil position inside
+	/	the inpainting region, a different discrete differantial scheme is used to avoid
+	/	hitting pixels in the inpainting domain that haven't been set yet:
 	/
 	/	Standard texture coordinate system:
 	/	
@@ -142,23 +148,31 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	/	|
 	/	0,0----s
 	/
+	/	The four direct neighbours can stick to one scheme all the time, since this will
+	/	either use valid pixels, or they themselves have no valid values and therefore
+	/	no impact on the calculations for M.
 	/	N  -> forward difference (f) in t, central differecence (c) in s
-	/	NE -> f in t, f in s
 	/	E  -> c in t, f in s
-	/	SE -> backward difference (b) in t, f in s
 	/	S  -> b in t, c in s
-	/	SW -> b in t, b in s
 	/	W  -> c in t, b in s
-	/	NW -> f in t, b in s
+	/
+	/	The corner pixels of the stencil need more consideration. A central difference
+	/	approximation is prefered but not always possible due to missing image information.
+	/	General idea: Check relevant pixels (N,E,S,W) and use central difference if possible,
+	/	else use forward or backward difference respectivly.
 	*/
 	vec2 isoN = vec2( -(lumaNN-lumaN) , (lumaNE-lumaNW)*0.5f );
-	vec2 isoNE = vec2( -(lumaNNE-lumaNE) , (lumaNEE-lumaNE) );
+	vec2 isoNE = vec2( -(validE ? (lumaNNE-lumaE)*0.5f: (lumaNNE-lumaNE)) ,
+						(validN ? (lumaNEE-lumaN)*0.5f : (lumaNEE-lumaNE)) );
 	vec2 isoE = vec2( -(lumaNE-lumaSE)*0.5f , (lumaEE-lumaE) );
-	vec2 isoSE = vec2( -(lumaSE-lumaSSE) , (lumaSEE-lumaSE) );
+	vec2 isoSE = vec2( -(validE ? (lumaE-lumaSSE)*0.5f : (lumaSE-lumaSSE)) ,
+						(validS ? (lumaSEE-lumaS)*0.5f : (lumaSEE-lumaSE)) );
 	vec2 isoS = vec2( -(lumaS-lumaSS) , (lumaSE-lumaSW)*0.5f );
-	vec2 isoSW = vec2( -(lumaSW-lumaSSW) , (lumaSW-lumaSWW) );
+	vec2 isoSW = vec2( -(validW ? (lumaW-lumaSSW)*0.5f : (lumaSW-lumaSSW)) ,
+						(validS ? (lumaS-lumaSWW)*0.5f : (lumaSW-lumaSWW)) );
 	vec2 isoW = vec2( -(lumaNW-lumaSW)*0.5f , (lumaW-lumaWW) );
-	vec2 isoNW = vec2( -(lumaNNW-lumaNW) , (lumaNW-lumaNWW) );
+	vec2 isoNW = vec2( -(validW ? (lumaNNW-lumaW)*0.5f : (lumaNNW-lumaNW)) ,
+						(validN ? (lumaN-lumaNWW)*0.5f : (lumaNW-lumaNWW)) );
 	
 	/*
 	/	Check if the isophotes are pointing towards our center pixel M by projecting
