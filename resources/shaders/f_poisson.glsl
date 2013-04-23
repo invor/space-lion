@@ -97,31 +97,32 @@ vec3 poissonImageEditing(vec2 pos, vec2 h)
 */
 vec3 acceleratedPoissonImageEditing(vec2 pos, vec2 h, float i)
 {
-	float dist = texture2D(distanceMap, pos).x;
-	//float dist = min(min(abs(uvCoord.x-lowerBound.x),abs(upperBound.x-uvCoord.x)),
-	//				 min(abs(uvCoord.y-lowerBound.y),abs(upperBound.y-uvCoord.y)));
-	float minPixelDist = min(h.x,h.y);
-	//dist = (1.0/512.0)+((dist)/(pow(2.0,i)));
-	dist = minPixelDist+((dist-minPixelDist)/i);
+	vec4 dist = texture2D(distanceMap, pos);
+	dist.x = h.y+((dist.x-h.y)/pow(2.0,i));
+	dist.y = h.x+((dist.y-h.x)/pow(2.0,i));
+	dist.z = h.y+((dist.z-h.y)/pow(2.0,i));
+	dist.w = h.x+((dist.w-h.x)/pow(2.0,i));
+	float verticalDist = dist.x+dist.z;
+	float horizontalDist = dist.y+dist.w;
 					 
-	vec2 vN = vec2(0.0f,dist);
-	vec2 vW = vec2(-dist,0.0f);
-	vec2 vE = vec2(dist,0.0f);
-	vec2 vS = vec2(0.0f,-dist);
+	vec2 vN = vec2(0.0f,dist.x);
+	vec2 vE = vec2(dist.y,0.0f);
+	vec2 vS = vec2(0.0f,-dist.z);
+	vec2 vW = vec2(-dist.w,0.0f);
 
 	vec3 rgbN = texture2D(inputImage,pos+vN).xyz;
-	vec3 rgbW = texture2D(inputImage,pos+vW).xyz;
 	vec3 rgbE = texture2D(inputImage,pos+vE).xyz;
 	vec3 rgbS = texture2D(inputImage,pos+vS).xyz;
+	vec3 rgbW = texture2D(inputImage,pos+vW).xyz;
 	
-	vec3 guideNx = calcGuidanceVectorX( (pos+pos+vN)*0.5f, vec2(dist) );
-	vec3 guideNy = calcGuidanceVectorY( (pos+pos+vN)*0.5f, vec2(dist) );
-	vec3 guideWx = calcGuidanceVectorX( (pos+pos+vW)*0.5f, vec2(dist) );
-	vec3 guideWy = calcGuidanceVectorY( (pos+pos+vW)*0.5f, vec2(dist) );
-	vec3 guideEx = calcGuidanceVectorX( (pos+pos+vE)*0.5f, vec2(dist) );
-	vec3 guideEy = calcGuidanceVectorY( (pos+pos+vE)*0.5f, vec2(dist) );
-	vec3 guideSx = calcGuidanceVectorX( (pos+pos+vS)*0.5f, vec2(dist) );
-	vec3 guideSy = calcGuidanceVectorY( (pos+pos+vS)*0.5f, vec2(dist) );
+	vec3 guideNx = calcGuidanceVectorX( (pos+pos+vN)*0.5f, h );
+	vec3 guideNy = calcGuidanceVectorY( (pos+pos+vN)*0.5f, h );
+	vec3 guideEx = calcGuidanceVectorX( (pos+pos+vE)*0.5f, h );
+	vec3 guideEy = calcGuidanceVectorY( (pos+pos+vE)*0.5f, h );
+	vec3 guideSx = calcGuidanceVectorX( (pos+pos+vS)*0.5f, h );
+	vec3 guideSy = calcGuidanceVectorY( (pos+pos+vS)*0.5f, h );
+	vec3 guideWx = calcGuidanceVectorX( (pos+pos+vW)*0.5f, h );
+	vec3 guideWy = calcGuidanceVectorY( (pos+pos+vW)*0.5f, h );
 	
 	vec3 projN = vec3( dot(vec2(guideNx.r,guideNy.r), vN),
 					dot(vec2(guideNx.g,guideNy.g), vN),
@@ -136,7 +137,14 @@ vec3 acceleratedPoissonImageEditing(vec2 pos, vec2 h, float i)
 					dot(vec2(guideSx.g,guideSy.g), vS),
 					dot(vec2(guideSx.b,guideSy.b), vS));
 	
-	vec3 rgbF = (rgbN + rgbW + rgbE + rgbS - projN - projW - projE - projS) * 0.25;
+	/*
+	/	Use inverse distance weigthing for the stencil pixels.
+	*/
+	vec3 rgbF = ( rgbN*(dist.z/verticalDist) +
+				rgbW*(dist.y/horizontalDist) +
+				rgbE*(dist.w/horizontalDist) +
+				rgbS*(dist.x/verticalDist) )*0.5f +
+				(- projN - projW - projE - projS)*0.25f;
 	//rgbF = (rgbN + rgbW + rgbE + rgbS) * 0.25;
 	
 	return rgbF;

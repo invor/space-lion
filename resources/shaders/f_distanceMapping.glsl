@@ -14,9 +14,11 @@ in vec2 uvCoord;
 out vec4 fragColour;
 
 
-float calcDistance()
+vec4 calcDistance()
 {
 	vec2 h = vec2(1.0f/imgDim.x, 1.0f/imgDim.y);
+	
+	vec4 rtn;
 	
 	float verticalTraveledDist = 0.0f;
 	float horizontalTraveledDist = 0.0f;
@@ -24,6 +26,10 @@ float calcDistance()
 	vec2 verticalPos_p = uvCoord;
 	vec2 horizontalPos_n = uvCoord;
 	vec2 horizontalPos_p = uvCoord;
+	bool verticalSet_n = false;
+	bool verticalSet_p = false;
+	bool horizontalSet_n = false;
+	bool horizontalSet_p = false;
 	
 	while ( (verticalPos_n.y > 0.0) && (verticalPos_p.y < 1.0) && (horizontalPos_n.x > 0.0) && (horizontalPos_p.x < 1.0) )
 	{
@@ -35,25 +41,25 @@ float calcDistance()
 		verticalTraveledDist += h.y;
 		horizontalTraveledDist += h.x;
 		
-		if(texture2D(mask,verticalPos_n).x > 0.5f)
+		if( (texture2D(mask,verticalPos_p).x > 0.5f) && (!verticalSet_p) )
 		{
-			return verticalTraveledDist;
+			rtn.x = verticalTraveledDist;
 		}
-		if(texture2D(mask,verticalPos_p).x > 0.5f)
+		if( (texture2D(mask,horizontalPos_p).x > 0.5f) && (!horizontalSet_p) )
 		{
-			return verticalTraveledDist;
+			rtn.y = horizontalTraveledDist;
 		}
-		if(texture2D(mask,horizontalPos_n).x > 0.5f)
+		if( (texture2D(mask,verticalPos_n).x > 0.5f) && (!verticalSet_n) )
 		{
-			return horizontalTraveledDist;
+			rtn.z = verticalTraveledDist;
 		}
-		if(texture2D(mask,horizontalPos_p).x > 0.5f)
+		if( (texture2D(mask,horizontalPos_n).x > 0.5f) && (!horizontalSet_n) )
 		{
-			return horizontalTraveledDist;
+			rtn.w = horizontalTraveledDist;
 		}
 	}
 	
-	return 1.0f;
+	return rtn;
 }
 
 void main()

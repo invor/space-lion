@@ -236,15 +236,15 @@ void renderHub::runPoissonImageEditing()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//pP.imageToFBO(ftle_mask);
 	pP.applyMaskToImageToFBO(ftle,ftle_mask,400,400);
-	//fakePreviousFbo.bind();
-	//glViewport(0,0,fakePreviousFbo.getWidth(),fakePreviousFbo.getHeight());
-	//glEnable(GL_DEPTH);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//pP.imageToFBO(ftle);
-	//distanceMap.bind();
-	//glViewport(0,0,distanceMap.getWidth(),distanceMap.getHeight());
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//pP.generateDistanceMap(ftle_mask,400,400);
+	fakePreviousFbo.bind();
+	glViewport(0,0,fakePreviousFbo.getWidth(),fakePreviousFbo.getHeight());
+	glEnable(GL_DEPTH);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	pP.imageToFBO(ftle);
+	distanceMap.bind();
+	glViewport(0,0,distanceMap.getWidth(),distanceMap.getHeight());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	pP.generateDistanceMap(ftle_mask,400,400);
 
 	/*
 	/	Render Loop.
@@ -260,6 +260,6 @@ void renderHub::runPoissonImageEditing()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&mainFbo);
 		glfwSwapBuffers();
-		//glfwSleep(0.1);
+		glfwSleep(0.01);
 	}
 }

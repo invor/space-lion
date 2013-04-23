@@ -92,7 +92,6 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	bool validS = ((rgbaS.a > 0.0f) ? true : false);
 	bool validW = ((rgbaW.a > 0.0f) ? true : false);
 	
-	
 	/*
 	/	Obtain some more values around the stencil.
 	/	These are used later to calculate gradients/isophotes.
@@ -113,6 +112,7 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	/*
 	/	Obtain luminance values from the rgb values
 	*/
+	float lumaM = luma(rgbaM.xyz);
 	float lumaN = luma(rgbaN.xyz);
 	float lumaNE = luma(rgbaNE.xyz);
 	float lumaE = luma(rgbaE.xyz);
@@ -161,16 +161,21 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	/	General idea: Check relevant pixels (N,E,S,W) and use central difference if possible,
 	/	else use forward or backward difference respectivly.
 	*/
-	vec2 isoN = vec2( -(lumaNN-lumaN) , (lumaNE-lumaNW)*0.5f );
+	vec2 isoN = vec2( -((rgbaM.a>0.0f) ? (lumaNN-lumaM)*0.5f : (lumaNN-lumaN)) ,
+						((rgbaNE.a>0.0f) ? ((rgbaNW.a>0.0f) ? (lumaNE-lumaNW)*0.5f : (lumaNE-lumaN) ) : (lumaN-lumaNW)) );
+				//if((rgbaNW.a>0.0f))return vec4(0.0,1.0,0.0,1.0);
 	vec2 isoNE = vec2( -(validE ? (lumaNNE-lumaE)*0.5f: (lumaNNE-lumaNE)) ,
 						(validN ? (lumaNEE-lumaN)*0.5f : (lumaNEE-lumaNE)) );
-	vec2 isoE = vec2( -(lumaNE-lumaSE)*0.5f , (lumaEE-lumaE) );
+	vec2 isoE = vec2( ((rgbaNE.a>0.0f) ? ((rgbaSE.a>0.0f) ? -(lumaNE-lumaSE)*0.5f : -(lumaNE-lumaE) ) : -(lumaE-lumaSE)) ,
+						((rgbaM.a>0.0f) ? (lumaEE-lumaM)*0.5f : (lumaEE-lumaE)) );
 	vec2 isoSE = vec2( -(validE ? (lumaE-lumaSSE)*0.5f : (lumaSE-lumaSSE)) ,
 						(validS ? (lumaSEE-lumaS)*0.5f : (lumaSEE-lumaSE)) );
-	vec2 isoS = vec2( -(lumaS-lumaSS) , (lumaSE-lumaSW)*0.5f );
+	vec2 isoS = vec2( -((rgbaM.a>0.0f) ? (lumaM-lumaSS)*0.5f : (lumaS-lumaSS)) ,
+						((rgbaSE.a>0.0f) ? ((rgbaSW.a>0.0f) ? (lumaSE-lumaSW)*0.5f : (lumaSE-lumaS) ) : (lumaS-lumaSW)) );
 	vec2 isoSW = vec2( -(validW ? (lumaW-lumaSSW)*0.5f : (lumaSW-lumaSSW)) ,
 						(validS ? (lumaS-lumaSWW)*0.5f : (lumaSW-lumaSWW)) );
-	vec2 isoW = vec2( -(lumaNW-lumaSW)*0.5f , (lumaW-lumaWW) );
+	vec2 isoW = vec2( ((rgbaNW.a>0.0f) ? ((rgbaSW.a>0.0f) ? -(lumaNW-lumaSW)*0.5f : -(lumaNW-lumaW) ) : -(lumaW-lumaSW)) ,
+						((rgbaM.a>0.0f) ? (lumaM-lumaWW)*0.5f : (lumaW-lumaWW)) );
 	vec2 isoNW = vec2( -(validW ? (lumaNNW-lumaW)*0.5f : (lumaNNW-lumaNW)) ,
 						(validN ? (lumaN-lumaNWW)*0.5f : (lumaNW-lumaNWW)) );
 	
@@ -203,24 +208,50 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	/	here. Therefore we multiply by the alpha channel before adding them our final pixel
 	/	color rgbF.
 	*/
-	rgbF += ((rgbaN.rgb) * isoProjN * rgbaN.a);
-	weightSum += (isoProjN * rgbaN.a);
-	rgbF += ((rgbaNE.rgb) * isoProjNE * rgbaNE.a);
-	weightSum += (isoProjNE * rgbaNE.a);
-	rgbF += ((rgbaE.rgb) * isoProjE * rgbaE.a);
-	weightSum += (isoProjE * rgbaE.a);
-	rgbF += ((rgbaSE.rgb)	* isoProjSE * rgbaSE.a);
-	weightSum += (isoProjSE * rgbaSE.a);
-	rgbF += ((rgbaS.rgb) * isoProjS * rgbaS.a);
-	weightSum += (isoProjS * rgbaS.a);
-	rgbF += ((rgbaSW.rgb) * isoProjSW * rgbaSW.a);
-	weightSum += (isoProjSW * rgbaSW.a);
-	rgbF += ((rgbaW.rgb) * isoProjW * rgbaW.a);
-	weightSum += (isoProjW * rgbaW.a);
-	rgbF += ((rgbaNW.rgb) * isoProjNW * rgbaNW.a);
-	weightSum += (isoProjNW * rgbaNW.a);
+	//rgbF += ((rgbaN.rgb) * isoProjN * rgbaN.a);
+	//weightSum += (isoProjN * rgbaN.a);
+	//rgbF += ((rgbaNE.rgb) * isoProjNE * rgbaNE.a);
+	//weightSum += (isoProjNE * rgbaNE.a);
+	//rgbF += ((rgbaE.rgb) * isoProjE * rgbaE.a);
+	//weightSum += (isoProjE * rgbaE.a);
+	//rgbF += ((rgbaSE.rgb)	* isoProjSE * rgbaSE.a);
+	//weightSum += (isoProjSE * rgbaSE.a);
+	//rgbF += ((rgbaS.rgb) * isoProjS * rgbaS.a);
+	//weightSum += (isoProjS * rgbaS.a);
+	//rgbF += ((rgbaSW.rgb) * isoProjSW * rgbaSW.a);
+	//weightSum += (isoProjSW * rgbaSW.a);
+	//rgbF += ((rgbaW.rgb) * isoProjW * rgbaW.a);
+	//weightSum += (isoProjW * rgbaW.a);
+	//rgbF += ((rgbaNW.rgb) * isoProjNW * rgbaNW.a);
+	//weightSum += (isoProjNW * rgbaNW.a);
+
+	float weightN = max(((length(isoN)<0.1) ? 0.25 : 0.0),((isoProjN>0.9f) ? 1.0 : 0.0)) * rgbaN.a;
+	rgbF += ((rgbaN.rgb) * weightN);
+	weightSum += max(0.0,weightN);
+	float weightE =  max(((length(isoE)<0.1) ? 0.25 : 0.0),((isoProjE>0.9f) ? 1.0 : 0.0)) * rgbaE.a;
+	rgbF += ((rgbaE.rgb) * weightE);
+	weightSum += max(0.0,weightE);
+	float weightS = max(((length(isoS)<0.1) ? 0.25 : 0.0),((isoProjS>0.9f) ? 1.0 : 0.0)) * rgbaS.a;
+	rgbF += ((rgbaS.rgb) * weightS);
+	weightSum += max(0.0,weightS);
+	float weightW = max(((length(isoW)<0.1) ? 0.25 : 0.0),((isoProjW>0.9f) ? 1.0 : 0.0)) * rgbaW.a;
+	rgbF += ((rgbaW.rgb) * weightW);
+	weightSum += max(0.0,weightW);
 	
-	rgbF = rgbF / weightSum;
+	float weightSW = max(((length(isoSW)<0.1) ? 0.0 : 0.0),((isoProjSW>0.9f) ? 0.5 : 0.0)) * rgbaSW.a;
+	rgbF += ((rgbaSW.rgb) * weightSW);
+	weightSum += weightSW;
+	float weightSE = max(((length(isoSE)<0.1) ? 0.0 : 0.0),((isoProjSE>0.9f) ? 0.5 : 0.0)) * rgbaSE.a;
+	rgbF += ((rgbaSE.rgb) * weightSE);
+	weightSum += weightSE;
+	float weightNE = max(((length(isoNE)<0.1) ? 0.0 : 0.0),((isoProjNE>0.9f) ? 0.5 : 0.0)) * rgbaNE.a;
+	rgbF += ((rgbaNE.rgb) * weightNE);
+	weightSum += weightNE;
+	float weightNW = max(((length(isoNW)<0.1) ? 0.0	: 0.0),((isoProjNW>0.9f) ? 0.5 : 0.0)) * rgbaNW.a;
+	rgbF += ((rgbaNW.rgb) * weightNW);
+	weightSum += weightNW;
+	
+	rgbF = (rgbF / weightSum);
 	//if(rgbaM.a > 0.0)
 	//{
 	//	return vec4(0.0,1.0,0.0,1.0);
