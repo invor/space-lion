@@ -249,7 +249,7 @@ void renderHub::runPoissonImageEditing()
 	/*
 	/	Render Loop.
 	*/
-	pP.applyImageInpainting(&mainFbo, ftle_mask, 1);
+	//pP.applyImageInpainting(&mainFbo, ftle_mask, 1);
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
 		//pP.applyPoisson(&mainFbo, &fakePreviousFbo, 1, ftle_mask, &distanceMap);
