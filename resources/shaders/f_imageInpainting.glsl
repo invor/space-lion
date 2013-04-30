@@ -85,7 +85,7 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	/	position within the inpainting region. Specifically we want to know if the
 	/	pixels north,south,west and east of M have valid values (since we assume
 	/	inpainting regions to be rectangular, this four will give us all the information
-	/	we need). This will help with more accurate finite differentials later on.
+	/	we need). This will help with a more accurate finite differentials later on.
 	*/
 	bool validN = ((rgbaN.a > 0.0f) ? true : false);
 	bool validE = ((rgbaE.a > 0.0f) ? true : false);
@@ -94,7 +94,7 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	
 	/*
 	/	Obtain some more values around the stencil.
-	/	These are used later to calculate gradients/isophotes.
+	/	These are used to calculate gradients/isophotes later on.
 	*/
 	vec4 rgbaNN = texture2D(inputImage,pos+vN+vN);
 	vec4 rgbaNNE = texture2D(inputImage,pos+vN+vN+vE);
@@ -207,28 +207,28 @@ vec4 imageInpainting(vec2 pos, vec2 h)
 	/	here. Therefore we multiply by the alpha channel before adding them our final pixel
 	/	color rgbF.
 	*/
-	float weightN = (isoProjN * rgbaN.a)/(length(vN));
+	float weightN = (isoProjN * rgbaN.a)/pow(length(vN),2);
 	rgbF += ((rgbaN.rgb) * weightN);
 	weightSum += weightN;
-	float weightNE = (isoProjNE * rgbaNE.a)/(length(vNE));
+	float weightNE = (isoProjNE * rgbaNE.a)/pow(length(vNE),2);
 	rgbF += ((rgbaNE.rgb) * weightNE);
 	weightSum += weightNE;
-	float weightE = (isoProjE * rgbaE.a)/(length(vE));
+	float weightE = (isoProjE * rgbaE.a)/pow(length(vE),2);
 	rgbF += ((rgbaE.rgb) * weightE);
 	weightSum += weightE;
-	float weightSE = (isoProjSE * rgbaSE.a)/(length(vSE));
+	float weightSE = (isoProjSE * rgbaSE.a)/pow(length(vSE),2);
 	rgbF += ((rgbaSE.rgb) * weightSE);
 	weightSum += weightSE;
-	float weigthS = (isoProjS * rgbaS.a)/(length(vS));
+	float weigthS = (isoProjS * rgbaS.a)/pow(length(vS),2);
 	rgbF += ((rgbaS.rgb) * weigthS);
 	weightSum += weigthS;
-	float weightSW = (isoProjSW * rgbaSW.a)/(length(vSW));
+	float weightSW = (isoProjSW * rgbaSW.a)/pow(length(vSW),2);
 	rgbF += ((rgbaSW.rgb) * weightSW);
 	weightSum += weightSW;
-	float weightW = (isoProjW * rgbaW.a)/(length(vW));
+	float weightW = (isoProjW * rgbaW.a)/pow(length(vW),2);
 	rgbF += ((rgbaW.rgb) * weightW);
 	weightSum += weightW;
-	float weightNW = (isoProjNW * rgbaNW.a)/(length(vNW));
+	float weightNW = (isoProjNW * rgbaNW.a)/pow(length(vNW),2);
 	rgbF += ((rgbaNW.rgb) * weightNW);
 	weightSum += weightNW;
 

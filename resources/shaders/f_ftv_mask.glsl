@@ -1,6 +1,6 @@
 #version 330
 
-uniform sampler2D mask;
+uniform sampler1D faultRegions;
 uniform vec2 imgDim;
 
 /*
@@ -14,7 +14,7 @@ in vec2 uvCoord;
 out vec4 fragColour;
 
 
-vec4 calcDistance()
+vec4 calcDistance(float region)
 {
 	vec2 h = vec2(1.0f/imgDim.x, 1.0f/imgDim.y);
 	
@@ -41,22 +41,22 @@ vec4 calcDistance()
 		verticalTraveledDist += h.y;
 		horizontalTraveledDist += h.x;
 		
-		if( (texture2D(mask,verticalPos_p).x > 0.5f) && (!verticalSet_p) )
+		if( (texture1D(faultRegions,region).x > 0.5f) && (!verticalSet_p) )
 		{
 			rtn.x = verticalTraveledDist;
 			verticalSet_p = true;
 		}
-		if( (texture2D(mask,horizontalPos_p).x > 0.5f) && (!horizontalSet_p) )
+		if( (texture1D(faultRegions,region).y > 0.5f) && (!horizontalSet_p) )
 		{
 			rtn.y = horizontalTraveledDist;
 			horizontalSet_p = true;
 		}
-		if( (texture2D(mask,verticalPos_n).x > 0.5f) && (!verticalSet_n) )
+		if( (texture1D(faultRegions,region).z > 0.5f) && (!verticalSet_n) )
 		{
 			rtn.z = verticalTraveledDist;
 			verticalSet_n = true;
 		}
-		if( (texture2D(mask,horizontalPos_n).x > 0.5f) && (!horizontalSet_n) )
+		if( (texture1D(faultRegions,region).w > 0.5f) && (!horizontalSet_n) )
 		{
 			rtn.w = horizontalTraveledDist;
 			horizontalSet_n = true;
@@ -68,12 +68,5 @@ vec4 calcDistance()
 
 void main()
 {
-	if(texture2D(mask,uvCoord).x < 0.5f)
-	{
-		fragColour = vec4(calcDistance());
-	}
-	else
-	{
-		fragColour = vec4(0.0,0.0,0.0,1.0);
-	}
+	fragColour = vec4(0.0,0.0,0.0,1.0);
 }

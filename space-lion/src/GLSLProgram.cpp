@@ -133,6 +133,16 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		glUseProgram(0);
 		return true;
 		break; }
+	case FTV_MASK : {
+		if(!compileShaderFromFile("../resources/shaders/v_ftv_mask.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_ftv_mask.glsl",GL_FRAGMENT_SHADER)) return false;
+		bindAttribLocation(0,"vPosition");
+		bindAttribLocation(1,"vUVCoord");
+		if(!link()) return false;
+		std::cout<<getLog();
+		glUseProgram(0);
+		return true;
+		break; }
 	default : {
 		return false;
 		break; }
@@ -214,7 +224,8 @@ bool GLSLProgram::link()
 			GLsizei written;
 			glGetProgramInfoLog(handle, logLen, &written, log);
 			std::cout<<"Shader info log:\n"
-				<<log;
+				<<log
+				<<"---------------------------------------------------\n\n";
 			free(log);
 		}
 		return false;
@@ -228,7 +239,8 @@ bool GLSLProgram::link()
 		GLsizei written;
 		glGetProgramInfoLog(handle, logLen, &written, log);
 		std::cout<<"Shader info log:\n"
-			<<log;
+			<<log
+			<<"---------------------------------------------------\n\n";
 		free(log);
 	}
 

@@ -46,7 +46,7 @@ bool renderHub::init()
 		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
 	#endif
 
-	if(!glfwOpenWindow(400,400,8,8,8,8,32,0,GLFW_WINDOW))
+	if(!glfwOpenWindow(700,700,8,8,8,8,32,0,GLFW_WINDOW))
 	{
 		std::cout<<"-----\n"
 				<<"The time is out of joint - O cursed spite,\n"
@@ -151,7 +151,7 @@ void renderHub::run()
 	
 	activeScene->testing();
 
-	framebufferObject testFBO(1200,675,true,true,false);
+	framebufferObject testFBO(1200,675,true,false);
 	postProcessor pP;
 	pP.init();
 
@@ -188,9 +188,12 @@ void renderHub::runPoissonImageEditing()
 	/*
 	/	Create framebuffers to work with.
 	*/
-	framebufferObject mainFbo(400,400,true,true,false);
-	framebufferObject fakePreviousFbo(400,400,true,true,false);
-	framebufferObject distanceMap(400,400,true,false,false);
+	framebufferObject mainFbo(400,400,true,false);
+	mainFbo.createColorAttachment(0,GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	framebufferObject fakePreviousFbo(400,400,true,false);
+	fakePreviousFbo.createColorAttachment(0,GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	framebufferObject distanceMap(400,400,false,false);
+	distanceMap.createColorAttachment(0,GL_RGBA32F,GL_RGBA,GL_FLOAT);
 
 	/*
 	/	Load textures to work with.
@@ -252,14 +255,14 @@ void renderHub::runPoissonImageEditing()
 	//pP.applyImageInpainting(&mainFbo, ftle_mask, 1);
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
-		//pP.applyPoisson(&mainFbo, &fakePreviousFbo, 1, ftle_mask, &distanceMap);
-		pP.applyImageInpainting(&mainFbo, ftle_mask, 1);
+		pP.applyPoisson(&mainFbo, &fakePreviousFbo, 5, ftle_mask, &distanceMap);
+		//pP.applyImageInpainting(&mainFbo, ftle_mask, 1);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
-		glViewport(0,0,400,400);
+		glViewport(0,0,700,700);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&mainFbo);
 		glfwSwapBuffers();
-		glfwSleep(0.01);
+		//glfwSleep(0.01);
 	}
 }

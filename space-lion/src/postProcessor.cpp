@@ -27,6 +27,12 @@ bool postProcessor::init()
 	if(!idleShaderPrg.initShaders(IDLE)) return false;
 	if(!stampShaderPrg.initShaders(STAMP)) return false;
 	if(!distanceShaderPrg.initShaders(DISTANCEMAPPING)) return false;
+	if(!maskCreationShaderPrg.initShaders(FTV_MASK)) return false;
+
+	/*
+	/	Prepare the intermediate framebuffer B for rendering
+	*/
+	B.createColorAttachment(0,GL_RGBA32F,GL_RGBA,GL_FLOAT);
 
 	return true;
 }
@@ -50,7 +56,7 @@ void postProcessor::applyFxaa(framebufferObject *currentFrame)
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
 	fxaaShaderPrg.setUniform("inputImage",0);
-	currentFrame->bindColorbuffer();
+	currentFrame->bindColorbuffer(0);
 
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
@@ -66,6 +72,10 @@ void postProcessor::generateDistanceMap(GLuint mask, int w, int h)
 	glBindTexture(GL_TEXTURE_2D, mask);
 
 	renderPlane.draw(GL_TRIANGLES,6,0);
+}
+
+void postProcessor::generateFtvMask(float* inpaintingRegions, int w, int h)
+{
 }
 
 void postProcessor::applyMaskToImageToFBO(GLuint inputImage, GLuint mask, int w, int h)
@@ -103,7 +113,7 @@ void postProcessor::FBOToFBO(framebufferObject *inputFBO)
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
 	idleShaderPrg.setUniform("inputImage",0);
-	inputFBO->bindColorbuffer();
+	inputFBO->bindColorbuffer(0);
 
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
@@ -160,7 +170,7 @@ void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObj
 	glBindTexture(GL_TEXTURE_2D, mask);
 	glActiveTexture(GL_TEXTURE1);
 	poissonShaderPrg.setUniform("distanceMap",1);
-	distanceMap->bindColorbuffer();
+	distanceMap->bindColorbuffer(0);
 
 	for(int i=0; i<iterations; i++)
 	{
@@ -171,10 +181,10 @@ void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObj
 		poissonShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
 		glActiveTexture(GL_TEXTURE2);
 		poissonShaderPrg.setUniform("inputImage",2);
-		currentFrame->bindColorbuffer();
+		currentFrame->bindColorbuffer(0);
 		glActiveTexture(GL_TEXTURE3);
 		poissonShaderPrg.setUniform("previousFrame",3);
-		previousFrame->bindColorbuffer();
+		previousFrame->bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
 
@@ -185,10 +195,10 @@ void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObj
 		poissonShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
 		glActiveTexture(GL_TEXTURE2);
 		poissonShaderPrg.setUniform("inputImage",2);
-		B.bindColorbuffer();
+		B.bindColorbuffer(0);
 		glActiveTexture(GL_TEXTURE3);
 		poissonShaderPrg.setUniform("previousFrame",3);
-		previousFrame->bindColorbuffer();
+		previousFrame->bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
 	}
@@ -212,7 +222,7 @@ void postProcessor::applyImageInpainting(framebufferObject *currentFrame, GLuint
 		inpaintingShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
 		glActiveTexture(GL_TEXTURE1);
 		inpaintingShaderPrg.setUniform("inputImage",1);
-		currentFrame->bindColorbuffer();
+		currentFrame->bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
 
@@ -223,7 +233,7 @@ void postProcessor::applyImageInpainting(framebufferObject *currentFrame, GLuint
 		inpaintingShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
 		glActiveTexture(GL_TEXTURE1);
 		inpaintingShaderPrg.setUniform("inputImage",1);
-		B.bindColorbuffer();
+		B.bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
 	}

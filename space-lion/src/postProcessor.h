@@ -8,10 +8,10 @@
 class postProcessor
 {
 public:
-	postProcessor() : B(0,0,false,false,false), iterationCounter(1.0) {}
+	postProcessor() : B(0,0,false,false), iterationCounter(1.0) {}
 	~postProcessor() {}
 
-	postProcessor(int w, int h) : B(w,h,true,true,false), iterationCounter(1.0) {}
+	postProcessor(int w, int h) : B(w,h,true,false), iterationCounter(1.0) {}
 
 	bool init();
 
@@ -24,15 +24,25 @@ public:
 	/	Generate a distance map for a given mask.
 	*/
 	void generateDistanceMap(GLuint mask, int w, int h);
+
+	/*
+	/	Generate a float mask for fault tolerant visualization.
+	/	Takes a float array as input, with every group of four floats denoting the lower left and upper right corner
+	/	of a rectangular inpainting region.
+	*/
+	void generateFtvMask(float* inpaintingRegions, int w, int h);
+
 	/*
 	/	Render the input texture to the currently bound framebuffer using a mask.
 	/	Pixels covered by black areas of the mask are rendered black.
 	*/
 	void applyMaskToImageToFBO(GLuint inputImage, GLuint mask, int w, int h);
+
 	/*
 	/	Render the input texture to the currently bound framebuffer.
 	*/
 	void imageToFBO(GLuint inputImage);
+
 	/*
 	/	Render the color attachment of the input framebuffer to the currently bound framebuffer.
 	*/
@@ -42,6 +52,7 @@ public:
 	/	Apply poisson image editing to a region given by a rectangle.
 	*/
 	//void applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, glm::vec2 lowerBound, glm::vec2 upperBound);
+
 	/*
 	/	Apply poisson image editing to [a] region[s] given by an image-mask.
 	*/
@@ -66,6 +77,7 @@ private:
 	GLSLProgram idleShaderPrg;
 	GLSLProgram stampShaderPrg;
 	GLSLProgram distanceShaderPrg;
+	GLSLProgram maskCreationShaderPrg;
 };
 
 #endif
