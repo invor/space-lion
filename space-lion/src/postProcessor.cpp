@@ -32,7 +32,7 @@ bool postProcessor::init()
 	/*
 	/	Prepare the intermediate framebuffer B for rendering
 	*/
-	B.createColorAttachment(0,GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	B.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 
 	return true;
 }
@@ -74,8 +74,17 @@ void postProcessor::generateDistanceMap(GLuint mask, int w, int h)
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void postProcessor::generateFtvMask(float* inpaintingRegions, int w, int h)
+void postProcessor::generateFtvMask(GLuint regionsTexture, float w)
 {
+	maskCreationShaderPrg.use();
+	maskCreationShaderPrg.setUniform("regionCount", w);
+
+	glEnable(GL_TEXTURE_1D);
+	glActiveTexture(GL_TEXTURE0);
+	maskCreationShaderPrg.setUniform("inpaintingRegions", 0);
+	glBindTexture(GL_TEXTURE_1D, regionsTexture);
+
+	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
 void postProcessor::applyMaskToImageToFBO(GLuint inputImage, GLuint mask, int w, int h)
@@ -113,7 +122,7 @@ void postProcessor::FBOToFBO(framebufferObject *inputFBO)
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
 	idleShaderPrg.setUniform("inputImage",0);
-	inputFBO->bindColorbuffer(0);
+	inputFBO->bindColorbuffer(1);
 
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }

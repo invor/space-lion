@@ -11,6 +11,7 @@
 #include "scene.h"
 #include "postProcessor.h"
 #include "framebufferObject.h"
+#include "ftvTestbench.h"
 #include "GL/glfw.h"
 
 //pragmas seem to be only necessary in windows

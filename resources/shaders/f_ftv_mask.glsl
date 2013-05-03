@@ -1,7 +1,7 @@
 #version 330
 
-uniform sampler1D faultRegions;
-uniform vec2 imgDim;
+uniform sampler1D inpaintingRegions;
+uniform float regionCount;
 
 /*
 /	Normalized coordinates [0,1]x[0,1] of the fragment.
@@ -11,62 +11,40 @@ in vec2 uvCoord;
 /*
 /	Fragment shader output variable.
 */
-out vec4 fragColour;
+out vec4 inpaintingMask;
+out vec4 distanceMap;
 
 
-vec4 calcDistance(float region)
+vec4 calcDistance(vec4 region)
 {
-	vec2 h = vec2(1.0f/imgDim.x, 1.0f/imgDim.y);
-	
 	vec4 rtn;
 	
-	float verticalTraveledDist = 0.0f;
-	float horizontalTraveledDist = 0.0f;
-	vec2 verticalPos_n = uvCoord;
-	vec2 verticalPos_p = uvCoord;
-	vec2 horizontalPos_n = uvCoord;
-	vec2 horizontalPos_p = uvCoord;
-	bool verticalSet_n = false;
-	bool verticalSet_p = false;
-	bool horizontalSet_n = false;
-	bool horizontalSet_p = false;
-	
-	while ( (verticalPos_n.y > 0.0) && (verticalPos_p.y < 1.0) && (horizontalPos_n.x > 0.0) && (horizontalPos_p.x < 1.0) )
-	{
-		verticalPos_n.y -= h.y;
-		verticalPos_p.y += h.y;
-		horizontalPos_n.x -= h.x;
-		horizontalPos_p.x += h.x;
-		
-		verticalTraveledDist += h.y;
-		horizontalTraveledDist += h.x;
-		
-		if( (texture1D(faultRegions,region).x > 0.5f) && (!verticalSet_p) )
-		{
-			rtn.x = verticalTraveledDist;
-			verticalSet_p = true;
-		}
-		if( (texture1D(faultRegions,region).y > 0.5f) && (!horizontalSet_p) )
-		{
-			rtn.y = horizontalTraveledDist;
-			horizontalSet_p = true;
-		}
-		if( (texture1D(faultRegions,region).z > 0.5f) && (!verticalSet_n) )
-		{
-			rtn.z = verticalTraveledDist;
-			verticalSet_n = true;
-		}
-		if( (texture1D(faultRegions,region).w > 0.5f) && (!horizontalSet_n) )
-		{
-			rtn.w = horizontalTraveledDist;
-			horizontalSet_n = true;
-		}
-	}
+	rtn.x = uvCoord.x - region.x;
+	rtn.y = uvCoord.y - region.y;
+	rtn.z = region.z - uvCoord.x;
+	rtn.w = region.w - uvCoord.y;
 	
 	return rtn;
 }
 
 void main()
-{
-	fragColour = vec4(0.0,0.0,0.0,1.0);
+{	
+	inpaintingMask = vec4(1.0);
+	distanceMap = vec4(0.0);
+	
+	/*
+	/	Check all regions
+	*/
+	for(float i = 0.0f; i < regionCount; i++)
+	{
+		vec4 currentRegion = texture1D(inpaintingRegions, i/regionCount);
+			
+		if( (uvCoord.x >= currentRegion.x) && (uvCoord.x <= currentRegion.z) &&
+			(uvCoord.y >= currentRegion.y) && (uvCoord.y <= currentRegion.w) )
+		{
+			inpaintingMask = vec4(0.0,0.0,0.0,1.0);
+			distanceMap = calcDistance(currentRegion);
+			break;
+		}
+	}
 }

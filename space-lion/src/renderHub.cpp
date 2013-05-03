@@ -38,13 +38,18 @@ bool renderHub::init()
 	//	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
 	//#endif
 
+	int maj, min;
+
 	#ifdef _WIN32
-		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
-		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 3);
+		maj = 3;
+		min = 3;
 	#else
-		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2);
-		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
+		maj = 2;
+		min = 0;
 	#endif
+
+	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, maj);
+	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, min);
 
 	if(!glfwOpenWindow(700,700,8,8,8,8,32,0,GLFW_WINDOW))
 	{
@@ -57,7 +62,8 @@ bool renderHub::init()
 	}
 
 	const GLubyte *version = glGetString(GL_VERSION);
-	std::cout<<"Using OpenGL Version: "<<version<<"\n\n";
+	std::cout<<"Supporting OpenGL Version: "<<version<<"\n";
+	std::cout<<"Using OpenGL Version: "<<maj<<"."<<min<<"\n\n";
 
 	//	Initialize glew
 	GLenum error = glewInit();
@@ -189,11 +195,12 @@ void renderHub::runPoissonImageEditing()
 	/	Create framebuffers to work with.
 	*/
 	framebufferObject mainFbo(400,400,true,false);
-	mainFbo.createColorAttachment(0,GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	mainFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	framebufferObject fakePreviousFbo(400,400,true,false);
-	fakePreviousFbo.createColorAttachment(0,GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	fakePreviousFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	framebufferObject distanceMap(400,400,false,false);
-	distanceMap.createColorAttachment(0,GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	distanceMap.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	distanceMap.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 
 	/*
 	/	Load textures to work with.
@@ -228,26 +235,52 @@ void renderHub::runPoissonImageEditing()
 		std::cout<<"Failed to create post processor"
 				<<"\n";
 	}
+
+	/*
+	/	Create the test bench
+	*/
+	ftvTestbench testBench;
+	testBench.loadImageSequence();
+
+	/*
+	/	Test the new shader for creating a mask and a distance map at the same time.
+	*/
+	//GLfloat inpaintingRegions_data[] = {0.6f,0.6f,1.0f,1.0f};
+	//GLuint inpaintingRegions;
+	//glGenTextures(1, &inpaintingRegions);
+	//glBindTexture(GL_TEXTURE_1D, inpaintingRegions);
+	//glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTexImage1D(GL_TEXTURE_1D,0,GL_RGBA32F,1,0,GL_RGBA,GL_FLOAT,inpaintingRegions_data);
+	//glBindTexture(GL_TEXTURE_1D,0);
+	//
+	//distanceMap.bind();
+	//glViewport(0,0,distanceMap.getWidth(),distanceMap.getHeight());
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//pP.generateFtvMask(inpaintingRegions,1.0f);
+
+
 	
 	/*
 	/	Copy image data to the framebuffer object.
 	*/
-	mainFbo.bind();
-	glViewport(0,0,mainFbo.getWidth(),mainFbo.getHeight());
-	glEnable(GL_DEPTH);
-	//glEnable(GL_BLEND);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//pP.imageToFBO(ftle_mask);
-	pP.applyMaskToImageToFBO(ftle,ftle_mask,400,400);
-	fakePreviousFbo.bind();
-	glViewport(0,0,fakePreviousFbo.getWidth(),fakePreviousFbo.getHeight());
-	glEnable(GL_DEPTH);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	pP.imageToFBO(ftle);
-	distanceMap.bind();
-	glViewport(0,0,distanceMap.getWidth(),distanceMap.getHeight());
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	pP.generateDistanceMap(ftle_mask,400,400);
+	//mainFbo.bind();
+	//glViewport(0,0,mainFbo.getWidth(),mainFbo.getHeight());
+	//glEnable(GL_DEPTH);
+	////glEnable(GL_BLEND);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	////pP.imageToFBO(ftle_mask);
+	//pP.applyMaskToImageToFBO(ftle,ftle_mask,400,400);
+	//fakePreviousFbo.bind();
+	//glViewport(0,0,fakePreviousFbo.getWidth(),fakePreviousFbo.getHeight());
+	//glEnable(GL_DEPTH);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//pP.imageToFBO(ftle);
+	//distanceMap.bind();
+	//glViewport(0,0,distanceMap.getWidth(),distanceMap.getHeight());
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//pP.generateDistanceMap(ftle_mask,400,400);
 
 	/*
 	/	Render Loop.
@@ -255,8 +288,10 @@ void renderHub::runPoissonImageEditing()
 	//pP.applyImageInpainting(&mainFbo, ftle_mask, 1);
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
-		pP.applyPoisson(&mainFbo, &fakePreviousFbo, 5, ftle_mask, &distanceMap);
+		//pP.applyPoisson(&mainFbo, &fakePreviousFbo, 5, ftle_mask, &distanceMap);
 		//pP.applyImageInpainting(&mainFbo, ftle_mask, 1);
+
+		testBench.getFrameConfigA(&distanceMap,&mainFbo);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,700,700);

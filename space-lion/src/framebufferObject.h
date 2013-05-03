@@ -22,7 +22,14 @@ public:
 
 	framebufferObject(int w, int h, bool hasDepth, bool hasStencil);
 
-	bool createColorAttachment(GLint index, GLenum internalFormat, GLenum format, GLenum type);
+	/*
+	/	Adds one color attachment to the framebuffer.
+	/	
+	/	New colorbuffers are added at the end of the colorbuffer vector.
+	/	The index i within the storage vector and the used attachment point
+	/	GL_COLOR_ATTACHMENTi will be the same.
+	*/
+	bool createColorAttachment(GLenum internalFormat, GLenum format, GLenum type);
 
 	void bind();
 	void bindColorbuffer(int index);

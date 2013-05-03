@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\ftvTestbench.h" />
     <ClInclude Include="src\postProcessor.h" />
     <ClInclude Include="src\framebufferObject.h" />
     <ClInclude Include="src\GLSLProgram.h" />
@@ -157,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\ftvTestbench.cpp" />
     <ClCompile Include="src\postProcessor.cpp" />
     <ClCompile Include="src\framebufferObject.cpp" />
     <ClCompile Include="src\GLSLProgram.cpp" />

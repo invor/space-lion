@@ -138,6 +138,8 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		if(!compileShaderFromFile("../resources/shaders/f_ftv_mask.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
+		bindFragDataLocation(0,"inpaintingMask");
+		bindFragDataLocation(1,"distanceMap");
 		if(!link()) return false;
 		std::cout<<getLog();
 		glUseProgram(0);

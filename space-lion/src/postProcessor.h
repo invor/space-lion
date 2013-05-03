@@ -26,11 +26,11 @@ public:
 	void generateDistanceMap(GLuint mask, int w, int h);
 
 	/*
-	/	Generate a float mask for fault tolerant visualization.
+	/	Generate a mask, indicating faulty regions, for fault tolerant visualization.
 	/	Takes a float array as input, with every group of four floats denoting the lower left and upper right corner
 	/	of a rectangular inpainting region.
 	*/
-	void generateFtvMask(float* inpaintingRegions, int w, int h);
+	void generateFtvMask(GLuint regionsTexture, float w);
 
 	/*
 	/	Render the input texture to the currently bound framebuffer using a mask.
