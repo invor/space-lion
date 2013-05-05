@@ -5,7 +5,6 @@ bool ftvTestbench::readPpmHeader(char* filename, long& headerEndPos, int& imgDim
 	/*
 	/	Start off with reading the header of the ppm file.
 	*/
-
 	char buffer[80];
 	FILE *file;
 
@@ -14,6 +13,10 @@ bool ftvTestbench::readPpmHeader(char* filename, long& headerEndPos, int& imgDim
 
 	/*
 	/	Read image dimensions from header.
+	/
+	/	The header of our ppm files consists of a single line with the following layout:
+	/	magic_number 'space' image_dimension_x 'space' image_dimension_y 'space' maximum_value
+	/	e.g	F6 400 400 255
 	*/
 	fgets(buffer, 300, file);
 	sscanf(buffer, "%*c %*d %d %d", &imgDimX, &imgDimY);
@@ -55,8 +58,8 @@ bool ftvTestbench::loadImageSequence()
 	char* imageData = new char[3*imgDimX*imgDimY];
 	if(!readPpmData("../resources/textures/fault_tolerant_vis/ftle/ftle_f_100.ppm",imageData,dataBegin,(3*imgDimX*imgDimY))) return false;
 
-	glGenTextures(1, &images_f[0]);
-	glBindTexture(GL_TEXTURE_2D, images_f[0]);
+	glGenTextures(1, &textures_f[0]);
+	glBindTexture(GL_TEXTURE_2D, textures_f[0]);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -66,17 +69,16 @@ bool ftvTestbench::loadImageSequence()
 	glBindTexture(GL_TEXTURE_2D,0);
 
 	delete[] imageData;
-	
-	imageProcessor = new postProcessor(imgDimX, imgDimY);
 }
 
-void ftvTestbench::getImage(GLuint& image, int index)
+void ftvTestbench::getTexture(GLuint& handle, int index)
 {
-	image = images_f[index];
+	handle = textures_f[index];
 }
 
 void ftvTestbench::getFrameConfigA(framebufferObject* maskFbo, framebufferObject* imgFbo)
 {
 	imgFbo->bind();
-	imageProcessor->imageToFBO(images_f[0]);
+	glViewport(0,0,imgFbo->getWidth(),imgFbo->getHeight());
+	imageProcessor.imageToFBO(textures_f[0]);
 }

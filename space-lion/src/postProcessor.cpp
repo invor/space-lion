@@ -122,7 +122,7 @@ void postProcessor::FBOToFBO(framebufferObject *inputFBO)
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
 	idleShaderPrg.setUniform("inputImage",0);
-	inputFBO->bindColorbuffer(1);
+	inputFBO->bindColorbuffer(0);
 
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }

@@ -158,6 +158,7 @@ void renderHub::run()
 	activeScene->testing();
 
 	framebufferObject testFBO(1200,675,true,false);
+	testFBO.createColorAttachment(GL_RGBA,GL_RGBA,GL_UNSIGNED_BYTE);
 	postProcessor pP;
 	pP.init();
 
@@ -291,7 +292,15 @@ void renderHub::runPoissonImageEditing()
 		//pP.applyPoisson(&mainFbo, &fakePreviousFbo, 5, ftle_mask, &distanceMap);
 		//pP.applyImageInpainting(&mainFbo, ftle_mask, 1);
 
+		mainFbo.bind();
+		glViewport(0,0,mainFbo.getWidth(),mainFbo.getHeight());
 		testBench.getFrameConfigA(&distanceMap,&mainFbo);
+
+		//GLuint tempTex;
+		//testBench.getTexture(tempTex,0);
+		//mainFbo.bind();
+		//glViewport(0,0,mainFbo.getWidth(),mainFbo.getHeight());
+		//pP.imageToFBO(tempTex);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,700,700);
