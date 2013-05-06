@@ -294,19 +294,14 @@ void renderHub::runPoissonImageEditing()
 
 		mainFbo.bind();
 		glViewport(0,0,mainFbo.getWidth(),mainFbo.getHeight());
-		testBench.getFrameConfigA(&distanceMap,&mainFbo);
-
-		//GLuint tempTex;
-		//testBench.getTexture(tempTex,0);
-		//mainFbo.bind();
-		//glViewport(0,0,mainFbo.getWidth(),mainFbo.getHeight());
-		//pP.imageToFBO(tempTex);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		testBench.getFrameConfigB(&distanceMap,&mainFbo);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,700,700);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&mainFbo);
 		glfwSwapBuffers();
-		//glfwSleep(0.01);
+		glfwSleep(0.1);
 	}
 }

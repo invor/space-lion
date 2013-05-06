@@ -17,21 +17,26 @@ class ftvTestbench
 private:
 	postProcessor imageProcessor;
 
-	GLuint textures_f[50];
-	GLuint textures_b[50];
+	/*
+	/	Static array size, since we know how many images we will load.
+	*/
+	GLuint textures_f[51];
+	GLuint textures_b[51];
+
+	int currentFrame;
 
 	/*
 	/	Methods for reading ppm image files.
 	/	Courtesy to the computer vision lecture I attended.
 	*/
-	bool readPpmHeader(char* filename, long& headerEndPos, int& imgDimX, int& imgDimY);
-	bool readPpmData(char* filename, char* imageData, long dataBegin, int imageSize);
+	bool readPpmHeader(const char* filename, long& headerEndPos, int& imgDimX, int& imgDimY);
+	bool readPpmData(const char* filename, char* imageData, long dataBegin, int imageSize);
 public:
 	/*
 	/	Creating a postProcessor with a set framebuffer resolution should be encouraged for long term use.
 	/	This needs a better solution, possibly requiring changes to the framebuffer and postProcessor class.
 	*/
-	ftvTestbench() : imageProcessor(400,400) {imageProcessor.init();}
+	ftvTestbench() : imageProcessor(400,400), currentFrame(0) {imageProcessor.init();}
 	~ftvTestbench() {}
 
 	bool loadImageSequence();
@@ -39,7 +44,7 @@ public:
 	/*
 	/	Reset test instances to inital state.
 	*/
-	void reset();
+	void reset() {currentFrame = 0;}
 
 	void getTexture(GLuint& handle, int index);
 

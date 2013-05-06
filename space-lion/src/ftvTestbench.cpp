@@ -1,6 +1,6 @@
 #include "ftvTestbench.h"
 
-bool ftvTestbench::readPpmHeader(char* filename, long& headerEndPos, int& imgDimX, int& imgDimY)
+bool ftvTestbench::readPpmHeader(const char* filename, long& headerEndPos, int& imgDimX, int& imgDimY)
 {
 	/*
 	/	Start off with reading the header of the ppm file.
@@ -29,7 +29,7 @@ bool ftvTestbench::readPpmHeader(char* filename, long& headerEndPos, int& imgDim
 	return true;
 }
 
-bool ftvTestbench::readPpmData(char* filename, char* imageData, long dataBegin, int imageSize)
+bool ftvTestbench::readPpmData(const char* filename, char* imageData, long dataBegin, int imageSize)
 {
 	FILE *file;
 
@@ -54,20 +54,70 @@ bool ftvTestbench::loadImageSequence()
 	long dataBegin;
 	int imgDimX;
 	int imgDimY;
-	if(!readPpmHeader("../resources/textures/fault_tolerant_vis/ftle/ftle_f_100.ppm",dataBegin,imgDimX,imgDimY)) return false;
-	char* imageData = new char[3*imgDimX*imgDimY];
-	if(!readPpmData("../resources/textures/fault_tolerant_vis/ftle/ftle_f_100.ppm",imageData,dataBegin,(3*imgDimX*imgDimY))) return false;
+	std::string path;
+	/*
+	/	For now, we know the image size.
+	*/
+	char* imageData = new char[3*400*400];
+	std::cout<<currentFrame<<"\n";
 
-	glGenTextures(1, &textures_f[0]);
-	glBindTexture(GL_TEXTURE_2D, textures_f[0]);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgDimX,imgDimY,0,GL_RGB,GL_UNSIGNED_BYTE,imageData);
-	glBindTexture(GL_TEXTURE_2D,0);
+	/*
+	/	Careful with accessing the image arrays here!
+	*/
+	for(int i = 100; i < 151; i++)
+	{
+		path = "../resources/textures/fault_tolerant_vis/ftle/ftle_f_";
+		path += '1';
+		path += ('0' + floor((i-100)/10));
+		path += ('0' + (i-100)%10);
+		path += ".ppm";
 
+		std::cout<<"Now loading "<<path<<"\n";
+
+		//if(!readPpmHeader("../resources/textures/fault_tolerant_vis/ftle/ftle_f_100.ppm",dataBegin,imgDimX,imgDimY)) return false;
+		if(!readPpmHeader(path.c_str(),dataBegin,imgDimX,imgDimY)) return false;
+		//if(!readPpmData("../resources/textures/fault_tolerant_vis/ftle/ftle_f_100.ppm",imageData,dataBegin,(3*imgDimX*imgDimY))) return false;
+		if(!readPpmData(path.c_str(),imageData,dataBegin,(3*imgDimX*imgDimY))) return false;
+
+		glGenTextures(1, &textures_f[i-100]);
+		glBindTexture(GL_TEXTURE_2D, textures_f[i-100]);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgDimX,imgDimY,0,GL_RGB,GL_UNSIGNED_BYTE,imageData);
+		glBindTexture(GL_TEXTURE_2D,0);
+	}
+
+	for(int i = 100; i < 151; i++)
+	{
+		path = "../resources/textures/fault_tolerant_vis/ftle/ftle_b_";
+		path += '1';
+		path += ('0' + floor((i-100)/10));
+		path += ('0' + (i-100)%10);
+		path += ".ppm";
+
+		std::cout<<"Now loading "<<path<<"\n";
+
+		//if(!readPpmHeader("../resources/textures/fault_tolerant_vis/ftle/ftle_f_100.ppm",dataBegin,imgDimX,imgDimY)) return false;
+		if(!readPpmHeader(path.c_str(),dataBegin,imgDimX,imgDimY)) return false;
+		//if(!readPpmData("../resources/textures/fault_tolerant_vis/ftle/ftle_f_100.ppm",imageData,dataBegin,(3*imgDimX*imgDimY))) return false;
+		if(!readPpmData(path.c_str(),imageData,dataBegin,(3*imgDimX*imgDimY))) return false;
+
+		glGenTextures(1, &textures_b[i-100]);
+		glBindTexture(GL_TEXTURE_2D, textures_b[i-100]);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgDimX,imgDimY,0,GL_RGB,GL_UNSIGNED_BYTE,imageData);
+		glBindTexture(GL_TEXTURE_2D,0);
+	}
+	/*
+	/	Clean up after yourself!
+	*/
 	delete[] imageData;
 }
 
@@ -81,4 +131,12 @@ void ftvTestbench::getFrameConfigA(framebufferObject* maskFbo, framebufferObject
 	imgFbo->bind();
 	glViewport(0,0,imgFbo->getWidth(),imgFbo->getHeight());
 	imageProcessor.imageToFBO(textures_f[0]);
+}
+
+void ftvTestbench::getFrameConfigB(framebufferObject* maskFbo, framebufferObject* imgFbo)
+{
+	imgFbo->bind();
+	glViewport(0,0,imgFbo->getWidth(),imgFbo->getHeight());
+	imageProcessor.imageToFBO(textures_f[currentFrame]);
+	currentFrame = (currentFrame++)%49;
 }
