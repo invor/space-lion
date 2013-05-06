@@ -104,6 +104,23 @@ void postProcessor::applyMaskToImageToFBO(GLuint inputImage, GLuint mask, int w,
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
+void postProcessor::applyMaskToImageToFBO(GLuint inputImage, framebufferObject* maskFbo, int w, int h)
+{
+	stampShaderPrg.use();
+	stampShaderPrg.setUniform("imgDim", glm::vec2(w, h));
+
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	stampShaderPrg.setUniform("inputImage",0);
+	glBindTexture(GL_TEXTURE_2D, inputImage);
+
+	glActiveTexture(GL_TEXTURE1);
+	stampShaderPrg.setUniform("mask",1);
+	maskFbo->bindColorbuffer(0);
+
+	renderPlane.draw(GL_TRIANGLES,6,0);
+}
+
 void postProcessor::imageToFBO(GLuint inputImage)
 {
 	idleShaderPrg.use();
@@ -169,17 +186,17 @@ void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObj
 }
 */
 
-void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, GLuint mask, framebufferObject *distanceMap)
+void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, framebufferObject* mask)
 {
 	poissonShaderPrg.use();
 
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
 	poissonShaderPrg.setUniform("mask",0);
-	glBindTexture(GL_TEXTURE_2D, mask);
+	mask->bindColorbuffer(0);
 	glActiveTexture(GL_TEXTURE1);
 	poissonShaderPrg.setUniform("distanceMap",1);
-	distanceMap->bindColorbuffer(0);
+	mask->bindColorbuffer(1);
 
 	for(int i=0; i<iterations; i++)
 	{
@@ -213,14 +230,14 @@ void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObj
 	}
 }
 
-void postProcessor::applyImageInpainting(framebufferObject *currentFrame, GLuint mask, int iterations)
+void postProcessor::applyImageInpainting(framebufferObject *currentFrame, framebufferObject* mask, int iterations)
 {
 	inpaintingShaderPrg.use();
 
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
 	inpaintingShaderPrg.setUniform("mask",0);
-	glBindTexture(GL_TEXTURE_2D, mask);
+	mask->bindColorbuffer(0);
 
 	for(int i=0; i<iterations; i++)
 	{

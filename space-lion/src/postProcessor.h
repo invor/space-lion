@@ -37,6 +37,7 @@ public:
 	/	Pixels covered by black areas of the mask are rendered black.
 	*/
 	void applyMaskToImageToFBO(GLuint inputImage, GLuint mask, int w, int h);
+	void applyMaskToImageToFBO(GLuint inputImage, framebufferObject* maskFbo, int w, int h);
 
 	/*
 	/	Render the input texture to the currently bound framebuffer.
@@ -56,12 +57,12 @@ public:
 	/*
 	/	Apply poisson image editing to [a] region[s] given by an image-mask.
 	*/
-	void applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, GLuint mask, framebufferObject* distanceMap);
+	void applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, framebufferObject* mask);
 
 	/*
 	/	Apply image inpainting to [a] region[s] given by an image-mask.
 	*/
-	void applyImageInpainting(framebufferObject *currentFrame, GLuint mask, int iterations);
+	void applyImageInpainting(framebufferObject *currentFrame, framebufferObject* mask, int iterations);
 
 private:
 	std::string log;

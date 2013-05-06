@@ -26,6 +26,11 @@ private:
 	int currentFrame;
 
 	/*
+	/	Masks for the different test configurations.
+	*/
+	GLuint maskConfigB;
+
+	/*
 	/	Methods for reading ppm image files.
 	/	Courtesy to the computer vision lecture I attended.
 	*/
@@ -45,6 +50,8 @@ public:
 	/	Reset test instances to inital state.
 	*/
 	void reset() {currentFrame = 0;}
+
+	void initMasks();
 
 	void getTexture(GLuint& handle, int index);
 

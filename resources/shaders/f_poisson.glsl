@@ -97,11 +97,16 @@ vec3 poissonImageEditing(vec2 pos, vec2 h)
 */
 vec3 acceleratedPoissonImageEditing(vec2 pos, vec2 h, float i)
 {
-	vec4 dist = texture2D(distanceMap, pos);
-	dist.x = h.y+((dist.x-h.y)/pow(2.0,i));
-	dist.y = h.x+((dist.y-h.x)/pow(2.0,i));
-	dist.z = h.y+((dist.z-h.y)/pow(2.0,i));
-	dist.w = h.x+((dist.w-h.x)/pow(2.0,i));
+	vec4 dist;
+	dist.wxyz = texture2D(distanceMap, pos);
+	//dist.x = h.y+((dist.x-h.y)/pow(2.0,i));
+	//dist.y = h.x+((dist.y-h.x)/pow(2.0,i));
+	//dist.z = h.y+((dist.z-h.y)/pow(2.0,i));
+	//dist.w = h.x+((dist.w-h.x)/pow(2.0,i));
+	dist.x = h.y+((dist.x-h.y)/i);
+	dist.y = h.x+((dist.y-h.x)/i);
+	dist.z = h.y+((dist.z-h.y)/i);
+	dist.w = h.x+((dist.w-h.x)/i);
 	float verticalDist = dist.x+dist.z;
 	float horizontalDist = dist.y+dist.w;
 					 
@@ -143,8 +148,11 @@ vec3 acceleratedPoissonImageEditing(vec2 pos, vec2 h, float i)
 	vec3 rgbF = ( rgbN*(dist.z/verticalDist) +
 				rgbW*(dist.y/horizontalDist) +
 				rgbE*(dist.w/horizontalDist) +
-				rgbS*(dist.x/verticalDist) )*0.5f +
-				(- projN - projW - projE - projS)*0.25f;
+				rgbS*(dist.x/verticalDist) ) / ( (dist.z/verticalDist)+
+												 (dist.y/horizontalDist)+
+												 (dist.w/horizontalDist)+
+												 (dist.x/verticalDist) )
+				+ (- projN - projW - projE - projS)*0.25f;
 	//rgbF = (rgbN + rgbW + rgbE + rgbS) * 0.25;
 	
 	return rgbF;
@@ -176,6 +184,7 @@ void main()
 	{
 		vec2 h = vec2(1.0f/imgDim.x, 1.0f/imgDim.y);
 		fragColour = vec4(acceleratedPoissonImageEditing(uvCoord, h, iteration),1.0);
+		//fragColour = vec4(poissonImageEditing(uvCoord, h),1.0);
 	}
 	else
 	{

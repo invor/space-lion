@@ -59,7 +59,6 @@ bool ftvTestbench::loadImageSequence()
 	/	For now, we know the image size.
 	*/
 	char* imageData = new char[3*400*400];
-	std::cout<<currentFrame<<"\n";
 
 	/*
 	/	Careful with accessing the image arrays here!
@@ -72,7 +71,7 @@ bool ftvTestbench::loadImageSequence()
 		path += ('0' + (i-100)%10);
 		path += ".ppm";
 
-		std::cout<<"Now loading "<<path<<"\n";
+		//std::cout<<"Now loading "<<path<<"\n";
 
 		//if(!readPpmHeader("../resources/textures/fault_tolerant_vis/ftle/ftle_f_100.ppm",dataBegin,imgDimX,imgDimY)) return false;
 		if(!readPpmHeader(path.c_str(),dataBegin,imgDimX,imgDimY)) return false;
@@ -90,35 +89,47 @@ bool ftvTestbench::loadImageSequence()
 		glBindTexture(GL_TEXTURE_2D,0);
 	}
 
-	for(int i = 100; i < 151; i++)
-	{
-		path = "../resources/textures/fault_tolerant_vis/ftle/ftle_b_";
-		path += '1';
-		path += ('0' + floor((i-100)/10));
-		path += ('0' + (i-100)%10);
-		path += ".ppm";
-
-		std::cout<<"Now loading "<<path<<"\n";
-
-		//if(!readPpmHeader("../resources/textures/fault_tolerant_vis/ftle/ftle_f_100.ppm",dataBegin,imgDimX,imgDimY)) return false;
-		if(!readPpmHeader(path.c_str(),dataBegin,imgDimX,imgDimY)) return false;
-		//if(!readPpmData("../resources/textures/fault_tolerant_vis/ftle/ftle_f_100.ppm",imageData,dataBegin,(3*imgDimX*imgDimY))) return false;
-		if(!readPpmData(path.c_str(),imageData,dataBegin,(3*imgDimX*imgDimY))) return false;
-
-		glGenTextures(1, &textures_b[i-100]);
-		glBindTexture(GL_TEXTURE_2D, textures_b[i-100]);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgDimX,imgDimY,0,GL_RGB,GL_UNSIGNED_BYTE,imageData);
-		glBindTexture(GL_TEXTURE_2D,0);
-	}
+	//for(int i = 100; i < 151; i++)
+	//{
+	//	path = "../resources/textures/fault_tolerant_vis/ftle/ftle_b_";
+	//	path += '1';
+	//	path += ('0' + floor((i-100)/10));
+	//	path += ('0' + (i-100)%10);
+	//	path += ".ppm";
+	//
+	//	std::cout<<"Now loading "<<path<<"\n";
+	//
+	//	//if(!readPpmHeader("../resources/textures/fault_tolerant_vis/ftle/ftle_f_100.ppm",dataBegin,imgDimX,imgDimY)) return false;
+	//	if(!readPpmHeader(path.c_str(),dataBegin,imgDimX,imgDimY)) return false;
+	//	//if(!readPpmData("../resources/textures/fault_tolerant_vis/ftle/ftle_f_100.ppm",imageData,dataBegin,(3*imgDimX*imgDimY))) return false;
+	//	if(!readPpmData(path.c_str(),imageData,dataBegin,(3*imgDimX*imgDimY))) return false;
+	//
+	//	glGenTextures(1, &textures_b[i-100]);
+	//	glBindTexture(GL_TEXTURE_2D, textures_b[i-100]);
+	//	glGenerateMipmap(GL_TEXTURE_2D);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//	glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,imgDimX,imgDimY,0,GL_RGB,GL_UNSIGNED_BYTE,imageData);
+	//	glBindTexture(GL_TEXTURE_2D,0);
+	//}
 	/*
 	/	Clean up after yourself!
 	*/
 	delete[] imageData;
+}
+
+void ftvTestbench::initMasks()
+{
+	float maskData[] = {0.1,0.1,0.3,0.3,0.5,0.4,0.6,0.6};
+	glGenTextures(1, &maskConfigB);
+	glBindTexture(GL_TEXTURE_1D, maskConfigB);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage1D(GL_TEXTURE_1D,0,GL_RGBA32F,2,0,GL_RGBA,GL_FLOAT,maskData);
+	glBindTexture(GL_TEXTURE_1D,0);
 }
 
 void ftvTestbench::getTexture(GLuint& handle, int index)
@@ -135,8 +146,25 @@ void ftvTestbench::getFrameConfigA(framebufferObject* maskFbo, framebufferObject
 
 void ftvTestbench::getFrameConfigB(framebufferObject* maskFbo, framebufferObject* imgFbo)
 {
+	if(currentFrame==0)
+	{
+		maskFbo->bind();
+		glViewport(0,0,imgFbo->getWidth(),imgFbo->getHeight());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		imageProcessor.generateFtvMask(0,2);
+	}
+	else
+	{
+		maskFbo->bind();
+		glViewport(0,0,imgFbo->getWidth(),imgFbo->getHeight());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		imageProcessor.generateFtvMask(maskConfigB,2);
+	}
+
 	imgFbo->bind();
 	glViewport(0,0,imgFbo->getWidth(),imgFbo->getHeight());
-	imageProcessor.imageToFBO(textures_f[currentFrame]);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	imageProcessor.applyMaskToImageToFBO(textures_f[currentFrame],maskFbo,400,400);
+
 	currentFrame = (currentFrame++)%49;
 }
