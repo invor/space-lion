@@ -37,7 +37,7 @@ bool ftvTestbench::readPpmHeader(const char* filename, long& headerEndPos, int& 
 	std::string::iterator itr2;
 	std::string buffer;
 	std::string buffer2;
-	std::ifstream file (filename,std::ios::in);
+	std::ifstream file (filename,std::ios::in | std::ios::binary);
 
 	/*
 	/	Check if the file could be opened.
@@ -99,7 +99,6 @@ bool ftvTestbench::readPpmHeader(const char* filename, long& headerEndPos, int& 
 	if(firstline)
 	{
 		headerEndPos = file.tellg();
-		headerEndPos -= 1;
 		file.close();
 		return true;
 	}
@@ -146,7 +145,6 @@ bool ftvTestbench::readPpmHeader(const char* filename, long& headerEndPos, int& 
 	*/
 	std::getline(file,buffer,'\n');
 	headerEndPos = file.tellg();
-	headerEndPos -= 1;
 	file.close();
 	return true;
 }
@@ -188,7 +186,7 @@ bool ftvTestbench::readPpmData(const char* filename, char* imageData, long dataB
 	length = length - dataBegin;
 	char* buffer = new char[length];
 
-	file.seekg(dataBegin);
+	file.seekg(dataBegin,std::ios::beg);
 	file.read(buffer,length);
 
 	int k = 0;
