@@ -37,10 +37,15 @@ public:
 	void setActiveScene(const int index);
 	scene* getActiveScene();
 
-	//	Render a frame of the active scene and check event-queue
+	/*
+	/	Render a frame of the active scene and check event-queue.
+	*/
 	void run();
-	//	Run poisson image editing on an input famebuffer
-	void runPoissonImageEditing();
+
+	/*
+	/	Run fault tolerant visualization tests.
+	*/
+	void runFtv();
 
 private:
 	std::vector<framebufferObject> framebufferList;

@@ -51,7 +51,7 @@ bool renderHub::init()
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, maj);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, min);
 
-	if(!glfwOpenWindow(512,512,8,8,8,8,32,0,GLFW_WINDOW))
+	if(!glfwOpenWindow(700,700,8,8,8,8,32,0,GLFW_WINDOW))
 	{
 		std::cout<<"-----\n"
 				<<"The time is out of joint - O cursed spite,\n"
@@ -184,7 +184,7 @@ void renderHub::run()
 	}
 }
 
-void renderHub::runPoissonImageEditing()
+void renderHub::runFtv()
 {
 	/*
 	/	This is all just experimental stuff
@@ -226,10 +226,6 @@ void renderHub::runPoissonImageEditing()
 	
 	testBench.getFrameConfigC(&maskFbo,&secondaryFbo);
 
-	//testBench.getFrameConfigB(&maskFbo,&primaryFbo);
-	//	
-	//pP.applyPoisson(&primaryFbo, &secondaryFbo, 20, &maskFbo);
-
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
 		/*
@@ -242,26 +238,25 @@ void renderHub::runPoissonImageEditing()
 		//pP.applyImageInpainting(&primaryFbo, &maskFbo, 200);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
-		glViewport(0,0,512,512);
+		glViewport(0,0,700,700);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&primaryFbo);
 		glfwSwapBuffers();
-		glfwSleep(0.025);
+		glfwSleep(1.025);
 
 		/*
 		/	Switch to secondary
 		*/
-		
 		testBench.getFrameConfigC(&maskFbo,&secondaryFbo);
 		
 		pP.applyPoisson(&secondaryFbo, &primaryFbo, 20, &maskFbo);
 		//pP.applyImageInpainting(&secondaryFbo, &maskFbo, 200);
 		
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
-		glViewport(0,0,512,512);
+		glViewport(0,0,700,700);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&secondaryFbo);
 		glfwSwapBuffers();
-		glfwSleep(0.025);
+		glfwSleep(1.025);
 	}
 }

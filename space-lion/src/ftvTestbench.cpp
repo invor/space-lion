@@ -36,7 +36,7 @@ bool ftvTestbench::readPpmHeader(const char* filename, long& headerEndPos, int& 
 	std::string::iterator itr1;
 	std::string::iterator itr2;
 	std::string buffer;
-	std::string buffer2;
+	std::string compBuffer;
 	std::ifstream file (filename,std::ios::in | std::ios::binary);
 
 	/*
@@ -62,30 +62,24 @@ bool ftvTestbench::readPpmHeader(const char* filename, long& headerEndPos, int& 
 		{
 			if(currentComponent == 0)
 			{
-				/*
-				/	The first component is the magic number. We don't need it.
-				*/
+				/*	The first component is the magic number. We don't need it.	*/
 				currentComponent++;
 				firstline = true;
 				itr1 = (itr2 + 1);
 			}
 			else if(currentComponent == 1)
 			{
-				/*
-				/	Get the image dimension in x.
-				*/
-				buffer2.assign(itr1, itr2);
-				imgDimX = atoi(buffer2.c_str());
+				/*	Get the image dimension in x.	*/
+				compBuffer.assign(itr1, itr2);
+				imgDimX = atoi(compBuffer.c_str());
 				currentComponent++;
 				itr1 = (itr2 + 1);
 			}
 			else if(currentComponent == 2)
 			{
-				/*
-				/	Get the image dimension in y.
-				*/
-				buffer2.assign(itr1, itr2);
-				imgDimY = atoi(buffer2.c_str());
+				/*	Get the image dimension in y.	*/
+				compBuffer.assign(itr1, itr2);
+				imgDimY = atoi(compBuffer.c_str());
 				currentComponent++;
 				itr1 = (itr2 + 1);
 			}
@@ -94,7 +88,7 @@ bool ftvTestbench::readPpmHeader(const char* filename, long& headerEndPos, int& 
 
 	/*
 	/	If the information we were looking for was inside the first line, we are done here.
-	/	Note the position where we left off and return true.
+	/	Note the position where we left off and exit with return true after closing the file.
 	*/
 	if(firstline)
 	{
@@ -105,7 +99,7 @@ bool ftvTestbench::readPpmHeader(const char* filename, long& headerEndPos, int& 
 
 	/*
 	/	If the information wasn't inside the first line we have to keep reading lines.
-	/	Skip all comment lines, beginning with #.
+	/	Skip all comment lines (first character = '#').
 	*/
 	while( buffer[0]=='#' || (buffer.size() < 1) )
 	{
@@ -113,18 +107,16 @@ bool ftvTestbench::readPpmHeader(const char* filename, long& headerEndPos, int& 
 	}
 
 	/*
-	/	Now we should have a string containing the image dimensions.
+	/	Now we should have a string containing the image dimensions and can extract them.
 	*/
 	itr1 = buffer.begin();
 	for(itr2 = buffer.begin(); itr2 != buffer.end(); itr2++)
 	{
-		/*
-		/	Get the image dimension in x.
-		*/
+		/*	Get the image dimension in x.	*/
 		if(*itr2 == ' ')
 		{
-			buffer2.assign(itr1, itr2);
-			imgDimX = atoi(buffer2.c_str());
+			compBuffer.assign(itr1, itr2);
+			imgDimX = atoi(compBuffer.c_str());
 			currentComponent++;
 			itr1 = (itr2 + 1);
 		}
@@ -136,12 +128,13 @@ bool ftvTestbench::readPpmHeader(const char* filename, long& headerEndPos, int& 
 	/
 	/	Get the image dimension in x.
 	*/
-	buffer2.assign(itr1, itr2);
-	imgDimY = atoi(buffer2.c_str());
+	compBuffer.assign(itr1, itr2);
+	imgDimY = atoi(compBuffer.c_str());
 
 	/*
-	/	Read one more line. This should contain the maximum value of the image.
-	/	Note down the position after this line and exit with return true.
+	/	Read one more line. This should contain the maximum value of the image, but we don't need
+	/	that.
+	/	Note down the position after this line and exit with return true after closing the file.
 	*/
 	std::getline(file,buffer,'\n');
 	headerEndPos = file.tellg();
@@ -179,7 +172,7 @@ bool ftvTestbench::readPpmData(const char* filename, char* imageData, long dataB
 	if(!( file.is_open() ))return false;
 
 	/*
-	/	Determine the length from the beginning of the image data to the file end.
+	/	Determine the length from the beginning of the image data to the end of the file.
 	*/
 	file.seekg(0, file.end);
 	long length = file.tellg();
@@ -189,6 +182,9 @@ bool ftvTestbench::readPpmData(const char* filename, char* imageData, long dataB
 	file.seekg(dataBegin,std::ios::beg);
 	file.read(buffer,length);
 
+	/*
+	/	Rearrange the image information so that the data begins with the lower left corner.
+	*/
 	int k = 0;
 	for(int i=0; i < imgDimY; i++)
 	{
@@ -211,14 +207,11 @@ bool ftvTestbench::readPpmData(const char* filename, char* imageData, long dataB
 
 bool ftvTestbench::loadImageSequence()
 {
+	char* imageData;
 	long dataBegin;
 	int imgDimX;
 	int imgDimY;
 	std::string path;
-	/*
-	/	For now, we know the image size.
-	*/
-	char* imageData = new char[3*400*400];
 
 	/*
 	/	Careful with accessing the image arrays here!
@@ -227,7 +220,7 @@ bool ftvTestbench::loadImageSequence()
 	{
 		path = "../resources/textures/fault_tolerant_vis/ftle/ftle_f_";
 		path += '1';
-		path += ('0' + floor((i-100)/10));
+		path += ('0' + floor(((float)i-100.0f)/10.0f));
 		path += ('0' + (i-100)%10);
 		path += ".ppm";
 
@@ -235,6 +228,7 @@ bool ftvTestbench::loadImageSequence()
 
 		//if(!readPpmHeader("../resources/textures/fault_tolerant_vis/ftle/ftle_f_100.ppm",dataBegin,imgDimX,imgDimY)) return false;
 		if(!readPpmHeader(path.c_str(),dataBegin,imgDimX,imgDimY)) return false;
+		imageData = new char[3*imgDimX*imgDimY];
 		//if(!readPpmData("../resources/textures/fault_tolerant_vis/ftle/ftle_f_100.ppm",imageData,dataBegin,(3*imgDimX*imgDimY))) return false;
 		if(!readPpmData(path.c_str(),imageData,dataBegin,imgDimX,imgDimY)) return false;
 
@@ -292,10 +286,10 @@ void ftvTestbench::initMasks()
 	glTexImage1D(GL_TEXTURE_1D,0,GL_RGBA32F,2,0,GL_RGBA,GL_FLOAT,maskData);
 	glBindTexture(GL_TEXTURE_1D,0);
 
-	float maskData1[] = {0.1f,0.1f,0.2f,0.2f,
-						 0.5f,0.4f,0.6f,0.5f,
-						 0.3f,0.7f,0.4f,0.8f,
-						 0.7f,0.3f,0.8f,0.4f};
+	float maskData1[] = {0.1f,0.1f,0.3f,0.3f,
+						 0.5f,0.4f,0.7f,0.6f,
+						 0.3f,0.7f,0.5f,0.9f,
+						 0.7f,0.3f,0.9f,0.5f};
 	glGenTextures(1, &maskConfigC_1);
 	glBindTexture(GL_TEXTURE_1D, maskConfigC_1);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -304,10 +298,10 @@ void ftvTestbench::initMasks()
 	glTexImage1D(GL_TEXTURE_1D,0,GL_RGBA32F,3,0,GL_RGBA,GL_FLOAT,maskData1);
 	glBindTexture(GL_TEXTURE_1D,0);
 
-	float maskData2[] = {0.25f,0.2f,0.35f,0.3f,
-						 0.8f,0.45f,0.9f,0.55f,
-						 0.35f,0.6f,0.45f,0.7f,
-						 0.5f,0.8f,0.65f,0.95f};
+	float maskData2[] = {0.35f,0.2f,0.55f,0.4f,
+						 0.75f,0.45f,0.95f,0.65f,
+						 0.35f,0.6f,0.55f,0.8f,
+						 0.5f,0.7f,0.7f,0.9f};
 	glGenTextures(1, &maskConfigC_2);
 	glBindTexture(GL_TEXTURE_1D, maskConfigC_2);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

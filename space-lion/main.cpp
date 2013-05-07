@@ -10,7 +10,7 @@ int main( void )
 		//testRenderer.addScene();
 		//testRenderer.setActiveScene(0);
 		//testRenderer.run();
-		testRenderer.runPoissonImageEditing();
+		testRenderer.runFtv();
 	}
 
 
