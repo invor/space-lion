@@ -103,10 +103,10 @@ vec3 acceleratedPoissonImageEditing(vec2 pos, vec2 h, float i)
 	//dist.y = h.x+((dist.y-h.x)/pow(2.0,i));
 	//dist.z = h.y+((dist.z-h.y)/pow(2.0,i));
 	//dist.w = h.x+((dist.w-h.x)/pow(2.0,i));
-	dist.x = h.y+((dist.x-h.y)/i);
-	dist.y = h.x+((dist.y-h.x)/i);
-	dist.z = h.y+((dist.z-h.y)/i);
-	dist.w = h.x+((dist.w-h.x)/i);
+	dist.x = h.y+((dist.x)/i);
+	dist.y = h.x+((dist.y)/i);
+	dist.z = h.y+((dist.z)/i);
+	dist.w = h.x+((dist.w)/i);
 	float verticalDist = dist.x+dist.z;
 	float horizontalDist = dist.y+dist.w;
 					 
@@ -145,15 +145,18 @@ vec3 acceleratedPoissonImageEditing(vec2 pos, vec2 h, float i)
 	/*
 	/	Use inverse distance weigthing for the stencil pixels.
 	*/
-	vec3 rgbF = ( rgbN*(dist.z/verticalDist) +
-				rgbW*(dist.y/horizontalDist) +
-				rgbE*(dist.w/horizontalDist) +
-				rgbS*(dist.x/verticalDist) ) / ( (dist.z/verticalDist)+
-												 (dist.y/horizontalDist)+
-												 (dist.w/horizontalDist)+
-												 (dist.x/verticalDist) )
-				+ (- projN - projW - projE - projS)*0.25f;
-	//rgbF = (rgbN + rgbW + rgbE + rgbS) * 0.25;
+	//vec3 rgbF = ( rgbN*(dist.z/verticalDist) +
+	//			rgbW*(dist.y/horizontalDist) +
+	//			rgbE*(dist.w/horizontalDist) +
+	//			rgbS*(dist.x/verticalDist) ) / ( (dist.z/verticalDist)+
+	//											 (dist.y/horizontalDist)+
+	//											 (dist.w/horizontalDist)+
+	//											 (dist.x/verticalDist) );
+	//		//	+ (- projN - projW - projE - projS)*0.25f;
+	
+	vec3 rgbF = ( (rgbN + rgbW + rgbE + rgbS) + (- projN - projW - projE - projS) )*0.25f;
+	
+	//rgbF = (rgbN + rgbW + rgbE + rgbS) * 0.25f;
 	
 	return rgbF;
 }

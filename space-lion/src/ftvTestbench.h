@@ -2,6 +2,7 @@
 #define ftvTestbench_h
 
 #include <list>
+#include <fstream>
 
 #include "GLSLProgram.h"
 #include "postProcessor.h"
@@ -29,13 +30,16 @@ private:
 	/	Masks for the different test configurations.
 	*/
 	GLuint maskConfigB;
+	GLuint maskConfigC_1;
+	GLuint maskConfigC_2;
+	GLuint maskConfigC_3;
 
 	/*
 	/	Methods for reading ppm image files.
 	/	Courtesy to the computer vision lecture I attended.
 	*/
 	bool readPpmHeader(const char* filename, long& headerEndPos, int& imgDimX, int& imgDimY);
-	bool readPpmData(const char* filename, char* imageData, long dataBegin, int imageSize);
+	bool readPpmData(const char* filename, char* imageData, long dataBegin, int imgDimX, int imgDimY);
 public:
 	/*
 	/	Creating a postProcessor with a set framebuffer resolution should be encouraged for long term use.
@@ -55,9 +59,22 @@ public:
 
 	void getTexture(GLuint& handle, int index);
 
+	/*
+	/
+	*/
 	void getFrameConfigA(framebufferObject* maskFbo, framebufferObject* imgFbo);
 
+	/*
+	/	Return (with successive method calls) all 51 images (from the f batch).
+	/	Inpainting region is static. (Kind of a worst case scenario for possion...)
+	*/
 	void getFrameConfigB(framebufferObject* maskFbo, framebufferObject* imgFbo);
+
+	/*
+	/	Return (with successive method calls) all 51 images (from the f batch).
+	/	Inpainting region alternates between 3 different masks. (Kind of a worst case scenario for possion...)
+	*/
+	void getFrameConfigC(framebufferObject* maskFbo, framebufferObject* imgFbo);
 };
 
 #endif

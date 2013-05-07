@@ -198,6 +198,8 @@ void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObj
 	poissonShaderPrg.setUniform("distanceMap",1);
 	mask->bindColorbuffer(1);
 
+	iterationCounter = 1.0f;
+
 	for(int i=0; i<iterations; i++)
 	{
 		B.bind();
