@@ -17,17 +17,23 @@ private:
 	const char *filename;
 
 	GLuint handle;
+
+	/*
+	/	Specifies which texture type (1D, 2D or 3D) is used.
+	*/
+	const GLenum type;
 public:
 	texture();
-	texture(const char*);
+	texture(const char*, GLenum);
 	~texture();
 
 	void bindTexture() const;
 
 	//	load a texture from a local file
-	bool load(const char *path);
+	bool loadTexture2D(const char *path);
 	//	load a texture from an array of floats
-	bool load(int dimX, int dimY, float* data);
+	bool loadTexture2D(int dimX, int dimY, float* data);
+	bool loadTexture3D(int dimX, int dimY, int dimZ, const char* path);
 	void texParameteri(GLenum, GLenum);
 
 	const char* getFilename() {return filename;}

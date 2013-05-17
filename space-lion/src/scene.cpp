@@ -192,9 +192,9 @@ bool scene::createTexture(int dimX, int dimY, float* data, texture*& inOutTexPtr
 	//	somewhat messy
 	const char* tstr = "0";
 	//_itoa(lastTextureId,tstr,10);
-	textureList.push_back(texture(tstr));
+	textureList.push_back(texture(tstr,GL_TEXTURE_2D));
 	std::list<texture>::iterator lastElement = --(textureList.end());
-	if(!(lastElement->load(dimX, dimY, data))) return false;
+	if(!(lastElement->loadTexture2D(dimX, dimY, data))) return false;
 
 	inOutTexPtr = &(*lastElement);
 	return true;
@@ -211,9 +211,9 @@ bool scene::createTexture(const char* const path, texture*& inOutTexPtr)
 		}
 	}
 
-	textureList.push_back(texture(path));
+	textureList.push_back(texture(path,GL_TEXTURE_2D));
 	std::list<texture>::iterator lastElement = --(textureList.end());
-	if(!(lastElement->load(path))) return false;
+	if(!(lastElement->loadTexture2D(path))) return false;
 
 	inOutTexPtr = &(*lastElement);
 	return true;

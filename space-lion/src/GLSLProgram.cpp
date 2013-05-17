@@ -145,6 +145,17 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		glUseProgram(0);
 		return true;
 		break; }
+	case VOLUME_RAYCASTING : {
+		if(!compileShaderFromFile("../resources/shaders/v_volRen.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_volRen.glsl",GL_FRAGMENT_SHADER)) return false;
+		bindAttribLocation(0,"vPosition");
+		/* For volume rendering we want to use the uvCoord as surface colors*/
+		bindAttribLocation(1,"vColor");
+		if(!link()) return false;
+		std::cout<<getLog();
+		glUseProgram(0);
+		return true;
+		break; }
 	default : {
 		return false;
 		break; }
