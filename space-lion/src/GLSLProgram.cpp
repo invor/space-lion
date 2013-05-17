@@ -325,8 +325,8 @@ void GLSLProgram::setUniform(const char *name, bool b)
 void GLSLProgram::printActiveUniforms()
 {
 	GLint maxLength, nUniforms;
-	glGetProgramiv(handle, GL_ACTIVE_ATTRIBUTES, &nUniforms);
-	glGetProgramiv(handle, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH , &maxLength);
+	glGetProgramiv(handle, GL_ACTIVE_UNIFORMS, &nUniforms);
+	glGetProgramiv(handle, GL_ACTIVE_UNIFORM_MAX_LENGTH , &maxLength);
 
 	GLchar * attributeName = (GLchar *) malloc(maxLength);
 

@@ -30,7 +30,10 @@ framebufferObject::framebufferObject(int w, int h, bool hasDepth, bool hasStenci
 
 bool framebufferObject::createColorAttachment(GLenum internalFormat, GLenum format, GLenum type)
 {	
-	if(colorbuffer.size() == GL_MAX_COLOR_ATTACHMENTS) 
+	GLint maxAttachments;
+	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxAttachments);
+
+	if(colorbuffer.size() == maxAttachments) 
 	{
 		std::cout<<"Maximum amount of color attachments reached.\n";
 		return false;

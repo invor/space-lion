@@ -234,8 +234,8 @@ void renderHub::runFtv()
 		*/
 		testBench.getFrameConfigC(&maskFbo,&primaryFbo);
 		
-		pP.applyPoisson(&primaryFbo, &secondaryFbo, 20, &maskFbo);
-		//pP.applyImageInpainting(&primaryFbo, &maskFbo, 200);
+		//pP.applyPoisson(&primaryFbo, &secondaryFbo, 20, &maskFbo);
+		pP.applyImageInpainting(&primaryFbo, &maskFbo, 200);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,700,700);
@@ -249,8 +249,8 @@ void renderHub::runFtv()
 		*/
 		testBench.getFrameConfigC(&maskFbo,&secondaryFbo);
 		
-		pP.applyPoisson(&secondaryFbo, &primaryFbo, 20, &maskFbo);
-		//pP.applyImageInpainting(&secondaryFbo, &maskFbo, 200);
+		//pP.applyPoisson(&secondaryFbo, &primaryFbo, 20, &maskFbo);
+		pP.applyImageInpainting(&secondaryFbo, &maskFbo, 200);
 		
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,700,700);
