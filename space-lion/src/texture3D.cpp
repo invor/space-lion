@@ -5,13 +5,13 @@ void texture3D::bindTexture() const
 	glBindTexture(GL_TEXTURE_3D, handle);
 }
 
-bool texture3D::loadTextureFile(std::string inputPath, int dimX, int dimY, int dimZ)
+bool texture3D::loadTextureFile(std::string inputPath, glm::ivec3 resolution)
 {
 	//TODO: Add some checks
 
 	FILE *pFile;
 
-	int size = dimX * dimY * dimZ;
+	int size = resolution.x * resolution.y * resolution.z;
 
 	/* Set texture identifier to correct value (namely the filename) */
 	filename.assign(inputPath);
@@ -32,7 +32,7 @@ bool texture3D::loadTextureFile(std::string inputPath, int dimX, int dimY, int d
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage3D(GL_TEXTURE_3D,0,GL_INTENSITY,dimX,dimY,dimZ,0,GL_LUMINANCE,GL_FLOAT,volumeData);
+	glTexImage3D(GL_TEXTURE_3D,0,GL_INTENSITY,resolution.x,resolution.y,resolution.z,0,GL_LUMINANCE,GL_FLOAT,volumeData);
 	delete [] volumeData;
 
 	return true;

@@ -127,9 +127,9 @@ bool scene::createMaterial(material*& inOutMtlPtr)
 	texture* texPtr2;
 	texture* texPtr3;
 	if(!createShaderProgram(FLAT,prgPtr)) return false;
-	if(!createTexture(1,1,diffuseData,texPtr1)) return false;
-	if(!createTexture(1,1,specularData,texPtr2)) return false;
-	if(!createTexture(1,1,normalData,texPtr3)) return false;
+	if(!createTexture2D(1,1,diffuseData,texPtr1)) return false;
+	if(!createTexture2D(1,1,specularData,texPtr2)) return false;
+	if(!createTexture2D(1,1,normalData,texPtr3)) return false;
 	materialList.push_back(material(0,prgPtr,texPtr1,texPtr2,texPtr3));
 
 	std::list<material>::iterator lastElement = --(materialList.end());
@@ -157,9 +157,9 @@ bool scene::createMaterial(const char * const path, material*& inOutMtlPtr)
 	texture* texPtr2;
 	texture* texPtr3;
 	if(!createShaderProgram(PHONG,prgPtr)) return false;
-	if(!createTexture(inOutMtlInfo.diff_path,texPtr1)) return false;
-	if(!createTexture(inOutMtlInfo.spec_path,texPtr2)) return false;
-	if(!createTexture(inOutMtlInfo.normal_path,texPtr3)) return false;
+	if(!createTexture2D(inOutMtlInfo.diff_path,texPtr1)) return false;
+	if(!createTexture2D(inOutMtlInfo.spec_path,texPtr2)) return false;
+	if(!createTexture2D(inOutMtlInfo.normal_path,texPtr3)) return false;
 	materialList.push_back(material(inOutMtlInfo.id,prgPtr,texPtr1,texPtr2,texPtr3));
 
 	std::list<material>::iterator lastElement = --(materialList.end());
@@ -186,7 +186,7 @@ bool scene::createShaderProgram(shaderType type, GLSLProgram*& inOutPrgPtr)
 	return true;
 }
 
-bool scene::createTexture(int dimX, int dimY, float* data, texture*& inOutTexPtr)
+bool scene::createTexture2D(int dimX, int dimY, float* data, texture*& inOutTexPtr)
 {
 	++lastTextureId;
 	//	somewhat messy
@@ -200,7 +200,7 @@ bool scene::createTexture(int dimX, int dimY, float* data, texture*& inOutTexPtr
 	return true;
 }
 
-bool scene::createTexture(const std::string path, texture*& inOutTexPtr)
+bool scene::createTexture2D(const std::string path, texture*& inOutTexPtr)
 {
 	for(std::list<texture2D>::iterator i = textureList.begin(); i != textureList.end(); ++i)
 	{
@@ -214,6 +214,25 @@ bool scene::createTexture(const std::string path, texture*& inOutTexPtr)
 	textureList.push_back(texture2D());
 	std::list<texture2D>::iterator lastElement = --(textureList.end());
 	if(!(lastElement->loadTextureFile(path))) return false;
+
+	inOutTexPtr = &(*lastElement);
+	return true;
+}
+
+bool scene::createTexture3D(std::string path, glm::ivec3 textureRes, texture3D*& inOutTexPtr)
+{
+	for(std::list<texture3D>::iterator i = volumeList.begin(); i != volumeList.end(); ++i)
+	{
+		if((i->getFilename())==path)
+		{
+			inOutTexPtr = &*i;
+			return true;
+		}
+	}
+
+	volumeList.push_back(texture3D());
+	std::list<texture3D>::iterator lastElement = --(volumeList.end());
+	if(!(lastElement->loadTextureFile(path,textureRes))) return false;
 
 	inOutTexPtr = &(*lastElement);
 	return true;
@@ -262,6 +281,18 @@ bool scene::createStaticSceneObject(const int id, const glm::vec3 position, cons
 	if(!createMaterial(materialPath,mtlPtr)) return false;
 
 	scenegraph.push_back(staticSceneObject(id,position,geomPtr,mtlPtr));
+	return true;
+}
+
+bool scene::createVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const std::string path, const glm::ivec3 volumeRes)
+{
+	vertexGeometry* geomPtr;
+	texture3D* volPtr;
+
+	if(!createVertexGeometry(geomPtr)) return false;
+	if(!createTexture3D(path, volumeRes, volPtr)) return false;
+
+	volumetricObjectList.push_back(volumetricSceneObject(id,position,orientation,geomPtr,volPtr));
 	return true;
 }
 

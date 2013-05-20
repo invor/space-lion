@@ -2,6 +2,8 @@
 #define texture3D_h
 
 #include "texture.h"
+#include <glm/glm.hpp>
+#include <glm/core/type_vec3.hpp>
 
 class texture3D : public texture
 {
@@ -14,7 +16,7 @@ public:
 	/*
 	/	load a texture from a local file
 	*/
-	bool loadTextureFile(std::string inputPat, int dimX, int dimY, int dimZ);
+	bool loadTextureFile(std::string inputPat, glm::ivec3 resolution);
 
 	/*
 	/	load a texture from an array of floats

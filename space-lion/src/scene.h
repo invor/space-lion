@@ -7,6 +7,7 @@
 #include "staticSceneObject.h"
 #include "sceneCamera.h"
 #include "sceneLightSource.h"
+#include "volumetricSceneObject.h"
 #include "vertexGeometry.h"
 #include "material.h"
 #include "texture2D.h"
@@ -39,6 +40,7 @@ private:
 	std::list<sceneLightSource> lightSourceList;
 	std::list<sceneCamera> cameraList;
 	std::list<staticSceneObject> scenegraph;
+	std::list<volumetricSceneObject> volumetricObjectList;
 
 	/*
 	/	The following lists contain all resources that are in use by an entity of this scene.
@@ -50,6 +52,7 @@ private:
 	std::list<material> materialList;
 	/* This is kinda temporary. In the long run it might be nice to have all different texture types in a single list. */
 	std::list<texture2D> textureList;
+	std::list<texture3D> volumeList;
 	std::list<GLSLProgram> shaderProgramList;
 
 	sceneCamera* activeCamera;
@@ -78,11 +81,14 @@ private:
 	/	Exercise some caution when using this function. It will always create a new texture object,
 	/	since for now there is no reasonable way to check if an identical texture already exsists.
 	*/
-	bool createTexture(int dimX, int dimY, float* data, texture*& inOutTexPtr);
+	bool createTexture2D(int dimX, int dimY, float* data, texture*& inOutTexPtr);
 	//	create a texture from file, obtains a reference to the newly created texture via in-out parameter
-	bool createTexture(const std::string path, texture*& inOutTexPtr);
+	bool createTexture2D(const std::string path, texture*& inOutTexPtr);
 	//	in case a texture file is changed during runtime
 	bool reloadTexture();
+
+	/* create a 3D texture for volume rendering */
+	bool createTexture3D(std::string path, glm::ivec3 textureRes, texture3D*& inOutTexPtr);
 
 public:
 	scene();
@@ -95,6 +101,9 @@ public:
 	//	create a scene entity
 	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const char * const geometryPath, const char * const materialPath);
 
+	/* create a volumetric scene entity*/
+	bool createVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const std::string path, const glm::ivec3 volumeRes);
+
 	//	create a scene light source
 	bool createSceneLight(const int id, const glm::vec3 position, glm::vec4 lightColour);
 	//	create a scene camera
@@ -104,8 +113,14 @@ public:
 
 	void testing();
 
-	//	create a
+	/* render the scene */
 	void render();
+	/*
+	/	TODO: render the volumetric objects of the scene
+	/
+	/	This will usually be done in a sperate render pass, in order to allow depth correct blending.
+	*/
+	void renderVolumetricObjects();
 };
 
 #endif

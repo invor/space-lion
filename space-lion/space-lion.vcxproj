@@ -157,6 +157,7 @@
     <ClInclude Include="src\texture3D.h" />
     <ClInclude Include="src\vertexGeometry.h" />
     <ClInclude Include="src\vertexStructs.h" />
+    <ClInclude Include="src\volumetricSceneObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -175,6 +176,7 @@
     <ClCompile Include="src\texture2D.cpp" />
     <ClCompile Include="src\texture3D.cpp" />
     <ClCompile Include="src\vertexGeometry.cpp" />
+    <ClCompile Include="src\volumetricSceneObject.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

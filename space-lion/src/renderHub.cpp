@@ -51,7 +51,7 @@ bool renderHub::init()
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, maj);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, min);
 
-	if(!glfwOpenWindow(700,700,8,8,8,8,32,0,GLFW_WINDOW))
+	if(!glfwOpenWindow(1200,675,8,8,8,8,32,0,GLFW_WINDOW))
 	{
 		std::cout<<"-----\n"
 				<<"The time is out of joint - O cursed spite,\n"
