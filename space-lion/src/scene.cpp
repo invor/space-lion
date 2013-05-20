@@ -192,17 +192,17 @@ bool scene::createTexture(int dimX, int dimY, float* data, texture*& inOutTexPtr
 	//	somewhat messy
 	const char* tstr = "0";
 	//_itoa(lastTextureId,tstr,10);
-	textureList.push_back(texture(tstr,GL_TEXTURE_2D));
-	std::list<texture>::iterator lastElement = --(textureList.end());
-	if(!(lastElement->loadTexture2D(dimX, dimY, data))) return false;
+	textureList.push_back(texture2D());
+	std::list<texture2D>::iterator lastElement = --(textureList.end());
+	if(!(lastElement->loadArrayF(dimX, dimY, data))) return false;
 
 	inOutTexPtr = &(*lastElement);
 	return true;
 }
 
-bool scene::createTexture(const char* const path, texture*& inOutTexPtr)
+bool scene::createTexture(const std::string path, texture*& inOutTexPtr)
 {
-	for(std::list<texture>::iterator i = textureList.begin(); i != textureList.end(); ++i)
+	for(std::list<texture2D>::iterator i = textureList.begin(); i != textureList.end(); ++i)
 	{
 		if((i->getFilename())==path)
 		{
@@ -211,9 +211,9 @@ bool scene::createTexture(const char* const path, texture*& inOutTexPtr)
 		}
 	}
 
-	textureList.push_back(texture(path,GL_TEXTURE_2D));
-	std::list<texture>::iterator lastElement = --(textureList.end());
-	if(!(lastElement->loadTexture2D(path))) return false;
+	textureList.push_back(texture2D());
+	std::list<texture2D>::iterator lastElement = --(textureList.end());
+	if(!(lastElement->loadTextureFile(path))) return false;
 
 	inOutTexPtr = &(*lastElement);
 	return true;

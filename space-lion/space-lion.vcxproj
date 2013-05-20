@@ -153,6 +153,8 @@
     <ClInclude Include="src\sceneLightSource.h" />
     <ClInclude Include="src\staticSceneObject.h" />
     <ClInclude Include="src\texture.h" />
+    <ClInclude Include="src\texture2D.h" />
+    <ClInclude Include="src\texture3D.h" />
     <ClInclude Include="src\vertexGeometry.h" />
     <ClInclude Include="src\vertexStructs.h" />
   </ItemGroup>
@@ -170,7 +172,8 @@
     <ClCompile Include="src\sceneEntity.cpp" />
     <ClCompile Include="src\sceneLightSource.cpp" />
     <ClCompile Include="src\staticSceneObject.cpp" />
-    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\texture2D.cpp" />
+    <ClCompile Include="src\texture3D.cpp" />
     <ClCompile Include="src\vertexGeometry.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

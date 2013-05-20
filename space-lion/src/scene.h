@@ -9,7 +9,8 @@
 #include "sceneLightSource.h"
 #include "vertexGeometry.h"
 #include "material.h"
-#include "texture.h"
+#include "texture2D.h"
+#include "texture3D.h"
 #include "GLSLProgram.h"
 #include "renderParser.h"
 
@@ -47,7 +48,8 @@ private:
 	*/
 	std::list<vertexGeometry> vboList;
 	std::list<material> materialList;
-	std::list<texture> textureList;
+	/* This is kinda temporary. In the long run it might be nice to have all different texture types in a single list. */
+	std::list<texture2D> textureList;
 	std::list<GLSLProgram> shaderProgramList;
 
 	sceneCamera* activeCamera;
@@ -78,7 +80,7 @@ private:
 	*/
 	bool createTexture(int dimX, int dimY, float* data, texture*& inOutTexPtr);
 	//	create a texture from file, obtains a reference to the newly created texture via in-out parameter
-	bool createTexture(const char * const path, texture*& inOutTexPtr);
+	bool createTexture(const std::string path, texture*& inOutTexPtr);
 	//	in case a texture file is changed during runtime
 	bool reloadTexture();
 

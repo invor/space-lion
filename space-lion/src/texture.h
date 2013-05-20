@@ -12,31 +12,19 @@
 
 class texture
 {
-private:
-	//	Integer ids seemed like a bad idea for loading texture files, that themselves -unlike custom material files- won't contain that id.
-	const char *filename;
+protected:
+	//	Integer ids seemed like a bad idea for loading texture files, that themselves -unlike custom material files- won't contain such an id.
+	std::string filename;
 
 	GLuint handle;
-
-	/*
-	/	Specifies which texture type (1D, 2D or 3D) is used.
-	*/
-	const GLenum type;
 public:
-	texture();
-	texture(const char*, GLenum);
-	~texture();
+	texture() {};
+	~texture() {};
 
-	void bindTexture() const;
+	virtual void bindTexture() const = 0;
+	virtual void texParameteri(GLenum, GLenum) = 0;
 
-	//	load a texture from a local file
-	bool loadTexture2D(const char *path);
-	//	load a texture from an array of floats
-	bool loadTexture2D(int dimX, int dimY, float* data);
-	bool loadTexture3D(int dimX, int dimY, int dimZ, const char* path);
-	void texParameteri(GLenum, GLenum);
-
-	const char* getFilename() {return filename;}
+	std::string getFilename() {return filename;}
 };
 
 #endif
