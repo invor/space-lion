@@ -49,23 +49,23 @@ bool scene::createVertexGeometry(vertexGeometry*& inOutGeomPtr)
 	GLubyte *indexArray = new GLubyte[36];
 
 	//	front face
-	vertexArray[0]=vertex_pntcu(-0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,255,0,0,0,0.0,0.0);vertexArray[1]=vertex_pntcu(-0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,255,0,0,128,0.0,1.0);
-	vertexArray[2]=vertex_pntcu(0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[3]=vertex_pntcu(0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,255,0,0,128,1.0,0.0);
+	vertexArray[0]=vertex_pntcu(-0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0);vertexArray[1]=vertex_pntcu(-0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,0.0,1.0,0.0,1.0,0.0,1.0);
+	vertexArray[2]=vertex_pntcu(0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,1.0,1.0,0.0,1.0,1.0,1.0);vertexArray[3]=vertex_pntcu(0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,1.0,0.0);
 	//	right face
-	vertexArray[4]=vertex_pntcu(0.5,-0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,255,0,0,128,0.0,0.0);vertexArray[5]=vertex_pntcu(0.5,0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,255,0,0,128,0.0,1.0);
-	vertexArray[6]=vertex_pntcu(0.5,0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,255,0,0,128,1.0,1.0);vertexArray[7]=vertex_pntcu(0.5,-0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,255,0,0,128,1.0,0.0);
+	vertexArray[4]=vertex_pntcu(0.5,-0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,1.0,0.0,0.0,1.0,0.0,0.0);vertexArray[5]=vertex_pntcu(0.5,0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,1.0,1.0,0.0,1.0,0.0,1.0);
+	vertexArray[6]=vertex_pntcu(0.5,0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,1.0,1.0,1.0,1.0,1.0,1.0);vertexArray[7]=vertex_pntcu(0.5,-0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,1.0,0.0,1.0,1.0,1.0,0.0);
 	//	left face
-	vertexArray[8]=vertex_pntcu(-0.5,-0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,255,0,0,128,0.0,0.0);vertexArray[9]=vertex_pntcu(-0.5,0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,255,0,0,128,0.0,1.0);
-	vertexArray[10]=vertex_pntcu(-0.5,0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,255,0,0,128,1.0,1.0);vertexArray[11]=vertex_pntcu(-0.5,-0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,255,0,0,128,1.0,0.0);
+	vertexArray[8]=vertex_pntcu(-0.5,-0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,1.0,1.0,0.0,0.0);vertexArray[9]=vertex_pntcu(-0.5,0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,0.0,1.0,1.0,1.0,0.0,1.0);
+	vertexArray[10]=vertex_pntcu(-0.5,0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,0.0,1.0,0.0,1.0,1.0,1.0);vertexArray[11]=vertex_pntcu(-0.5,-0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,1.0,0.0);
 	//	back face
-	vertexArray[12]=vertex_pntcu(0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[13]=vertex_pntcu(0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,255,0,0,128,0.0,1.0);
-	vertexArray[14]=vertex_pntcu(-0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[15]=vertex_pntcu(-0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,255,0,0,128,1.0,0.0);
+	vertexArray[12]=vertex_pntcu(0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,1.0,0.0,1.0,1.0,0.0,0.0);vertexArray[13]=vertex_pntcu(0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0,1.0);
+	vertexArray[14]=vertex_pntcu(-0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,1.0);vertexArray[15]=vertex_pntcu(-0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,0.0);
 	//	bottom face
-	vertexArray[16]=vertex_pntcu(-0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[17]=vertex_pntcu(-0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,1.0);
-	vertexArray[18]=vertex_pntcu(0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[19]=vertex_pntcu(0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,0.0);
+	vertexArray[16]=vertex_pntcu(-0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0);vertexArray[17]=vertex_pntcu(-0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,1.0);
+	vertexArray[18]=vertex_pntcu(0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,1.0,0,1.0,1.0,1.0,1.0);vertexArray[19]=vertex_pntcu(0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,1.0,0,0,1.0,1.0,0.0);
 	//	top face
-	vertexArray[20]=vertex_pntcu(-0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,0.0);vertexArray[21]=vertex_pntcu(-0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,0.0,1.0);
-	vertexArray[22]=vertex_pntcu(0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,1.0);vertexArray[23]=vertex_pntcu(0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,255,0,0,128,1.0,0.0);
+	vertexArray[20]=vertex_pntcu(-0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,0,1.0,0.0,1.0,0.0,0.0);vertexArray[21]=vertex_pntcu(-0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,0.0,1.0,1.0,1.0,0.0,1.0);
+	vertexArray[22]=vertex_pntcu(0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,1.0,1.0,1.0,1.0,1.0,1.0);vertexArray[23]=vertex_pntcu(0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,1.0,1.0,0,1.0,1.0,0.0);
 
 	indexArray[0]=0;indexArray[1]=2;indexArray[2]=1;
 	indexArray[3]=2;indexArray[4]=0;indexArray[5]=3;
@@ -284,15 +284,17 @@ bool scene::createStaticSceneObject(const int id, const glm::vec3 position, cons
 	return true;
 }
 
-bool scene::createVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const std::string path, const glm::ivec3 volumeRes)
+bool scene::createVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, const std::string path, const glm::ivec3 volumeRes)
 {
 	vertexGeometry* geomPtr;
 	texture3D* volPtr;
+	GLSLProgram* prgmPtr;
 
 	if(!createVertexGeometry(geomPtr)) return false;
 	if(!createTexture3D(path, volumeRes, volPtr)) return false;
+	if(!createShaderProgram(VOLUME_RAYCASTING,prgmPtr)) return false;
 
-	volumetricObjectList.push_back(volumetricSceneObject(id,position,orientation,geomPtr,volPtr));
+	volumetricObjectList.push_back(volumetricSceneObject(id,position,orientation,scaling,geomPtr,volPtr,prgmPtr));
 	return true;
 }
 
@@ -324,7 +326,7 @@ void scene::testing()
 {
 	//	Ehhh, a few lines for testing
 	activeCamera->rotate(45.0,glm::vec3(0.0,1.0,0.0));
-	activeCamera->rotate(-45.0,glm::vec3(1.0,0.0,0.0));
+	activeCamera->rotate(-22.5,glm::vec3(1.0,0.0,0.0));
 	
 	//scenegraph.begin()->rotate(180,glm::vec3(0.0,1.0,0.0));
 	
@@ -353,7 +355,7 @@ void scene::testing()
 */
 void scene::render()
 {
-	//	obtain transformation matrices
+	/*	obtain transformation matrices */
 	glm::mat4 modelViewMx;
 	glm::mat4 modelViewProjectionMx;
 	glm::mat3 normalMx;
@@ -415,5 +417,46 @@ void scene::render()
 		(i->getGeometry())->draw(GL_TRIANGLES,36,0);
 		i->rotate(0.1f,glm::vec3(0.0f,1.0f,0.0f));
 	}
+	}
+}
+
+void scene::renderVolumetricObjects()
+{
+	/*	obtain transformation matrices	*/
+	glm::mat4 modelViewMx;
+	glm::mat4 modelViewProjectionMx;
+	glm::mat4 textureMatrix;
+
+	glm::mat4 modelMx;
+	glm::mat4 viewMx(activeCamera->computeViewMatrix());
+	glm::mat4 projectionMx(activeCamera->computeProjectionMatrix(0.01f,100.0f));
+
+	GLSLProgram* currentPrgm(volumetricObjectList.begin()->getShaderProgram());
+	currentPrgm->use();
+
+	for(std::list<volumetricSceneObject>::iterator i = volumetricObjectList.begin(); i != volumetricObjectList.end(); ++i)
+	{
+		modelMx = i->computeModelMatrix();
+		modelViewMx = viewMx * modelMx;
+
+		/*	construct the texture matrix */
+		textureMatrix = glm::scale(glm::mat4(1.0),glm::vec3(1.0,1.0,-1.0));
+		textureMatrix = glm::translate(textureMatrix,glm::vec3(0.5,0.5,-0.5));
+		textureMatrix = textureMatrix * glm::inverse(modelMx);
+
+		modelViewProjectionMx = projectionMx * viewMx * modelMx;
+
+		glEnable(GL_TEXTURE_3D);
+		glActiveTexture(GL_TEXTURE0);
+		currentPrgm->setUniform("volumeTexture",0);
+		i->getVolumeTexture()->bindTexture();
+
+		currentPrgm->setUniform("modelViewProjectionMatrix",modelViewProjectionMx);
+		currentPrgm->setUniform("modelMatrix",modelMx);
+		currentPrgm->setUniform("textureMatrix",textureMatrix);
+		currentPrgm->setUniform("cameraPosition",activeCamera->getPosition());
+
+		(i->getGeometry())->draw(GL_TRIANGLES,36,0);
+		i->rotate(0.1f,glm::vec3(0.0f,1.0f,0.0f));
 	}
 }

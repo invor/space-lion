@@ -17,9 +17,11 @@ protected:
 
 	glm::vec3 position;
 	glm::quat orientation;
+	glm::vec3 scaling;
 public:
 	sceneEntity() : id(0), position(glm::vec3(0.0f)) {}
-	sceneEntity(const int inId, const glm::vec3& inPosition, const glm::quat& inOrientation = glm::quat()) : id(inId), position(inPosition), orientation(inOrientation){}
+	sceneEntity(const int inId, const glm::vec3& inPosition, const glm::quat& inOrientation = glm::quat(), const glm::vec3& inScaling = glm::vec3(1.0))
+		: id(inId), position(inPosition), orientation(inOrientation), scaling(inScaling) {}
 	~sceneEntity();
 
 	void translate(const glm::vec3& tvec) { position = position + tvec; }
@@ -33,6 +35,9 @@ public:
 	void setOrientation(const glm::quat& inOrientation) {orientation = inOrientation;}
 	void setOrientation(const float angle, const glm::vec3& axis) {orientation = glm::rotate(glm::quat(),angle,axis);}
 	const glm::quat& getOrientation() {return orientation;}
+
+	void setScaling(const glm::vec3& inScaling) {scaling = inScaling;}
+	glm::vec3 getScaling() {return scaling;}
 };
 
 #endif

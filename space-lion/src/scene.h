@@ -102,7 +102,7 @@ public:
 	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const char * const geometryPath, const char * const materialPath);
 
 	/* create a volumetric scene entity*/
-	bool createVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const std::string path, const glm::ivec3 volumeRes);
+	bool createVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, const std::string path, const glm::ivec3 volumeRes);
 
 	//	create a scene light source
 	bool createSceneLight(const int id, const glm::vec3 position, glm::vec4 lightColour);
