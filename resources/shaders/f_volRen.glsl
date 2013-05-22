@@ -62,7 +62,7 @@ void main()
 	{	
 		/*	Obtain values from the 3d texture at the current location. */
 		vec3 sampleCoord = entryPoint+(rayDirection*traveledDistance);
-		vec4 rgbaVol = texture3D(volumeTexture,sampleCoord);
+		vec4 rgbaVol = vec4(texture3D(volumeTexture,sampleCoord).x);
 		
 		/*	Accumulate color */
 		rgbaOut.rgb += (1.0 - rgbaOut.a) * rgbaVol.rgb * rgbaVol.a * density;

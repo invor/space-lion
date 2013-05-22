@@ -76,6 +76,10 @@ bool renderHub::init()
 				<<"Error: "<<glewGetErrorString(error);
 		return false;
 	}
+	/*
+	/	Apparently glweInit() causes a GL ERROR 1280, so let's just catch that...
+	*/
+	glGetError();
 
 	return true;
 }
@@ -190,23 +194,38 @@ void renderHub::runVolumeTest()
 	/	Just for testing and debug purposes I am ignoring the event-queue concept I want to take up later
 	/	and manually add entities to the active scene
 	*/
+	GLenum err;
+	err = glGetError();
+	if(err == GL_NO_ERROR) std::cout<<"Everything looks fine, good sir.\n";
+	else std::cout<<err<<"\n";
+
 	if(!(activeScene->createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,0.505,1.0),"../resources/textures/room.raw",glm::ivec3(91,46,91))))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
 	}
 
+	//GLenum err;
+	err = glGetError();
+	if(err == GL_NO_ERROR) std::cout<<"Everything looks fine, good sir.\n";
+	else std::cout<<err<<"\n";
+
 	if(!(activeScene->createVolumetricSceneObject(1,glm::vec3(0.0,0.0,-2.0),glm::quat(),glm::vec3(1.0,0.505,1.0),"../resources/textures/room.raw",glm::ivec3(91,46,91))))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
 	}
-
+	
 	if(!(activeScene->createVolumetricSceneObject(2,glm::vec3(-2.0,0.0,0.0),glm::quat(),glm::vec3(1.0,0.505,1.0),"../resources/textures/room.raw",glm::ivec3(91,46,91))))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
 	}
+
+	//GLenum err;
+	err = glGetError();
+	if(err == GL_NO_ERROR) std::cout<<"Everything looks fine, good sir.\n";
+	else std::cout<<err<<"\n";
 
 	if(!(activeScene->createSceneCamera(0,glm::vec3(1.5,1.0,1.5),glm::quat(),16.0f/9.0f,55.0f)))
 	{
