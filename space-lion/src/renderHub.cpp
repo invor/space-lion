@@ -208,7 +208,7 @@ void renderHub::runVolumeTest()
 				<<"\n";
 	}
 
-	if(!(activeScene->createSceneCamera(0,glm::vec3(2.0,1.0,2.0),glm::quat(),16.0f/9.0f,55.0f)))
+	if(!(activeScene->createSceneCamera(0,glm::vec3(1.5,1.0,1.5),glm::quat(),16.0f/9.0f,55.0f)))
 	{
 		std::cout<<"Failed to create camera"
 				<<"\n";
@@ -225,10 +225,10 @@ void renderHub::runVolumeTest()
 
 	running = true;
 	glClearColor(0.0f,0.0f,0.0f,1.0f);
-	//glEnable (GL_DEPTH_TEST);
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_CULL_FACE);
+	glEnable (GL_DEPTH_TEST);
+	//glEnable (GL_BLEND);
+	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_CULL_FACE);
 
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{

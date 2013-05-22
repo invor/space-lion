@@ -4,10 +4,11 @@ LFLAGS = -lGLEW -lGL -lglfw -L./external/lib/ -Wl,-R./../external/lib/
 BIN = ./x64/main
 SRC = ./space-lion/src
 OBJ = \
-		$(SRC)/postProcessor.o \
 		$(SRC)/framebufferObject.o \
+		$(SRC)/ftvTestbench.o \
 		$(SRC)/GLSLProgram.o \
 		$(SRC)/material.o \
+		$(SRC)/postProcessor.o \
 		$(SRC)/renderHub.o \
 		$(SRC)/renderParser.o \
 		$(SRC)/scene.o \
@@ -15,8 +16,10 @@ OBJ = \
 		$(SRC)/sceneEntity.o \
 		$(SRC)/sceneLightSource.o \
 		$(SRC)/staticSceneObject.o \
-		$(SRC)/texture.o \
-		$(SRC)/vertexGeometry.o 
+		$(SRC)/texture2D.o \
+		$(SRC)/texture3D.o \
+		$(SRC)/vertexGeometry.o \
+		$(SRC)/volumetricSceneObject.o
 
 DEPENDFILE = .depend
 

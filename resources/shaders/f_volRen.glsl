@@ -19,46 +19,65 @@ void main()
 	/	That is, the space in which the bounding box ranges from
 	/	(0,0,0)^T to (1,1,1)^T.
 	*/
-	vec3 fragmentTextureCoord = (textureMatrix * vec4(fragmentWorldPosition,1.0)).xyz;
-	//vec3 fragmentTextureCoord = colour;
+	vec3 fragmentTextureCoord = colour;
 	vec3 cameraTextureCoord = (textureMatrix * vec4(cameraPosition,1.0)).xyz;
 
 	/*	Compute ray direction in texture space. */
 	vec3 rayDirection = normalize(fragmentTextureCoord-cameraTextureCoord);
 	
+	/*
+	/	Set the entry (or start) point based on the camera position.
+	/
+	/	If the camera is outside the volume bounding box, set the entry point
+	/	to the colour of the fragment (which represents the position of the 
+	/	surface point in texture space).
+	/	If the camera is inside though, set the entry point to the position
+	/	of the camera, since this is where we want to start to collect samples
+	/	from the volume.
+	*/
+	vec3 entryPoint;
+	if( (max(max(cameraTextureCoord.x,cameraTextureCoord.y),cameraTextureCoord.z))>1.0f ||
+		(min(min(cameraTextureCoord.x,cameraTextureCoord.y),cameraTextureCoord.z))<0.0f )
+	{
+		entryPoint = colour;
+	}
+	else
+	{
+		entryPoint = cameraTextureCoord;
+	}
+	
 	/*	Storage for output color. */
 	vec4 rgbaOut = vec4(0.0);
 	
-	/*	Helpers for traveling through the volume */
+	/*	Used to store the so far traveled distance */
 	float traveledDistance = 0.0;
-	float opacity = 0.0;
+	/*	Normalisation factor for color and opacity accumulation */
+	float density = 0.005/(1.0/91.0);
+	/* calculate the distance from entry to exit point */
+	float exitDistance = min(	min(	max((1.0 - entryPoint.x)/ rayDirection.x , entryPoint.x/(-rayDirection.x)),
+										max((1.0 - entryPoint.y)/ rayDirection.y , entryPoint.y/(-rayDirection.y))	),
+								max((1.0 - entryPoint.z)/ rayDirection.z , entryPoint.z/(-rayDirection.z))	);
 	
-	while(opacity < 0.99)
+	while(rgbaOut.a < 0.99)
 	{	
 		/*	Obtain values from the 3d texture at the current location. */
-		vec3 sampleCoord = colour+(rayDirection*traveledDistance);
+		vec3 sampleCoord = entryPoint+(rayDirection*traveledDistance);
 		vec4 rgbaVol = texture3D(volumeTexture,sampleCoord);
 		
 		/*	Accumulate color */
-		rgbaOut += (1.0 - opacity) * rgbaVol;
+		rgbaOut.rgb += (1.0 - rgbaOut.a) * rgbaVol.rgb * rgbaVol.a * density;
 		/*	Accumulate opacity */
-		opacity += (1.0 - opacity) * rgbaVol.w;
+		rgbaOut.a += (1.0 - rgbaOut.a) * rgbaVol.a * density;
 		
+		/*	Add the distance to the next sample point to the so far traveled distance */
 		traveledDistance += 0.005;
 		
-		//TODO: Speedup the test for the break condition
-		//Check if still inside bounding box
-		if( sampleCoord.x > 1.0
-			|| sampleCoord.y > 1.0
-			|| sampleCoord.z > 1.0		
-			|| sampleCoord.x < 0.0
-			|| sampleCoord.y < 0.0
-			|| sampleCoord.z < 0.0)
+		/*	Check if the exit point has been reached */
+		if( traveledDistance > exitDistance )
 		{
 			break;
 		}
 	}
 	
-	//fragColour = vec4(fragmentTextureCoord.xyz,1.0);
 	fragColour = vec4(rgbaOut);
 }
