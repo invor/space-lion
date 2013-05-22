@@ -199,7 +199,17 @@ void renderHub::runVolumeTest()
 	if(err == GL_NO_ERROR) std::cout<<"Everything looks fine, good sir.\n";
 	else std::cout<<err<<"\n";
 
-	if(!(activeScene->createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,0.505,1.0),"../resources/textures/room.raw",glm::ivec3(91,46,91))))
+	/////////////////////////////////////////
+	//
+	//	If the method createVolumetricSceneObject() is called more than once, in combination with OpenGL 3.3 context
+	//	and /O2/GL compiler optimization, it causes a GL_ERROR 1282.
+	//
+	//	Inserting a random std::cout into createVolumetricSceneObject() actually fixes that behaviour, but I can only
+	//	guess that this might be the case because it forces the methods to be called in the right and proper order...
+	//
+	/////////////////////////////////////////
+
+	if(!(activeScene->createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
@@ -210,13 +220,13 @@ void renderHub::runVolumeTest()
 	if(err == GL_NO_ERROR) std::cout<<"Everything looks fine, good sir.\n";
 	else std::cout<<err<<"\n";
 
-	if(!(activeScene->createVolumetricSceneObject(1,glm::vec3(0.0,0.0,-2.0),glm::quat(),glm::vec3(1.0,0.505,1.0),"../resources/textures/room.raw",glm::ivec3(91,46,91))))
+	if(!(activeScene->createVolumetricSceneObject(1,glm::vec3(0.0,0.0,-2.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
 	}
 	
-	if(!(activeScene->createVolumetricSceneObject(2,glm::vec3(-2.0,0.0,0.0),glm::quat(),glm::vec3(1.0,0.505,1.0),"../resources/textures/room.raw",glm::ivec3(91,46,91))))
+	if(!(activeScene->createVolumetricSceneObject(2,glm::vec3(-2.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
