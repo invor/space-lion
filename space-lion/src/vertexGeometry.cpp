@@ -9,7 +9,7 @@ vertexGeometry::~vertexGeometry()
 {
 }
 
-vertexGeometry::vertexGeometry(const char *fn) : filename(fn)
+vertexGeometry::vertexGeometry(const char *fn) : filename(fn), vaHandle(0), vboHandle(0), iboHandle(0)
 {
 }
 
@@ -30,11 +30,11 @@ bool vertexGeometry::bufferDataFromArray(const vertex_p *vertexArray, const GLub
 	glBindVertexArray(vaHandle);
 	glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
 	glBufferData(GL_ARRAY_BUFFER, vaSize, vertexArray, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER,0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboHandle);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, viSize, indexArray, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER,0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	return true;
 }
@@ -57,9 +57,9 @@ void vertexGeometry::bindIndexBuffer()
 void vertexGeometry::draw(GLenum type, GLint count, int indexOffset)
 {
 	glBindVertexArray(vaHandle);
-	//glDrawArrays(type, 0, count);
-	glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboHandle);
+	/*	If stored correctly in the VAO, there is no need to rebind buffers again */
+	//glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboHandle);
 	glDrawElements(type, count, GL_UNSIGNED_BYTE, (GLvoid*)(sizeof(GLubyte) * indexOffset));
 }
 
@@ -69,8 +69,8 @@ void vertexGeometry::setVertexAttribPointer(GLuint index, GLint size, GLenum typ
 	glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
 	glEnableVertexAttribArray(index);
 	glVertexAttribPointer(index, size, type, normalized, stride, pointer);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void vertexGeometry::setVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer)
@@ -79,8 +79,8 @@ void vertexGeometry::setVertexAttribIPointer(GLuint index, GLint size, GLenum ty
 	glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
 	glEnableVertexAttribArray(index);
 	glVertexAttribIPointer(index, size, type, stride, pointer);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void vertexGeometry::setVertexAttribLPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer)
@@ -89,6 +89,6 @@ void vertexGeometry::setVertexAttribLPointer(GLuint index, GLint size, GLenum ty
 	glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
 	glEnableVertexAttribArray(index);
 	glVertexAttribLPointer(index, size, type, stride, pointer);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
