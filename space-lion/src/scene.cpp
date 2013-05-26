@@ -38,7 +38,7 @@ bool scene::createVertexGeometry(vertexGeometry*& inOutGeomPtr)
 	for(std::list<vertexGeometry>::iterator i = vboList.begin(); i != vboList.end(); ++i)
 	{
 		//	The "1024" is ugly but this should be changed later anyway.
-		if(strncmp((i->getFilename()),"0",1024)){
+		if(i->getFilename() == "0"){
 			inOutGeomPtr = &(*i);
 			return true;
 		}
@@ -219,7 +219,7 @@ bool scene::createTexture2D(const std::string path, texture*& inOutTexPtr)
 	return true;
 }
 
-bool scene::createTexture3D(std::string path, glm::ivec3 textureRes, texture3D*& inOutTexPtr)
+bool scene::createTexture3D(const std::string path, glm::ivec3 textureRes, texture3D*& inOutTexPtr)
 {
 	for(std::list<texture3D>::iterator i = volumeList.begin(); i != volumeList.end(); ++i)
 	{

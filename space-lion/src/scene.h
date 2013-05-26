@@ -13,7 +13,7 @@
 #include "texture2D.h"
 #include "texture3D.h"
 #include "GLSLProgram.h"
-#include "renderParser.h"
+#include "resourceLoader.h"
 
 //pragmas seem to be only necessary in windows
 #ifdef _WIN32
@@ -31,7 +31,7 @@ private:
 	/	The most recently assigned id is saved in this variable.
 	*/
 	unsigned int lastTextureId;
-	renderParser resouceParser;
+	resourceLoader resouceParser;
 
 	/*
 	/	The following lists contain all entities (objects if you will) that are part of the scene.
@@ -88,7 +88,7 @@ private:
 	bool reloadTexture();
 
 	/* create a 3D texture for volume rendering */
-	bool createTexture3D(std::string path, glm::ivec3 textureRes, texture3D*& inOutTexPtr);
+	bool createTexture3D(const std::string path, glm::ivec3 textureRes, texture3D*& inOutTexPtr);
 
 public:
 	scene();

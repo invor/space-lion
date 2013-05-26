@@ -9,7 +9,7 @@ vertexGeometry::~vertexGeometry()
 {
 }
 
-vertexGeometry::vertexGeometry(const char *fn) : filename(fn), vaHandle(0), vboHandle(0), iboHandle(0)
+vertexGeometry::vertexGeometry(const std::string fn) : filename(fn), vaHandle(0), vboHandle(0), iboHandle(0)
 {
 }
 

@@ -1,14 +1,14 @@
-#include "renderParser.h"
+#include "resourceLoader.h"
 
-renderParser::renderParser()
+resourceLoader::resourceLoader()
 {
 }
 
-renderParser::~renderParser()
+resourceLoader::~resourceLoader()
 {
 }
 
-bool renderParser::parseMaterial(const char* const materialPath, materialInfo& inOutMtlInfo)
+bool resourceLoader::parseMaterial(const char* const materialPath, materialInfo& inOutMtlInfo)
 {
 	std::string buffer;
 	std::string tempStr;

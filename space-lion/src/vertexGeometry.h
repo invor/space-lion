@@ -1,6 +1,7 @@
 #ifndef vertexGeometry_h
 #define vertexGeometry_h
 
+#include <string>
 #include "GL/glew.h"
 #include "vertexStructs.h"
 
@@ -12,7 +13,7 @@
 class vertexGeometry
 {
 private:
-	const char *filename;
+	const std::string filename;
 
 	//vertex array
 	GLuint vaHandle;
@@ -25,7 +26,7 @@ public:
 	vertexGeometry(void);
 	~vertexGeometry(void);
 
-	vertexGeometry(const char*);
+	vertexGeometry(const std::string fn);
 
 	bool bufferDataFromArray(const vertex_p *vertexArray, const GLubyte *indexArray, const GLsizei vaSize, const GLsizei viSize);
 	bool bufferDataFromFile(const char *path);
@@ -39,7 +40,7 @@ public:
 	void setVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);
 	void setVertexAttribLPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);
 
-	const char* getFilename() {return filename;}
+	const std::string getFilename() {return filename;}
 };
 
 #endif
