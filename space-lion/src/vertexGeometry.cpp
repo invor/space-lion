@@ -7,6 +7,9 @@ vertexGeometry::vertexGeometry() : filename("0"), vaHandle(0), vboHandle(0), ibo
 
 vertexGeometry::~vertexGeometry()
 {
+	glDeleteBuffers(1, &vboHandle);
+	glDeleteBuffers(1, &iboHandle);
+	glDeleteVertexArrays(1, &vaHandle);
 }
 
 vertexGeometry::vertexGeometry(const std::string fn) : filename(fn), vaHandle(0), vboHandle(0), iboHandle(0)

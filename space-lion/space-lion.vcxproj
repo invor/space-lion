@@ -142,6 +142,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\ftvTestbench.h" />
+    <ClInclude Include="src\ftv_volumetricSceneObject.h" />
     <ClInclude Include="src\postProcessor.h" />
     <ClInclude Include="src\framebufferObject.h" />
     <ClInclude Include="src\GLSLProgram.h" />

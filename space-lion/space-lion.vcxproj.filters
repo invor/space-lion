@@ -69,6 +69,9 @@
     <ClInclude Include="src\resourceLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ftv_volumetricSceneObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GLSLProgram.cpp">

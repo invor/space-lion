@@ -8,6 +8,7 @@
 #include "sceneCamera.h"
 #include "sceneLightSource.h"
 #include "volumetricSceneObject.h"
+#include "ftv_volumetricSceneObject.h"
 #include "vertexGeometry.h"
 #include "material.h"
 #include "texture2D.h"
@@ -41,6 +42,7 @@ private:
 	std::list<sceneCamera> cameraList;
 	std::list<staticSceneObject> scenegraph;
 	std::list<volumetricSceneObject> volumetricObjectList;
+	std::list<ftv_volumetricSceneObject> ftv_volumetricSceneObjectList;
 
 	/*
 	/	The following lists contain all resources that are in use by an entity of this scene.
@@ -52,6 +54,7 @@ private:
 	std::list<material> materialList;
 	/* This is kinda temporary. In the long run it might be nice to have all different texture types in a single list. */
 	std::list<texture2D> textureList;
+	/* Another temporary thing: volume masks used for ftv are stored in the volume list alongside the normal volume datasets */
 	std::list<texture3D> volumeList;
 	std::list<GLSLProgram> shaderProgramList;
 
@@ -89,6 +92,7 @@ private:
 
 	/* create a 3D texture for volume rendering */
 	bool createTexture3D(const std::string path, glm::ivec3 textureRes, texture3D*& inOutTexPtr);
+	bool createTexture3D(float* volumeData, glm::ivec3 textureRes, GLenum internalFormat, GLenum format, texture3D*& inOutTexPtr);
 
 public:
 	scene();
@@ -101,8 +105,10 @@ public:
 	//	create a scene entity
 	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const char * const geometryPath, const char * const materialPath);
 
-	/* create a volumetric scene entity*/
+	/* create a volumetric scene entity */
 	bool createVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, const std::string path, const glm::ivec3 volumeRes);
+	/* create a volumetric scene entity for ftv testing */
+	bool createFtvVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, float* volumeData, GLenum internalFormat, GLenum format, const glm::ivec3 volumeRes);
 
 	//	create a scene light source
 	bool createSceneLight(const int id, const glm::vec3 position, glm::vec4 lightColour);
@@ -115,12 +121,16 @@ public:
 
 	/* render the scene */
 	void render();
+
 	/*
-	/	TODO: render the volumetric objects of the scene
-	/
-	/	This will usually be done in a sperate render pass, in order to allow depth correct blending.
+	/	Render the volumetric objects of the scene.
+	/	This is usually be done in a sperate render pass to allow depth correct blending.
 	*/
 	void renderVolumetricObjects();
+	/*
+	/	Render volumetric objects of the scene using a mask to indicate faulty regions in the 3d texture.
+	*/
+	void ftvRenderVolumetricObjects();
 };
 
 #endif

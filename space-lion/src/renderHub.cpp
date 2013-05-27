@@ -61,11 +61,13 @@ bool renderHub::init()
 		return false;
 	}
 
-	const GLubyte *version = glGetString(GL_VERSION);
-	std::cout<<"Supporting OpenGL Version: "<<version<<"\n";
+	/*	This is actually not working like this... */
+	//const GLubyte *version = glGetString(GL_VERSION);
+	//std::cout<<"Supporting OpenGL Version: "<<version<<"\n";
 	std::cout<<"Using OpenGL Version: "<<maj<<"."<<min<<"\n\n";
 
-	//	Initialize glew
+	/*	Initialize glew */
+	//glewExperimental = GL_TRUE;
 	GLenum error = glewInit();
 	if( GLEW_OK != error)
 	{
@@ -190,35 +192,11 @@ void renderHub::run()
 
 void renderHub::runVolumeTest()
 {
-	/*	
-	/	Just for testing and debug purposes I am ignoring the event-queue concept I want to take up later
-	/	and manually add entities to the active scene
-	*/
-	GLenum err;
-	err = glGetError();
-	if(err == GL_NO_ERROR) std::cout<<"Everything looks fine, good sir.\n";
-	else std::cout<<err<<"\n";
-
-	/////////////////////////////////////////
-	//
-	//	If the method createVolumetricSceneObject() is called more than once, in combination with OpenGL 3.3 context
-	//	and /O2/GL compiler optimization, it causes a GL_ERROR 1282.
-	//
-	//	Inserting a random std::cout into createVolumetricSceneObject() actually fixes that behaviour, but I can only
-	//	guess that this might be the case because it forces the methods to be called in the right and proper order...
-	//
-	/////////////////////////////////////////
-
 	if(!(activeScene->createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
 	}
-
-	//GLenum err;
-	err = glGetError();
-	if(err == GL_NO_ERROR) std::cout<<"Everything looks fine, good sir.\n";
-	else std::cout<<err<<"\n";
 
 	if(!(activeScene->createVolumetricSceneObject(1,glm::vec3(0.0,0.0,-2.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
 	{
@@ -232,10 +210,58 @@ void renderHub::runVolumeTest()
 				<<"\n";
 	}
 
-	//GLenum err;
-	err = glGetError();
-	if(err == GL_NO_ERROR) std::cout<<"Everything looks fine, good sir.\n";
-	else std::cout<<err<<"\n";
+	if(!(activeScene->createSceneCamera(0,glm::vec3(1.5,1.0,1.5),glm::quat(),16.0f/9.0f,55.0f)))
+	{
+		std::cout<<"Failed to create camera"
+				<<"\n";
+	}
+	if(!(activeScene->createSceneLight(0,glm::vec3(0.0,2.0,0.0),glm::vec4(1.0,1.0,1.0,1.0))))
+	{
+		std::cout<<"Failed to create light"
+				<<"\n";
+	}
+
+	activeScene->setActiveCamera(0);
+
+	activeScene->testing();
+
+	running = true;
+	glClearColor(0.0f,0.0f,0.0f,1.0f);
+	glEnable (GL_DEPTH_TEST);
+	//glEnable (GL_BLEND);
+	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_CULL_FACE);
+
+	while(running && glfwGetWindowParam(GLFW_OPENED))
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0,0,1200,675);
+		activeScene->renderVolumetricObjects();
+
+		glfwSwapBuffers();
+	}
+}
+
+void renderHub::runFtvVolumeTest()
+{
+	if(!(activeScene->createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
+	{
+		std::cout<<"Failed to create scene object"
+				<<"\n";
+	}
+
+	if(!(activeScene->createVolumetricSceneObject(1,glm::vec3(0.0,0.0,-2.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
+	{
+		std::cout<<"Failed to create scene object"
+				<<"\n";
+	}
+	
+	if(!(activeScene->createVolumetricSceneObject(2,glm::vec3(-2.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
+	{
+		std::cout<<"Failed to create scene object"
+				<<"\n";
+	}
 
 	if(!(activeScene->createSceneCamera(0,glm::vec3(1.5,1.0,1.5),glm::quat(),16.0f/9.0f,55.0f)))
 	{

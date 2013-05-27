@@ -16,12 +16,12 @@ public:
 	/*
 	/	load a texture from a local file
 	*/
-	bool loadTextureFile(std::string inputPat, glm::ivec3 resolution);
+	bool loadTextureFile(std::string inputPath, glm::ivec3 resolution);
 
 	/*
 	/	load a texture from an array of floats
 	*/
-	bool loadArrayF(int dimX, int dimY, int dimZ, float* data);
+	bool loadArrayF(float* data, glm::ivec3 resolution, GLenum internalFormat, GLenum format);
 };
 
 #endif

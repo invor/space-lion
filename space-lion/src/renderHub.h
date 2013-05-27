@@ -48,6 +48,11 @@ public:
 	void runVolumeTest();
 
 	/*
+	/	Run fault tolerant volume visuailization tests.
+	*/
+	void runFtvVolumeTest();
+
+	/*
 	/	Run fault tolerant visualization tests.
 	*/
 	void runFtv();
