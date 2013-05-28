@@ -55,10 +55,6 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		bindAttribLocation(2,"vTangent");
 		bindAttribLocation(3,"vColour");
 		bindAttribLocation(4,"vUVCoord");
-		if(!link()) return false;
-		std::cout<<getLog();
-		glUseProgram(0);
-		return true;
 		break; }
 	case FLAT : {
 		if(!compileShaderFromFile("../resources/shaders/v_flat.glsl",GL_VERTEX_SHADER)) return false;
@@ -68,70 +64,42 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		bindAttribLocation(2,"vTangent");
 		bindAttribLocation(3,"vColour");
 		bindAttribLocation(4,"vUVCoord");
-		if(!link()) return false;
-		std::cout<<getLog();
-		glUseProgram(0);
-		return true;
 		break; }
 	case POISSON : {
 		if(!compileShaderFromFile("../resources/shaders/v_poisson.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_poisson.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
-		if(!link()) return false;
-		std::cout<<getLog();
-		glUseProgram(0);
-		return true;
 		break; }
 	case FXAA : {
 		if(!compileShaderFromFile("../resources/shaders/v_fxaa.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_fxaa.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
-		if(!link()) return false;
-		std::cout<<getLog();
-		glUseProgram(0);
-		return true;
 		break; }
 	case IDLE : {
 		if(!compileShaderFromFile("../resources/shaders/v_idle.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_idle.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
-		if(!link()) return false;
-		std::cout<<getLog();
-		glUseProgram(0);
-		return true;
 		break; }
 	case STAMP : {
 		if(!compileShaderFromFile("../resources/shaders/v_stamp.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_stamp.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
-		if(!link()) return false;
-		std::cout<<getLog();
-		glUseProgram(0);
-		return true;
 		break; }
 	case INPAINTING : {
 		if(!compileShaderFromFile("../resources/shaders/v_imageInpainting.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_imageInpainting.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
-		if(!link()) return false;
-		std::cout<<getLog();
-		glUseProgram(0);
-		return true;
 		break; }
 	case DISTANCEMAPPING : {
 		if(!compileShaderFromFile("../resources/shaders/v_distanceMapping.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_distanceMapping.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
-		if(!link()) return false;
-		std::cout<<getLog();
-		glUseProgram(0);
-		return true;
 		break; }
 	case FTV_MASK : {
 		if(!compileShaderFromFile("../resources/shaders/v_ftv_mask.glsl",GL_VERTEX_SHADER)) return false;
@@ -140,37 +108,28 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		bindAttribLocation(1,"vUVCoord");
 		bindFragDataLocation(0,"inpaintingMask");
 		bindFragDataLocation(1,"distanceMap");
-		if(!link()) return false;
-		std::cout<<getLog();
-		glUseProgram(0);
-		return true;
 		break; }
 	case VOLUME_RAYCASTING : {
 		if(!compileShaderFromFile("../resources/shaders/v_volRen.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_volRen.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(3,"vColour");
-		if(!link()) return false;
-		std::cout<<getLog();
-		glUseProgram(0);
-		return true;
 		break; }
 	case FTV_VOLUME_RAYCASTING : {
 		if(!compileShaderFromFile("../resources/shaders/v_ftv_volRen.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_ftv_volRen.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(3,"vColour");
-		if(!link()) return false;
-		std::cout<<getLog();
-		glUseProgram(0);
-		return true;
 		break; }
 	default : {
 		return false;
 		break; }
 	}
 
-	return false;
+	if(!link()) return false;
+	std::cout<<getLog();
+	glUseProgram(0);
+	return true;
 }
 
 bool GLSLProgram::compileShaderFromFile(const char *path, GLenum shaderType)

@@ -9,7 +9,9 @@
 
 #include <vector>
 #include "scene.h"
+#include "ftv_scene.h"
 #include "postProcessor.h"
+#include "ftv_postProcessor.h"
 #include "framebufferObject.h"
 #include "ftvTestbench.h"
 #include "GL/glfw.h"
@@ -26,10 +28,10 @@ public:
 	renderHub(void);
 	~renderHub(void);
 
-	//	Initialize OpenGL context and create a window
+	/*	Initialize OpenGL context and create a window */
 	bool init();
 
-	//	Scene handling
+	/*	Scene handling */
 	bool addScene();
 	bool deleteScene();
 	bool setSceneParameters();
@@ -37,24 +39,16 @@ public:
 	void setActiveScene(const int index);
 	scene* getActiveScene();
 
-	/*
-	/	Render a frame of the active scene and check event-queue.
-	*/
+	/* Render a frame of the active scene and check event-queue. */
 	void run();
 
-	/*
-	/	Test volume rendering
-	*/
+	/*	Test volume rendering */
 	void runVolumeTest();
 
-	/*
-	/	Run fault tolerant volume visuailization tests.
-	*/
+	/*	Run fault tolerant volume visuailization tests. */
 	void runFtvVolumeTest();
 
-	/*
-	/	Run fault tolerant visualization tests.
-	*/
+	/*	Run fault tolerant visualization tests. */
 	void runFtv();
 
 private:

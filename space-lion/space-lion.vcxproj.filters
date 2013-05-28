@@ -72,6 +72,12 @@
     <ClInclude Include="src\ftv_volumetricSceneObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ftv_postProcessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ftv_scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GLSLProgram.cpp">
@@ -123,6 +129,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\resourceLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ftv_postProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ftv_scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

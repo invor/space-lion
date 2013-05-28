@@ -23,7 +23,7 @@
 
 class scene
 {
-private:
+protected:
 	/*	
 	/	The following has become somewhat obsolete with the introdcution of filenames as identifier
 	/
@@ -42,7 +42,6 @@ private:
 	std::list<sceneCamera> cameraList;
 	std::list<staticSceneObject> scenegraph;
 	std::list<volumetricSceneObject> volumetricObjectList;
-	std::list<ftv_volumetricSceneObject> ftv_volumetricSceneObjectList;
 
 	/*
 	/	The following lists contain all resources that are in use by an entity of this scene.
@@ -107,9 +106,7 @@ public:
 
 	/* create a volumetric scene entity */
 	bool createVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, const std::string path, const glm::ivec3 volumeRes);
-	/* create a volumetric scene entity for ftv testing */
-	bool createFtvVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, float* volumeData, GLenum internalFormat, GLenum format, const glm::ivec3 volumeRes);
-
+	
 	//	create a scene light source
 	bool createSceneLight(const int id, const glm::vec3 position, glm::vec4 lightColour);
 	//	create a scene camera
@@ -127,10 +124,6 @@ public:
 	/	This is usually be done in a sperate render pass to allow depth correct blending.
 	*/
 	void renderVolumetricObjects();
-	/*
-	/	Render volumetric objects of the scene using a mask to indicate faulty regions in the 3d texture.
-	*/
-	void ftvRenderVolumetricObjects();
 };
 
 #endif

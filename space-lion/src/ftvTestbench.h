@@ -5,7 +5,7 @@
 #include <fstream>
 
 #include "GLSLProgram.h"
-#include "postProcessor.h"
+#include "ftv_postProcessor.h"
 #include "GL/glfw.h"
 
 //pragmas seem to be only necessary in windows
@@ -16,7 +16,7 @@
 class ftvTestbench
 {
 private:
-	postProcessor imageProcessor;
+	ftv_postProcessor imageProcessor;
 
 	/*
 	/	Static array size, since we know how many images we will load.
@@ -45,7 +45,7 @@ public:
 	/	Creating a postProcessor with a set framebuffer resolution should be encouraged for long term use.
 	/	This needs a better solution, possibly requiring changes to the framebuffer and postProcessor class.
 	*/
-	ftvTestbench() : imageProcessor(400,400), currentFrame(0) {imageProcessor.init();}
+	ftvTestbench() : imageProcessor(400,400), currentFrame(0) {imageProcessor.ftv_init();}
 	~ftvTestbench() {}
 
 	bool loadImageSequence();

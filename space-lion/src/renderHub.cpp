@@ -245,38 +245,28 @@ void renderHub::runVolumeTest()
 
 void renderHub::runFtvVolumeTest()
 {
-	if(!(activeScene->createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
+	ftv_scene tScene;
+
+	if(!(tScene.createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
 	}
 
-	if(!(activeScene->createVolumetricSceneObject(1,glm::vec3(0.0,0.0,-2.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
-	{
-		std::cout<<"Failed to create scene object"
-				<<"\n";
-	}
-	
-	if(!(activeScene->createVolumetricSceneObject(2,glm::vec3(-2.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
-	{
-		std::cout<<"Failed to create scene object"
-				<<"\n";
-	}
-
-	if(!(activeScene->createSceneCamera(0,glm::vec3(1.5,1.0,1.5),glm::quat(),16.0f/9.0f,55.0f)))
+	if(!(tScene.createSceneCamera(0,glm::vec3(1.5,1.0,1.5),glm::quat(),16.0f/9.0f,55.0f)))
 	{
 		std::cout<<"Failed to create camera"
 				<<"\n";
 	}
-	if(!(activeScene->createSceneLight(0,glm::vec3(0.0,2.0,0.0),glm::vec4(1.0,1.0,1.0,1.0))))
+	if(!(tScene.createSceneLight(0,glm::vec3(0.0,2.0,0.0),glm::vec4(1.0,1.0,1.0,1.0))))
 	{
 		std::cout<<"Failed to create light"
 				<<"\n";
 	}
 
-	activeScene->setActiveCamera(0);
+	tScene.setActiveCamera(0);
 
-	activeScene->testing();
+	tScene.testing();
 
 	running = true;
 	glClearColor(0.0f,0.0f,0.0f,1.0f);
@@ -290,7 +280,7 @@ void renderHub::runFtvVolumeTest()
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0,0,1200,675);
-		activeScene->renderVolumetricObjects();
+		tScene.renderVolumetricObjects();
 
 		glfwSwapBuffers();
 	}
@@ -318,8 +308,8 @@ void renderHub::runFtv()
 	/*
 	/	Create and initialize the post-processer
 	*/
-	postProcessor pP(400,400);
-	if(!pP.init())
+	ftv_postProcessor pP(400,400);
+	if(!pP.ftv_init())
 	{
 		std::cout<<"Failed to create post processor"
 				<<"\n";
