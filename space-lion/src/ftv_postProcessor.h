@@ -22,10 +22,10 @@ image inpainting and poisson image editing.
 class ftv_postProcessor : public postProcessor
 {
 public:
-	ftv_postProcessor() : B(0,0,false,false), iterationCounter(1.0) {}
+	ftv_postProcessor() : postProcessor(), iterationCounter(1.0) {}
 	~ftv_postProcessor() {}
 
-	ftv_postProcessor(int w, int h) : B(w,h,true,false), iterationCounter(1.0) {}
+	ftv_postProcessor(int w, int h) : postProcessor(w,h), iterationCounter(1.0) {}
 
 	bool ftv_init();
 
@@ -64,7 +64,6 @@ public:
 	void applyImageInpainting(framebufferObject *currentFrame, framebufferObject* mask, int iterations);
 
 private:
-	framebufferObject B;
 
 	float iterationCounter;
 

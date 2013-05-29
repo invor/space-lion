@@ -8,8 +8,10 @@
 class postProcessor
 {
 public:
-	postProcessor() {}
+	postProcessor() : B(0,0,false,false) {}
 	~postProcessor() {}
+
+	postProcessor(int w, int h) : B(w,h,true,false) {}
 
 	bool init();
 
@@ -17,6 +19,9 @@ public:
 
 	void applyFxaa(GLuint inputImage);
 	void applyFxaa(framebufferObject *currentFrame);
+
+	/*	Applies a 3x3 seperated gaussian the first color attachment of the input framebuffer*/
+	void applyGaussian(framebufferObject *currentFrame);
 
 	/*
 	/	Render the input texture to the currently bound framebuffer.
@@ -33,8 +38,11 @@ protected:
 
 	vertexGeometry renderPlane;
 
+	framebufferObject B;
+
 	GLSLProgram fxaaShaderPrg;
 	GLSLProgram idleShaderPrg;
+	GLSLProgram gaussianShaderPrg;
 };
 
 #endif

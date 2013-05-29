@@ -23,6 +23,7 @@ bool postProcessor::init()
 	*/
 	if(!fxaaShaderPrg.initShaders(FXAA)) return false;
 	if(!idleShaderPrg.initShaders(IDLE)) return false;
+	if(!gaussianShaderPrg.initShaders(GAUSSIAN)) return false;
 
 	return true;
 }
@@ -48,6 +49,33 @@ void postProcessor::applyFxaa(framebufferObject *currentFrame)
 	fxaaShaderPrg.setUniform("inputImage",0);
 	currentFrame->bindColorbuffer(0);
 
+	renderPlane.draw(GL_TRIANGLES,6,0);
+}
+
+void postProcessor::applyGaussian(framebufferObject *currentFrame)
+{
+	gaussianShaderPrg.use();
+
+	/*	use the internal framebuffer B for the horizontal part of the seperated gaussian */
+	B.bind();
+	glViewport(0,0,B.getWidth(),B.getHeight());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	gaussianShaderPrg.setUniform("pixelOffset", glm::vec2(1.0f/currentFrame->getWidth(),0.0f));
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	gaussianShaderPrg.setUniform("inputImage",0);
+	currentFrame->bindColorbuffer(0);
+	renderPlane.draw(GL_TRIANGLES,6,0);
+
+	/*	switch rendering to the input frambuffer for the second, vertical filtering step*/
+	currentFrame->bind();
+	glViewport(0,0,currentFrame->getWidth(),currentFrame->getHeight());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	gaussianShaderPrg.setUniform("pixelOffset", glm::vec2(0.0f,1.0f/currentFrame->getHeight()));
+	gaussianShaderPrg.setUniform("inputImage",0);
+	B.bindColorbuffer(0);
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 

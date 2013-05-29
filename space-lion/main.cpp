@@ -11,8 +11,8 @@ int main( void )
 		//testRenderer.setActiveScene(0);
 		//testRenderer.run();
 		//testRenderer.runVolumeTest();
-		testRenderer.runFtvVolumeTest();
-		//testRenderer.runFtv();
+		//testRenderer.runFtvVolumeTest();
+		testRenderer.runFtv();
 	}
 
 

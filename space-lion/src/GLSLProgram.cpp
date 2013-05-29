@@ -121,6 +121,12 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(3,"vColour");
 		break; }
+	case GAUSSIAN : {
+		if(!compileShaderFromFile("../resources/shaders/v_seperatedGaussian.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_seperatedGaussian.glsl",GL_FRAGMENT_SHADER)) return false;
+		bindAttribLocation(0,"vPosition");
+		bindAttribLocation(1,"vUVCoord");
+		break; }
 	default : {
 		return false;
 		break; }
