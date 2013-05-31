@@ -12,7 +12,7 @@ int main( void )
 		//testRenderer.run();
 		//testRenderer.runVolumeTest();
 		//testRenderer.runFtvVolumeTest();
-		testRenderer.runFtv();
+		testRenderer.runInpaintingTest();
 	}
 
 

@@ -51,6 +51,9 @@ public:
 	/*	Run fault tolerant visualization tests. */
 	void runFtv();
 
+	/*	Used for crazy testing */
+	void runInpaintingTest();
+
 private:
 	std::vector<framebufferObject> framebufferList;
 	std::list<scene> sceneList;

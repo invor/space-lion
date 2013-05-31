@@ -51,7 +51,7 @@ bool renderHub::init()
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, maj);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, min);
 
-	if(!glfwOpenWindow(1200,675,8,8,8,8,32,0,GLFW_WINDOW))
+	if(!glfwOpenWindow(500,500,8,8,8,8,32,0,GLFW_WINDOW))
 	{
 		std::cout<<"-----\n"
 				<<"The time is out of joint - O cursed spite,\n"
@@ -360,5 +360,58 @@ void renderHub::runFtv()
 		pP.FBOToFBO(&secondaryFbo);
 		glfwSwapBuffers();
 		glfwSleep(1.025);
+	}
+}
+
+void renderHub::runInpaintingTest()
+{
+	/*
+	/	This is all just experimental stuff
+	*/
+	running = true;
+	glClearColor(0.0f,0.0f,0.0f,0.0f);
+
+	/*
+	/	Create framebuffers to work with.
+	*/
+	framebufferObject primaryFbo(400,400,true,false);
+	primaryFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	framebufferObject maskFbo(400,400,false,false);
+	maskFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	maskFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+
+	/*
+	/	Create and initialize the post-processer
+	*/
+	ftv_postProcessor pP(400,400);
+	if(!pP.ftv_init())
+	{
+		std::cout<<"Failed to create post processor"
+				<<"\n";
+	}
+
+	/*
+	/	Create the test bench
+	*/
+	ftvTestbench testBench;
+	testBench.loadImageSequence();
+	testBench.initMasks();
+
+	/*
+	/	Render Loop.
+	*/
+	
+	testBench.getFrameConfigC(&maskFbo,&primaryFbo);
+	testBench.getFrameConfigC(&maskFbo,&primaryFbo);
+
+	pP.applyGaussian(&primaryFbo);
+
+	while(running && glfwGetWindowParam(GLFW_OPENED))
+	{	
+		glBindFramebuffer(GL_FRAMEBUFFER,0);
+		glViewport(0,0,500,500);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		pP.FBOToFBO(&primaryFbo);
+		glfwSwapBuffers();
 	}
 }

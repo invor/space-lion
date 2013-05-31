@@ -24,6 +24,7 @@ bool postProcessor::init()
 	if(!fxaaShaderPrg.initShaders(FXAA)) return false;
 	if(!idleShaderPrg.initShaders(IDLE)) return false;
 	if(!gaussianShaderPrg.initShaders(GAUSSIAN)) return false;
+	if(!gradientShaderPrg.initShaders(FTV_GRADIENT)) return false;
 
 	return true;
 }
@@ -52,7 +53,7 @@ void postProcessor::applyFxaa(framebufferObject *currentFrame)
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void postProcessor::applyGaussian(framebufferObject *currentFrame)
+void postProcessor::applyGaussian(framebufferObject *inputFbo)
 {
 	gaussianShaderPrg.use();
 
@@ -61,21 +62,39 @@ void postProcessor::applyGaussian(framebufferObject *currentFrame)
 	glViewport(0,0,B.getWidth(),B.getHeight());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	gaussianShaderPrg.setUniform("pixelOffset", glm::vec2(1.0f/currentFrame->getWidth(),0.0f));
+	gaussianShaderPrg.setUniform("pixelOffset", glm::vec2(1.0f/(inputFbo->getWidth()),0.0f));
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
 	gaussianShaderPrg.setUniform("inputImage",0);
-	currentFrame->bindColorbuffer(0);
+	inputFbo->bindColorbuffer(0);
 	renderPlane.draw(GL_TRIANGLES,6,0);
 
 	/*	switch rendering to the input frambuffer for the second, vertical filtering step*/
-	currentFrame->bind();
-	glViewport(0,0,currentFrame->getWidth(),currentFrame->getHeight());
+	inputFbo->bind();
+	glViewport(0,0,inputFbo->getWidth(),inputFbo->getHeight());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	gaussianShaderPrg.setUniform("pixelOffset", glm::vec2(0.0f,1.0f/currentFrame->getHeight()));
+	gaussianShaderPrg.setUniform("pixelOffset", glm::vec2(0.0f,1.0f/inputFbo->getHeight()));
+	glActiveTexture(GL_TEXTURE0);
 	gaussianShaderPrg.setUniform("inputImage",0);
 	B.bindColorbuffer(0);
+	renderPlane.draw(GL_TRIANGLES,6,0);
+}
+
+void postProcessor::computeGradient(framebufferObject *inputFbo, framebufferObject *targetFbo)
+{
+	gradientShaderPrg.use();
+	
+	targetFbo->bind();
+	glViewport(0,0,targetFbo->getWidth(),targetFbo->getHeight());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	gradientShaderPrg.setUniform("h", glm::vec2(1.0f/inputFbo->getWidth(),1.0f/inputFbo->getHeight()));
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	gradientShaderPrg.setUniform("inputImage",0);
+	inputFbo->bindColorbuffer(0);
+
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
@@ -91,13 +110,13 @@ void postProcessor::imageToFBO(GLuint inputImage)
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void postProcessor::FBOToFBO(framebufferObject *inputFBO)
+void postProcessor::FBOToFBO(framebufferObject *inputFbo)
 {
 	idleShaderPrg.use();
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
 	idleShaderPrg.setUniform("inputImage",0);
-	inputFBO->bindColorbuffer(0);
+	inputFbo->bindColorbuffer(0);
 
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }

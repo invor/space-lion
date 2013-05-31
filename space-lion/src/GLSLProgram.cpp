@@ -127,6 +127,12 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
 		break; }
+	case FTV_GRADIENT : {
+		if(!compileShaderFromFile("../resources/shaders/v_ftv_gradient.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_ftv_gradient.glsl",GL_FRAGMENT_SHADER)) return false;
+		bindAttribLocation(0,"vPosition");
+		bindAttribLocation(1,"vUVCoord");
+		break; }
 	default : {
 		return false;
 		break; }

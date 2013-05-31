@@ -20,8 +20,15 @@ public:
 	void applyFxaa(GLuint inputImage);
 	void applyFxaa(framebufferObject *currentFrame);
 
-	/*	Applies a 3x3 seperated gaussian the first color attachment of the input framebuffer*/
-	void applyGaussian(framebufferObject *currentFrame);
+	/*
+	/	Applies a 3x3 seperated gaussian the first color attachment of the input framebuffer
+	*/
+	void applyGaussian(framebufferObject *inputFbo);
+
+	/*
+	/	Computes the gradient 
+	*/
+	void computeGradient(framebufferObject *inputFbo, framebufferObject *targetFbo);
 
 	/*
 	/	Render the input texture to the currently bound framebuffer.
@@ -31,7 +38,7 @@ public:
 	/*
 	/	Render the color attachment of the input framebuffer to the currently bound framebuffer.
 	*/
-	void FBOToFBO(framebufferObject *inputFBO);
+	void FBOToFBO(framebufferObject *inputFbo);
 
 protected:
 	std::string log;
@@ -43,6 +50,7 @@ protected:
 	GLSLProgram fxaaShaderPrg;
 	GLSLProgram idleShaderPrg;
 	GLSLProgram gaussianShaderPrg;
+	GLSLProgram gradientShaderPrg;
 };
 
 #endif

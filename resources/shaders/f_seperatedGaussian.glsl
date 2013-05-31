@@ -21,18 +21,18 @@ void main()
 	/*	values at the center position of the stencil */
 	vec4 rgbaC = texture(inputImage, uvCoord);
 	/*	values in positive direction */
-	vec4 rgbaP = texture(inputImage, uvCoord + pixeloffset);
+	vec4 rgbaP = texture(inputImage, uvCoord + pixelOffset);
 	
 	/*	
 	/	Hardcoded 3x3 seperate gaussian.
 	/
 	/				  -------        -------
-	/				 |   2   |      |       |
-	/	(1.0/16.0) * |   4   |  or  | 2 4 2 | 
-	/				 |   2   |      |       |
+	/				 |   1   |      |       |
+	/	(1.0/4.0) *  |   2   |  or  | 1 2 1 | 
+	/				 |   1   |      |       |
 	/				  -------        -------
 	*/
-	vec4 rgbF = (rgbaN/8.0) + (rgbaC/4.0) + (rgbaP/8.0);
+	vec4 rgbF = (rgbaN/4.0) + (rgbaC/2.0) + (rgbaP/4.0);
 
 
 	fragColour = rgbF;
