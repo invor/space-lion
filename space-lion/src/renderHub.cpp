@@ -376,6 +376,8 @@ void renderHub::runInpaintingTest()
 	*/
 	framebufferObject primaryFbo(400,400,true,false);
 	primaryFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	framebufferObject gradientFbo(400,400,false,false);
+	gradientFbo.createColorAttachment(GL_RG32F,GL_RG,GL_FLOAT);
 	framebufferObject maskFbo(400,400,false,false);
 	maskFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	maskFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
@@ -405,6 +407,7 @@ void renderHub::runInpaintingTest()
 	testBench.getFrameConfigC(&maskFbo,&primaryFbo);
 
 	pP.applyGaussian(&primaryFbo);
+	pP.computeGradient(&primaryFbo,&gradientFbo);
 
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{	
