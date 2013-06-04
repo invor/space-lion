@@ -23,12 +23,17 @@ public:
 	/*
 	/	Applies a 3x3 seperated gaussian the first color attachment of the input framebuffer
 	*/
-	void applyGaussian(framebufferObject *inputFbo);
+	void applyGaussian(framebufferObject *inputFbo, framebufferObject *targetFbo, float sigma, int stencilRadius);
 
 	/*
-	/	Computes the gradient 
+	/	Computes the gradient vector
 	*/
 	void computeGradient(framebufferObject *inputFbo, framebufferObject *targetFbo);
+
+	/*
+	/	Computes the hesse matrix for a given gradient field	
+	*/
+	void computeHesse(framebufferObject *inputFbo, framebufferObject *targetFbo);
 
 	/*
 	/	Render the input texture to the currently bound framebuffer.
@@ -51,6 +56,7 @@ protected:
 	GLSLProgram idleShaderPrg;
 	GLSLProgram gaussianShaderPrg;
 	GLSLProgram gradientShaderPrg;
+	GLSLProgram hesseShaderPrg;
 };
 
 #endif

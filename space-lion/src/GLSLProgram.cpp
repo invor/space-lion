@@ -66,43 +66,43 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		bindAttribLocation(4,"vUVCoord");
 		break; }
 	case POISSON : {
-		if(!compileShaderFromFile("../resources/shaders/v_poisson.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_poisson.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
 		break; }
 	case FXAA : {
-		if(!compileShaderFromFile("../resources/shaders/v_fxaa.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_fxaa.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
 		break; }
 	case IDLE : {
-		if(!compileShaderFromFile("../resources/shaders/v_idle.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_idle.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
 		break; }
 	case STAMP : {
-		if(!compileShaderFromFile("../resources/shaders/v_stamp.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_stamp.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
 		break; }
 	case INPAINTING : {
-		if(!compileShaderFromFile("../resources/shaders/v_imageInpainting.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_imageInpainting.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
 		break; }
 	case DISTANCEMAPPING : {
-		if(!compileShaderFromFile("../resources/shaders/v_distanceMapping.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_distanceMapping.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
 		break; }
 	case FTV_MASK : {
-		if(!compileShaderFromFile("../resources/shaders/v_ftv_mask.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_ftv_mask.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
@@ -122,20 +122,32 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		bindAttribLocation(3,"vColour");
 		break; }
 	case GAUSSIAN : {
-		if(!compileShaderFromFile("../resources/shaders/v_seperatedGaussian.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_seperatedGaussian.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
 		break; }
-	case FTV_GRADIENT : {
-		if(!compileShaderFromFile("../resources/shaders/v_ftv_gradient.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_ftv_gradient.glsl",GL_FRAGMENT_SHADER)) return false;
+	case GRADIENT : {
+		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_gradient.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
 		break; }
 	case COHERENCE : {
-		if(!compileShaderFromFile("../resources/shaders/v_coherence.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
 		if(!compileShaderFromFile("../resources/shaders/f_coherence.glsl",GL_FRAGMENT_SHADER)) return false;
+		bindAttribLocation(0,"vPosition");
+		bindAttribLocation(1,"vUVCoord");
+		break; }
+	case IMPROVED_INPAINTING : {
+		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_ftv_improvedInpainting.glsl",GL_FRAGMENT_SHADER)) return false;
+		bindAttribLocation(0,"vPosition");
+		bindAttribLocation(1,"vUVCoord");
+		break; }
+	case HESSE : {
+		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_hesse.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
 		break; }

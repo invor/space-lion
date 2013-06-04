@@ -63,6 +63,17 @@ public:
 	*/
 	void applyImageInpainting(framebufferObject *currentFrame, framebufferObject* mask, int iterations);
 
+	/*
+	/	Apply image inpainting to [a] region[s] given by an image-mask.
+	/	Use precomputed coherence flow field and strength instead of computing gradients on the fly.
+	*/
+	void applyImprovedImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, int iterations);
+
+	/*
+	/
+	*/
+	void computeCoherence(framebufferObject *inputFbo, framebufferObject *coherenceFbo);
+
 private:
 
 	float iterationCounter;
@@ -72,6 +83,8 @@ private:
 	GLSLProgram stampShaderPrg;
 	GLSLProgram distanceShaderPrg;
 	GLSLProgram maskCreationShaderPrg;
+	GLSLProgram coherenceShaderPrg;
+	GLSLProgram improvedInpaintingShaderPrg;
 };
 
 #endif

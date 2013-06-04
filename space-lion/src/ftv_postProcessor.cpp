@@ -12,6 +12,8 @@ bool ftv_postProcessor::ftv_init()
 	if(!stampShaderPrg.initShaders(STAMP)) return false;
 	if(!distanceShaderPrg.initShaders(DISTANCEMAPPING)) return false;
 	if(!maskCreationShaderPrg.initShaders(FTV_MASK)) return false;
+	if(!coherenceShaderPrg.initShaders(COHERENCE)) return false;
+	if(!improvedInpaintingShaderPrg.initShaders(COHERENCE)) return false;
 
 	/*
 	/	Prepare the intermediate framebuffer B for rendering
@@ -202,4 +204,72 @@ void ftv_postProcessor::applyImageInpainting(framebufferObject *currentFrame, fr
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
 	}
+}
+
+void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, int iterations)
+{
+	/*	Some additional FBOs are required for coherence computations */
+	glm::ivec2 imgDim = glm::ivec2(inputFbo->getWidth(),inputFbo->getHeight());
+	framebufferObject gaussianFbo(imgDim.x,imgDim.y,false,false);
+	gaussianFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	framebufferObject gradientFbo(imgDim.x,imgDim.y,false,false);
+	gradientFbo.createColorAttachment(GL_RG32F,GL_RG,GL_FLOAT);
+	framebufferObject coherenceFbo(imgDim.x,imgDim.y,false,false);
+	coherenceFbo.createColorAttachment(GL_RGB32F,GL_RGB,GL_FLOAT);
+
+	/*	Compute the coherence flow field and strength */
+	applyGaussian(inputFbo, &gaussianFbo,1.5f,1);
+	computeGradient(inputFbo,&gradientFbo);
+
+	/*	TODO: Compute Hesse matrix */
+	/*	TODO: Compute structure tensor (Apply gaussian filtering to Hesse Matrix) */
+
+	computeCoherence(&gradientFbo,&coherenceFbo);
+
+
+	improvedInpaintingShaderPrg.use();
+
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	improvedInpaintingShaderPrg.setUniform("mask",0);
+	mask->bindColorbuffer(0);
+
+	for(int i=0; i<iterations; i++)
+	{
+		B.bind();
+		glViewport(0,0,B.getWidth(),B.getHeight());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		improvedInpaintingShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+		glActiveTexture(GL_TEXTURE1);
+		improvedInpaintingShaderPrg.setUniform("inputImage",1);
+		inputFbo->bindColorbuffer(0);
+		renderPlane.draw(GL_TRIANGLES,6,0);
+		iterationCounter++;
+
+		inputFbo->bind();
+		glViewport(0,0,inputFbo->getWidth(),inputFbo->getHeight());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		improvedInpaintingShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+		glActiveTexture(GL_TEXTURE1);
+		improvedInpaintingShaderPrg.setUniform("inputImage",1);
+		B.bindColorbuffer(0);
+		renderPlane.draw(GL_TRIANGLES,6,0);
+		iterationCounter++;
+	}
+
+}
+
+void ftv_postProcessor::computeCoherence(framebufferObject *inputFbo, framebufferObject *coherenceFbo)
+{
+	coherenceShaderPrg.use();
+
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	coherenceShaderPrg.setUniform("structureTensor",0);
+	inputFbo->bindColorbuffer(0);
+
+	coherenceFbo->bind();
+	glViewport(0,0,coherenceFbo->getWidth(),coherenceFbo->getHeight());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	renderPlane.draw(GL_TRIANGLES,6,0);
 }

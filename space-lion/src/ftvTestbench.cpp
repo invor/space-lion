@@ -269,6 +269,7 @@ bool ftvTestbench::loadImageSequence()
 	//	glBindTexture(GL_TEXTURE_2D,0);
 	//}
 
+	return true;
 	/*
 	/	Clean up after yourself!
 	*/

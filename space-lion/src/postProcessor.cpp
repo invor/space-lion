@@ -24,7 +24,8 @@ bool postProcessor::init()
 	if(!fxaaShaderPrg.initShaders(FXAA)) return false;
 	if(!idleShaderPrg.initShaders(IDLE)) return false;
 	if(!gaussianShaderPrg.initShaders(GAUSSIAN)) return false;
-	if(!gradientShaderPrg.initShaders(FTV_GRADIENT)) return false;
+	if(!gradientShaderPrg.initShaders(GRADIENT)) return false;
+	if(!hesseShaderPrg.initShaders(HESSE)) return false;
 
 	return true;
 }
@@ -53,9 +54,13 @@ void postProcessor::applyFxaa(framebufferObject *currentFrame)
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void postProcessor::applyGaussian(framebufferObject *inputFbo)
+void postProcessor::applyGaussian(framebufferObject *inputFbo, framebufferObject *targetFbo, float sigma, int stencilRadius)
 {
 	gaussianShaderPrg.use();
+
+	/*	set uniform values that aren't influced by vertical/horizontal */
+	gaussianShaderPrg.setUniform("stencilRadius", stencilRadius);
+	gaussianShaderPrg.setUniform("sigma", sigma);
 
 	/*	use the internal framebuffer B for the horizontal part of the seperated gaussian */
 	B.bind();
@@ -70,8 +75,8 @@ void postProcessor::applyGaussian(framebufferObject *inputFbo)
 	renderPlane.draw(GL_TRIANGLES,6,0);
 
 	/*	switch rendering to the input frambuffer for the second, vertical filtering step*/
-	inputFbo->bind();
-	glViewport(0,0,inputFbo->getWidth(),inputFbo->getHeight());
+	targetFbo->bind();
+	glViewport(0,0,targetFbo->getWidth(),targetFbo->getHeight());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	gaussianShaderPrg.setUniform("pixelOffset", glm::vec2(0.0f,1.0f/inputFbo->getHeight()));
@@ -85,6 +90,23 @@ void postProcessor::computeGradient(framebufferObject *inputFbo, framebufferObje
 {
 	gradientShaderPrg.use();
 	
+	targetFbo->bind();
+	glViewport(0,0,targetFbo->getWidth(),targetFbo->getHeight());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	gradientShaderPrg.setUniform("h", glm::vec2(1.0f/inputFbo->getWidth(),1.0f/inputFbo->getHeight()));
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	gradientShaderPrg.setUniform("inputImage",0);
+	inputFbo->bindColorbuffer(0);
+
+	renderPlane.draw(GL_TRIANGLES,6,0);
+}
+
+void postProcessor::computeHesse(framebufferObject *inputFbo, framebufferObject *targetFbo)
+{
+	hesseShaderPrg.use();
+
 	targetFbo->bind();
 	glViewport(0,0,targetFbo->getWidth(),targetFbo->getHeight());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

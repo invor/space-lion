@@ -31,7 +31,6 @@ void main()
 	float lumSW = luminance( texture(inputImage, uvCoord + vec2(-h.x,-h.y)) );
 	float lumW = luminance( texture(inputImage, uvCoord + vec2(-h.x,0.0)) );
 	float lumNW = luminance( texture(inputImage, uvCoord + vec2(-h.x,h.y)) );
-	float lumC = luminance( texture(inputImage, uvCoord) );
 	
 	/*	
 	/	Compute gradient using sobel masks

@@ -376,11 +376,10 @@ void renderHub::runInpaintingTest()
 	*/
 	framebufferObject primaryFbo(400,400,true,false);
 	primaryFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
-	framebufferObject gradientFbo(400,400,false,false);
-	gradientFbo.createColorAttachment(GL_RG32F,GL_RG,GL_FLOAT);
 	framebufferObject maskFbo(400,400,false,false);
 	maskFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	maskFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+
 
 	/*
 	/	Create and initialize the post-processer
@@ -406,15 +405,25 @@ void renderHub::runInpaintingTest()
 	testBench.getFrameConfigC(&maskFbo,&primaryFbo);
 	testBench.getFrameConfigC(&maskFbo,&primaryFbo);
 
-	pP.applyGaussian(&primaryFbo);
-	pP.computeGradient(&primaryFbo,&gradientFbo);
+
+	framebufferObject gaussianFbo(400,400,false,false);
+	gaussianFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	framebufferObject gradientFbo(400,400,false,false);
+	gradientFbo.createColorAttachment(GL_RG32F,GL_RG,GL_FLOAT);
+	framebufferObject coherenceFbo(400,400,false,false);
+	coherenceFbo.createColorAttachment(GL_RGB32F,GL_RGB,GL_FLOAT);
+
+	/*	Compute the coherence flow field and strength */
+	pP.applyGaussian(&primaryFbo, &gaussianFbo,1.5f,1);
+	pP.computeGradient(&gaussianFbo,&gradientFbo);
+	pP.computeCoherence(&primaryFbo,&gradientFbo,&coherenceFbo);
 
 	while(running && glfwGetWindowParam(GLFW_OPENED))
-	{	
+	{
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,500,500);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		pP.FBOToFBO(&primaryFbo);
+		pP.FBOToFBO(&gaussianFbo);
 		glfwSwapBuffers();
 	}
 }
