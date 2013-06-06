@@ -214,17 +214,17 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 	gaussianFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	framebufferObject gradientFbo(imgDim.x,imgDim.y,false,false);
 	gradientFbo.createColorAttachment(GL_RG32F,GL_RG,GL_FLOAT);
+	framebufferObject hesseFbo(imgDim.x,imgDim.y,false,false);
+	hesseFbo.createColorAttachment(GL_RGBA32F,GL_RG,GL_FLOAT);
 	framebufferObject coherenceFbo(imgDim.x,imgDim.y,false,false);
 	coherenceFbo.createColorAttachment(GL_RGB32F,GL_RGB,GL_FLOAT);
 
 	/*	Compute the coherence flow field and strength */
 	applyGaussian(inputFbo, &gaussianFbo,1.5f,1);
 	computeGradient(inputFbo,&gradientFbo);
-
-	/*	TODO: Compute Hesse matrix */
-	/*	TODO: Compute structure tensor (Apply gaussian filtering to Hesse Matrix) */
-
-	computeCoherence(&gradientFbo,&coherenceFbo);
+	computeHesse(&gradientFbo,&hesseFbo);
+	applyGaussian(&hesseFbo,&hesseFbo,4.0f,4);
+	computeCoherence(&hesseFbo,&coherenceFbo);
 
 
 	improvedInpaintingShaderPrg.use();

@@ -111,10 +111,10 @@ void postProcessor::computeHesse(framebufferObject *inputFbo, framebufferObject 
 	glViewport(0,0,targetFbo->getWidth(),targetFbo->getHeight());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	gradientShaderPrg.setUniform("h", glm::vec2(1.0f/inputFbo->getWidth(),1.0f/inputFbo->getHeight()));
+	hesseShaderPrg.setUniform("h", glm::vec2(1.0f/inputFbo->getWidth(),1.0f/inputFbo->getHeight()));
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
-	gradientShaderPrg.setUniform("inputImage",0);
+	hesseShaderPrg.setUniform("inputImage",0);
 	inputFbo->bindColorbuffer(0);
 
 	renderPlane.draw(GL_TRIANGLES,6,0);

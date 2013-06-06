@@ -406,24 +406,30 @@ void renderHub::runInpaintingTest()
 	testBench.getFrameConfigC(&maskFbo,&primaryFbo);
 
 
-	framebufferObject gaussianFbo(400,400,false,false);
+	/*	Some additional FBOs are required for coherence computations */
+	glm::ivec2 imgDim = glm::ivec2(400,400);
+	framebufferObject gaussianFbo(imgDim.x,imgDim.y,false,false);
 	gaussianFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
-	framebufferObject gradientFbo(400,400,false,false);
+	framebufferObject gradientFbo(imgDim.x,imgDim.y,false,false);
 	gradientFbo.createColorAttachment(GL_RG32F,GL_RG,GL_FLOAT);
-	framebufferObject coherenceFbo(400,400,false,false);
+	framebufferObject hesseFbo(imgDim.x,imgDim.y,false,false);
+	hesseFbo.createColorAttachment(GL_RGBA32F,GL_RG,GL_FLOAT);
+	framebufferObject coherenceFbo(imgDim.x,imgDim.y,false,false);
 	coherenceFbo.createColorAttachment(GL_RGB32F,GL_RGB,GL_FLOAT);
 
 	/*	Compute the coherence flow field and strength */
 	pP.applyGaussian(&primaryFbo, &gaussianFbo,1.5f,1);
 	pP.computeGradient(&gaussianFbo,&gradientFbo);
-	pP.computeCoherence(&primaryFbo,&gradientFbo,&coherenceFbo);
+	pP.computeHesse(&gradientFbo,&hesseFbo);
+	pP.applyGaussian(&hesseFbo,&hesseFbo,1.5f,5);
+	pP.computeCoherence(&hesseFbo,&coherenceFbo);
 
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,500,500);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		pP.FBOToFBO(&gaussianFbo);
+		pP.FBOToFBO(&coherenceFbo);
 		glfwSwapBuffers();
 	}
 }

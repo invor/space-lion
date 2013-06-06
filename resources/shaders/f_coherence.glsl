@@ -12,16 +12,31 @@ in vec2 uvCoord;
 */
 out vec3 coherenceOuput;
 
-mat2 getStructureTensor(vec2 position)
-{
-	return mat2(1.0);
-}
 
 void main()
 {
-	float dx = texture(structureTensor,uvCoord).x;
-	float dy = texture(structureTensor,uvCoord).y;
-	float gradientMag = sqrt( pow(dx,2.0)+pow(dy,2.0) );
+	vec4 tensor  = texture(structureTensor,uvCoord);
+	
+	float diskr = sqrt( pow((tensor.x - tensor.z),2.0)+4.0*tensor.y*tensor.y);
+	float lambda_1 = 0.5 * (tensor.x + tensor.z + diskr);
+	float lambda_2 = 0.5 * (tensor.x + tensor.z - diskr);
+	
+	vec2 v_1 = vec2( (2.0*tensor.y) , (tensor.x - tensor.z + diskr) );
+	vec2 v_2 = vec2( -v_1.y , v_1.x );
 
-	coherenceOuput = vec3(gradientMag);
+	float coherenceStrength;
+	/* TODO FIND VALUES */
+	float quant = 1.0/10.0;
+	float k = 1.0;
+	if(lambda_1 == lambda_2)
+	{
+		coherenceStrength = 1.0;
+	}
+	else
+	{
+		coherenceStrength = k * exp( -pow(quant,4.0)/pow(lambda_1-lambda_2,2.0) );
+	}
+
+	//coherenceOuput = vec3(v_2,coherenceStrength);
+	coherenceOuput = vec3(coherenceStrength);
 }

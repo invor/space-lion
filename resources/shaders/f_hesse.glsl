@@ -39,5 +39,5 @@ void main()
 	float dxy = gradNW.x + 2.0*gradN.x + gradNE.x - gradSW.x - 2.0*gradS.x - gradSE.x;
 	float dyy = gradNW.y + 2.0*gradN.y + gradNE.y - gradSW.y - 2.0*gradS.y - gradSE.y;
 
-	hesse = vec2(dxx,dxy,dxy,dyy);
+	hesse = vec4(dxx,dxy,dxy,dyy);
 }
