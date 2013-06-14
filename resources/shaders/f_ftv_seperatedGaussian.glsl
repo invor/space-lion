@@ -1,11 +1,12 @@
 /*
 ---------------------------------------------------------------------------------------------------
-File: f_seperatedGaussian.glsl
+File: f_ftv_seperatedGaussian.glsl
 Author: Michael Becher
 Date of (presumingly) last edit: 04.06.2013
 
 Describtion: Seperated gaussian blur filter. Called twice for a single
-filtering step.
+filtering step. Additonally this ftv version takes a mask image to decide
+whether or not a texel contains a valid value.
 ---------------------------------------------------------------------------------------------------
 */
 
@@ -14,6 +15,7 @@ filtering step.
 #define PI 3.1415926535897932384626433832795
 
 uniform sampler2D inputImage;
+uniform sampler2D maskImage;
 
 /*
 /	Contains the offset value for one pixel in either horizontal or
@@ -36,11 +38,17 @@ out vec4 fragColour;
 void main()
 {
 	vec4 rgbaAcc;
+	float maskValue;
 	vec2 centerPos = uvCoord;
 	float coeffcientSum = 1.0;
 	
 	/*	Initial values are taken from the center pixel */
 	rgbaAcc = texture(inputImage, centerPos);
+	/*	maskValue should either be 1.0 or 0.0 */
+	maskValue = texture(maskImage, centerPos);
+	
+	rgbaAcc *= maskValue;
+	coeffcientSum *= maskValue;
 
 	/*	This should be a smarter/faster way to get the gaussian coeffiencents. */
 	vec3 g;  
@@ -51,12 +59,14 @@ void main()
 	for(int i = 1; i <= stencilRadius; i++)
 	{
 		/*	Negative direction (left/down) */
-		rgbaAcc += (texture(inputImage, centerPos - float(i) * pixelOffset)) * g.x;
-		coeffcientSum += g.x;
+		maskValue = (texture(maskImage, centerPos - float(i) * pixelOffset)).x;
+		rgbaAcc += (texture(inputImage, centerPos - float(i) * pixelOffset)) * g.x * maskValue;
+		coeffcientSum += g.x * maskValue;
 		
 		/*	Positive direction (right/up) */
-		rgbaAcc += (texture(inputImage, centerPos + float(i) * pixelOffset)) * g.x;
-		coeffcientSum += g.x;
+		maskValue = (texture(maskImage, centerPos + float(i) * pixelOffset)).x;
+		rgbaAcc += (texture(inputImage, centerPos + float(i) * pixelOffset)) * g.x * maskValue;
+		coeffcientSum += g.x * maskValue;
 		
 		g.xy *= g.yz;
 	}

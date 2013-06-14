@@ -13,7 +13,8 @@ bool ftv_postProcessor::ftv_init()
 	if(!distanceShaderPrg.initShaders(DISTANCEMAPPING)) return false;
 	if(!maskCreationShaderPrg.initShaders(FTV_MASK)) return false;
 	if(!coherenceShaderPrg.initShaders(COHERENCE)) return false;
-	if(!improvedInpaintingShaderPrg.initShaders(COHERENCE)) return false;
+	if(!improvedInpaintingShaderPrg.initShaders(IMPROVED_INPAINTING)) return false;
+	if(!ftvGaussianShaderPrg.initShaders(FTV_GAUSSIAN)) return false;
 
 	/*
 	/	Prepare the intermediate framebuffer B for rendering
@@ -83,6 +84,44 @@ void ftv_postProcessor::applyMaskToImageToFBO(GLuint inputImage, framebufferObje
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
+void ftv_postProcessor::applyFtvGaussian(framebufferObject *inputFbo, framebufferObject *targetFbo, framebufferObject *maskFbo, float sigma, int stencilRadius)
+{
+	framebufferObject swapFbo(inputFbo->getHeight(),inputFbo->getWidth(),false,false);
+	swapFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+
+	ftvGaussianShaderPrg.use();
+
+	/*	set uniform values that aren't influced by vertical/horizontal switch */
+	ftvGaussianShaderPrg.setUniform("stencilRadius", stencilRadius);
+	ftvGaussianShaderPrg.setUniform("sigma", sigma);
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	ftvGaussianShaderPrg.setUniform("maskImage",0);
+	maskFbo->bindColorbuffer(0);
+
+	/*	use the internal framebuffer swapFbo for the horizontal part of the seperated gaussian */
+	swapFbo.bind();
+	glViewport(0,0,swapFbo.getWidth(),swapFbo.getHeight());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	ftvGaussianShaderPrg.setUniform("pixelOffset", glm::vec2(1.0f/(inputFbo->getWidth()),0.0f));
+	glActiveTexture(GL_TEXTURE1);
+	ftvGaussianShaderPrg.setUniform("inputImage",1);
+	inputFbo->bindColorbuffer(0);
+	renderPlane.draw(GL_TRIANGLES,6,0);
+
+	/*	switch rendering to the input frambuffer for the second, vertical filtering step*/
+	targetFbo->bind();
+	glViewport(0,0,targetFbo->getWidth(),targetFbo->getHeight());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	ftvGaussianShaderPrg.setUniform("pixelOffset", glm::vec2(0.0f,1.0f/inputFbo->getHeight()));
+	glActiveTexture(GL_TEXTURE1);
+	ftvGaussianShaderPrg.setUniform("inputImage",1);
+	B.bindColorbuffer(0);
+	renderPlane.draw(GL_TRIANGLES,6,0);
+}
+
 /*
 void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, glm::vec2 lowerBound, glm::vec2 upperBound)
 {
@@ -125,9 +164,11 @@ void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObj
 }
 */
 
-void ftv_postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, framebufferObject* mask)
+void ftv_postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, framebufferObject* mask, int iterations, int mode)
 {
 	poissonShaderPrg.use();
+
+	poissonShaderPrg.setUniform("mode",mode);
 
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
@@ -136,6 +177,9 @@ void ftv_postProcessor::applyPoisson(framebufferObject *currentFrame, framebuffe
 	glActiveTexture(GL_TEXTURE1);
 	poissonShaderPrg.setUniform("distanceMap",1);
 	mask->bindColorbuffer(1);
+	glActiveTexture(GL_TEXTURE3);
+	poissonShaderPrg.setUniform("previousFrame",3);
+	previousFrame->bindColorbuffer(0);
 
 	iterationCounter = 1.0f;
 
@@ -149,9 +193,6 @@ void ftv_postProcessor::applyPoisson(framebufferObject *currentFrame, framebuffe
 		glActiveTexture(GL_TEXTURE2);
 		poissonShaderPrg.setUniform("inputImage",2);
 		currentFrame->bindColorbuffer(0);
-		glActiveTexture(GL_TEXTURE3);
-		poissonShaderPrg.setUniform("previousFrame",3);
-		previousFrame->bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
 
@@ -163,9 +204,6 @@ void ftv_postProcessor::applyPoisson(framebufferObject *currentFrame, framebuffe
 		glActiveTexture(GL_TEXTURE2);
 		poissonShaderPrg.setUniform("inputImage",2);
 		B.bindColorbuffer(0);
-		glActiveTexture(GL_TEXTURE3);
-		poissonShaderPrg.setUniform("previousFrame",3);
-		previousFrame->bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
 	}
@@ -218,45 +256,65 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 	hesseFbo.createColorAttachment(GL_RGBA32F,GL_RG,GL_FLOAT);
 	framebufferObject coherenceFbo(imgDim.x,imgDim.y,false,false);
 	coherenceFbo.createColorAttachment(GL_RGB32F,GL_RGB,GL_FLOAT);
-
-	/*	Compute the coherence flow field and strength */
-	applyGaussian(inputFbo, &gaussianFbo,1.5f,1);
-	computeGradient(inputFbo,&gradientFbo);
-	computeHesse(&gradientFbo,&hesseFbo);
-	applyGaussian(&hesseFbo,&hesseFbo,4.0f,4);
-	computeCoherence(&hesseFbo,&coherenceFbo);
-
-
+	
 	improvedInpaintingShaderPrg.use();
-
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
 	improvedInpaintingShaderPrg.setUniform("mask",0);
 	mask->bindColorbuffer(0);
-
+	
 	for(int i=0; i<iterations; i++)
 	{
+		/*	Compute the coherence flow field and strength */
+		applyFtvGaussian(inputFbo,&gaussianFbo,mask,1.5f,1);
+		computeGradient(&gaussianFbo,&gradientFbo);
+		computeHesse(&gradientFbo,&hesseFbo);
+		applyFtvGaussian(&hesseFbo,&hesseFbo,mask,1.5f,5);
+		computeCoherence(&hesseFbo,&coherenceFbo);
+	
+		improvedInpaintingShaderPrg.use();
 		B.bind();
 		glViewport(0,0,B.getWidth(),B.getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		improvedInpaintingShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+		glActiveTexture(GL_TEXTURE0);
+		improvedInpaintingShaderPrg.setUniform("mask",0);
+		mask->bindColorbuffer(0);
 		glActiveTexture(GL_TEXTURE1);
 		improvedInpaintingShaderPrg.setUniform("inputImage",1);
 		inputFbo->bindColorbuffer(0);
+		glActiveTexture(GL_TEXTURE2);
+		improvedInpaintingShaderPrg.setUniform("coherenceImage",2);
+		coherenceFbo.bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
+		
 
+		/*	Compute the coherence flow field and strength */
+		applyFtvGaussian(&B, &gaussianFbo,mask,1.5f,1);
+		computeGradient(&gaussianFbo,&gradientFbo);
+		computeHesse(&gradientFbo,&hesseFbo);
+		applyFtvGaussian(&hesseFbo,&hesseFbo,mask,1.5f,5);
+		computeCoherence(&hesseFbo,&coherenceFbo);
+
+		improvedInpaintingShaderPrg.use();
 		inputFbo->bind();
 		glViewport(0,0,inputFbo->getWidth(),inputFbo->getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		improvedInpaintingShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+		improvedInpaintingShaderPrg.setUniform("imgDim", glm::vec2(inputFbo->getWidth(), inputFbo->getHeight()));
+		glActiveTexture(GL_TEXTURE0);
+		improvedInpaintingShaderPrg.setUniform("mask",0);
+		mask->bindColorbuffer(0);
 		glActiveTexture(GL_TEXTURE1);
 		improvedInpaintingShaderPrg.setUniform("inputImage",1);
 		B.bindColorbuffer(0);
+		glActiveTexture(GL_TEXTURE2);
+		improvedInpaintingShaderPrg.setUniform("coherenceImage",2);
+		coherenceFbo.bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
 	}
-
+	
 }
 
 void ftv_postProcessor::computeCoherence(framebufferObject *inputFbo, framebufferObject *coherenceFbo)

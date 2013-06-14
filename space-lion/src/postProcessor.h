@@ -11,7 +11,7 @@ public:
 	postProcessor() : B(0,0,false,false) {}
 	~postProcessor() {}
 
-	postProcessor(int w, int h) : B(w,h,true,false) {}
+	postProcessor(int w, int h) : B(w,h,false,false) {}
 
 	bool init();
 
@@ -21,7 +21,7 @@ public:
 	void applyFxaa(framebufferObject *currentFrame);
 
 	/*
-	/	Applies a 3x3 seperated gaussian the first color attachment of the input framebuffer
+	/	Applies a seperated gaussian the first color attachment of the input framebuffer
 	*/
 	void applyGaussian(framebufferObject *inputFbo, framebufferObject *targetFbo, float sigma, int stencilRadius);
 

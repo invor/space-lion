@@ -376,6 +376,8 @@ void renderHub::runInpaintingTest()
 	*/
 	framebufferObject primaryFbo(400,400,true,false);
 	primaryFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	framebufferObject secondaryFbo(400,400,true,false);
+	secondaryFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	framebufferObject maskFbo(400,400,false,false);
 	maskFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	maskFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
@@ -402,7 +404,7 @@ void renderHub::runInpaintingTest()
 	/	Render Loop.
 	*/
 	
-	testBench.getFrameConfigC(&maskFbo,&primaryFbo);
+	testBench.getFrameConfigC(&maskFbo,&secondaryFbo);
 	testBench.getFrameConfigC(&maskFbo,&primaryFbo);
 
 
@@ -418,18 +420,22 @@ void renderHub::runInpaintingTest()
 	coherenceFbo.createColorAttachment(GL_RGB32F,GL_RGB,GL_FLOAT);
 
 	/*	Compute the coherence flow field and strength */
-	pP.applyGaussian(&primaryFbo, &gaussianFbo,1.5f,1);
+	pP.applyFtvGaussian(&primaryFbo, &gaussianFbo,&maskFbo,1.5f,1);
 	pP.computeGradient(&gaussianFbo,&gradientFbo);
 	pP.computeHesse(&gradientFbo,&hesseFbo);
-	pP.applyGaussian(&hesseFbo,&hesseFbo,1.5f,5);
+	pP.applyFtvGaussian(&hesseFbo,&hesseFbo,&maskFbo,1.5f,5);
 	pP.computeCoherence(&hesseFbo,&coherenceFbo);
 
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
+		//pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,1);
+		pP.applyImageInpainting(&primaryFbo,&maskFbo,1);
+
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,500,500);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		pP.FBOToFBO(&coherenceFbo);
+		pP.FBOToFBO(&primaryFbo);
+		//glfwSleep(0.5);
 		glfwSwapBuffers();
 	}
 }

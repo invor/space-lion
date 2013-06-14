@@ -49,6 +49,12 @@ public:
 	void applyMaskToImageToFBO(GLuint inputImage, framebufferObject* maskFbo, int w, int h);
 
 	/*
+	/	Applies a modified seperated gaussian the first color attachment of the input framebuffer.
+	/	Takes inpainting regions into account during filtering -> ignores values from these regions.
+	*/
+	void applyFtvGaussian(framebufferObject *inputFbo, framebufferObject *targetFbo, framebufferObject *maskFbo, float sigma, int stencilRadius);
+
+	/*
 	/	Apply poisson image editing to a region given by a rectangle.
 	*/
 	//void applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, glm::vec2 lowerBound, glm::vec2 upperBound);
@@ -56,7 +62,7 @@ public:
 	/*
 	/	Apply poisson image editing to [a] region[s] given by an image-mask.
 	*/
-	void applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, framebufferObject* mask);
+	void applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, framebufferObject* mask, int iterations, int mode);
 
 	/*
 	/	Apply image inpainting to [a] region[s] given by an image-mask.
@@ -70,7 +76,8 @@ public:
 	void applyImprovedImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, int iterations);
 
 	/*
-	/
+	/	Compute the coherence flow field and coherence strength.
+	/	Takes the structure tensor as input.
 	*/
 	void computeCoherence(framebufferObject *inputFbo, framebufferObject *coherenceFbo);
 
@@ -85,6 +92,7 @@ private:
 	GLSLProgram maskCreationShaderPrg;
 	GLSLProgram coherenceShaderPrg;
 	GLSLProgram improvedInpaintingShaderPrg;
+	GLSLProgram ftvGaussianShaderPrg;
 };
 
 #endif

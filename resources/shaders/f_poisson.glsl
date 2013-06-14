@@ -19,6 +19,7 @@ uniform sampler2D inputImage;
 uniform sampler2D mask;
 uniform sampler2D distanceMap;
 uniform float iteration;
+uniform int mode;
 uniform vec2 imgDim;
 
 
@@ -154,11 +155,14 @@ vec3 acceleratedPoissonImageEditing(vec2 pos, vec2 h, float i)
 	//											 (dist.x/verticalDist) );
 	//		//	+ (- projN - projW - projE - projS)*0.25f;
 	
-	vec3 rgbF = ( (rgbN + rgbW + rgbE + rgbS) + (- projN - projW - projE - projS) )*0.25f;
+	/*	compute simple laplacian diffusian without guidance first */
+	vec3 rgbF_woG = (rgbN + rgbW + rgbE + rgbS)*0.25f;
 	
-	//rgbF = (rgbN + rgbW + rgbE + rgbS) * 0.25f;
+	/*	then add the guidance field */
+	vec3 rgbF_wG = rgbF_woG + (- projN - projW - projE - projS)*0.25f;
 	
-	return rgbF;
+	if(mode==0) return rgbF_wG;
+	else return rgbF_woG;
 }
 
 vec3 seamlessCloning(vec2 pos, vec2 h)
@@ -187,7 +191,6 @@ void main()
 	{
 		vec2 h = vec2(1.0f/imgDim.x, 1.0f/imgDim.y);
 		fragColour = vec4(acceleratedPoissonImageEditing(uvCoord, h, iteration),1.0);
-		//fragColour = vec4(poissonImageEditing(uvCoord, h),1.0);
 	}
 	else
 	{

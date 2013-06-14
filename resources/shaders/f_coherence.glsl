@@ -37,6 +37,5 @@ void main()
 		coherenceStrength = k * exp( -pow(quant,4.0)/pow(lambda_1-lambda_2,2.0) );
 	}
 
-	//coherenceOuput = vec3(v_2,coherenceStrength);
-	coherenceOuput = vec3(coherenceStrength);
+	coherenceOuput = vec3(v_2,coherenceStrength);
 }

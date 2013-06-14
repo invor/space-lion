@@ -14,9 +14,11 @@ image inpainting techniques to cover up gaps in an image.
 
 #version 330
 
+#define PI 3.1415926535897932384626433832795
+
 uniform sampler2D inputImage;
 uniform sampler2D mask;
-uniform sampler2D coherence;
+uniform sampler2D coherenceImage;
 
 uniform vec2 h;
 uniform int stencilSize;
@@ -30,24 +32,36 @@ out vec4 fragColour;
 
 vec4 imageInpainting()
 {
-	vec4 rgbaAcc;
-	float weightSum;
+	vec4 rgbaAcc = vec4(0.0);
+	float weightSum = 0.0;
 
 	vec4 rgbaValues;
-	vec2 coherenceFlow;
-	float coherenceStrength;
+	vec3 coherence;
+	float weight;
+	vec2 currentPos;
+	float epsilon = (2.0*stencilSize)+1.0;
 	
 	vec2 lowerLeftPos = uvCoord - h*stencilSize;
 
-	for(int i=0; i < (2*stencilSize); i++)
+	for(int i=0; i < (2.0*stencilSize)+1.0; i++)
 	{
-		for(int j=0; j < (2*stencilSize); i++)
+		for(int j=0; j < (2.0*stencilSize)+1.0; i++)
 		{
-			rgbaValues = texture(inputImage, lowerLeftPos + vec2(i,j));
-			coherenceFlow = texture(coherence, lowerLeftPos + vec2(i,j)).xy;
-			coherenceStrength = texture(coherence, lowerLeftPos + vec2(i,j)).z;
+			currentPos = lowerLeftPos + vec2(i,j);
+			rgbaValues = texture(inputImage, currentPos);
+			coherence = texture(coherenceImage, currentPos).xyz;
+			weight = sqrt(PI/2.0) * (coherence.z/length(uvCoord - currentPos))
+						* exp( -(coherence.z*coherence.z)/(2.0*epsilon*epsilon)
+							* pow(abs(coherence.x*(uvCoord - currentPos).x + coherence.y*(uvCoord - currentPos).y),2.0) );
+							
+			rgbaAcc += rgbaValues*weight;
+			weightSum += weight;
 		}
 	}
+	
+	rgbaAcc /= weightSum;
+	
+	return rgbaAcc;
 }
 
 void main()
@@ -55,15 +69,15 @@ void main()
 	/*
 	/	Check if the fragment is inside the inpainting domain.
 	*/
-	if(texture2D(mask,uvCoord).x < 0.5f)
+	if(texture(inputImage,uvCoord).w < 0.5f)
 	{
 		/*
 		/	Get the rgba value from the inpainting function.
 		*/
-		fragColour = vec4(imageInpainting(uvCoord));
+		fragColour = imageInpainting();
 	}
 	else
 	{	
-		fragColour = vec4(texture2D(inputImage,uvCoord).xyz,1.0);
+		fragColour = texture(inputImage,uvCoord);
 	}
 }
