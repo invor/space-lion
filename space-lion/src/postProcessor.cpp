@@ -27,6 +27,12 @@ bool postProcessor::init()
 	if(!gradientShaderPrg.initShaders(GRADIENT)) return false;
 	if(!hesseShaderPrg.initShaders(HESSE)) return false;
 
+	/*
+	/	Prepare the intermediate framebuffers for rendering
+	*/
+	B.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	gaussianBackBuffer.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+
 	return true;
 }
 

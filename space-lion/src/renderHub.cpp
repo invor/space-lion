@@ -428,13 +428,16 @@ void renderHub::runInpaintingTest()
 
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
-		//pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,1);
-		pP.applyImageInpainting(&primaryFbo,&maskFbo,1);
+		pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,1);
+		//pP.applyImageInpainting(&primaryFbo,&maskFbo,1);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,500,500);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		pP.FBOToFBO(&primaryFbo);
+		//
+		//	TODO: Check why the computation of the hessian matrix increases the "inpainting region"
+		//
+		pP.FBOToFBO(&coherenceFbo);
 		//glfwSleep(0.5);
 		glfwSwapBuffers();
 	}

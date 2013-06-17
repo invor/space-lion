@@ -45,7 +45,7 @@ void main()
 	/*	Initial values are taken from the center pixel */
 	rgbaAcc = texture(inputImage, centerPos);
 	/*	maskValue should either be 1.0 or 0.0 */
-	maskValue = texture(maskImage, centerPos);
+	maskValue = texture(maskImage, centerPos).x;
 	
 	rgbaAcc *= maskValue;
 	coeffcientSum *= maskValue;

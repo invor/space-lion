@@ -9,5 +9,5 @@ out vec4 fragColour;
 
 void main()
 {
-	fragColour = vec4(texture2D(inputImage, uvCoord).xyz,1.0);
+	fragColour = texture(inputImage, uvCoord);
 }

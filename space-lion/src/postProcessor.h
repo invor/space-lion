@@ -8,10 +8,10 @@
 class postProcessor
 {
 public:
-	postProcessor() : B(0,0,false,false) {}
+	postProcessor() : B(0,0,false,false), gaussianBackBuffer(0,0,false,false) {}
 	~postProcessor() {}
 
-	postProcessor(int w, int h) : B(w,h,false,false) {}
+	postProcessor(int w, int h) : B(w,h,false,false), gaussianBackBuffer(w,h,false,false) {}
 
 	bool init();
 
@@ -51,6 +51,8 @@ protected:
 	vertexGeometry renderPlane;
 
 	framebufferObject B;
+	/*	FBO used for the seperated gaussian. Not to be used outside the gaussian method! */
+	framebufferObject gaussianBackBuffer;
 
 	GLSLProgram fxaaShaderPrg;
 	GLSLProgram idleShaderPrg;

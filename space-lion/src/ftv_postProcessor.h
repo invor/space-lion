@@ -22,10 +22,18 @@ image inpainting and poisson image editing.
 class ftv_postProcessor : public postProcessor
 {
 public:
-	ftv_postProcessor() : postProcessor(), iterationCounter(1.0) {}
+	ftv_postProcessor() : postProcessor(), iterationCounter(1.0),
+							gaussianFbo(0,0,false,false),
+							gradientFbo(0,0,false,false),
+							hesseFbo(0,0,false,false),
+							coherenceFbo(0,0,false,false) {}
 	~ftv_postProcessor() {}
 
-	ftv_postProcessor(int w, int h) : postProcessor(w,h), iterationCounter(1.0) {}
+	ftv_postProcessor(int w, int h) : postProcessor(w,h), iterationCounter(1.0),
+							gaussianFbo(w,h,false,false),
+							gradientFbo(w,h,false,false),
+							hesseFbo(w,h,false,false),
+							coherenceFbo(w,h,false,false) {}
 
 	bool ftv_init();
 
@@ -40,6 +48,8 @@ public:
 	/	of a rectangular inpainting region.
 	*/
 	void generateFtvMask(GLuint regionsTexture, float w);
+
+	void shrinkFtvMask(framebufferObject* mask);
 
 	/*
 	/	Render the input texture to the currently bound framebuffer using a mask.
@@ -93,6 +103,12 @@ private:
 	GLSLProgram coherenceShaderPrg;
 	GLSLProgram improvedInpaintingShaderPrg;
 	GLSLProgram ftvGaussianShaderPrg;
+
+	/*	Some additional FBOs are required for coherence computations */
+	framebufferObject gaussianFbo;
+	framebufferObject gradientFbo;
+	framebufferObject hesseFbo;
+	framebufferObject coherenceFbo;
 };
 
 #endif
