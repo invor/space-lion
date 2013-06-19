@@ -7,6 +7,8 @@
 /	is handled here.
 */
 
+#define TIMER 1
+
 #include <vector>
 #include "scene.h"
 #include "ftv_scene.h"

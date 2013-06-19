@@ -429,7 +429,11 @@ void renderHub::runInpaintingTest()
 
 	while(running && glfwGetWindowParam(GLFW_OPENED))
 	{
-		pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,1);
+		#if TIMER
+			double start = glfwGetTime();
+		#endif	
+
+		pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,3);
 		//pP.applyImageInpainting(&primaryFbo,&maskFbo,1);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
@@ -438,5 +442,10 @@ void renderHub::runInpaintingTest()
 		pP.FBOToFBO(&primaryFbo);
 		//glfwSleep(0.5);
 		glfwSwapBuffers();
+
+		#if TIMER
+			double end = glfwGetTime();
+			std::cout<<end-start<<std::endl;
+		#endif	
 	}
 }
