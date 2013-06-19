@@ -1,10 +1,9 @@
 #version 330
 
+/*	Texture containing the a gradient in the r and g channel */
 uniform sampler2D inputImage;
 
-/*
-/	Contains the distance between two pixels/texels.
-*/
+/*	Contains the distance between two pixels/texels */
 uniform vec2 h;
 
 /*	Normalized coordinates [0,1]x[0,1] of the fragment */
@@ -14,9 +13,7 @@ out vec4 hesse;
 
 void main()
 {
-	/*
-	/	Get stencil values.
-	*/
+	/*	Get stencil values */
 	vec2 gradN = texture(inputImage, uvCoord + vec2(0.0,h.y)).xy;
 	vec2 gradNE = texture(inputImage, uvCoord + vec2(h.x,h.y)).xy;
 	vec2 gradE = texture(inputImage, uvCoord + vec2(h.x,0.0)).xy;

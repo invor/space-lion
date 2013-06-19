@@ -33,7 +33,7 @@ out vec4 fragColour;
 vec4 imageInpainting()
 {
 	vec4 rgbaAcc = vec4(0.0);
-	float weightSum = 0.0;
+	float weightSum = 1.0;
 	
 	vec4 rgbaValues;
 	vec3 coherence;
@@ -41,37 +41,29 @@ vec4 imageInpainting()
 	vec2 currentPos;
 	float epsilon = (2.0*stencilSize)+1.0;
 	
-	//vec2 lowerLeftPos = uvCoord - h*stencilSize;
-	vec2 lowerLeftPos = uvCoord - (vec2(1.0/400.0)*stencilSize);
-	/*
-	for(int i=0; i < (2.0*float(stencilSize))+1.0; i++)
-	{
-		for(int j=0; j < (2.0*float(stencilSize))+1.0; j++)
-		{
-			currentPos = lowerLeftPos + vec2(h.x*float(i),h.y*float(j));
-			rgbaValues = texture(inputImage, currentPos);
-			coherence = texture(coherenceImage, currentPos).xyz;
-			weight = sqrt(PI/2.0) * (coherence.z/length(uvCoord - currentPos))
-						* exp( -(coherence.z*coherence.z)/(2.0*epsilon*epsilon)
-							* pow( abs( dot((uvCoord - currentPos),coherence.xy) ),2.0 ) );
-			weight = abs( dot( normalize(currentPos-uvCoord),normalize(coherence.xy) ) );//(length(uvCoord - currentPos)*length(uvCoord - currentPos));
-
-			//rgbaAcc += rgbaValues*weight;
-			//rgbaAcc += vec4(coherence.z,0.0,0.0,1.0);
-			rgbaAcc += texture(coherenceImage, currentPos);
-			weightSum += weight;
-		}
-	}*/
+	vec2 lowerLeftPos = uvCoord - h*stencilSize;
 	
 	for(float i=0.0; i < (2.0*stencilSize)+1.0; i++)
 	{
 		for(float j=0.0; j < (2.0*stencilSize)+1.0; j++)
 		{
-			rgbaAcc += vec4(texture(coherenceImage, lowerLeftPos).xy,0.0,1.0);
+			currentPos = lowerLeftPos + vec2(h.x*i,h.y*j);
+			rgbaValues = texture(inputImage, currentPos);
+			coherence = texture(coherenceImage, currentPos).xyz;
+			//weight = sqrt(PI/2.0) * (coherence.z/length(uvCoord - currentPos))
+			//			* exp( -(coherence.z*coherence.z)/(2.0*epsilon*epsilon)
+			//				* pow( abs( dot((uvCoord - currentPos),coherence.xy) ),2.0 ) );
+			//weight = abs( dot( normalize(currentPos-uvCoord),normalize(coherence.xy) ) );//(length(uvCoord - currentPos)*length(uvCoord - currentPos));
+			weight = coherence.z;
+			
+			rgbaAcc += rgbaValues;
+			weightSum += weight;
 		}
 	}
 	
 	//rgbaAcc /= weightSum;
+	rgbaAcc = vec4(weightSum);
+	rgbaAcc = texture(inputImage,lowerLeftPos);
 	return rgbaAcc;
 }
 

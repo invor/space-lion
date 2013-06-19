@@ -19,7 +19,7 @@ bool ftv_postProcessor::ftv_init()
 	/*	The FBOs used for image inpainting require different color attachments */
 	gaussianFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	gradientFbo.createColorAttachment(GL_RG32F,GL_RG,GL_FLOAT);
-	hesseFbo.createColorAttachment(GL_RGBA32F,GL_RG,GL_FLOAT);
+	hesseFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	coherenceFbo.createColorAttachment(GL_RGB32F,GL_RGB,GL_FLOAT);
 
 	return true;
@@ -96,15 +96,18 @@ void ftv_postProcessor::applyFtvGaussian(framebufferObject *inputFbo, framebuffe
 	glActiveTexture(GL_TEXTURE0);
 	ftvGaussianShaderPrg.setUniform("maskImage",0);
 	maskFbo->bindColorbuffer(0);
+	glActiveTexture(GL_TEXTURE1);
+	ftvGaussianShaderPrg.setUniform("distanceMap",1);
+	maskFbo->bindColorbuffer(1);
 
-	/*	use the internal framebuffer swapFbo for the horizontal part of the seperated gaussian */
+	/*	use the internal framebuffer for the horizontal part of the seperated gaussian */
 	gaussianBackBuffer.bind();
 	glViewport(0,0,gaussianBackBuffer.getWidth(),gaussianBackBuffer.getHeight());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	ftvGaussianShaderPrg.setUniform("pixelOffset", glm::vec2(1.0f/(inputFbo->getWidth()),0.0f));
-	glActiveTexture(GL_TEXTURE1);
-	ftvGaussianShaderPrg.setUniform("inputImage",1);
+	ftvGaussianShaderPrg.setUniform("pixelOffset", glm::vec2(1.0f/(gaussianBackBuffer.getWidth()),0.0f));
+	glActiveTexture(GL_TEXTURE2);
+	ftvGaussianShaderPrg.setUniform("inputImage",2);
 	inputFbo->bindColorbuffer(0);
 	renderPlane.draw(GL_TRIANGLES,6,0);
 
@@ -114,8 +117,8 @@ void ftv_postProcessor::applyFtvGaussian(framebufferObject *inputFbo, framebuffe
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	ftvGaussianShaderPrg.setUniform("pixelOffset", glm::vec2(0.0f,1.0f/inputFbo->getHeight()));
-	glActiveTexture(GL_TEXTURE1);
-	ftvGaussianShaderPrg.setUniform("inputImage",1);
+	glActiveTexture(GL_TEXTURE2);
+	ftvGaussianShaderPrg.setUniform("inputImage",2);
 	gaussianBackBuffer.bindColorbuffer(0);
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
@@ -249,7 +252,8 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 		/*	Compute the coherence flow field and strength */
 		applyFtvGaussian(inputFbo,&gaussianFbo,mask,1.5f,1);
 		computeGradient(&gaussianFbo,&gradientFbo);
-		computeHesse(&gradientFbo,&hesseFbo);
+		applyFtvGaussian(&gradientFbo,&gaussianFbo,mask,1.5f,1);
+		computeHesse(&gaussianFbo,&hesseFbo);
 		applyFtvGaussian(&hesseFbo,&hesseFbo,mask,1.5f,5);
 		computeCoherence(&hesseFbo,&coherenceFbo);
 	
@@ -275,7 +279,8 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 		/*	Compute the coherence flow field and strength */
 		applyFtvGaussian(&B, &gaussianFbo,mask,1.5f,1);
 		computeGradient(&gaussianFbo,&gradientFbo);
-		computeHesse(&gradientFbo,&hesseFbo);
+		applyFtvGaussian(&gradientFbo,&gaussianFbo,mask,1.5f,1);
+		computeHesse(&gaussianFbo,&hesseFbo);
 		applyFtvGaussian(&hesseFbo,&hesseFbo,mask,1.5f,5);
 		computeCoherence(&hesseFbo,&coherenceFbo);
 

@@ -51,7 +51,7 @@ bool renderHub::init()
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, maj);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, min);
 
-	if(!glfwOpenWindow(500,500,8,8,8,8,32,0,GLFW_WINDOW))
+	if(!glfwOpenWindow(400,400,8,8,8,8,32,0,GLFW_WINDOW))
 	{
 		std::cout<<"-----\n"
 				<<"The time is out of joint - O cursed spite,\n"
@@ -415,14 +415,15 @@ void renderHub::runInpaintingTest()
 	framebufferObject gradientFbo(imgDim.x,imgDim.y,false,false);
 	gradientFbo.createColorAttachment(GL_RG32F,GL_RG,GL_FLOAT);
 	framebufferObject hesseFbo(imgDim.x,imgDim.y,false,false);
-	hesseFbo.createColorAttachment(GL_RGBA32F,GL_RG,GL_FLOAT);
+	hesseFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	framebufferObject coherenceFbo(imgDim.x,imgDim.y,false,false);
 	coherenceFbo.createColorAttachment(GL_RGB32F,GL_RGB,GL_FLOAT);
 
 	/*	Compute the coherence flow field and strength */
-	pP.applyFtvGaussian(&primaryFbo, &gaussianFbo,&maskFbo,1.5f,1);
+	pP.applyFtvGaussian(&primaryFbo,&gaussianFbo,&maskFbo,1.5f,1);
 	pP.computeGradient(&gaussianFbo,&gradientFbo);
-	pP.computeHesse(&gradientFbo,&hesseFbo);
+	pP.applyFtvGaussian(&gradientFbo,&gaussianFbo,&maskFbo,1.5f,1);
+	pP.computeHesse(&gaussianFbo,&hesseFbo);
 	pP.applyFtvGaussian(&hesseFbo,&hesseFbo,&maskFbo,1.5f,5);
 	pP.computeCoherence(&hesseFbo,&coherenceFbo);
 
@@ -432,12 +433,9 @@ void renderHub::runInpaintingTest()
 		//pP.applyImageInpainting(&primaryFbo,&maskFbo,1);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
-		glViewport(0,0,500,500);
+		glViewport(0,0,400,400);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//
-		//	TODO: Check why the computation of the hessian matrix increases the "inpainting region"
-		//
-		pP.FBOToFBO(&coherenceFbo);
+		pP.FBOToFBO(&primaryFbo);
 		//glfwSleep(0.5);
 		glfwSwapBuffers();
 	}
