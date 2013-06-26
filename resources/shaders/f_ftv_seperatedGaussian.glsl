@@ -4,7 +4,7 @@ File: f_ftv_seperatedGaussian.glsl
 Author: Michael Becher
 Date of (presumingly) last edit: 04.06.2013
 
-Describtion: Seperated gaussian blur filter. Called twice for a single
+Description: Seperated gaussian blur filter. Called twice for a single
 filtering step. Additonally this ftv version takes a mask image to decide
 whether or not a texel contains a valid value.
 ---------------------------------------------------------------------------------------------------

@@ -7,7 +7,7 @@ Date of (presumingly) last edit: 29.05.2013
 This C++ class is developed in the scope of FeTol at University Stuttgart (VISUS).
 http://www.vis.uni-stuttgart.de/en/projects/fetol.html
 
-Describtion: Extends the volumetricSceneObject class. Simply adds the handle for another
+Description: Extends the volumetricSceneObject class. Simply adds the handle for another
 3d texture, which should contain a 3d mask for the modified volume rendering.
 ---------------------------------------------------------------------------------------------------
 */

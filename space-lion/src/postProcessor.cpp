@@ -18,18 +18,14 @@ bool postProcessor::init()
 	renderPlane.setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pu),0);
 	renderPlane.setVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(vertex_pu),(GLvoid*) sizeof(vertex_p));
 
-	/*
-	/	Load all post processing shaders
-	*/
+	/*	Load all post processing shaders. */
 	if(!fxaaShaderPrg.initShaders(FXAA)) return false;
 	if(!idleShaderPrg.initShaders(IDLE)) return false;
 	if(!gaussianShaderPrg.initShaders(GAUSSIAN)) return false;
 	if(!gradientShaderPrg.initShaders(GRADIENT)) return false;
 	if(!hesseShaderPrg.initShaders(HESSE)) return false;
 
-	/*
-	/	Prepare the intermediate framebuffers for rendering
-	*/
+	/*	Prepare the intermediate framebuffers for rendering */
 	B.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	gaussianBackBuffer.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 

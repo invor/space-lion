@@ -379,7 +379,7 @@ void renderHub::runInpaintingTest()
 	framebufferObject secondaryFbo(400,400,true,false);
 	secondaryFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	framebufferObject maskFbo(400,400,false,false);
-	maskFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	maskFbo.createColorAttachment(GL_RG32F,GL_RGBA,GL_FLOAT);
 	maskFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 
 
@@ -433,8 +433,9 @@ void renderHub::runInpaintingTest()
 			double start = glfwGetTime();
 		#endif	
 
-		pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,3);
+		//pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,1);
 		//pP.applyImageInpainting(&primaryFbo,&maskFbo,1);
+		pP.applyPoisson(&primaryFbo,&secondaryFbo,&maskFbo,20,0);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,400,400);

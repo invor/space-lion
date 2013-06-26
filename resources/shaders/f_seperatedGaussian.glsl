@@ -4,7 +4,7 @@ File: f_seperatedGaussian.glsl
 Author: Michael Becher
 Date of (presumingly) last edit: 04.06.2013
 
-Describtion: Seperated gaussian blur filter. Called twice for a single
+Description: Seperated gaussian blur filter. Called twice for a single
 filtering step.
 ---------------------------------------------------------------------------------------------------
 */
@@ -16,9 +16,9 @@ filtering step.
 uniform sampler2D inputImage;
 
 /*
-/	Contains the offset value for one pixel in either horizontal or
+/	Contains the offset for one pixel in either horizontal or
 /	vertical direction, depending on which part of the seperated
-/	gaussian in computed.
+/	gaussian is computed.
 */
 uniform vec2 pixelOffset;
 /*
@@ -28,7 +28,7 @@ uniform vec2 pixelOffset;
 uniform int stencilRadius;
 uniform float sigma;
 
-/*	Normalized coordinates [0,1]x[0,1] of the fragment */
+/*	Normalized screen coordinates [0,1]x[0,1] of the fragment */
 in vec2 uvCoord;
 
 out vec4 fragColour;

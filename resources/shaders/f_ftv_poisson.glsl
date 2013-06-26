@@ -1,66 +1,85 @@
-/*
----------------------------------------------------------------------------------------------------
-File: f_poisson.glsl
+/*---------------------------------------------------------------------------------------------------
+File: f_ftv_poisson.glsl
 Author: Michael Becher
-Date of (presumingly) last edit: 17.04.2013
+Date of (presumingly) last edit: 26.06.2013
 
 This shader program is being developed in the scope of FeTol at University Stuttgart (VISUS).
 http://www.vis.uni-stuttgart.de/en/projects/fetol.html
 
-Describtion: This GLSL fragment shader applies post-processing to image data, using 
+Description: This GLSL fragment shader applies post-processing to image data, using 
 poisson image editing techniques to cover up gaps in an image.
----------------------------------------------------------------------------------------------------
-*/
+Based on the techniques presented in "Poisson Image Editing" by Patrick Pérez, Michel Gangnet
+and Andrew Blake (2003).
+---------------------------------------------------------------------------------------------------*/
 
 #version 330
 
-uniform sampler2D previousFrame;
-uniform sampler2D inputImage;
-uniform sampler2D mask;
-uniform sampler2D distanceMap;
-uniform float iteration;
-uniform int mode;
-uniform vec2 imgDim;
+/*	Texture containing the previously rendered frame */
+uniform sampler2D prevFrame_tx2D;
 
+/*	Texture containing the currently rendered frame */
+uniform sampler2D currFrame_tx2D;
+
+/*	Texture containing the inpainting mask */
+uniform sampler2D mask_tx2D;
 
 /*
-/	Normalized coordinates [0,1]x[0,1] of the fragment.
+/	Texture containing a distance map for the inpainting mask.
+/	Contains for every point within an inpainting region the distances to each
+/	edge of the region.
 */
+uniform sampler2D distance_tx2D;
+
+/*	Denotes the current iteration step */
+uniform float iteration;
+
+/*
+/	Switches between image editing modes:
+/	0 - Laplacian diffusion with guidance field
+/	1 - Laplacian diffusiin only
+*/
+uniform int mode;
+
+/*
+/	Specifies the distance between two pixels in x and y direction
+/	(in texture space [0,1] )
+*/
+uniform vec2 h;
+
+/*	Normalized coordinates [0,1]x[0,1] of the fragment */
 in vec2 uvCoord;
 
-/*
-/	Fragment shader output variable.
-*/
+/*	Fragment shader output variable */
 out vec4 fragColour;
 
 
 vec3 calcGuidanceVectorX(vec2 pos, vec2 h)
 {
-	vec3 rgbW = texture2D(previousFrame,pos+vec2(-h.x,0.0f)).rgb;
-	vec3 rgbE = texture2D(previousFrame,pos+vec2(h.x,0.0f)).rgb;
+	vec3 rgbW = texture2D(prevFrame_tx2D,pos+vec2(-h.x,0.0f)).rgb;
+	vec3 rgbE = texture2D(prevFrame_tx2D,pos+vec2(h.x,0.0f)).rgb;
 	
 	return (rgbE - rgbW)/ (2.0f*h.x);
 }
 
 vec3 calcGuidanceVectorY(vec2 pos, vec2 h)
 {
-	vec3 rgbN = texture2D(previousFrame,pos+vec2(0.0f,h.y)).rgb;
-	vec3 rgbS = texture2D(previousFrame,pos+vec2(0.0f,-h.y)).rgb;
+	vec3 rgbN = texture2D(prevFrame_tx2D,pos+vec2(0.0f,h.y)).rgb;
+	vec3 rgbS = texture2D(prevFrame_tx2D,pos+vec2(0.0f,-h.y)).rgb;
 	
 	return (rgbN - rgbS)/ (2.0f*h.x);
 }
 
-vec3 poissonImageEditing(vec2 pos, vec2 h)
+vec3 poissonImageEditing(vec2 pos)
 {
 	vec2 vN = vec2(0.0f,h.y);
 	vec2 vW = vec2(-h.x,0.0f);
 	vec2 vE = vec2(h.x,0.0f);
 	vec2 vS = vec2(0.0f,-h.y);
 
-	vec3 rgbN = texture2D(inputImage,pos+vN).xyz;
-	vec3 rgbW = texture2D(inputImage,pos+vW).xyz;
-	vec3 rgbE = texture2D(inputImage,pos+vE).xyz;
-	vec3 rgbS = texture2D(inputImage,pos+vS).xyz;
+	vec3 rgbN = texture2D(currFrame_tx2D,pos+vN).xyz;
+	vec3 rgbW = texture2D(currFrame_tx2D,pos+vW).xyz;
+	vec3 rgbE = texture2D(currFrame_tx2D,pos+vE).xyz;
+	vec3 rgbS = texture2D(currFrame_tx2D,pos+vS).xyz;
 	
 	vec3 guideNx = calcGuidanceVectorX( (pos+pos+vN)*0.5f, h );
 	vec3 guideNy = calcGuidanceVectorY( (pos+pos+vN)*0.5f, h );
@@ -91,23 +110,23 @@ vec3 poissonImageEditing(vec2 pos, vec2 h)
 }
 
 /*
-/	Computation is sped up by using a stencil size large enough to reach the border
+/	Computation is sped up by using a stencil size large enough to reach the edge
 /	of the region to be inpainted. Based on the concept presented in
 /	"A GPU Laplacian Solver for Diffusion Curves and Poisson Image Editing" by
 /	Stefan Jeschke,David Cline and Peter Wonka (2009).
 */
-vec3 acceleratedPoissonImageEditing(vec2 pos, vec2 h, float i)
+vec3 acceleratedPoissonImageEditing(vec2 pos)
 {
 	vec4 dist;
-	dist.wxyz = texture2D(distanceMap, pos);
-	//dist.x = h.y+((dist.x-h.y)/pow(2.0,i));
-	//dist.y = h.x+((dist.y-h.x)/pow(2.0,i));
-	//dist.z = h.y+((dist.z-h.y)/pow(2.0,i));
-	//dist.w = h.x+((dist.w-h.x)/pow(2.0,i));
-	dist.x = h.y+((dist.x)/i);
-	dist.y = h.x+((dist.y)/i);
-	dist.z = h.y+((dist.z)/i);
-	dist.w = h.x+((dist.w)/i);
+	dist.wxyz = texture2D(distance_tx2D, pos);
+	//dist.x = h.y+((dist.x-h.y)/pow(2.0,iteration));
+	//dist.y = h.x+((dist.y-h.x)/pow(2.0,iteration));
+	//dist.z = h.y+((dist.z-h.y)/pow(2.0,iteration));
+	//dist.w = h.x+((dist.w-h.x)/pow(2.0,iteration));
+	dist.x = h.y+((dist.x)/iteration);
+	dist.y = h.x+((dist.y)/iteration);
+	dist.z = h.y+((dist.z)/iteration);
+	dist.w = h.x+((dist.w)/iteration);
 	float verticalDist = dist.x+dist.z;
 	float horizontalDist = dist.y+dist.w;
 					 
@@ -116,10 +135,10 @@ vec3 acceleratedPoissonImageEditing(vec2 pos, vec2 h, float i)
 	vec2 vS = vec2(0.0f,-dist.z);
 	vec2 vW = vec2(-dist.w,0.0f);
 
-	vec3 rgbN = texture2D(inputImage,pos+vN).xyz;
-	vec3 rgbE = texture2D(inputImage,pos+vE).xyz;
-	vec3 rgbS = texture2D(inputImage,pos+vS).xyz;
-	vec3 rgbW = texture2D(inputImage,pos+vW).xyz;
+	vec3 rgbN = texture2D(currFrame_tx2D,pos+vN).xyz;
+	vec3 rgbE = texture2D(currFrame_tx2D,pos+vE).xyz;
+	vec3 rgbS = texture2D(currFrame_tx2D,pos+vS).xyz;
+	vec3 rgbW = texture2D(currFrame_tx2D,pos+vW).xyz;
 	
 	vec3 guideNx = calcGuidanceVectorX( (pos+pos+vN)*0.5f, h );
 	vec3 guideNy = calcGuidanceVectorY( (pos+pos+vN)*0.5f, h );
@@ -165,21 +184,21 @@ vec3 acceleratedPoissonImageEditing(vec2 pos, vec2 h, float i)
 	else return rgbF_woG;
 }
 
-vec3 seamlessCloning(vec2 pos, vec2 h)
+vec3 seamlessCloning(vec2 pos)
 {
-	vec3 rgbN = texture2D(inputImage,pos+vec2(0.0f,h.y)).xyz;
-	vec3 rgbW = texture2D(inputImage,pos+vec2(-h.x,0.0f)).xyz;
-	vec3 rgbE = texture2D(inputImage,pos+vec2(h.x,0.0f)).xyz;
-	vec3 rgbS = texture2D(inputImage,pos+vec2(0.0f,-h.y)).xyz;
+	vec3 rgbN = texture2D(currFrame_tx2D,pos+vec2(0.0f,h.y)).xyz;
+	vec3 rgbW = texture2D(currFrame_tx2D,pos+vec2(-h.x,0.0f)).xyz;
+	vec3 rgbE = texture2D(currFrame_tx2D,pos+vec2(h.x,0.0f)).xyz;
+	vec3 rgbS = texture2D(currFrame_tx2D,pos+vec2(0.0f,-h.y)).xyz;
 	vec3 rgbG = (rgbN+rgbW+rgbE+rgbS) * 0.25;
 	
-	vec3 rgbNsrc = texture2D(previousFrame,pos+vec2(0.0f,h.y)).xyz;
-	vec3 rgbWsrc = texture2D(previousFrame,pos+vec2(-h.x,0.0f)).xyz;
-	vec3 rgbEsrc = texture2D(previousFrame,pos+vec2(h.x,0.0f)).xyz;
-	vec3 rgbSsrc = texture2D(previousFrame,pos+vec2(0.0f,-h.y)).xyz;
+	vec3 rgbNsrc = texture2D(prevFrame_tx2D,pos+vec2(0.0f,h.y)).xyz;
+	vec3 rgbWsrc = texture2D(prevFrame_tx2D,pos+vec2(-h.x,0.0f)).xyz;
+	vec3 rgbEsrc = texture2D(prevFrame_tx2D,pos+vec2(h.x,0.0f)).xyz;
+	vec3 rgbSsrc = texture2D(prevFrame_tx2D,pos+vec2(0.0f,-h.y)).xyz;
 	vec3 rgbGsrc = (rgbNsrc+rgbWsrc+rgbEsrc+rgbSsrc) * 0.25;
 	
-	vec3 rgbMsrc = texture2D(previousFrame,pos).xyz;
+	vec3 rgbMsrc = texture2D(prevFrame_tx2D,pos).xyz;
 	
 	return (rgbMsrc + rgbG - rgbGsrc);
 }
@@ -187,13 +206,12 @@ vec3 seamlessCloning(vec2 pos, vec2 h)
 
 void main()
 {
-	if(texture2D(mask,uvCoord).x < 0.5f)
+	if(texture2D(mask_tx2D,uvCoord).x < 0.5f)
 	{
-		vec2 h = vec2(1.0f/imgDim.x, 1.0f/imgDim.y);
-		fragColour = vec4(acceleratedPoissonImageEditing(uvCoord, h, iteration),1.0);
+		fragColour = vec4(acceleratedPoissonImageEditing(uvCoord),1.0);
 	}
 	else
 	{
-		fragColour = vec4(texture2D(inputImage,uvCoord).xyz,1.0);
+		fragColour = vec4(texture2D(currFrame_tx2D,uvCoord).xyz,1.0);
 	}
 }

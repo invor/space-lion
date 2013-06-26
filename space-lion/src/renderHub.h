@@ -7,7 +7,7 @@
 /	is handled here.
 */
 
-#define TIMER 1
+#define TIMER 0
 
 #include <vector>
 #include "scene.h"

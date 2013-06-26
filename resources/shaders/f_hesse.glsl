@@ -1,3 +1,15 @@
+/*
+---------------------------------------------------------------------------------------------------
+File: f_hesse.glsl
+Author: Michael Becher
+Date of (presumingly) last edit: 21.06.2013
+
+This shader program is part of the space-lion framework.
+
+Description: This GLSL fragment shader computes the hessian matrix from a given gradient vector.
+---------------------------------------------------------------------------------------------------
+*/
+
 #version 330
 
 /*	Texture containing the a gradient in the r and g channel */

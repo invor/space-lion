@@ -340,17 +340,11 @@ void ftvTestbench::getFrameConfigB(framebufferObject* maskFbo, framebufferObject
 {
 	if(currentFrame==0)
 	{
-		maskFbo->bind();
-		glViewport(0,0,imgFbo->getWidth(),imgFbo->getHeight());
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		imageProcessor.generateFtvMask(0,2);
+		imageProcessor.generateFtvMask(maskFbo, 0,2);
 	}
 	else
 	{
-		maskFbo->bind();
-		glViewport(0,0,imgFbo->getWidth(),imgFbo->getHeight());
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		imageProcessor.generateFtvMask(maskConfigB,2);
+		imageProcessor.generateFtvMask(maskFbo, maskConfigB,2);
 	}
 
 	imgFbo->bind();
@@ -365,33 +359,21 @@ void ftvTestbench::getFrameConfigC(framebufferObject* maskFbo, framebufferObject
 {
 	if(currentFrame==0)
 	{
-		maskFbo->bind();
-		glViewport(0,0,imgFbo->getWidth(),imgFbo->getHeight());
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		imageProcessor.generateFtvMask(0,2);
+		imageProcessor.generateFtvMask(maskFbo,0,2);
 	}
 	else
 	{
 		if((currentFrame%3)==0)
 		{
-			maskFbo->bind();
-			glViewport(0,0,imgFbo->getWidth(),imgFbo->getHeight());
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			imageProcessor.generateFtvMask(maskConfigC_1,4);
+			imageProcessor.generateFtvMask(maskFbo,maskConfigC_1,4);
 		}
 		else if((currentFrame%3)==1)
 		{
-			maskFbo->bind();
-			glViewport(0,0,imgFbo->getWidth(),imgFbo->getHeight());
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			imageProcessor.generateFtvMask(maskConfigC_2,4);
+			imageProcessor.generateFtvMask(maskFbo,maskConfigC_2,4);
 		}
 		else if((currentFrame%3)==2)
 		{
-			maskFbo->bind();
-			glViewport(0,0,imgFbo->getWidth(),imgFbo->getHeight());
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			imageProcessor.generateFtvMask(maskConfigC_3,4);
+			imageProcessor.generateFtvMask(maskFbo,maskConfigC_3,4);
 		}
 	}
 

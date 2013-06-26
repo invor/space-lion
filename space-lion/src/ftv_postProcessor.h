@@ -7,8 +7,8 @@ Date of (presumingly) last edit: 29.05.2013
 This C++ class is developed in the scope of FeTol at University Stuttgart (VISUS).
 http://www.vis.uni-stuttgart.de/en/projects/fetol.html
 
-Describtion: Extends the postProcessor class. Currently, this class contains all
-functionality for my image space, fault tolerant visualization (ftv) techniques.
+Description: Extends the postProcessor class. Currently, this class contains most of the
+functionality for several image space fault tolerant visualization (ftv) techniques.
 It offers handling and creation of image masks as well as the actual methods for
 image inpainting and poisson image editing.
 ---------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ public:
 	/	Takes a float array as input, with every group of four floats denoting the lower left and upper right corner
 	/	of a rectangular inpainting region.
 	*/
-	void generateFtvMask(GLuint regionsTexture, float w);
+	void generateFtvMask(framebufferObject *targetFbo, GLuint regionsTexture, float w);
 
 	void shrinkFtvMask(framebufferObject* mask);
 

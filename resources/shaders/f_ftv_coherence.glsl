@@ -1,15 +1,25 @@
+/*
+---------------------------------------------------------------------------------------------------
+File: f_ftv_coherence.glsl
+Author: Michael Becher
+Date of (presumingly) last edit: 21.06.2013
+
+This shader program is being developed in the scope of FeTol at University Stuttgart (VISUS).
+http://www.vis.uni-stuttgart.de/en/projects/fetol.html
+
+Description: This GLSL fragment shader computes coherence flow and coherence strength using a
+given structure tensor.
+---------------------------------------------------------------------------------------------------
+*/
+
 #version 330
 
 uniform sampler2D structureTensor;
 
-/*
-/	Normalized coordinates [0,1]x[0,1] of the fragment.
-*/
+/*	Normalized coordinates [0,1]x[0,1] of the fragment. */
 in vec2 uvCoord;
 
-/*
-/	Fragment shader output variable.
-*/
+/*	Fragment shader output variable. */
 out vec3 coherenceOuput;
 
 

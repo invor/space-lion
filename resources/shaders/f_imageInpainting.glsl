@@ -7,7 +7,7 @@ Date of (presumingly) last edit: 17.04.2013
 This shader program is being developed in the scope of FeTol at University Stuttgart (VISUS).
 http://www.vis.uni-stuttgart.de/en/projects/fetol.html
 
-Describtion: This GLSL fragment shader applies post-processing to image data, using 
+Description: This GLSL fragment shader applies post-processing to image data, using 
 image inpainting techniques to cover up gaps in an image.
 ---------------------------------------------------------------------------------------------------
 */

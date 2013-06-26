@@ -7,7 +7,7 @@ Date of (presumingly) last edit: 29.05.2013
 This C++ class is developed in the scope of FeTol at University Stuttgart (VISUS).
 http://www.vis.uni-stuttgart.de/en/projects/fetol.html
 
-Describtion: Extension of the scene class, that adds ftv volume rendering.
+Description: Extension of the scene class, that adds ftv volume rendering.
 ---------------------------------------------------------------------------------------------------
 */
 

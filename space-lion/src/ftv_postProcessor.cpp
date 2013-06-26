@@ -38,14 +38,18 @@ void ftv_postProcessor::generateDistanceMap(GLuint mask, int w, int h)
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void ftv_postProcessor::generateFtvMask(GLuint regionsTexture, float w)
+void ftv_postProcessor::generateFtvMask(framebufferObject *targetFbo, GLuint regionsTexture, float w)
 {
+	targetFbo->bind();
+	glViewport(0,0,targetFbo->getWidth(),targetFbo->getHeight());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	maskCreationShaderPrg.use();
 	maskCreationShaderPrg.setUniform("regionCount", w);
 
 	glEnable(GL_TEXTURE_1D);
 	glActiveTexture(GL_TEXTURE0);
-	maskCreationShaderPrg.setUniform("inpaintingRegions", 0);
+	maskCreationShaderPrg.setUniform("inpaintingRegions_tx1D", 0);
 	glBindTexture(GL_TEXTURE_1D, regionsTexture);
 
 	renderPlane.draw(GL_TRIANGLES,6,0);
@@ -173,13 +177,13 @@ void ftv_postProcessor::applyPoisson(framebufferObject *currentFrame, framebuffe
 
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
-	poissonShaderPrg.setUniform("mask",0);
+	poissonShaderPrg.setUniform("mask_tx2D",0);
 	mask->bindColorbuffer(0);
 	glActiveTexture(GL_TEXTURE1);
-	poissonShaderPrg.setUniform("distanceMap",1);
+	poissonShaderPrg.setUniform("distance_tx2D",1);
 	mask->bindColorbuffer(1);
 	glActiveTexture(GL_TEXTURE3);
-	poissonShaderPrg.setUniform("previousFrame",3);
+	poissonShaderPrg.setUniform("prevFrame_tx2D",3);
 	previousFrame->bindColorbuffer(0);
 
 	iterationCounter = 1.0f;
@@ -190,9 +194,9 @@ void ftv_postProcessor::applyPoisson(framebufferObject *currentFrame, framebuffe
 		glViewport(0,0,B.getWidth(),B.getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		poissonShaderPrg.setUniform("iteration", iterationCounter);
-		poissonShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+		poissonShaderPrg.setUniform("h", glm::vec2(1.0/B.getWidth(), 1.0/B.getHeight()));
 		glActiveTexture(GL_TEXTURE2);
-		poissonShaderPrg.setUniform("inputImage",2);
+		poissonShaderPrg.setUniform("currFrame_tx2D",2);
 		currentFrame->bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
@@ -201,9 +205,9 @@ void ftv_postProcessor::applyPoisson(framebufferObject *currentFrame, framebuffe
 		glViewport(0,0,currentFrame->getWidth(),currentFrame->getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		poissonShaderPrg.setUniform("iteration", iterationCounter);
-		poissonShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+		poissonShaderPrg.setUniform("h", glm::vec2(1.0/B.getWidth(), 1.0/B.getHeight()));
 		glActiveTexture(GL_TEXTURE2);
-		poissonShaderPrg.setUniform("inputImage",2);
+		poissonShaderPrg.setUniform("currFrame_tx2D",2);
 		B.bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
@@ -261,16 +265,16 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 		B.bind();
 		glViewport(0,0,B.getWidth(),B.getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		improvedInpaintingShaderPrg.setUniform("stencilSize",5.0f);
+		improvedInpaintingShaderPrg.setUniform("stencilSize",2.0f);
 		improvedInpaintingShaderPrg.setUniform("h", glm::vec2(1.0f/B.getWidth(), 1.0f/B.getHeight()));
 		glActiveTexture(GL_TEXTURE0);
-		improvedInpaintingShaderPrg.setUniform("mask",0);
+		improvedInpaintingShaderPrg.setUniform("mask_tx2D",0);
 		mask->bindColorbuffer(0);
 		glActiveTexture(GL_TEXTURE1);
-		improvedInpaintingShaderPrg.setUniform("inputImage",1);
+		improvedInpaintingShaderPrg.setUniform("input_tx2D",1);
 		inputFbo->bindColorbuffer(0);
 		glActiveTexture(GL_TEXTURE2);
-		improvedInpaintingShaderPrg.setUniform("coherenceImage",2);
+		improvedInpaintingShaderPrg.setUniform("coherence_tx2D",2);
 		coherenceFbo.bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
@@ -288,16 +292,16 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 		inputFbo->bind();
 		glViewport(0,0,inputFbo->getWidth(),inputFbo->getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		improvedInpaintingShaderPrg.setUniform("stencilSize",5.0f);
+		improvedInpaintingShaderPrg.setUniform("stencilSize",2.0f);
 		improvedInpaintingShaderPrg.setUniform("h", glm::vec2(1.0f/inputFbo->getWidth(), 1.0f/inputFbo->getHeight()));
 		glActiveTexture(GL_TEXTURE0);
-		improvedInpaintingShaderPrg.setUniform("mask",0);
+		improvedInpaintingShaderPrg.setUniform("mask_tx2D",0);
 		mask->bindColorbuffer(0);
 		glActiveTexture(GL_TEXTURE1);
-		improvedInpaintingShaderPrg.setUniform("inputImage",1);
+		improvedInpaintingShaderPrg.setUniform("input_tx2D",1);
 		B.bindColorbuffer(0);
 		glActiveTexture(GL_TEXTURE2);
-		improvedInpaintingShaderPrg.setUniform("coherenceImage",2);
+		improvedInpaintingShaderPrg.setUniform("coherence_tx2D",2);
 		coherenceFbo.bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
