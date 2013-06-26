@@ -1,0 +1,87 @@
+\documentclass[10pt,a4paper,notitlepage]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\title{\textbf{Fehler Tolerante Visualisierung}\\
+Kurz-Dokumentation zu Poisson Image Editing}
+\date{27.06.2013}
+\author{Michael Becher}
+\begin{document}
+\maketitle
+\begin{center}
+Möglichst aktueller Code ohne Garantie für Stabilität ist unter \\
+\textbf{https://github.com/invor/space-lion} zu finden.\\ \vspace{0.25cm}
+C++ Code Verzeichnis:\\ \textbf{https://github.com/invor/space-lion/tree/master/space-lion/src}\\
+Shader Code Verzeichnis:\\ \textbf{https://github.com/invor/space-lion/tree/master/resources/shaders}
+\end{center}
+\section{GLSL-Programmobjekte}
+\subsection{Poisson Image Editing Programm}
+Vertex Shader \textit{"v\_genericPostProc.glsl"} und Fragment Shader \textit{"f\_ftv\_poisson.glsl"}.\\ \\
+Wird pro Ausgabebild mehrfach in einem iterativen Verfahren aufgerufen. Als Hilfsgeometrie zum Rendern wird ein screen-filling quad benötigt (siehe Abschnitt 2.1).\\
+In \textit{ftv\_postProcessor.cpp} ist ein Anwendungsbeispiel mit Umsetzung des Iterationsverfahren über den Wechsel zwischen zwei Framebufferobjekten in folgender Methode zu finden:\\
+\textit{void ftv\_postProcessor::applyPoisson(...)}
+\subsection{Programm zum Erstellen von Inpainting Masken}
+Vertex Shader \textit{"v\_genericPostProc.glsl"} und Fragment Shader \textit{"f\_ftv\_mask.glsl"}.\\ \\
+Wird einmalig aufgerufen vor dem Beginn des Iterationsverfahrens aufgerufen und benötigt ebenfalls ein screen-filling quad.\\
+In \textit{ftv\_postProcessor.cpp} ist ein Anwendungsbeispiel mit Umsetzung des Iterationsverfahren über den Wechsel zwischen zwei Framebufferobjekten in folgender Methode zu finden:\\
+\textit{void ftv\_postProcessor::generateFtvMask(...)}
+\section{Shader-Programme}
+\subsection{Vertex-Shader \textit{v\_genericPostProc.glsl}}
+Sollte mit vier Vertices die ein screen-filling quad bilden verwendet werden. Die Vertex Positionen werden bereits
+im Bildraum übergeben:\\
+$vertex = (x,y,z,u,v)$\\
+$v_0 = (-1,-1,0,0,0)$ \hspace{10pt} $v_1 = (-1,1,0,0,1)$\\
+$v_2 = (1,1,0,1,1)$ \hspace{25pt} $v_3 = (1,-1,0,1,0)$
+\subsubsection*{In-Variablen}
+\begin{itemize}
+\item \textbf{\textit{in vec3 vPosition}} - Vertex Position
+\item \textbf{\textit{in vec2 vUVCoord}} - Vertex UV/Textur Koordinaten
+\end{itemize}
+\subsubsection*{Out-Variablen}
+\begin{itemize}
+\item \textbf{\textit{out vec2 uvCoord}} - Vertex UV/Textur Koordinaten
+\end{itemize}
+
+\subsection{Fragment-Shader \textit{f\_ftv\_mask.glsl}}
+Verwendet Multiple Render Targets um gleichzeitig eine Maske und eine Distanz-Map zu rendern.
+\subsubsection*{In-Variablen}
+\begin{itemize}
+\item \textbf{\textit{in vec2 uvCoord}} - Interpolierte UV/Textur Koordinaten des Fragments
+\end{itemize}
+\subsubsection*{Out-Variablen}
+\begin{itemize}
+\item \textbf{\textit{out vec2 inpaintingMask}} - Inpainting Maske. r-channel = 0 wenn das Fragment in einer Inpainting Region liegt, g-channel = 0 wenn das Fragment am Rand einer Inpainting Region liegt. Sonst 1.
+\end{itemize}
+\subsubsection*{Uniform-Variablen}
+\begin{itemize}
+\item \textbf{\textit{uniform sampler1D inpaintingRegions\_tx1D}} - 1D Textur in denen die Inpainting Regionen codiert ist. Jeder Texel der Textur entspricht genau einer Inpainting Region. In den rg-channels ist die x bzw. y Koordianten der linken, unteren Ecke der Region angegeben und entsprechend in den ba-channels die rechte, obere Ecke. Die x,y Koordinaten sind jeweils in Texturkoordianten gegeben, also im Bereich $[0,1]\times[0,1]$.
+\item \textbf{\textit{uniform float regionCount}} - Gibt die Anzahl an Inpainting Regionen bzw. die Auflösung der Textur \textit{inpaintingRegions\_tx1D} an.
+\end{itemize}
+
+\subsection{Fragment-Shader \textit{f\_ftv\_poisson.glsl}}
+\subsubsection*{In-Variablen}
+\begin{itemize}
+\item \textbf{\textit{in vec2 uvCoord}} - Interpolierte UV/Textur Koordinaten des Fragments
+\end{itemize}
+\subsubsection*{Out-Variablen}
+\begin{itemize}
+\item \textbf{\textit{out vec4 fragColour}} - rgba Farbausgabe
+\end{itemize}
+\subsubsection*{Uniform-Variablen}
+\begin{itemize}
+\item \textbf{\textit{uniform sampler2D prevFrame\_tx2D}} - Voheriger Frame der Visualisierung, bzw. letzter fehlerfreie Frame. Bleibt über alle Iterationsschritte gleich.
+\item \textbf{\textit{uniform sampler2D currFrame\_tx2D}} - Aktueller Frame der Visualisierung. Enthält im ersten Iterationsschritt das fehlerhafte Eingabebild, in allen anschließenden Iterationsschritten das Ergebnis des jeweils vorherigen Schritts.
+\item \textbf{\textit{uniform sampler2D mask\_tx2D}} - Inpainting Maske. Erwartet mindestens einen channel (siehe auch \textit{f\_ftv\_mask.glsl}).
+\item \textbf{\textit{uniform sampler2D distance\_tx2D}} - Distanz-Map passend zur Inpainting Maske. Wird zur Beschleunigung des Verfahrens verwendet und erwartet vier channel:\\
+r-channel gibt die Distanz zum linken Rand an\\
+g-channel gibt die Distanz zum unteren Rand an\\
+b-channel gibt die Distanz zum rechten Rand an\\
+a-channel gibt die Distanz zum oberen Rand an\\
+Alle Werte sind im normalisierten Raum (Texturkoordianten) angegeben.
+\item \textbf{\textit{uniform float iteration}} - Gibt den aktuellen Iterationsschritt an.
+\item \textbf{\textit{uniform int mode}} - Gibt den Modus des Shaders an. mode=0 entspricht reiner Laplace Diffusion, mode=1 entspricht Laplace Diffusion mit einem "guidance-field" das aus den Gradienten des voherigen Frames berechnet wird.
+\item \textbf{\textit{uniform vec2 h}} - Abstand zwischen zwei Pixeln/Fragmenten in horizontaler und vertikaler Richtung in Texturkoordianten (im CPU Code durch $1.0/width,1.0/height$ berechnet)
+\end{itemize}
+\end{document}
