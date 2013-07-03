@@ -15,12 +15,15 @@ bool ftv_postProcessor::ftv_init()
 	if(!coherenceShaderPrg.initShaders(COHERENCE)) return false;
 	if(!improvedInpaintingShaderPrg.initShaders(IMPROVED_INPAINTING)) return false;
 	if(!ftvGaussianShaderPrg.initShaders(FTV_GAUSSIAN)) return false;
+	if(!shrinkMaskPrg.initShaders(FTV_MASK_SHRINK)) return false;
 
 	/*	The FBOs used for image inpainting require different color attachments */
 	gaussianFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	gradientFbo.createColorAttachment(GL_RG32F,GL_RG,GL_FLOAT);
 	hesseFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	coherenceFbo.createColorAttachment(GL_RGB32F,GL_RGB,GL_FLOAT);
+	maskFboB.createColorAttachment(GL_RG32F,GL_RG,GL_FLOAT);
+	maskFboB.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 
 	return true;
 }
@@ -46,11 +49,32 @@ void ftv_postProcessor::generateFtvMask(framebufferObject *targetFbo, GLuint reg
 
 	maskCreationShaderPrg.use();
 	maskCreationShaderPrg.setUniform("regionCount", w);
+	maskCreationShaderPrg.setUniform("h", glm::vec2(1.0f/targetFbo->getWidth(), 1.0f/targetFbo->getHeight()));
 
 	glEnable(GL_TEXTURE_1D);
 	glActiveTexture(GL_TEXTURE0);
 	maskCreationShaderPrg.setUniform("inpaintingRegions_tx1D", 0);
 	glBindTexture(GL_TEXTURE_1D, regionsTexture);
+
+	renderPlane.draw(GL_TRIANGLES,6,0);
+}
+
+void ftv_postProcessor::shrinkFtvMask(framebufferObject* targetFbo, framebufferObject* mask)
+{
+	targetFbo->bind();
+	glViewport(0,0,targetFbo->getWidth(),targetFbo->getHeight());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	shrinkMaskPrg.use();
+	shrinkMaskPrg.setUniform("h", glm::vec2(1.0f/targetFbo->getWidth(), 1.0f/targetFbo->getHeight()));
+
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	shrinkMaskPrg.setUniform("mask_tx2D", 0);
+	mask->bindColorbuffer(0);
+	glActiveTexture(GL_TEXTURE1);
+	shrinkMaskPrg.setUniform("distance_tx2D", 1);
+	mask->bindColorbuffer(1);
 
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
@@ -258,7 +282,7 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 		computeGradient(&gaussianFbo,&gradientFbo);
 		applyFtvGaussian(&gradientFbo,&gaussianFbo,mask,1.5f,1);
 		computeHesse(&gaussianFbo,&hesseFbo);
-		applyFtvGaussian(&hesseFbo,&hesseFbo,mask,1.5f,5);
+		applyFtvGaussian(&hesseFbo,&hesseFbo,mask,1.5f,2);
 		computeCoherence(&hesseFbo,&coherenceFbo);
 	
 		improvedInpaintingShaderPrg.use();
@@ -279,15 +303,17 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
 		
-
+		/*	Shrink inpainting mask */
+		shrinkFtvMask(&maskFboB,mask);
+		
 		/*	Compute the coherence flow field and strength */
-		applyFtvGaussian(&B, &gaussianFbo,mask,1.5f,1);
+		applyFtvGaussian(&B, &gaussianFbo,&maskFboB,1.5f,1);
 		computeGradient(&gaussianFbo,&gradientFbo);
-		applyFtvGaussian(&gradientFbo,&gaussianFbo,mask,1.5f,1);
+		applyFtvGaussian(&gradientFbo,&gaussianFbo,&maskFboB,1.5f,1);
 		computeHesse(&gaussianFbo,&hesseFbo);
-		applyFtvGaussian(&hesseFbo,&hesseFbo,mask,1.5f,5);
+		applyFtvGaussian(&hesseFbo,&hesseFbo,&maskFboB,1.5f,2);
 		computeCoherence(&hesseFbo,&coherenceFbo);
-
+		
 		improvedInpaintingShaderPrg.use();
 		inputFbo->bind();
 		glViewport(0,0,inputFbo->getWidth(),inputFbo->getHeight());
@@ -296,7 +322,7 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 		improvedInpaintingShaderPrg.setUniform("h", glm::vec2(1.0f/inputFbo->getWidth(), 1.0f/inputFbo->getHeight()));
 		glActiveTexture(GL_TEXTURE0);
 		improvedInpaintingShaderPrg.setUniform("mask_tx2D",0);
-		mask->bindColorbuffer(0);
+		maskFboB.bindColorbuffer(0);
 		glActiveTexture(GL_TEXTURE1);
 		improvedInpaintingShaderPrg.setUniform("input_tx2D",1);
 		B.bindColorbuffer(0);
@@ -305,6 +331,9 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 		coherenceFbo.bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
+		
+		/*	Shrink inpainting mask */
+		shrinkFtvMask(mask,&maskFboB);
 
 	}
 	

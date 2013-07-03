@@ -157,6 +157,14 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
 		break; }
+	case FTV_MASK_SHRINK : {
+		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_ftv_shrinkMask.glsl",GL_FRAGMENT_SHADER)) return false;
+		bindAttribLocation(0,"vPosition");
+		bindAttribLocation(1,"vUVCoord");
+		bindFragDataLocation(0,"inpaintingMask");
+		bindFragDataLocation(1,"distanceMap");
+		break; }
 	default : {
 		return false;
 		break; }

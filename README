@@ -1,23 +1,26 @@
-----
+----------
 Space Lion
-----
+----------
 A prototype of a multipurpose (render)engine. It is to be used for both
 computer games and as a visualization framework for scientific applications.
 
-(Readme revision 2)
+(Readme revision 3)
 
 Current milestone:
 codename 'melancholy'
 	
-	Waypoint Alpha
+	Completed:
 		- creation of debug surface representations(meshes) e.g. a cube
 		- basic geometry, texture and material handling for scene objects
 		- basic phong shading (single light source)
-	Waypoint Bravo
-		- post processing
+		- basic post processing concept
+	In progress:
+		- fault tolerant visualization (ftv)
+		- resource management improvments
+	Comming up:
+		- glfw update, switch to gl3w
 		- file loading (geometry, texture, materials)
 		- decide on a normal mapping scheme (depends on used geometry filetype)
-	Waypoint Charlie
 		- multiple light sources
 		- multimaterial objects
 

@@ -24,6 +24,7 @@ uniform sampler2D distanceMap;
 /	gaussian in computed.
 */
 uniform vec2 pixelOffset;
+
 /*
 /	Specifies the stencil size for the gaussian filtering,
 /	stencilRadius=1 equls a 3x3 stencil size.
@@ -42,7 +43,7 @@ void main()
 	/	Careful, dirty hack!
 	/
 	/	For use with ftv, the seperated gaussian has to change its behaviour
-	/	during the second (vertical) execution. Some pixels inside on the border
+	/	during the second (vertical) execution. Some pixels on the border
 	/	of the inpainting region were filled with color values during the first
 	/	execution. This is desired and those pixel shouldn't be seen as invalid
 	/	during the second pass.
@@ -87,8 +88,8 @@ void main()
 	/*	This should be a smarter/faster way to get the gaussian coeffiencents. */
 	float h = max(pixelOffset.x,pixelOffset.y);
 	vec3 g;  
-	g.x = 1.0 / (sqrt(2.0 * PI) * sigma);  
-	g.y = exp(-0.5 * h * h / (sigma * sigma));  
+	g.x = 1.0 / (sqrt(2.0 * PI) * h * sigma);  
+	g.y = exp(-0.5 * h * h / (h * h * sigma * sigma));  
 	g.z = g.y * g.y;
 	
 	for(int i = 1; i <= stencilRadius; i++)

@@ -45,7 +45,6 @@ vec4 imageInpainting()
 	
 	vec2 lowerLeftPos = uvCoord - h*stencilSize;
 	
-
 	
 	for(float i = 0.0; i < epsilon; i++)
 	{
@@ -54,38 +53,37 @@ vec4 imageInpainting()
 			currentPos = lowerLeftPos + vec2(h.x*i,h.y*j);
 			differenceVector = uvCoord - currentPos;
 			
-			rgbaValues = texture(input_tx2D, currentPos);
 			maskValue = texture(mask_tx2D,currentPos).x;
-			if(maskValue>0.0) coherence = texture(coherence_tx2D,currentPos).xyz;
-			//else coherence = vec3(0.0,0.0,1.0);
-			else coherence = vec3(normalize(vec2((uvCoord - currentPos).y,-(uvCoord - currentPos).x)),2.0);
+			if(maskValue>0.0)
+			{
+				rgbaValues = texture(input_tx2D, currentPos);
+				coherence = texture(coherence_tx2D,currentPos).xyz;
+				
+				weight =  (coherence.z/length(vec2(differenceVector.x/h.x,differenceVector.y/h.y)));
+				
+				weight =  sqrt(PI/2.0) * (coherence.z/length(vec2(differenceVector.x/h.x,differenceVector.y/h.y))) * exp( -(coherence.z*coherence.z)/(2.0*stencilSize)
+									* pow( abs( dot(normalize(differenceVector),normalize(vec2(-coherence.y,coherence.x)) ) ),2.0 ) );
+									
+				//weight = (coherence.z/length(uvCoord - currentPos)) * abs( dot(normalize(differenceVector),normalize(coherence.xy) ) );
+									
+				rgbaAcc += rgbaValues * weight;
+				weightSum += weight;
+			}
 			
-			//weight = (coherence.z/length(uvCoord - currentPos)) * abs( dot(normalize(differenceVector),normalize(coherence.xy) ) );
-			
-			weight = sqrt(PI/2.0) * (coherence.z/length(uvCoord - currentPos)) *
-						exp( -(coherence.z*coherence.z)/(2.0)
-								* pow( abs( dot(normalize(uvCoord - currentPos),normalize(vec2(-coherence.y,coherence.x)) ) ),2.0 ) );
-								
-			weight = /*(coherence.z/length(vec2(differenceVector.x/h.x,differenceVector.y/h.y))) */ exp( -(coherence.z*coherence.z)/(1.0)
-								* pow( abs( dot(normalize(uvCoord - currentPos),normalize(vec2(-coherence.y,coherence.x)) ) ),2.0 ) );
-			//weight = exp(-pow( abs( dot(normalize(differenceVector),normalize(differenceVector) ) ),2.0 ) );
-			
-			rgbaAcc += rgbaValues * weight;
-			weightSum += weight;
 		}
 	}
 	
-	rgbaAcc = rgbaAcc.yxzw/weightSum;
+	rgbaAcc = rgbaAcc.xyzw/weightSum;
 	//rgbaAcc = vec4(vec3(weight),1.0);
-	//rgbaAcc = vec4(texture(coherence_tx2D,currentPos).z);
+	//rgbaAcc = vec4(texture(coherence_tx2D,currentPos).xy,0.0,1.0);
 	
 	return rgbaAcc;
 }
 
 void main()
 {
-	/*	Check if the fragment is inside the inpainting domain. */
-	if(texture(mask_tx2D,uvCoord).x < 0.5f)
+	/*	Check if the fragment is on the edge of the inpainting domain. */
+	if(texture(mask_tx2D,uvCoord).y < 0.5f)
 	{
 		/*	Get the rgba value from the inpainting function. */
 		fragColour = imageInpainting();

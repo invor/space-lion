@@ -37,14 +37,14 @@ void main()
 	float coherenceStrength;
 	/* TODO FIND VALUES */
 	float quant = 1.0/10.0;
-	float k = 1.0;
+	float k = 10.0;
 	if(lambda_1 == lambda_2)
 	{
 		coherenceStrength = 1.0;
 	}
 	else
 	{
-		coherenceStrength = k * exp( -pow(quant,4.0)/pow(lambda_1-lambda_2,2.0) );
+		coherenceStrength = 1.0 + k * exp( -pow(quant,4.0)/pow(lambda_1-lambda_2,2.0) );
 	}
 
 	coherenceOuput = vec3(v_2,coherenceStrength);

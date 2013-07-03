@@ -67,7 +67,8 @@ void main()
 			
 			float minXDist = min(distanceMap.x,distanceMap.z);
 			float minYDist = min(distanceMap.y,distanceMap.w);
-			inpaintingMask = vec2(0.0,0.0);
+			if(minXDist < h.x || minYDist < h.y) inpaintingMask = vec2(0.0,0.0);
+			else inpaintingMask = vec2(0.0,1.0);
 			break;
 		}
 	}
