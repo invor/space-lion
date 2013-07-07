@@ -1,15 +1,7 @@
 #include "ftv_scene.h"
 
-bool ftv_scene::createFtvVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, float* volumeData, GLenum internalFormat, GLenum format, const glm::ivec3 volumeRes)
+bool ftv_scene::createFtvVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, vertexGeometry* geomPtr, texture3D* volPtr, GLSLProgram* prgmPtr)
 {
-	vertexGeometry* geomPtr;
-	texture3D* volPtr;
-	GLSLProgram* prgmPtr;
-
-	if(!createVertexGeometry(geomPtr)) return false;
-	if(!createTexture3D(volumeData,volumeRes,internalFormat,format,volPtr)) return false;
-	if(!createShaderProgram(VOLUME_RAYCASTING,prgmPtr)) return false;
-
 	volumetricObjectList.push_back(volumetricSceneObject(id,position,orientation,scaling,geomPtr,volPtr,prgmPtr));
 	return true;
 }

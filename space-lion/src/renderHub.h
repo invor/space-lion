@@ -13,6 +13,7 @@
 #include "scene.h"
 #include "ftv_scene.h"
 #include "postProcessor.h"
+#include "resourceManager.h"
 #include "ftv_postProcessor.h"
 #include "framebufferObject.h"
 #include "ftvTestbench.h"
@@ -57,6 +58,8 @@ public:
 	void runInpaintingTest();
 
 private:
+	resourceManager resourceMngr;
+
 	std::vector<framebufferObject> framebufferList;
 	std::list<scene> sceneList;
 

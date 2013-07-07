@@ -238,6 +238,41 @@ void ftv_postProcessor::applyPoisson(framebufferObject *currentFrame, framebuffe
 	}
 }
 
+//	void ftv_postProcessor::applyImageInpainting(framebufferObject *currentFrame, framebufferObject* mask, int iterations)
+//	{
+//		inpaintingShaderPrg.use();
+//	
+//		glEnable(GL_TEXTURE_2D);
+//		glActiveTexture(GL_TEXTURE0);
+//		inpaintingShaderPrg.setUniform("mask",0);
+//		mask->bindColorbuffer(0);
+//	
+//		for(int i=0; i<iterations; i++)
+//		{
+//			B.bind();
+//			glViewport(0,0,B.getWidth(),B.getHeight());
+//			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//			inpaintingShaderPrg.setUniform("iteration", iterationCounter);
+//			inpaintingShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+//			glActiveTexture(GL_TEXTURE1);
+//			inpaintingShaderPrg.setUniform("inputImage",1);
+//			currentFrame->bindColorbuffer(0);
+//			renderPlane.draw(GL_TRIANGLES,6,0);
+//			iterationCounter++;
+//	
+//			currentFrame->bind();
+//			glViewport(0,0,currentFrame->getWidth(),currentFrame->getHeight());
+//			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//			inpaintingShaderPrg.setUniform("iteration", iterationCounter);
+//			inpaintingShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+//			glActiveTexture(GL_TEXTURE1);
+//			inpaintingShaderPrg.setUniform("inputImage",1);
+//			B.bindColorbuffer(0);
+//			renderPlane.draw(GL_TRIANGLES,6,0);
+//			iterationCounter++;
+//		}
+//	}
+
 void ftv_postProcessor::applyImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, int iterations)
 {
 	for(int i=0; i<iterations; i++)

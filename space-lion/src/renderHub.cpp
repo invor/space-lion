@@ -123,17 +123,24 @@ void renderHub::run()
 	/	Just for testing and debug purposes I am ignoring the event-queue concept I want to take up later
 	/	and manually add entities to the active scene
 	*/
-	if(!(activeScene->createStaticSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),"../resources/materials/demoMaterial.slmtl",1)))
+
+	vertexGeometry* geomPtr;
+	material* materialPtr;
+	resourceMngr.createBox(geomPtr);
+	resourceMngr.createMaterial("../resources/materials/demoMaterial.slmtl",materialPtr);
+
+
+	if(!(activeScene->createStaticSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),geomPtr,materialPtr)))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
 	}
-	if(!(activeScene->createStaticSceneObject(1,glm::vec3(0.0,0.0,-2.0),glm::quat(),"../resources/materials/demoMaterial.slmtl",1)))
+	if(!(activeScene->createStaticSceneObject(1,glm::vec3(0.0,0.0,-2.0),glm::quat(),geomPtr,materialPtr)))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
 	}
-	if(!(activeScene->createStaticSceneObject(2,glm::vec3(-2.0,0.0,0.0),glm::quat(),"../resources/materials/demoMaterial.slmtl",1)))
+	if(!(activeScene->createStaticSceneObject(2,glm::vec3(-2.0,0.0,0.0),glm::quat(),geomPtr,materialPtr)))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
@@ -192,19 +199,27 @@ void renderHub::run()
 
 void renderHub::runVolumeTest()
 {
-	if(!(activeScene->createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
+	vertexGeometry* geomPtr;
+	texture3D* volPtr;
+	GLSLProgram* prgmPtr;
+	resourceMngr.createBox(geomPtr);
+	resourceMngr.createTexture3D("../resources/volumeData/f.raw",glm::ivec3(67,67,67),volPtr);
+	resourceMngr.createShaderProgram(FTV_VOLUME_RAYCASTING,prgmPtr);
+
+
+	if(!(activeScene->createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),geomPtr,volPtr,prgmPtr)))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
 	}
 
-	if(!(activeScene->createVolumetricSceneObject(1,glm::vec3(0.0,0.0,-2.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
+	if(!(activeScene->createVolumetricSceneObject(1,glm::vec3(0.0,0.0,-2.0),glm::quat(),glm::vec3(1.0,1.0,1.0),geomPtr,volPtr,prgmPtr)))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
 	}
 	
-	if(!(activeScene->createVolumetricSceneObject(2,glm::vec3(-2.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
+	if(!(activeScene->createVolumetricSceneObject(2,glm::vec3(-2.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),geomPtr,volPtr,prgmPtr)))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
@@ -246,8 +261,14 @@ void renderHub::runVolumeTest()
 void renderHub::runFtvVolumeTest()
 {
 	ftv_scene tScene;
+	vertexGeometry* geomPtr;
+	texture3D* volPtr;
+	GLSLProgram* prgmPtr;
+	resourceMngr.createBox(geomPtr);
+	resourceMngr.createTexture3D("../resources/volumeData/f.raw",glm::ivec3(67,67,67),volPtr);
+	resourceMngr.createShaderProgram(FTV_VOLUME_RAYCASTING,prgmPtr);
 
-	if(!(tScene.createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),"../resources/volumeData/f.raw",glm::ivec3(67,67,67))))
+	if(!(tScene.createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),geomPtr,volPtr,prgmPtr)))
 	{
 		std::cout<<"Failed to create scene object"
 				<<"\n";
