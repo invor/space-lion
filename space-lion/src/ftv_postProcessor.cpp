@@ -238,38 +238,59 @@ void ftv_postProcessor::applyPoisson(framebufferObject *currentFrame, framebuffe
 	}
 }
 
-void ftv_postProcessor::applyImageInpainting(framebufferObject *currentFrame, framebufferObject* mask, int iterations)
+void ftv_postProcessor::applyImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, int iterations)
 {
-	inpaintingShaderPrg.use();
-
-	glEnable(GL_TEXTURE_2D);
-	glActiveTexture(GL_TEXTURE0);
-	inpaintingShaderPrg.setUniform("mask",0);
-	mask->bindColorbuffer(0);
-
 	for(int i=0; i<iterations; i++)
 	{
+		/*	Compute the gradient */
+		applyFtvGaussian(inputFbo,&gaussianFbo,mask,1.5f,1);
+		computeGradient(&gaussianFbo,&gradientFbo);
+		
+		inpaintingShaderPrg.use();
 		B.bind();
 		glViewport(0,0,B.getWidth(),B.getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		inpaintingShaderPrg.setUniform("iteration", iterationCounter);
-		inpaintingShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+		inpaintingShaderPrg.setUniform("stencilSize",1.0f);
+		inpaintingShaderPrg.setUniform("h", glm::vec2(1.0f/B.getWidth(), 1.0f/B.getHeight()));
+		glActiveTexture(GL_TEXTURE0);
+		inpaintingShaderPrg.setUniform("mask_tx2D",0);
+		mask->bindColorbuffer(0);
 		glActiveTexture(GL_TEXTURE1);
-		inpaintingShaderPrg.setUniform("inputImage",1);
-		currentFrame->bindColorbuffer(0);
+		inpaintingShaderPrg.setUniform("input_tx2D",1);
+		inputFbo->bindColorbuffer(0);
+		glActiveTexture(GL_TEXTURE2);
+		inpaintingShaderPrg.setUniform("gradient_tx2D",2);
+		gradientFbo.bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
-
-		currentFrame->bind();
-		glViewport(0,0,currentFrame->getWidth(),currentFrame->getHeight());
+		
+		/*	Shrink inpainting mask */
+		shrinkFtvMask(&maskFboB,mask);
+		
+		/*	Compute the gradient */
+		applyFtvGaussian(&B, &gaussianFbo,&maskFboB,1.5f,1);
+		computeGradient(&gaussianFbo,&gradientFbo);
+		
+		inpaintingShaderPrg.use();
+		inputFbo->bind();
+		glViewport(0,0,inputFbo->getWidth(),inputFbo->getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		inpaintingShaderPrg.setUniform("iteration", iterationCounter);
-		inpaintingShaderPrg.setUniform("imgDim", glm::vec2(B.getWidth(), B.getHeight()));
+		inpaintingShaderPrg.setUniform("stencilSize",1.0f);
+		inpaintingShaderPrg.setUniform("h", glm::vec2(1.0f/inputFbo->getWidth(), 1.0f/inputFbo->getHeight()));
+		glActiveTexture(GL_TEXTURE0);
+		inpaintingShaderPrg.setUniform("mask_tx2D",0);
+		maskFboB.bindColorbuffer(0);
 		glActiveTexture(GL_TEXTURE1);
-		inpaintingShaderPrg.setUniform("inputImage",1);
+		inpaintingShaderPrg.setUniform("input_tx2D",1);
 		B.bindColorbuffer(0);
+		glActiveTexture(GL_TEXTURE2);
+		inpaintingShaderPrg.setUniform("gradient_tx2D",2);
+		gradientFbo.bindColorbuffer(0);
 		renderPlane.draw(GL_TRIANGLES,6,0);
 		iterationCounter++;
+		
+		/*	Shrink inpainting mask */
+		shrinkFtvMask(mask,&maskFboB);
 	}
 }
 
@@ -334,7 +355,6 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 		
 		/*	Shrink inpainting mask */
 		shrinkFtvMask(mask,&maskFboB);
-
 	}
 	
 }

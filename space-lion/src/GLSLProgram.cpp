@@ -91,7 +91,7 @@ bool GLSLProgram::initShaders(const shaderType inType)
 		break; }
 	case INPAINTING : {
 		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_imageInpainting.glsl",GL_FRAGMENT_SHADER)) return false;
+		if(!compileShaderFromFile("../resources/shaders/f_ftv_imageInpainting.glsl",GL_FRAGMENT_SHADER)) return false;
 		bindAttribLocation(0,"vPosition");
 		bindAttribLocation(1,"vUVCoord");
 		break; }

@@ -79,7 +79,7 @@ public:
 	/*
 	/	Apply image inpainting to [a] region[s] given by an image-mask.
 	*/
-	void applyImageInpainting(framebufferObject *currentFrame, framebufferObject* mask, int iterations);
+	void applyImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, int iterations);
 
 	/*
 	/	Apply image inpainting to [a] region[s] given by an image-mask.

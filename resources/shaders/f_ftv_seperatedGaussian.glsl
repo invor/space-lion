@@ -24,7 +24,6 @@ uniform sampler2D distanceMap;
 /	gaussian in computed.
 */
 uniform vec2 pixelOffset;
-
 /*
 /	Specifies the stencil size for the gaussian filtering,
 /	stencilRadius=1 equls a 3x3 stencil size.
@@ -43,7 +42,7 @@ void main()
 	/	Careful, dirty hack!
 	/
 	/	For use with ftv, the seperated gaussian has to change its behaviour
-	/	during the second (vertical) execution. Some pixels on the border
+	/	during the second (vertical) execution. Some pixels inside on the border
 	/	of the inpainting region were filled with color values during the first
 	/	execution. This is desired and those pixel shouldn't be seen as invalid
 	/	during the second pass.

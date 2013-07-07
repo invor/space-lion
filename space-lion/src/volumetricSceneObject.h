@@ -11,6 +11,11 @@ private:
 
 	GLSLProgram* shaderPrgm;
 	texture3D* volume;
+
+	/*
+	/	Quick, propably not original, idea: use bounding geometry that roughly fits the shape of the volume for a limited empty space skipping.
+	/	The bounding geometry would still be color coded, and the volume still be represented by a rectangular 3d texture.
+	*/
 	vertexGeometry* boundingBoxGeom;
 public:
 	volumetricSceneObject();
