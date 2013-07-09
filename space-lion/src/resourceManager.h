@@ -17,11 +17,13 @@
 
 #include <list>
 #include <fstream>
+#include <sstream>
 
 #include "material.h"
 #include "texture2D.h"
 #include "texture3D.h"
 #include "vertexGeometry.h"
+
 
 class resourceManager
 {
@@ -151,6 +153,15 @@ private:
 	std::list<GLSLProgram> shaderProgramList;
 
 	/**
+	 * \brief Load geometry information from an fbx file
+	 * \note Not yet implemented
+	 * \param path Location of the fbx file
+	 * \param goemPtr Pointer to the vertexGeometry object where the loaded geometry will be stored
+	 * \return Returns true if the geometry was succesfully loaded, false otherwise
+	 */
+	bool loadFbxGeometry(const char* const path, vertexGeometry* goemPtr);
+
+	/**
 	 * \brief Parses a material file
 	 * \param materialPath Location of the material file
 	 * \param inOutMtlInfo Contains the material information after the method is called (in-out parameter)
@@ -159,13 +170,12 @@ private:
 	bool parseMaterial(const char* const materialPath, materialInfo& inOutMtlInfo);
 
 	/**
-	 * \brief Load geometry information from an fbx file
-	 * \note Not yet implemented
-	 * \param path Location of the fbx file
-	 * \param goemPtr Pointer to the vertexGeometry object where the loaded geometry will be stored
-	 * \return Returns true if the geometry was succesfully loaded, false otherwise
+	 * \brief Read a shader source file
+	 * \param path Location of the shader file
+	 * \return Returns a string containing the shader source
 	 */
-	bool loadFbxGeometry(const char* const path, vertexGeometry* goemPtr);
+	const std::string readShaderFile(const char* const path);
+
 };
 
 #endif

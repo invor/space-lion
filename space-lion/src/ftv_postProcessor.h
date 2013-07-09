@@ -37,7 +37,7 @@ public:
 							coherenceFbo(w,h,false,false),
 							maskFboB(w,h,false,false) {}
 
-	bool ftv_init();
+	bool ftv_init(resourceManager *resourceMngr);
 
 	/*
 	/	Generate a distance map for a given mask.
@@ -97,15 +97,15 @@ private:
 
 	float iterationCounter;
 
-	GLSLProgram poissonShaderPrg;
-	GLSLProgram inpaintingShaderPrg;
-	GLSLProgram stampShaderPrg;
-	GLSLProgram distanceShaderPrg;
-	GLSLProgram maskCreationShaderPrg;
-	GLSLProgram coherenceShaderPrg;
-	GLSLProgram improvedInpaintingShaderPrg;
-	GLSLProgram ftvGaussianShaderPrg;
-	GLSLProgram shrinkMaskPrg;
+	GLSLProgram *poissonShaderPrg;
+	GLSLProgram *inpaintingShaderPrg;
+	GLSLProgram *stampShaderPrg;
+	GLSLProgram *distanceShaderPrg;
+	GLSLProgram *maskCreationShaderPrg;
+	GLSLProgram *coherenceShaderPrg;
+	GLSLProgram *improvedInpaintingShaderPrg;
+	GLSLProgram *ftvGaussianShaderPrg;
+	GLSLProgram *shrinkMaskPrg;
 
 	/*	Some additional FBOs are required for coherence computations */
 	framebufferObject gaussianFbo;

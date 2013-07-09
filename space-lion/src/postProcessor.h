@@ -4,6 +4,7 @@
 #include "vertexGeometry.h"
 #include "GLSLProgram.h"
 #include "framebufferObject.h"
+#include "resourceManager.h"
 
 class postProcessor
 {
@@ -13,7 +14,7 @@ public:
 
 	postProcessor(int w, int h) : B(w,h,false,false), gaussianBackBuffer(w,h,false,false) {}
 
-	bool init();
+	bool init(resourceManager* resourceMngr);
 
 	const std::string& getLog() {return log;}
 
@@ -54,11 +55,11 @@ protected:
 	/*	FBO used for the seperated gaussian. Not to be used outside the gaussian method! */
 	framebufferObject gaussianBackBuffer;
 
-	GLSLProgram fxaaShaderPrg;
-	GLSLProgram idleShaderPrg;
-	GLSLProgram gaussianShaderPrg;
-	GLSLProgram gradientShaderPrg;
-	GLSLProgram hesseShaderPrg;
+	GLSLProgram *fxaaShaderPrg;
+	GLSLProgram *idleShaderPrg;
+	GLSLProgram *gaussianShaderPrg;
+	GLSLProgram *gradientShaderPrg;
+	GLSLProgram *hesseShaderPrg;
 };
 
 #endif

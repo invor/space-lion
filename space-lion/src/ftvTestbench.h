@@ -16,7 +16,9 @@
 class ftvTestbench
 {
 private:
+	/*	Since it's only a testbench, it has it's own postProcessor and resourceManager */
 	ftv_postProcessor imageProcessor;
+	resourceManager resourceMngr;
 
 	/*
 	/	Static array size, since we know how many images we will load.
@@ -45,7 +47,7 @@ public:
 	/	Creating a postProcessor with a set framebuffer resolution should be encouraged for long term use.
 	/	This needs a better solution, possibly requiring changes to the framebuffer and postProcessor class.
 	*/
-	ftvTestbench() : imageProcessor(400,400), currentFrame(0) {imageProcessor.ftv_init();}
+	ftvTestbench() : imageProcessor(400,400), currentFrame(0) {imageProcessor.ftv_init(&resourceMngr);}
 	~ftvTestbench() {}
 
 	bool loadImageSequence();

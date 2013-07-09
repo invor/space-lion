@@ -173,7 +173,7 @@ void renderHub::run()
 	framebufferObject testFBO(1200,675,true,false);
 	testFBO.createColorAttachment(GL_RGBA,GL_RGBA,GL_UNSIGNED_BYTE);
 	postProcessor pP;
-	pP.init();
+	pP.init(&resourceMngr);
 
 	running = true;
 	glClearColor(0.0f,0.0f,0.0f,1.0f);
@@ -330,7 +330,7 @@ void renderHub::runFtv()
 	/	Create and initialize the post-processer
 	*/
 	ftv_postProcessor pP(400,400);
-	if(!pP.ftv_init())
+	if(!pP.ftv_init(&resourceMngr))
 	{
 		std::cout<<"Failed to create post processor"
 				<<"\n";
@@ -408,7 +408,7 @@ void renderHub::runInpaintingTest()
 	/	Create and initialize the post-processer
 	*/
 	ftv_postProcessor pP(400,400);
-	if(!pP.ftv_init())
+	if(!pP.ftv_init(&resourceMngr))
 	{
 		std::cout<<"Failed to create post processor"
 				<<"\n";

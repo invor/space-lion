@@ -170,7 +170,139 @@ bool resourceManager::createShaderProgram(shaderType type, GLSLProgram*& inOutPr
 	}
 
 	GLSLProgram shaderPrg;
-	if(!shaderPrg.initShaders(type)) return false;
+	std::string vertSource;
+	std::string fragSource;
+
+	switch(type)
+	{
+	case PHONG : {
+		vertSource = readShaderFile("../resources/shaders/v_phong.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_phong.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vNormal");
+		shaderPrg.bindAttribLocation(2,"vTangent");
+		shaderPrg.bindAttribLocation(3,"vColour");
+		shaderPrg.bindAttribLocation(4,"vUVCoord");
+		break; }
+	case FLAT : {
+		vertSource = readShaderFile("../resources/shaders/v_flat.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_flat.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vNormal");
+		shaderPrg.bindAttribLocation(2,"vTangent");
+		shaderPrg.bindAttribLocation(3,"vColour");
+		shaderPrg.bindAttribLocation(4,"vUVCoord");
+		break; }
+	case FTV_POISSON : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_ftv_poisson.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		break; }
+	case FXAA : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_fxaa.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		break; }
+	case IDLE : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_idle.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		break; }
+	case STAMP : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_stamp.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		break; }
+	case FTV_INPAINTING : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_ftv_imageInpainting.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		break; }
+	case DISTANCEMAPPING : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_distanceMapping.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		break; }
+	case FTV_MASK : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_ftv_mask.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		shaderPrg.bindFragDataLocation(0,"inpaintingMask");
+		shaderPrg.bindFragDataLocation(1,"distanceMap");
+		break; }
+	case VOLUME_RAYCASTING : {
+		vertSource = readShaderFile("../resources/shaders/v_volRen.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_volRen.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(3,"vColour");
+		break; }
+	case FTV_VOLUME_RAYCASTING : {
+		vertSource = readShaderFile("../resources/shaders/v_ftv_volRen.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_ftv_volRen.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(3,"vColour");
+		break; }
+	case GAUSSIAN : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_seperatedGaussian.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		break; }
+	case GRADIENT : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_gradient.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		break; }
+	case COHERENCE : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_ftv_coherence.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		break; }
+	case FTV_IMPROVED_INPAINTING : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_ftv_improvedInpainting.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		break; }
+	case HESSE : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_hesse.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		break; }
+	case FTV_GAUSSIAN : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_ftv_seperatedGaussian.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		break; }
+	case FTV_MASK_SHRINK : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_ftv_shrinkMask.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		shaderPrg.bindFragDataLocation(0,"inpaintingMask");
+		shaderPrg.bindFragDataLocation(1,"distanceMap");
+		break; }
+	default : {
+		return false;
+		break; }
+	}
+
+	if(!shaderPrg.compileShaderFromString(vertSource,GL_VERTEX_SHADER)) return false;
+	if(!shaderPrg.compileShaderFromString(fragSource,GL_FRAGMENT_SHADER)) return false;
+	if(!shaderPrg.link()) return false;
+	std::cout<<shaderPrg.getLog();
+
 	shaderProgramList.push_back(shaderPrg);
 	std::list<GLSLProgram>::iterator lastElement = --(shaderProgramList.end());
 	inOutPrgPtr = &(*lastElement);
@@ -233,6 +365,11 @@ bool resourceManager::createTexture3D(float* volumeData, glm::ivec3 textureRes, 
 
 	inOutTexPtr = &(*lastElement);
 	return true;
+}
+
+bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* goemPtr)
+{
+	return false;
 }
 
 bool resourceManager::parseMaterial(const char* const materialPath, materialInfo& inOutMtlInfo)
@@ -298,7 +435,19 @@ bool resourceManager::parseMaterial(const char* const materialPath, materialInfo
 	return true;
 }
 
-bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* goemPtr)
+const std::string resourceManager::readShaderFile(const char* const path)
 {
-	return false;
+	std::ifstream inFile( path, std::ios::in );
+    if( !inFile ) {
+        return false;
+    }
+
+	std::ostringstream source;
+    while( inFile.good() ) {
+        int c = inFile.get();
+        if( ! inFile.eof() ) source << (char) c;
+    }
+    inFile.close();
+
+	return source.str();
 }

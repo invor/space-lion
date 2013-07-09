@@ -16,9 +16,8 @@
 	#pragma comment(lib,"glew32.lib")
 #endif
 
-enum shaderType	{ PHONG,FLAT,POISSON,FXAA,IDLE,STAMP,INPAINTING,DISTANCEMAPPING,FTV_MASK,
-					VOLUME_RAYCASTING,FTV_VOLUME_RAYCASTING,GAUSSIAN,GRADIENT,COHERENCE,
-					IMPROVED_INPAINTING,HESSE,FTV_GAUSSIAN,FTV_MASK_SHRINK };
+enum shaderType	{ PHONG,FLAT,FXAA,IDLE,STAMP,DISTANCEMAPPING,VOLUME_RAYCASTING,GAUSSIAN,GRADIENT,COHERENCE,HESSE,
+					FTV_POISSON,FTV_INPAINTING,FTV_IMPROVED_INPAINTING,FTV_MASK,FTV_VOLUME_RAYCASTING,FTV_GAUSSIAN,FTV_MASK_SHRINK };
 
 class GLSLProgram
 {
@@ -28,8 +27,6 @@ private:
 	bool linkStatus;
 	std::string shaderlog;
 
-	char* readShaderFile(const char *path);
-	bool compileShaderFromFile(const char *path, GLenum shaderType);
 	GLuint getUniformLocation(const char *name);
 public:
 	GLSLProgram();
@@ -37,7 +34,7 @@ public:
 
 	shaderType getType() {return type;}
 
-	bool initShaders(const shaderType);
+	bool compileShaderFromString(const std::string &source, GLenum shaderType);
 	bool link();
 	bool use();
 	const std::string& getLog();

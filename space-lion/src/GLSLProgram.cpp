@@ -11,223 +11,63 @@ GLSLProgram::~GLSLProgram()
 }
 
 
-char* GLSLProgram::readShaderFile(const char *path)
-{
-	FILE* in = fopen(path, "rb");
-	if (in == NULL) return NULL;
-	
-	int res_size = BUFSIZ;
-	char* res = (char*)malloc(res_size);
-	int nb_read_total = 0;
-	
-	while (!feof(in) && !ferror(in)) {
-	  if (nb_read_total + BUFSIZ > res_size) {
-	    if (res_size > 10*1024*1024) break;
-	    res_size = res_size * 2;
-	    res = (char*)realloc(res, res_size);
-	  }
-	  char* p_res = res + nb_read_total;
-	  nb_read_total += fread(p_res, 1, BUFSIZ, in);
-	}
-	
-	fclose(in);
-	res = (char*)realloc(res, nb_read_total + 1);
-	res[nb_read_total] = '\0';
-	return res;
-}
-
 GLuint GLSLProgram::getUniformLocation(const char *name)
 {
 	return glGetUniformLocation(handle, name);
 }
 
-bool GLSLProgram::initShaders(const shaderType inType)
+bool GLSLProgram::compileShaderFromString(const std::string &source, GLenum shaderType)
 {
-	type = inType;
-
-	switch(type)
+	/* Check if the source is empty */
+	if (source.empty())
 	{
-	case PHONG : {
-		if(!compileShaderFromFile("../resources/shaders/v_phong.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_phong.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vNormal");
-		bindAttribLocation(2,"vTangent");
-		bindAttribLocation(3,"vColour");
-		bindAttribLocation(4,"vUVCoord");
-		break; }
-	case FLAT : {
-		if(!compileShaderFromFile("../resources/shaders/v_flat.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_flat.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vNormal");
-		bindAttribLocation(2,"vTangent");
-		bindAttribLocation(3,"vColour");
-		bindAttribLocation(4,"vUVCoord");
-		break; }
-	case POISSON : {
-		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_ftv_poisson.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vUVCoord");
-		break; }
-	case FXAA : {
-		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_fxaa.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vUVCoord");
-		break; }
-	case IDLE : {
-		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_idle.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vUVCoord");
-		break; }
-	case STAMP : {
-		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_stamp.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vUVCoord");
-		break; }
-	case INPAINTING : {
-		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_ftv_imageInpainting.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vUVCoord");
-		break; }
-	case DISTANCEMAPPING : {
-		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_distanceMapping.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vUVCoord");
-		break; }
-	case FTV_MASK : {
-		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_ftv_mask.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vUVCoord");
-		bindFragDataLocation(0,"inpaintingMask");
-		bindFragDataLocation(1,"distanceMap");
-		break; }
-	case VOLUME_RAYCASTING : {
-		if(!compileShaderFromFile("../resources/shaders/v_volRen.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_volRen.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(3,"vColour");
-		break; }
-	case FTV_VOLUME_RAYCASTING : {
-		if(!compileShaderFromFile("../resources/shaders/v_ftv_volRen.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_ftv_volRen.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(3,"vColour");
-		break; }
-	case GAUSSIAN : {
-		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_seperatedGaussian.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vUVCoord");
-		break; }
-	case GRADIENT : {
-		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_gradient.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vUVCoord");
-		break; }
-	case COHERENCE : {
-		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_ftv_coherence.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vUVCoord");
-		break; }
-	case IMPROVED_INPAINTING : {
-		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_ftv_improvedInpainting.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vUVCoord");
-		break; }
-	case HESSE : {
-		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_hesse.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vUVCoord");
-		break; }
-	case FTV_GAUSSIAN : {
-		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_ftv_seperatedGaussian.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vUVCoord");
-		break; }
-	case FTV_MASK_SHRINK : {
-		if(!compileShaderFromFile("../resources/shaders/v_genericPostProc.glsl",GL_VERTEX_SHADER)) return false;
-		if(!compileShaderFromFile("../resources/shaders/f_ftv_shrinkMask.glsl",GL_FRAGMENT_SHADER)) return false;
-		bindAttribLocation(0,"vPosition");
-		bindAttribLocation(1,"vUVCoord");
-		bindFragDataLocation(0,"inpaintingMask");
-		bindFragDataLocation(1,"distanceMap");
-		break; }
-	default : {
-		return false;
-		break; }
-	}
-
-	if(!link()) return false;
-	std::cout<<getLog();
-	glUseProgram(0);
-	return true;
-}
-
-bool GLSLProgram::compileShaderFromFile(const char *path, GLenum shaderType)
-{
-	//read shader source code
-	const GLchar* shaderSource = readShaderFile(path);
-	if (shaderSource == NULL)
-	{
-		std::cout<<"Shader file not found."<<std::endl;
+		shaderlog = "No shader source.";
 		return false;
 	}
 
-	//create shader object
+	/* Create shader object */
+	const GLchar* c_source = source.c_str();
 	GLuint shader = glCreateShader(shaderType);
-	glShaderSource(shader, 1, &shaderSource, NULL);
-	free((void*)shaderSource);
+	glShaderSource(shader, 1, &c_source, NULL);
+	free((void*)c_source);
 
-	//compile shader
+	/* Compile shader */
 	glCompileShader(shader);
+
+	/* Check for errors */
 	GLint compile_ok = GL_FALSE;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_ok);
 	if(compile_ok == GL_FALSE)
 	{
-		GLint logLen;
+		GLint logLen = 0;
+		shaderlog = "";
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLen);
 		if(logLen > 0)
 		{
-			char *log = (char *)malloc(logLen);
+			char *log = new char[logLen];
 			GLsizei written;
 			glGetShaderInfoLog(shader, logLen, &written, log);
-			std::cout<<"Shader info log:\n"
-				<<log
-				<<"\n";
-			free(log);
+			shaderlog = log;
+			delete [] log;
 		}
 
 		glDeleteShader(shader);
 		return false;
 	}
 
-	GLint logLen;
-		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLen);
-		if(logLen > 0)
-		{
-			char *log = (char *)malloc(logLen);
-			GLsizei written;
-			glGetShaderInfoLog(shader, logLen, &written, log);
-			std::cout<<"Shader info log:\n"
-				<<log
-				<<"\n";
-			free(log);
-		}
+	//	GLint logLen = 0;
+	//	shaderlog = "";
+	//	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLen);
+	//	if(logLen > 0)
+	//	{
+	//		char *log = new char[logLen];
+	//		GLsizei written;
+	//		glGetShaderInfoLog(shader, logLen, &written, log);
+	//		shaderlog = log;
+	//		delete [] log;
+	//	}
 
-	//attach shader to program
+	/* Attach shader to program */
 	glAttachShader(handle, shader);
 
 	return true;
@@ -235,39 +75,40 @@ bool GLSLProgram::compileShaderFromFile(const char *path, GLenum shaderType)
 
 bool GLSLProgram::link()
 {
+	if( linkStatus ) return true;
+
 	glLinkProgram(handle);
 
 	GLint status = GL_FALSE;
 	glGetProgramiv(handle, GL_LINK_STATUS, &status);
 	if(status == GL_FALSE)
 	{
-		GLint logLen;
+		GLint logLen = 0;
+		shaderlog = "";
 		glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &logLen);
 		if(logLen > 0)
 		{
-			char *log = (char *)malloc(logLen);
+			char *log = new char[logLen];
 			GLsizei written;
 			glGetProgramInfoLog(handle, logLen, &written, log);
-			std::cout<<"Shader info log:\n"
-				<<log
-				<<"---------------------------------------------------\n\n";
-			free(log);
+			shaderlog = log;
+			delete [] log;
 		}
 		return false;
 	}
 
-	GLint logLen;
-	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &logLen);
-	if(logLen > 0)
-	{
-		char *log = (char *)malloc(logLen);
-		GLsizei written;
-		glGetProgramInfoLog(handle, logLen, &written, log);
-		std::cout<<"Shader info log:\n"
-			<<log
-			<<"---------------------------------------------------\n\n";
-		free(log);
-	}
+	//	GLint logLen = 0;
+	//	shaderlog = "";
+	//	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &logLen);
+	//	if(logLen > 0)
+	//	{
+	//		char *log = new char[logLen];
+	//		GLsizei written;
+	//		glGetProgramInfoLog(handle, logLen, &written, log);
+	//		shaderlog = log;
+	//		delete [] log;
+	//	}
+	//	return false;
 
 	linkStatus = true;
 	return linkStatus;
@@ -275,6 +116,8 @@ bool GLSLProgram::link()
 
 bool GLSLProgram::use()
 {
+	if( !linkStatus ) return false;
+
 	glUseProgram(handle);
 
 	return true;
@@ -351,7 +194,7 @@ void GLSLProgram::printActiveUniforms()
 	glGetProgramiv(handle, GL_ACTIVE_UNIFORMS, &nUniforms);
 	glGetProgramiv(handle, GL_ACTIVE_UNIFORM_MAX_LENGTH , &maxLength);
 
-	GLchar * attributeName = (GLchar *) malloc(maxLength);
+	GLchar * attributeName = (GLchar *) new char[maxLength];
 
 	GLint size, location;
 	GLsizei written;
@@ -363,7 +206,7 @@ void GLSLProgram::printActiveUniforms()
 		location = glGetUniformLocation(handle, attributeName);
 		std::cout<< location << " - " << attributeName << "\n"; 
 	}
-	free(attributeName);
+	delete [] attributeName;
 }
 
 void GLSLProgram::printActiveAttributes()
@@ -372,7 +215,7 @@ void GLSLProgram::printActiveAttributes()
 	glGetProgramiv(handle, GL_ACTIVE_ATTRIBUTES, &nAttributes);
 	glGetProgramiv(handle, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH , &maxLength);
 
-	GLchar * attributeName = (GLchar *) malloc(maxLength);
+	GLchar * attributeName = (GLchar *) new char[maxLength];
 
 	GLint written, size, location;
 	GLenum type;
@@ -383,5 +226,5 @@ void GLSLProgram::printActiveAttributes()
 		location = glGetAttribLocation(handle, attributeName);
 		std::cout<< location << " - " << attributeName << "\n";
 	}
-	free(attributeName);
+	delete [] attributeName;
 }
