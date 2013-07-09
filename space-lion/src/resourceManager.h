@@ -15,10 +15,15 @@
 #ifndef resourceManager_h
 #define resourceManager_h
 
+/*	std includes */
 #include <list>
 #include <fstream>
 #include <sstream>
 
+/*	Include non-std dependencies */ 
+#include <fbxsdk.h>
+
+/*	Include space-lion headers */
 #include "material.h"
 #include "texture2D.h"
 #include "texture3D.h"

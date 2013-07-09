@@ -34,7 +34,7 @@ public:
 
 	shaderType getType() {return type;}
 
-	bool compileShaderFromString(const std::string &source, GLenum shaderType);
+	bool compileShaderFromString(const std::string * const source, GLenum shaderType);
 	bool link();
 	bool use();
 	const std::string& getLog();

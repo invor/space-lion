@@ -25,6 +25,7 @@ bool postProcessor::init(resourceManager* resourceMngr)
 	if( !resourceMngr->createShaderProgram(GRADIENT,gradientShaderPrg) ) return false;
 	if( !resourceMngr->createShaderProgram(HESSE,hesseShaderPrg) ) return false;
 
+
 	/*	Prepare the intermediate framebuffers for rendering */
 	B.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	gaussianBackBuffer.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);

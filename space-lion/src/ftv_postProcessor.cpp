@@ -2,7 +2,7 @@
 
 bool ftv_postProcessor::ftv_init(resourceManager *resourceMngr)
 {
-	init(resourceMngr);
+	if( !init(resourceMngr) ) return false;
 
 	/*	Load all ftv post processing shaders */
 	if( !resourceMngr->createShaderProgram(FTV_POISSON,poissonShaderPrg) ) return false;

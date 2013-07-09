@@ -41,23 +41,35 @@ bool resourceManager::createBox(vertexGeometry*& inOutGeomPtr)
 	GLubyte *indexArray = new GLubyte[36];
 
 	/*	front face */
-	vertexArray[0]=vertex_pntcu(-0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0);vertexArray[1]=vertex_pntcu(-0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,0.0,1.0,0.0,1.0,0.0,1.0);
-	vertexArray[2]=vertex_pntcu(0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,1.0,1.0,0.0,1.0,1.0,1.0);vertexArray[3]=vertex_pntcu(0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,1.0,0.0);
+	vertexArray[0]=vertex_pntcu(-0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,0.0,0.0);
+	vertexArray[1]=vertex_pntcu(-0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,0.0,1.0);
+	vertexArray[2]=vertex_pntcu(0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,1.0,1.0);
+	vertexArray[3]=vertex_pntcu(0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,1.0,0.0);
 	/*	right face */
-	vertexArray[4]=vertex_pntcu(0.5,-0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,1.0,0.0,0.0,1.0,0.0,0.0);vertexArray[5]=vertex_pntcu(0.5,0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,1.0,1.0,0.0,1.0,0.0,1.0);
-	vertexArray[6]=vertex_pntcu(0.5,0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,1.0,1.0,1.0,1.0,1.0,1.0);vertexArray[7]=vertex_pntcu(0.5,-0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,1.0,0.0,1.0,1.0,1.0,0.0);
+	vertexArray[4]=vertex_pntcu(0.5,-0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,0.0,0.0);
+	vertexArray[5]=vertex_pntcu(0.5,0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,0.0,1.0);
+	vertexArray[6]=vertex_pntcu(0.5,0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,1.0,1.0);
+	vertexArray[7]=vertex_pntcu(0.5,-0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,1.0,0.0);
 	/*	left face */
-	vertexArray[8]=vertex_pntcu(-0.5,-0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,1.0,1.0,0.0,0.0);vertexArray[9]=vertex_pntcu(-0.5,0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,0.0,1.0,1.0,1.0,0.0,1.0);
-	vertexArray[10]=vertex_pntcu(-0.5,0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,0.0,1.0,0.0,1.0,1.0,1.0);vertexArray[11]=vertex_pntcu(-0.5,-0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,1.0,0.0);
+	vertexArray[8]=vertex_pntcu(-0.5,-0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,0.0,0.0);
+	vertexArray[9]=vertex_pntcu(-0.5,0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,0.0,1.0);
+	vertexArray[10]=vertex_pntcu(-0.5,0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,1.0,1.0);
+	vertexArray[11]=vertex_pntcu(-0.5,-0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,1.0,0.0);
 	/*	back face */
-	vertexArray[12]=vertex_pntcu(0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,1.0,0.0,1.0,1.0,0.0,0.0);vertexArray[13]=vertex_pntcu(0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0,1.0);
-	vertexArray[14]=vertex_pntcu(-0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,1.0);vertexArray[15]=vertex_pntcu(-0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,0.0);
+	vertexArray[12]=vertex_pntcu(0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,0.0,0.0);
+	vertexArray[13]=vertex_pntcu(0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,0.0,1.0);
+	vertexArray[14]=vertex_pntcu(-0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,1.0,1.0);
+	vertexArray[15]=vertex_pntcu(-0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,1.0,0.0);
 	/*	bottom face */
-	vertexArray[16]=vertex_pntcu(-0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0);vertexArray[17]=vertex_pntcu(-0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,1.0);
-	vertexArray[18]=vertex_pntcu(0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,1.0,0,1.0,1.0,1.0,1.0);vertexArray[19]=vertex_pntcu(0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,1.0,0,0,1.0,1.0,0.0);
+	vertexArray[16]=vertex_pntcu(-0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,0.0,0.0);
+	vertexArray[17]=vertex_pntcu(-0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,0.0,1.0);
+	vertexArray[18]=vertex_pntcu(0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,1.0,1.0);
+	vertexArray[19]=vertex_pntcu(0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,1.0,0.0);
 	/*	top face */
-	vertexArray[20]=vertex_pntcu(-0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,0,1.0,0.0,1.0,0.0,0.0);vertexArray[21]=vertex_pntcu(-0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,0.0,1.0,1.0,1.0,0.0,1.0);
-	vertexArray[22]=vertex_pntcu(0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,1.0,1.0,1.0,1.0,1.0,1.0);vertexArray[23]=vertex_pntcu(0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,1.0,1.0,0,1.0,1.0,0.0);
+	vertexArray[20]=vertex_pntcu(-0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,0.0,0.0);
+	vertexArray[21]=vertex_pntcu(-0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,0.0,1.0);
+	vertexArray[22]=vertex_pntcu(0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,1.0,1.0);
+	vertexArray[23]=vertex_pntcu(0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,1.0,0.0);
 
 	indexArray[0]=0;indexArray[1]=2;indexArray[2]=1;
 	indexArray[3]=2;indexArray[4]=0;indexArray[5]=3;
@@ -298,8 +310,8 @@ bool resourceManager::createShaderProgram(shaderType type, GLSLProgram*& inOutPr
 		break; }
 	}
 
-	if(!shaderPrg.compileShaderFromString(vertSource,GL_VERTEX_SHADER)) return false;
-	if(!shaderPrg.compileShaderFromString(fragSource,GL_FRAGMENT_SHADER)) return false;
+	if(!shaderPrg.compileShaderFromString(&vertSource,GL_VERTEX_SHADER)) return false;
+	if(!shaderPrg.compileShaderFromString(&fragSource,GL_FRAGMENT_SHADER)) return false;
 	if(!shaderPrg.link()) return false;
 	std::cout<<shaderPrg.getLog();
 
@@ -369,6 +381,29 @@ bool resourceManager::createTexture3D(float* volumeData, glm::ivec3 textureRes, 
 
 bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* goemPtr)
 {
+	/*	Initialize an fbx sdk manager. It handles memory management */
+	FbxManager *fbxMngr = FbxManager::Create();
+
+	/*	Create the IO settings object. */
+	FbxIOSettings *ios = FbxIOSettings::Create(fbxMngr, IOSROOT);
+	fbxMngr->SetIOSettings(ios);
+
+	/*	Create an importer */
+	FbxImporter *fbxImprtr = FbxImporter::Create(fbxMngr,""); 
+
+	/*	Intialize the importer with the path to the file */
+	if( !fbxImprtr->Initialize(path, -1, fbxMngr->GetIOSettings()) )
+	{
+		printf("Call to FbxImporter::Initialize() failed.\n"); 
+		printf("Error returned: %s\n\n", fbxImprtr->GetStatus().GetErrorString()); 
+        return false;
+	}
+
+	/*	Create an fbx scene to populate with the imported file */
+	FbxScene * fbxScn = FbxScene::Create(fbxMngr,"importScene");
+	fbxImprtr->Import(fbxScn);
+	fbxImprtr->Destroy();
+
 	return false;
 }
 

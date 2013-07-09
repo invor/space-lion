@@ -403,7 +403,6 @@ void renderHub::runInpaintingTest()
 	maskFbo.createColorAttachment(GL_RG32F,GL_RG,GL_FLOAT);
 	maskFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 
-
 	/*
 	/	Create and initialize the post-processer
 	*/

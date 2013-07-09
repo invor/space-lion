@@ -166,6 +166,7 @@ pip-log.txt
 ## Include&Libraries
 ############
 
+space-lion/fbx
 space-lion/glew
 space-lion/glfw
 space-lion/glm

@@ -16,20 +16,19 @@ GLuint GLSLProgram::getUniformLocation(const char *name)
 	return glGetUniformLocation(handle, name);
 }
 
-bool GLSLProgram::compileShaderFromString(const std::string &source, GLenum shaderType)
+bool GLSLProgram::compileShaderFromString(const std::string * const source, GLenum shaderType)
 {
 	/* Check if the source is empty */
-	if (source.empty())
+	if (source->empty())
 	{
 		shaderlog = "No shader source.";
 		return false;
 	}
 
 	/* Create shader object */
-	const GLchar* c_source = source.c_str();
+	const GLchar* c_source = source->c_str();
 	GLuint shader = glCreateShader(shaderType);
 	glShaderSource(shader, 1, &c_source, NULL);
-	free((void*)c_source);
 
 	/* Compile shader */
 	glCompileShader(shader);
