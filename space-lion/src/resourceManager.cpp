@@ -310,10 +310,9 @@ bool resourceManager::createShaderProgram(shaderType type, GLSLProgram*& inOutPr
 		break; }
 	}
 
-	if(!shaderPrg.compileShaderFromString(&vertSource,GL_VERTEX_SHADER)) return false;
-	if(!shaderPrg.compileShaderFromString(&fragSource,GL_FRAGMENT_SHADER)) return false;
-	if(!shaderPrg.link()) return false;
-	std::cout<<shaderPrg.getLog();
+	if(!shaderPrg.compileShaderFromString(&vertSource,GL_VERTEX_SHADER)){ std::cout<<shaderPrg.getLog(); return false;}
+	if(!shaderPrg.compileShaderFromString(&fragSource,GL_FRAGMENT_SHADER)){ std::cout<<shaderPrg.getLog(); return false;}
+	if(!shaderPrg.link()){ std::cout<<shaderPrg.getLog(); return false;}
 
 	shaderProgramList.push_back(shaderPrg);
 	std::list<GLSLProgram>::iterator lastElement = --(shaderProgramList.end());

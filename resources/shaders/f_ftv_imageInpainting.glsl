@@ -61,9 +61,9 @@ vec4 imageInpainting()
 				rgbaValues = texture(input_tx2D, currentPos);
 				gradient = texture(gradient_tx2D,currentPos).xy;
 									
-				weight = (1.0/length(vec2(differenceVector.x/h.x,differenceVector.y/h.y))) * abs( dot(normalize(differenceVector),normalize(gradient)) );
+				//weight = (1.0/length(vec2(differenceVector.x/h.x,differenceVector.y/h.y))) * abs( dot(normalize(differenceVector),normalize(gradient)) );
 				
-				weight = (1.0/length(vec2(differenceVector.x/h.x,differenceVector.y/h.y))) *
+				weight = (1.0/length(vec2(differenceVector.x/h.x,differenceVector.y/h.y))) * 
 							exp( -5.0 * abs( dot(normalize(differenceVector),normalize(vec2(-gradient.y,gradient.x))) ) );
 				
 				rgbaAcc += rgbaValues * weight;

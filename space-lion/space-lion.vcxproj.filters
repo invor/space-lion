@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shader Source Files">
+      <UniqueIdentifier>{4f8013e9-abc7-4e09-b26a-e62d7c4cb0dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vertexStructs.h">
@@ -137,5 +140,79 @@
     <ClCompile Include="src\resourceManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\resources\shaders\f_distanceMapping.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\v_volRen.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_flat.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_ftv_coherence.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_ftv_imageInpainting.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_ftv_improvedInpainting.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_ftv_mask.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_ftv_poisson.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_ftv_seperatedGaussian.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_ftv_shrinkMask.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_ftv_volRen.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_fxaa.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_gradient.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_hesse.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_idle.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_imageInpainting.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_phong.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_seperatedGaussian.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_stamp.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\f_volRen.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\v_flat.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\v_ftv_volRen.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\v_genericPostProc.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\v_phong.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

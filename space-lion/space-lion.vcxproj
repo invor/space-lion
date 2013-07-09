@@ -69,23 +69,23 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>glew\include;glm;glfw;$(IncludePath)</IncludePath>
-    <LibraryPath>glew\lib;glm;$(LibraryPath)</LibraryPath>
+    <IncludePath>fbx\include;glew\include;glm;glfw;$(IncludePath)</IncludePath>
+    <LibraryPath>fbx\lib;glew\lib;glm;glfw;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>glew\include;glm;glfw;$(IncludePath)</IncludePath>
-    <LibraryPath>glew\lib;glm;glfw;$(LibraryPath)</LibraryPath>
+    <IncludePath>fbx\include;glew\include;glm;glfw;$(IncludePath)</IncludePath>
+    <LibraryPath>fbx\lib;glew\lib;glm;glfw;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>glew\include;glm;glfw;$(IncludePath)</IncludePath>
+    <IncludePath>fbx\include;glew\include;glm;glfw;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>glew\lib;glm;glfw;$(LibraryPath)</LibraryPath>
+    <LibraryPath>fbx\lib;glew\lib;glm;glfw;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>glew\lib;glm;$(LibraryPath)</LibraryPath>
-    <IncludePath>glew\include;glm;glfw;$(IncludePath)</IncludePath>
+    <LibraryPath>fbx\lib;glew\lib;glm;glfw;$(LibraryPath)</LibraryPath>
+    <IncludePath>fbx\include;glew\include;glm;glfw;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -183,6 +183,32 @@
     <ClCompile Include="src\texture3D.cpp" />
     <ClCompile Include="src\vertexGeometry.cpp" />
     <ClCompile Include="src\volumetricSceneObject.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\resources\shaders\f_distanceMapping.glsl" />
+    <None Include="..\resources\shaders\f_flat.glsl" />
+    <None Include="..\resources\shaders\f_ftv_coherence.glsl" />
+    <None Include="..\resources\shaders\f_ftv_imageInpainting.glsl" />
+    <None Include="..\resources\shaders\f_ftv_improvedInpainting.glsl" />
+    <None Include="..\resources\shaders\f_ftv_mask.glsl" />
+    <None Include="..\resources\shaders\f_ftv_poisson.glsl" />
+    <None Include="..\resources\shaders\f_ftv_seperatedGaussian.glsl" />
+    <None Include="..\resources\shaders\f_ftv_shrinkMask.glsl" />
+    <None Include="..\resources\shaders\f_ftv_volRen.glsl" />
+    <None Include="..\resources\shaders\f_fxaa.glsl" />
+    <None Include="..\resources\shaders\f_gradient.glsl" />
+    <None Include="..\resources\shaders\f_hesse.glsl" />
+    <None Include="..\resources\shaders\f_idle.glsl" />
+    <None Include="..\resources\shaders\f_imageInpainting.glsl" />
+    <None Include="..\resources\shaders\f_phong.glsl" />
+    <None Include="..\resources\shaders\f_seperatedGaussian.glsl" />
+    <None Include="..\resources\shaders\f_stamp.glsl" />
+    <None Include="..\resources\shaders\f_volRen.glsl" />
+    <None Include="..\resources\shaders\v_flat.glsl" />
+    <None Include="..\resources\shaders\v_ftv_volRen.glsl" />
+    <None Include="..\resources\shaders\v_genericPostProc.glsl" />
+    <None Include="..\resources\shaders\v_phong.glsl" />
+    <None Include="..\resources\shaders\v_volRen.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

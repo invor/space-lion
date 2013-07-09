@@ -29,6 +29,9 @@
 #include "texture3D.h"
 #include "vertexGeometry.h"
 
+#ifdef _WIN32
+	#pragma comment(lib,"libfbxsdk.lib")
+#endif
 
 class resourceManager
 {

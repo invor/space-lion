@@ -75,7 +75,6 @@ bool GLSLProgram::compileShaderFromString(const std::string * const source, GLen
 bool GLSLProgram::link()
 {
 	if( linkStatus ) return true;
-
 	glLinkProgram(handle);
 
 	GLint status = GL_FALSE;

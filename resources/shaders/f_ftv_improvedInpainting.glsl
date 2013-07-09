@@ -59,7 +59,7 @@ vec4 imageInpainting()
 				rgbaValues = texture(input_tx2D, currentPos);
 				coherence = texture(coherence_tx2D,currentPos).xyz;
 				
-				weight =  (coherence.z/length(vec2(differenceVector.x/h.x,differenceVector.y/h.y)));
+				//weight =  (coherence.z/length(vec2(differenceVector.x/h.x,differenceVector.y/h.y)));
 				
 				weight =  sqrt(PI/2.0) * (coherence.z/length(vec2(differenceVector.x/h.x,differenceVector.y/h.y))) * exp( -(coherence.z*coherence.z)/(2.0*stencilSize)
 									* pow( abs( dot(normalize(differenceVector),normalize(vec2(-coherence.y,coherence.x)) ) ),2.0 ) );
