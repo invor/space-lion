@@ -403,7 +403,132 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
 	fbxImprtr->Import(fbxScn);
 	fbxImprtr->Destroy();
 
-	return false;
+	/*
+	/	Get the root node of the scene and its (first) child.
+	/	Should the scene contain more than a single object, I will propably
+	/	end up in hell for this...
+	*/
+	FbxNode* fbxRootNode = fbxScn->GetRootNode();
+	FbxNode* fbxChildNode = fbxRootNode->GetChild(0);
+
+	/*
+	/	To offer at least some safety, check if the child is a mesh.
+	/	However, even then I should pray to someone that the mesh is
+	/	triangulated.
+	*/
+	if( !(fbxChildNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eMesh) ) return false;
+	
+	FbxMesh* fbxMesh = fbxChildNode->GetMesh();
+
+	const int fbxPolyCount = fbxMesh->GetPolygonCount();
+
+	bool hasNormal = fbxMesh->GetElementNormalCount() > 0;
+	bool hasTangent = fbxMesh->GetElementTangentCount() > 0;
+	bool hasColor = fbxMesh->GetElementVertexColorCount() > 0;
+	bool hasUV = fbxMesh->GetElementUVCount() > 0;
+
+	FbxGeometryElement::EMappingMode fbxNormalMappingMode = FbxGeometryElement::eNone;
+	FbxGeometryElement::EMappingMode fbxTangentMappingMode = FbxGeometryElement::eNone;
+	FbxGeometryElement::EMappingMode fbxVertexColorMappingMode = FbxGeometryElement::eNone;
+    FbxGeometryElement::EMappingMode fbxUVMappingMode = FbxGeometryElement::eNone;
+	
+	bool allByControlPoint;
+	if (hasNormal)
+    {
+		fbxNormalMappingMode = fbxMesh->GetElementNormal(0)->GetMappingMode();
+        if (fbxNormalMappingMode == FbxGeometryElement::eNone) hasNormal = false;
+        if (hasNormal && (fbxNormalMappingMode != FbxGeometryElement::eByControlPoint) ) allByControlPoint = false;
+    }
+	if (hasTangent)
+    {
+		fbxTangentMappingMode = fbxMesh->GetElementNormal(0)->GetMappingMode();
+        if (fbxTangentMappingMode == FbxGeometryElement::eNone) hasTangent = false;
+        if (hasTangent && (fbxTangentMappingMode != FbxGeometryElement::eByControlPoint) ) allByControlPoint = false;
+    }
+	if (hasColor)
+    {
+		fbxVertexColorMappingMode = fbxMesh->GetElementNormal(0)->GetMappingMode();
+        if (fbxVertexColorMappingMode == FbxGeometryElement::eNone) hasColor = false;
+        if (hasColor && (fbxVertexColorMappingMode != FbxGeometryElement::eByControlPoint) ) allByControlPoint = false;
+    }
+	if (hasUV)
+    {
+		fbxUVMappingMode = fbxMesh->GetElementNormal(0)->GetMappingMode();
+        if (fbxUVMappingMode == FbxGeometryElement::eNone) hasUV = false;
+        if (hasUV && (fbxUVMappingMode != FbxGeometryElement::eByControlPoint) ) allByControlPoint = false;
+    }
+
+	int vertexCount = fbxMesh->GetControlPointsCount();
+	/*	Triangles are assumed, meaning three vertices per polygon */
+	if(!allByControlPoint) vertexCount = fbxPolyCount * 3;
+
+	/*	For reasons of simplicity I use the "full" vertex format in any case for now */
+	vertex_pntcu *vertices = new vertex_pntcu[vertexCount];
+	unsigned int *indices = new unsigned int[fbxPolyCount * 3];
+
+	/*	Temporary storage for the vertex attributes */
+	const FbxVector4 * controlPoints = fbxMesh->GetControlPoints();
+	FbxVector4 currentVertex;
+	FbxVector4 currentNormal;
+	FbxVector4 currentTangent;
+	/*	This is a big maybe about the Vector4 for color */
+	FbxVector4 currentColor;
+	FbxVector2 currentUV;
+
+	/*	Now read the vertex attributes */
+	if (allByControlPoint)
+    {
+        const FbxGeometryElementNormal *fbxNormalElement = NULL;
+		const FbxGeometryElementTangent *fbxTangentElement = NULL;
+		const FbxGeometryElementVertexColor * fbxVertexColorElement = NULL;
+        const FbxGeometryElementUV *fbxUVElement = NULL;
+
+        if (hasNormal) fbxNormalElement = fbxMesh->GetElementNormal(0);
+		if (hasTangent) fbxTangentElement = fbxMesh->GetElementTangent(0);
+		if (hasColor) fbxVertexColorElement = fbxMesh->GetElementVertexColor(0);
+        if (hasUV) fbxUVElement = fbxMesh->GetElementUV(0);
+
+        for (int index = 0; index < vertexCount; ++index)
+        {
+            /* Save the vertex position */
+            currentVertex = controlPoints[index];
+
+			vertices[index].x = static_cast<float>(currentVertex[0]);
+            vertices[index].y = static_cast<float>(currentVertex[1]);
+            vertices[index].z = static_cast<float>(currentVertex[2]);
+
+            /* Save the normal */
+            if (hasNormal)
+            {
+                int normalIndex = index;
+                if (fbxNormalElement->GetReferenceMode() == FbxLayerElement::eIndexToDirect)
+                {
+                    normalIndex = fbxNormalElement->GetIndexArray().GetAt(index);
+                }
+                currentNormal = fbxNormalElement->GetDirectArray().GetAt(normalIndex);
+				vertices[index].nx = static_cast<float>(currentNormal[0]);
+				vertices[index].ny = static_cast<float>(currentNormal[1]);
+				vertices[index].nz = static_cast<float>(currentNormal[2]);
+            }
+
+			/*	TODO: Save tangens and color */
+
+            /* Save the UV */
+            if (hasUV)
+            {
+                int uVIndex = index;
+                if (fbxUVElement->GetReferenceMode() == FbxLayerElement::eIndexToDirect)
+                {
+                    uVIndex = fbxUVElement->GetIndexArray().GetAt(index);
+                }
+                currentUV = fbxUVElement->GetDirectArray().GetAt(uVIndex);
+				vertices[index].u = static_cast<float>(currentUV[0]);
+				vertices[index].v = static_cast<float>(currentUV[1]);
+            }
+        }
+
+    }
+
 }
 
 bool resourceManager::parseMaterial(const char* const materialPath, materialInfo& inOutMtlInfo)

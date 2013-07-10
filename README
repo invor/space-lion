@@ -17,12 +17,12 @@ codename 'melancholy'
 	In progress:
 		- fault tolerant visualization (ftv)
 		- resource management improvments
+		- file loading (geometry, texture, materials)
 	Comming up:
 		- glfw update, switch to gl3w
-		- file loading (geometry, texture, materials)
 		- decide on a normal mapping scheme (depends on used geometry filetype)
 		- multiple light sources
-		- multimaterial objects
+		- multi-material objects
 
 Next milestone:
 codename 'sigh'
@@ -40,3 +40,5 @@ Dependencies:
 		http://www.glfw.org/
 	glm for OpenGL related maths
 		http://glm.g-truc.net/
+	Autodesk fbx SDK (2014.1) for loading fbx files
+		http://www.autodesk.com/products/fbx/overview

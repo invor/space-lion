@@ -454,8 +454,8 @@ void renderHub::runInpaintingTest()
 			double start = glfwGetTime();
 		#endif	
 
-		pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,16);
-		//pP.applyImageInpainting(&primaryFbo,&maskFbo,20);
+		//pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,16);
+		pP.applyImageInpainting(&primaryFbo,&maskFbo,20);
 		//pP.applyPoisson(&primaryFbo,&secondaryFbo,&maskFbo,20,0);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
