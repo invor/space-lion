@@ -51,7 +51,7 @@ bool renderHub::init()
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, maj);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, min);
 
-	if(!glfwOpenWindow(400,400,8,8,8,8,32,0,GLFW_WINDOW))
+	if(!glfwOpenWindow(1200,675,8,8,8,8,32,0,GLFW_WINDOW))
 	{
 		std::cout<<"-----\n"
 				<<"The time is out of joint - O cursed spite,\n"
@@ -127,7 +127,9 @@ void renderHub::run()
 	vertexGeometry* geomPtr;
 	material* materialPtr;
 	resourceMngr.createBox(geomPtr);
-	resourceMngr.createMaterial("../resources/materials/demoMaterial.slmtl",materialPtr);
+	//resourceMngr.createMaterial("../resources/materials/demoMaterial.slmtl",materialPtr);
+	resourceMngr.createMaterial(materialPtr);
+	//resourceMngr.createVertexGeometry("../resources/meshes/maya_box.fbx",geomPtr);
 
 
 	if(!(activeScene->createStaticSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),geomPtr,materialPtr)))
@@ -155,7 +157,7 @@ void renderHub::run()
 	//}
 
 
-	if(!(activeScene->createSceneCamera(0,glm::vec3(1.0,2.0,1.0),glm::quat(),16.0f/9.0f,55.0f)))
+	if(!(activeScene->createSceneCamera(0,glm::vec3(2.0,2.0,2.0),glm::quat(),16.0f/9.0f,55.0f)))
 	{
 		std::cout<<"Failed to create camera"
 				<<"\n";

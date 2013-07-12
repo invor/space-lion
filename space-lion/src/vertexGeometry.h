@@ -28,7 +28,7 @@ public:
 
 	vertexGeometry(const std::string fn);
 
-	bool bufferDataFromArray(const vertex_p *vertexArray, const GLubyte *indexArray, const GLsizei vaSize, const GLsizei viSize);
+	bool bufferDataFromArray(const vertex_p *vertexArray, const GLuint *indexArray, const GLsizei vaSize, const GLsizei viSize);
 	bool bufferDataFromFile(const char *path);
 
 	void bindVertexBuffer();

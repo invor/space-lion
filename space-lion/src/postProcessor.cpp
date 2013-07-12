@@ -6,7 +6,7 @@ bool postProcessor::init(resourceManager* resourceMngr)
 	/	Create vertex geometry of the render plane
 	*/
 	vertex_pu *vertexArray = new vertex_pu[4];
-	GLubyte *indexArray = new GLubyte[6];
+	GLuint *indexArray = new GLuint[6];
 
 	vertexArray[0]=vertex_pu(-1.0,-1.0,0.0,0.0,0.0);vertexArray[1]=vertex_pu(-1.0,1.0,0.0,0.0,1.0);
 	vertexArray[2]=vertex_pu(1.0,1.0,0.0,1.0,1.0);vertexArray[3]=vertex_pu(1.0,-1.0,0.0,1.0,0.0);
@@ -14,7 +14,7 @@ bool postProcessor::init(resourceManager* resourceMngr)
 	indexArray[0]=0;indexArray[1]=2;indexArray[2]=1;
 	indexArray[3]=2;indexArray[4]=0;indexArray[5]=3;
 
-	if(!(renderPlane.bufferDataFromArray(vertexArray,indexArray,sizeof(vertex_pu)*4,sizeof(GLubyte)*6))) return false;
+	if(!(renderPlane.bufferDataFromArray(vertexArray,indexArray,sizeof(vertex_pu)*4,sizeof(GLuint)*6))) return false;
 	renderPlane.setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pu),0);
 	renderPlane.setVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(vertex_pu),(GLvoid*) sizeof(vertex_p));
 

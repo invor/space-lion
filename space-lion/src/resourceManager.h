@@ -39,6 +39,9 @@ public:
 	resourceManager();
 	~resourceManager();
 
+	/** Returns log string */
+	const std::string& getLog() {return resourcelog;}
+
 	/**
 	 * \brief Creates a triangle for debugging purposes
 	 * \param inOutGeomPtr A pointer set to the newly created vertex geometry via in-out parameter
@@ -142,6 +145,9 @@ public:
 	bool createTexture3D(float* volumeData, glm::ivec3 textureRes, GLenum internalFormat, GLenum format, texture3D*& inOutTexPtr);
 
 private:
+	/** Log string */
+	std::string resourcelog;
+
 	/*
 	/	The following lists contain all resources that are managed by an instance of this class.
 	/	There is only a single "instance" of any (uniquely identifiable) resouce kept in these lists.
