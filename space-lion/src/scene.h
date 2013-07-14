@@ -17,15 +17,6 @@
 class scene
 {
 protected:
-	/*	
-	/	The following has become somewhat obsolete with the introdcution of filenames as identifier
-	/
-	/	Some textures are not loaded from a file. Therefore an id will be generated for them by the scene.
-	/	Texture id's below 10000 belong to textures loaded from a file. Id's above 10000 are given by the system.
-	/	The most recently assigned id is saved in this variable.
-	*/
-	unsigned int lastTextureId;
-
 	/*
 	/	The following lists contain all entities (objects if you will) that are part of the scene.
 	/	The currently used std::list datastructures are to be replaced with a more sophisticated concept in the near future.

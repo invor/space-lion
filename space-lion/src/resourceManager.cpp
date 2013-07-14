@@ -146,7 +146,7 @@ bool resourceManager::createMaterial(material*& inOutMtlPtr)
 	texture* texPtr1;
 	texture* texPtr2;
 	texture* texPtr3;
-	if(!createShaderProgram(FLAT,prgPtr)) return false;
+	if(!createShaderProgram(PHONG,prgPtr)) return false;
 	if(!createTexture2D(1,1,diffuseData,texPtr1)) return false;
 	if(!createTexture2D(1,1,specularData,texPtr2)) return false;
 	if(!createTexture2D(1,1,normalData,texPtr3)) return false;
@@ -211,6 +211,7 @@ bool resourceManager::createShaderProgram(shaderType type, GLSLProgram*& inOutPr
 		shaderPrg.bindAttribLocation(2,"vTangent");
 		shaderPrg.bindAttribLocation(3,"vColour");
 		shaderPrg.bindAttribLocation(4,"vUVCoord");
+		shaderPrg.bindAttribLocation(5,"vBitangent");
 		break; }
 	case FLAT : {
 		vertSource = readShaderFile("../resources/shaders/v_flat.glsl");
@@ -480,14 +481,25 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
 	std::cout<<"Vertex count: "<<vertexCount<<"\n";
 
 	/*	For reasons of simplicity I use the "full" vertex format in any case for now */
-	vertex_pntcu *vertices = new vertex_pntcu[vertexCount];
+	vertex_pntcub *vertices = new vertex_pntcub[vertexCount];
 	unsigned int *indices = new unsigned int[fbxPolyCount * 3];
+
+	float *uvs = NULL;
+	FbxStringList uvNames;
+	fbxMesh->GetUVSetNames(uvNames);
+	const char *uvName = NULL;
+	if(hasUV && uvNames.GetCount())
+	{
+		uvs = new float[vertexCount *2];
+		uvName = uvNames[0];
+	}
 
 	/*	Temporary storage for the vertex attributes */
 	const FbxVector4 * controlPoints = fbxMesh->GetControlPoints();
 	FbxVector4 currentVertex;
 	FbxVector4 currentNormal;
 	FbxVector4 currentTangent;
+	FbxVector4 currentBitangent;
 	FbxColor currentColor;
 	FbxVector2 currentUV;
 
@@ -513,6 +525,11 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
             vertices[index].y = static_cast<float>(currentVertex[1]);
             vertices[index].z = static_cast<float>(currentVertex[2]);
 
+			#if DEBUG_OUTPUT == 1
+				std::cout<<"----------------------------------------------------------------------\n";
+				std::cout<<"Vertex#"<<index<<" Position: "<<vertices[index].x<<" "<<vertices[index].y<<" "<<vertices[index].z<<"\n";
+			#endif
+
             /* Save the normal */
             if (hasNormal)
             {
@@ -525,9 +542,13 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
 				vertices[index].nx = static_cast<float>(currentNormal[0]);
 				vertices[index].ny = static_cast<float>(currentNormal[1]);
 				vertices[index].nz = static_cast<float>(currentNormal[2]);
+
+				#if DEBUG_OUTPUT == 1
+					std::cout<<"Vertex#"<<index<<" Normal: "<<vertices[index].nx<<" "<<vertices[index].ny<<" "<<vertices[index].nz<<"\n";
+				#endif
             }
 
-			/* Save the tanget */
+			/* Save the tangent */
 			if (hasTangent)
 			{
 				int tangentIndex = index;
@@ -539,6 +560,10 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
 				vertices[index].tx = static_cast<float>(currentTangent[0]);
 				vertices[index].ty = static_cast<float>(currentTangent[1]);
 				vertices[index].tz = static_cast<float>(currentTangent[2]);
+
+				#if DEBUG_OUTPUT == 1
+					std::cout<<"Vertex#"<<index<<" Tangent: "<<vertices[index].tx<<" "<<vertices[index].ty<<" "<<vertices[index].tz<<"\n";
+				#endif
 			}
 
 			/* Save the color */
@@ -554,6 +579,10 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
 				vertices[index].g = static_cast<GLubyte>(currentColor[1]);
 				vertices[index].b = static_cast<GLubyte>(currentColor[2]);
 				vertices[index].a = static_cast<GLubyte>(currentColor[3]);
+
+				#if DEBUG_OUTPUT == 1
+					std::cout<<"Vertex#"<<index<<" Color: "<<vertices[index].r<<" "<<vertices[index].g<<" "<<vertices[index].b<<vertices[index].a<<"\n";
+				#endif
 			}
 
             /* Save the UV */
@@ -567,9 +596,12 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
                 currentUV = fbxUVElement->GetDirectArray().GetAt(uVIndex);
 				vertices[index].u = static_cast<float>(currentUV[0]);
 				vertices[index].v = static_cast<float>(currentUV[1]);
+				
+				#if DEBUG_OUTPUT == 1
+					std::cout<<"Vertex#"<<index<<" UV: "<<vertices[index].u<<" "<<vertices[index].v<<"\n";
+					std::cout<<"----------------------------------------------------------------------\n";
+				#endif
             }
-			
-			std::cout<<"Vertex#"<<index<<": "<<vertices[index].x<<" "<<vertices[index].y<<" "<<vertices[index].z<<"\n";
         }
     }
 
@@ -578,14 +610,22 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
 	int vertexCounter = 0;
 
 	const FbxGeometryElementTangent *fbxTangentElement = NULL;
+	const FbxGeometryElementBinormal *fbxBitangentElement = NULL;
 	const FbxGeometryElementVertexColor * fbxVertexColorElement = NULL;
 
 	if (hasTangent) fbxTangentElement = fbxMesh->GetElementTangent(0);
+	fbxBitangentElement = fbxMesh->GetElementBinormal(0);
 	if (hasColor) fbxVertexColorElement = fbxMesh->GetElementVertexColor(0);
 
 	for(int polyIndex = 0; polyIndex < fbxPolyCount; ++polyIndex)
 	{
 		int indexOffset = polyIndex * 3;
+
+		#if DEBUG_OUTPUT == 1
+					std::cout<<"****************\n";
+					std::cout<<"Polygon#"<<polyIndex<<"\n"; 
+					std::cout<<"****************\n";
+		#endif
 
 		for(int vertIndex = 0; vertIndex < 3; ++vertIndex)
 		{
@@ -604,7 +644,10 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
 				vertices[vertexCounter].y = static_cast<float>(currentVertex[1]);
 				vertices[vertexCounter].z = static_cast<float>(currentVertex[2]);
 
-				std::cout<<"Vertex#"<<vertexCounter<<" Position: "<<vertices[vertexCounter].x<<" "<<vertices[vertexCounter].y<<" "<<vertices[vertexCounter].z<<"\n";
+				#if DEBUG_OUTPUT == 1
+					std::cout<<"----------------------------------------------------------------------\n";
+					std::cout<<"Vertex#"<<vertexCounter<<" Position: "<<vertices[vertexCounter].x<<" "<<vertices[vertexCounter].y<<" "<<vertices[vertexCounter].z<<"\n"; 
+				#endif
 
 				/* Save the normal */
 				if (hasNormal)
@@ -614,32 +657,54 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
 					vertices[vertexCounter].ny = static_cast<float>(currentNormal[1]);
 					vertices[vertexCounter].nz = static_cast<float>(currentNormal[2]);
 
-					std::cout<<"Vertex#"<<vertexCounter<<" Normal: "<<vertices[vertexCounter].nx<<" "<<vertices[vertexCounter].ny<<" "<<vertices[vertexCounter].nz<<"\n";
+					#if DEBUG_OUTPUT == 1
+						std::cout<<"Vertex#"<<vertexCounter<<" Normal: "<<vertices[vertexCounter].nx<<" "<<vertices[vertexCounter].ny<<" "<<vertices[vertexCounter].nz<<"\n";
+					#endif
 				}
 
-				/* Save the tanget */
+				/* Save the tangent */
 				if (hasTangent)
 				{
-					int tangentIndex = controlPointIndex;
+					int tangentIndex = vertexCounter;
 					if (fbxTangentElement->GetReferenceMode() == FbxLayerElement::eIndexToDirect)
 				    {
-				      tangentIndex = fbxTangentElement->GetIndexArray().GetAt(controlPointIndex);
+				      tangentIndex = fbxTangentElement->GetIndexArray().GetAt(vertexCounter);
 				    }
 					currentTangent = fbxTangentElement->GetDirectArray().GetAt(tangentIndex);
 					vertices[vertexCounter].tx = static_cast<float>(currentTangent[0]);
 					vertices[vertexCounter].ty = static_cast<float>(currentTangent[1]);
 					vertices[vertexCounter].tz = static_cast<float>(currentTangent[2]);
 
-					std::cout<<"Vertex#"<<vertexCounter<<" Tangent: "<<vertices[vertexCounter].tx<<" "<<vertices[vertexCounter].ty<<" "<<vertices[vertexCounter].tz<<"\n";
+					#if DEBUG_OUTPUT == 1
+						std::cout<<"Vertex#"<<vertexCounter<<" Tangent: "<<vertices[vertexCounter].tx<<" "<<vertices[vertexCounter].ty<<" "<<vertices[vertexCounter].tz<<"\n";
+					#endif
+				}
+
+				/* Save the bitangent/binormal */
+				if (true)
+				{
+					int bitangentIndex = vertexCounter;
+					if (fbxBitangentElement->GetReferenceMode() == FbxLayerElement::eIndexToDirect)
+				    {
+				      bitangentIndex = fbxBitangentElement->GetIndexArray().GetAt(vertexCounter);
+				    }
+					currentTangent = fbxBitangentElement->GetDirectArray().GetAt(bitangentIndex);
+					vertices[vertexCounter].bx = static_cast<float>(currentTangent[0]);
+					vertices[vertexCounter].by = static_cast<float>(currentTangent[1]);
+					vertices[vertexCounter].bz = static_cast<float>(currentTangent[2]);
+
+					#if DEBUG_OUTPUT == 1
+						std::cout<<"Vertex#"<<vertexCounter<<" Bitangent: "<<vertices[vertexCounter].bx<<" "<<vertices[vertexCounter].by<<" "<<vertices[vertexCounter].bz<<"\n";
+					#endif
 				}
 
 				/* Save the color */
 				if (hasColor)
 				{
-					int vertexColorIndex = controlPointIndex;
+					int vertexColorIndex = vertexCounter;
 					if (fbxVertexColorElement->GetReferenceMode() == FbxLayerElement::eIndexToDirect)
 				    {
-				        vertexColorIndex = fbxVertexColorElement->GetIndexArray().GetAt(controlPointIndex);
+				        vertexColorIndex = fbxVertexColorElement->GetIndexArray().GetAt(vertexCounter);
 				    }
 					currentColor = fbxVertexColorElement->GetDirectArray().GetAt(vertexColorIndex);
 					vertices[vertexCounter].r = static_cast<GLubyte>(currentColor[0]);
@@ -647,8 +712,9 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
 					vertices[vertexCounter].b = static_cast<GLubyte>(currentColor[2]);
 					vertices[vertexCounter].a = static_cast<GLubyte>(currentColor[3]);
 
-					std::cout<<"Vertex#"<<vertexCounter<<" Color: "<<vertices[vertexCounter].r<<" "<<vertices[vertexCounter].g<<" "<<vertices[vertexCounter].b<<vertices[vertexCounter].a<<"\n";
-
+					#if DEBUG_OUTPUT == 1
+						std::cout<<"Vertex#"<<vertexCounter<<" Color: "<<vertices[vertexCounter].r<<" "<<vertices[vertexCounter].g<<" "<<vertices[vertexCounter].b<<vertices[vertexCounter].a<<"\n";
+					#endif
 				}
 				else
 				{
@@ -662,12 +728,14 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
 				if (hasUV)
 				{
 					bool unmappedUV;
-					const char * uvName = NULL;
 					fbxMesh->GetPolygonVertexUV(polyIndex,vertIndex,uvName,currentUV,unmappedUV);
 					vertices[vertexCounter].u = static_cast<float>(currentUV[0]);
 					vertices[vertexCounter].v = static_cast<float>(currentUV[1]);
 
-					std::cout<<"Vertex#"<<vertexCounter<<" UV: "<<vertices[vertexCounter].u<<" "<<vertices[vertexCounter].v<<"\n";
+					#if DEBUG_OUTPUT == 1
+						std::cout<<"Vertex#"<<vertexCounter<<" UV: "<<vertices[vertexCounter].u<<" "<<vertices[vertexCounter].v<<"\n";
+						std::cout<<"----------------------------------------------------------------------\n";
+					#endif
 				}
 			}
 			++vertexCounter;
@@ -676,13 +744,14 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
 
 	//std::cout<<"Filled index buffer.\n";
 
-	if( !goemPtr->bufferDataFromArray(vertices,indices,sizeof(vertex_pntcu)*vertexCount,sizeof(unsigned int)*(fbxPolyCount * 3)) ) return false;
+	if( !goemPtr->bufferDataFromArray(vertices,indices,sizeof(vertex_pntcub)*vertexCount,sizeof(unsigned int)*(fbxPolyCount * 3)) ) return false;
 
-	goemPtr->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcu),0);
-	goemPtr->setVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcu),(GLvoid*) sizeof(vertex_p));
-	goemPtr->setVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcu),(GLvoid*) sizeof(vertex_pn));
-	goemPtr->setVertexAttribPointer(3,4,GL_UNSIGNED_BYTE,GL_FALSE,sizeof(vertex_pntcu),(GLvoid*) sizeof(vertex_pnt));
-	goemPtr->setVertexAttribPointer(4,2,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcu),(GLvoid*) sizeof(vertex_pntc));
+	goemPtr->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcub),0);
+	goemPtr->setVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcub),(GLvoid*) sizeof(vertex_p));
+	goemPtr->setVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcub),(GLvoid*) sizeof(vertex_pn));
+	goemPtr->setVertexAttribPointer(3,4,GL_UNSIGNED_BYTE,GL_FALSE,sizeof(vertex_pntcub),(GLvoid*) sizeof(vertex_pnt));
+	goemPtr->setVertexAttribPointer(4,2,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcub),(GLvoid*) sizeof(vertex_pntc));
+	goemPtr->setVertexAttribPointer(5,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcub),(GLvoid*) sizeof(vertex_pntcu));
 
 	return true;
 }

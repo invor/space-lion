@@ -163,7 +163,7 @@ pip-log.txt
 .DS_Store
 
 ############
-## Include&Libraries
+## Include,Libraries,Resource files
 ############
 
 space-lion/fbx
@@ -174,3 +174,4 @@ space-lion/soil
 space-lion/x64
 x64
 resources/textures
+resources/meshes/workfiles

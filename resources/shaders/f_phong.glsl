@@ -1,4 +1,10 @@
-//	temporary default fragment shader
+/*---------------------------------------------------------------------------------------------------
+File: f_phong.glsl
+Author: Michael Becher
+Date of (presumingly) last edit: 14.07.2013
+
+Description: Temporary default fragment shader for space lion. Implements basic phong shading.
+---------------------------------------------------------------------------------------------------*/
 #version 330
 
 uniform sampler2D diffuseMap;
@@ -13,6 +19,8 @@ in vec2 uvCoord;
 in vec3 viewerDirection;
 in vec3 lightDirection;
 in vec3 normal;
+in vec3 tangent;
+in vec3 bitangent;
 
 out vec4 fragColour;
 
@@ -31,16 +39,20 @@ void main()
 	fragColour = vec4(1.0);
 	vec3 tLightDirection;
 
-	//	fetch colour from diffuse map and blend it with vertex colour
+	/*	Fetch colour from diffuse map and blend it with vertex colour */
 	vec3 tColour = texture2D(diffuseMap, uvCoord).xyz;
 	//tColour = mix(tColour,colour.xyz,colour.w);
 
-	//	fetch specular factor from specular map
+	/*	Fetch specular factor from specular map */
 	float tSpecFactor = texture2D(specularMap, uvCoord).x;
 
-	//	fetch normal vector from normal map
-	vec3 tNormal = ((texture2D(normalMap, uvCoord).xyz)*2.0)-1.0;
+	/*	Fetch normal vector from normal map */
+	//vec3 tNormal = ((texture2D(normalMap, uvCoord).xyz)*2.0)-1.0;
+	vec3 tNormal = texture2D(normalMap, uvCoord).xyz;
 
-	//	compute phong lighting
+	/*	Calculate phong shading */
 	fragColour = vec4(phongShading(tSpecFactor, tColour, tNormal, lightDirection, lightColour),1.0);
+
+	/*	Let's do some debugging */
+	//fragColour = vec4( vec3( dot( tNormal,normalize(vec3(0.0,lightDirection.y,0.0)) ) ) ,1.0);
 }

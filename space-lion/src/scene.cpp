@@ -3,7 +3,6 @@
 
 scene::scene()
 {
-	lastTextureId = 10000;
 }
 
 scene::~scene()
@@ -49,10 +48,8 @@ void scene::setActiveCamera(const int inId)
 void scene::testing()
 {
 	//	Ehhh, a few lines for testing
-	activeCamera->rotate(45.0,glm::vec3(0.0,1.0,0.0));
-	activeCamera->rotate(-22.5,glm::vec3(1.0,0.0,0.0));
-	
-	//scenegraph.begin()->rotate(180,glm::vec3(0.0,1.0,0.0));
+	//activeCamera->rotate(12.5,glm::vec3(0.0,1.0,0.0));
+	activeCamera->rotate(-12.5,glm::vec3(1.0,0.0,0.0));
 	
 	//std::cout<<textureList.size();
 	//std::cout<<vboList.size()<<"\n";
@@ -86,7 +83,7 @@ void scene::render()
 
 	glm::mat4 modelMx;
 	glm::mat4 viewMx(activeCamera->computeViewMatrix());
-	glm::mat4 projectionMx(activeCamera->computeProjectionMatrix(0.01f,100.0f));
+	glm::mat4 projectionMx(activeCamera->computeProjectionMatrix(0.01f,10000.0f));
 
 	////
 	//	access each entity of the scene and draw it
@@ -141,7 +138,7 @@ void scene::render()
 		currentPrgm->setUniform("normalMap",2);
 		currentMtl->getNormalMap()->bindTexture();
 
-		(i->getGeometry())->draw(GL_TRIANGLES,36,0);
+		(i->getGeometry())->draw(GL_TRIANGLES,2000,0);
 		i->rotate(0.1f,glm::vec3(0.0f,1.0f,0.0f));
 	}
 }

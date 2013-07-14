@@ -64,6 +64,16 @@ struct vertex_pnt : public vertex_pn
 	float tz;
 };
 
+struct vertex_pntu : public vertex_pnt
+{
+	vertex_pntu() : vertex_pnt(), u(0.0), v(0.0) {}
+	vertex_pntu(float tx, float ty, float tz, float tnx, float tny, float tnz, float ttx, float tty, float ttz, float tu, float tv) :
+		vertex_pnt(tx,ty,tz,tnx,tny,tnz,ttx,tty,ttz), u(tu), v(tv) {}
+	float u;
+	float v;
+};
+
+
 struct vertex_pntc : public vertex_pnt
 {
 	vertex_pntc() : vertex_pnt(), r(0), g(0), b(0), a(0) {}
@@ -82,6 +92,16 @@ struct vertex_pntcu : public vertex_pntc
 		vertex_pntc(tx,ty,tz,tnx,tny,tnz,ttx,tty,ttz,tr,tg,tb,ta), u(tu), v(tv) {}
 	float u;
 	float v;
+};
+
+struct vertex_pntcub : public vertex_pntcu
+{
+	vertex_pntcub() : vertex_pntcu(), bx(0.0), by(0.0), bz(0.0) {}
+	vertex_pntcub(float tx, float ty, float tz, float tnx, float tny, float tnz, float ttx, float tty, float ttz, GLubyte tr, GLubyte tg, GLubyte tb, GLubyte ta, float tu, float tv, float tbx, float tby, float tbz) :
+		vertex_pntcu(tx,ty,tz,tnx,tny,tnz,ttx,tty,ttz,tr,tg,tb,ta,tu,tv), bx(tbx), by(tby), bz(tbz) {}
+	float bx;
+	float by;
+	float bz;
 };
 
 #endif

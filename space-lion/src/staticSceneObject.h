@@ -12,10 +12,10 @@ private:
 	vertexGeometry *geometry;
 	material *mtl;
 public:
-	staticSceneObject();
-	~staticSceneObject();
+	staticSceneObject() {}
+	~staticSceneObject() {}
 
-	staticSceneObject(const int, const glm::vec3&, vertexGeometry*, material*);
+	staticSceneObject(const int inId, const glm::vec3& inPosition, vertexGeometry* inGeom, material* inMtl) : sceneEntity(inId, inPosition), geometry(inGeom), mtl(inMtl) {}
 
 	vertexGeometry* getGeometry() {return geometry;}
 	material* getMaterial() {return mtl;}

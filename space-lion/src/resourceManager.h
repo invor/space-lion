@@ -33,6 +33,8 @@
 	#pragma comment(lib,"libfbxsdk.lib")
 #endif
 
+#define DEBUG_OUTPUT 0
+
 class resourceManager
 {
 public:

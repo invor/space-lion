@@ -104,9 +104,6 @@
     <ClCompile Include="src\vertexGeometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\staticSceneObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\sceneLightSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

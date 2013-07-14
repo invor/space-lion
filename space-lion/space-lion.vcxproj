@@ -178,7 +178,6 @@
     <ClCompile Include="src\sceneCamera.cpp" />
     <ClCompile Include="src\sceneEntity.cpp" />
     <ClCompile Include="src\sceneLightSource.cpp" />
-    <ClCompile Include="src\staticSceneObject.cpp" />
     <ClCompile Include="src\texture2D.cpp" />
     <ClCompile Include="src\texture3D.cpp" />
     <ClCompile Include="src\vertexGeometry.cpp" />

@@ -14,6 +14,7 @@ class vertexGeometry
 {
 private:
 	const std::string filename;
+	GLuint vertexCount;
 
 	//vertex array
 	GLuint vaHandle;

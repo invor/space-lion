@@ -39,6 +39,8 @@ bool vertexGeometry::bufferDataFromArray(const vertex_p *vertexArray, const GLui
 	glBindBuffer(GL_ARRAY_BUFFER,0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+	vertexCount = (viSize/sizeof(GLuint));
+
 	return true;
 }
 
@@ -63,7 +65,8 @@ void vertexGeometry::draw(GLenum type, GLint count, int indexOffset)
 	/*	If stored correctly in the VAO, there is no need to rebind buffers again */
 	//glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboHandle);
-	glDrawElements(type, count, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLubyte) * indexOffset));
+	//glDrawElements(type, count, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLubyte) * indexOffset));
+	glDrawElements(type, vertexCount, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLuint) * indexOffset));
 }
 
 void vertexGeometry::setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer)
