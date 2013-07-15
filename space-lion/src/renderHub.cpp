@@ -128,7 +128,7 @@ void renderHub::run()
 	vertexGeometry* geomPtr;
 	material* materialPtr;
 	//resourceMngr.createBox(geomPtr);
-	resourceMngr.createMaterial("../resources/materials/raceplane.slmtl",materialPtr);
+	//resourceMngr.createMaterial("../resources/materials/raceplane.slmtl",materialPtr);
 	resourceMngr.createMaterial(materialPtr);
 	resourceMngr.createVertexGeometry("../resources/meshes/demo_hangar.fbx",geomPtr);
 
@@ -159,12 +159,12 @@ void renderHub::run()
 	//}
 
 
-	if(!(activeScene->createSceneCamera(0,glm::vec3(0.0,5.0,25.0),glm::quat(),16.0f/9.0f,55.0f)))
+	if(!(activeScene->createSceneCamera(0,glm::vec3(0.0,0.0,0.0),glm::quat(),16.0f/9.0f,60.0f)))
 	{
 		std::cout<<"Failed to create camera"
 				<<"\n";
 	}
-	if(!(activeScene->createSceneLight(0,glm::vec3(25.0,0.0,50.0),glm::vec4(1.0,1.0,1.0,1.0))))
+	if(!(activeScene->createSceneLight(0,glm::vec3(0.0,0.0,0.0),glm::vec4(1.0,1.0,1.0,1.0))))
 	{
 		std::cout<<"Failed to create light"
 				<<"\n";

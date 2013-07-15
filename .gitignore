@@ -173,5 +173,5 @@ space-lion/glm
 space-lion/soil
 space-lion/x64
 x64
-resources/textures
+resources/textures/fault_tolerant_vis
 resources/meshes/workfiles
