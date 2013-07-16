@@ -20,7 +20,7 @@ public:
 	vertexGeometry* getGeometry() {return geometry;}
 	material* getMaterial() {return mtl;}
 
-	glm::mat4 computeModelMatrix() {return (glm::translate(glm::mat4(1.0),position))*(glm::mat4_cast(orientation));}
+	glm::mat4 computeModelMatrix() {return (glm::translate(glm::mat4(1.0),position))*(glm::mat4_cast(orientation))*(glm::scale(glm::mat4(1.0),scaling));}
 };
 
 #endif

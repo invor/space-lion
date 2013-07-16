@@ -48,7 +48,7 @@ void scene::setActiveCamera(const int inId)
 void scene::testing()
 {
 	//	Ehhh, a few lines for testing
-	//activeCamera->rotate(12.5,glm::vec3(0.0,1.0,0.0));
+	activeCamera->rotate(12.5,glm::vec3(0.0,1.0,0.0));
 	//activeCamera->rotate(-12.5,glm::vec3(1.0,0.0,0.0));
 	
 	//std::cout<<textureList.size();
@@ -139,7 +139,7 @@ void scene::render()
 		currentMtl->getNormalMap()->bindTexture();
 
 		(i->getGeometry())->draw(GL_TRIANGLES,2000,0);
-		i->rotate(0.1f,glm::vec3(0.0f,1.0f,0.0f));
+		//i->rotate(0.1f,glm::vec3(0.0f,1.0f,0.0f));
 	}
 }
 

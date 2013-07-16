@@ -14,6 +14,9 @@ and Andrew Blake (2003).
 
 #version 330
 
+/*	Texture containing the 2d guidance vector field */
+uniform sampler2D guidanceField_tx2D;
+
 /*	Texture containing the previously rendered frame */
 uniform sampler2D prevFrame_tx2D;
 
@@ -201,6 +204,39 @@ vec3 seamlessCloning(vec2 pos)
 	vec3 rgbMsrc = texture2D(prevFrame_tx2D,pos).xyz;
 	
 	return (rgbMsrc + rgbG - rgbGsrc);
+}
+
+vec3 guidedPoissonImageEditing(vec2 pos)
+{
+	/*	Stencil directions */
+	vec2 vN = vec2(0.0f,h.y);
+	vec2 vE = vec2(h.x,0.0f);
+	vec2 vS = vec2(0.0f,-h.y);
+	vec2 vW = vec2(-h.x,0.0f);
+
+	/*	Get stencil values*/
+	vec3 rgbN = texture2D(currFrame_tx2D,pos+vN).xyz;
+	vec3 rgbE = texture2D(currFrame_tx2D,pos+vE).xyz;
+	vec3 rgbS = texture2D(currFrame_tx2D,pos+vS).xyz;
+	vec3 rgbW = texture2D(currFrame_tx2D,pos+vW).xyz;
+
+	/*	Get guidance field */
+	vec2 guideVecN = texture2D(guidanceField_tx2D,pos+vN).xy;
+	vec2 guideVecE = texture2D(guidanceField_tx2D,pos+vE).xy;
+	vec2 guideVecS = texture2D(guidanceField_tx2D,pos+vS).xy;
+	vec2 guideVecW = texture2D(guidanceField_tx2D,pos+vW).xy;
+
+	/*	Compute stencil weights from the guidance field */
+	float weightN = abs( dot( normalize(guideVecN) , normalize(vN) ) );
+	float weightE = abs( dot( normalize(guideVecE) , normalize(vE) ) );
+	float weightS = abs( dot( normalize(guideVecS) , normalize(vS) ) );
+	float weightW = abs( dot( normalize(guideVecW) , normalize(vW) ) );
+	float weightSum = weightN + weightE + weightS + weightW;
+
+	/*	Now calculate the guided diffusion */
+	vec3 rgbF = ( (rgbN*weightN + rgbE*weightE + rgbS*weightS + rgbW*weightS)/weightSum ) * 0.25;
+	
+	return rgbF;
 }
 
 

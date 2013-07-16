@@ -54,5 +54,5 @@ void main()
 	fragColour = vec4(phongShading(tSpecFactor, tColour, tNormal, lightDirection, lightColour),1.0);
 
 	/*	Let's do some debugging */
-	//fragColour = vec4( vec3( dot( tNormal,normalize(vec3(0.0,lightDirection.y,0.0)) ) ) ,1.0);
+	//fragColour = vec4(vec3(tSpecFactor),1.0);
 }
