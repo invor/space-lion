@@ -1,4 +1,4 @@
 2
-td ../resources/textures/demo_hangar_diffuse.tga
-ts ../resources/textures/demo_hangar_specular.tga
-tn ../resources/textures/demo_hangar_normal.tga
+td ../resources/textures/demo_hangar/demo_hangar_diffuse.tga
+ts ../resources/textures/demo_hangar/demo_hangar_specular.tga
+tn ../resources/textures/demo_hangar/demo_hangar_normal.tga
