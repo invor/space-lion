@@ -76,6 +76,8 @@ public:
 	*/
 	void applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, framebufferObject* mask, int iterations, int mode);
 
+	void applyGuidedPoisson(framebufferObject *currentFrame, GLuint guidanceField, framebufferObject* mask, int iterations);
+
 	/*
 	/	Apply image inpainting to [a] region[s] given by an image-mask.
 	*/

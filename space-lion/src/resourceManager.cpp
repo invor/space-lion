@@ -140,7 +140,7 @@ bool resourceManager::createMaterial(material*& inOutMtlPtr)
 	/*	dark grey specular texture */
 	specularData[0]=0.3f; specularData[1]=0.3f; specularData[2]=0.3f; specularData[3]=1.0f;
 	/*	normal pointing upwards */
-	normalData[0]=0.0f; normalData[1]=0.0f; normalData[2]=1.0f; normalData[3]=0.0f;
+	normalData[0]=0.5f; normalData[1]=0.5f; normalData[2]=1.0f; normalData[3]=0.0f;
 	
 	GLSLProgram* prgPtr;
 	texture* texPtr1;

@@ -56,6 +56,7 @@ public:
 
 	/*	Used for crazy testing */
 	void runInpaintingTest();
+	void runFtvGuidanceFieldTest();
 
 private:
 	resourceManager resourceMngr;

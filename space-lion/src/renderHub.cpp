@@ -129,7 +129,7 @@ void renderHub::run()
 	material* materialPtr;
 	//resourceMngr.createBox(geomPtr);
 	resourceMngr.createMaterial("../resources/materials/demo_hangar.slmtl",materialPtr);
-	//resourceMngr.createMaterial(materialPtr);
+	resourceMngr.createMaterial(materialPtr);
 	resourceMngr.createVertexGeometry("../resources/meshes/demo_hangar.fbx",geomPtr);
 
 
@@ -159,12 +159,12 @@ void renderHub::run()
 	//}
 
 
-	if(!(activeScene->createSceneCamera(0,glm::vec3(3.5,-2.0,12.0),glm::quat(),16.0f/9.0f,60.0f)))
+	if(!(activeScene->createSceneCamera(0,glm::vec3(2.5,-2.0,12.0),glm::quat(),16.0f/9.0f,60.0f)))
 	{
 		std::cout<<"Failed to create camera"
 				<<"\n";
 	}
-	if(!(activeScene->createSceneLight(0,glm::vec3(0.0,0.0,0.0),glm::vec4(1.0,1.0,1.0,1.0))))
+	if(!(activeScene->createSceneLight(0,glm::vec3(0.0,2.0,0.0),glm::vec4(1.0,1.0,1.0,1.0))))
 	{
 		std::cout<<"Failed to create light"
 				<<"\n";
@@ -460,9 +460,9 @@ void renderHub::runInpaintingTest()
 			double start = glfwGetTime();
 		#endif	
 
-		//pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,16);
-		pP.applyImageInpainting(&primaryFbo,&maskFbo,20);
-		//pP.applyPoisson(&primaryFbo,&secondaryFbo,&maskFbo,20,0);
+		pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,16);
+		//pP.applyImageInpainting(&primaryFbo,&maskFbo,20);
+		//pP.applyPoisson(&primaryFbo,&secondaryFbo,&maskFbo,20,1);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,400,400);
@@ -476,4 +476,8 @@ void renderHub::runInpaintingTest()
 			std::cout<<end-start<<std::endl;
 		#endif	
 	}
+}
+
+void renderHub::runFtvGuidanceFieldTest()
+{
 }

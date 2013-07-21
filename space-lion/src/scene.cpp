@@ -48,7 +48,7 @@ void scene::setActiveCamera(const int inId)
 void scene::testing()
 {
 	//	Ehhh, a few lines for testing
-	activeCamera->rotate(12.5,glm::vec3(0.0,1.0,0.0));
+	//activeCamera->rotate(12.5,glm::vec3(0.0,1.0,0.0));
 	//activeCamera->rotate(-12.5,glm::vec3(1.0,0.0,0.0));
 	
 	//std::cout<<textureList.size();

@@ -205,6 +205,20 @@ bool ftvTestbench::readPpmData(const char* filename, char* imageData, long dataB
 	return true;
 }
 
+bool ftvTestbench::readRawImageF(const char* filename, float* imageData, int size)
+{
+	//TODO: Add some checks
+
+	FILE *pFile;
+
+	pFile = fopen (filename, "rb");
+	if (pFile==NULL) return false;
+
+	fread(imageData,sizeof(GLfloat),size,pFile);
+
+	return true;
+}
+
 bool ftvTestbench::loadImageSequence()
 {
 	char* imageData;
@@ -269,11 +283,47 @@ bool ftvTestbench::loadImageSequence()
 	//	glBindTexture(GL_TEXTURE_2D,0);
 	//}
 
-	return true;
-	/*
-	/	Clean up after yourself!
-	*/
+	/*	Clean up after yourself! */
 	delete[] imageData;
+
+	return true;
+	
+}
+
+bool ftvTestbench::loadVectorFieldSequence()
+{
+	float* imageData;
+	int imgDimX;
+	int imgDimY;
+	std::string path;
+
+	/*
+	/	Careful with accessing the image arrays here!
+	*/
+	for(int i = 10; i < 16; i++)
+	{
+		for(int j = 0; j<10; j++)
+		{
+			path = "../resources/textures/fault_tolerant_vis/ftle_vectorfield/";
+			path += i;
+			path += ".";
+			path += j;
+			path += "00000.raw";
+
+			readRawImageF(path.c_str(),imageData,imgDimY*imgDimX*3);
+
+			glGenTextures(1, &textures_v[i]);
+			glBindTexture(GL_TEXTURE_2D, textures_v[i]);
+			glGenerateMipmap(GL_TEXTURE_2D);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_RG,imgDimX,imgDimY,0,GL_RG,GL_FLOAT,imageData);
+			glBindTexture(GL_TEXTURE_2D,0);
+		}
+	}
+
 }
 
 void ftvTestbench::initMasks()

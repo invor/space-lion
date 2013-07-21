@@ -47,8 +47,8 @@ void main()
 	float tSpecFactor = texture2D(specularMap, uvCoord).x;
 
 	/*	Fetch normal vector from normal map */
-	//vec3 tNormal = ((texture2D(normalMap, uvCoord).xyz)*2.0)-1.0;
-	vec3 tNormal = texture2D(normalMap, uvCoord).xyz;
+	vec3 tNormal = ((texture2D(normalMap, uvCoord).xyz)*2.0)-1.0;
+	//vec3 tNormal = texture2D(normalMap, uvCoord).xyz;
 
 	/*	Calculate phong shading */
 	fragColour = vec4(phongShading(tSpecFactor, tColour, tNormal, lightDirection, lightColour),1.0);
