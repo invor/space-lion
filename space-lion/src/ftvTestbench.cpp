@@ -330,8 +330,6 @@ bool ftvTestbench::loadVectorFieldSequence()
 		path = "../resources/textures/fault_tolerant_vis/ftle_vectorfield/";
 		path += velo[i];
 
-		//	TODO: Append filename, get it from velo
-
 		readRawImageF(path.c_str(),rawImageData,imgDimY*imgDimX*3);
 
 		/*	We only need two of its components per texel */
@@ -355,7 +353,8 @@ bool ftvTestbench::loadVectorFieldSequence()
 		glTexImage2D(GL_TEXTURE_2D,0,GL_RG32F,imgDimX,imgDimY,0,GL_RG,GL_FLOAT,rearrangedImageData);
 		glBindTexture(GL_TEXTURE_2D,0);
 	}
-
+	
+	return true;
 }
 
 void ftvTestbench::initMasks()

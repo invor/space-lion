@@ -246,29 +246,87 @@ vec3 guidedPoissonImageEditing(vec2 pos)
 	vec2 guideVecNW = texture(guidanceField_tx2D,pos+vNW).xy;;
 
 	/*	Compute stencil weights from the guidance field */
-	float weightN = pow( abs(dot( normalize(guideVecN) , normalize(vN) ) ) , 25.0 );
-	float weightNE = pow( abs(dot( normalize(guideVecNE) , normalize(vNE) ) ) , 25.0 );
-	float weightE = pow( abs(dot( normalize(guideVecE) , normalize(vE) ) ) , 25.0 );
-	float weightSE = pow( abs(dot( normalize(guideVecSE) , normalize(vSE) ) ) , 25.0 );
-	float weightS = pow( abs(dot( normalize(guideVecS) , normalize(vS) ) ) , 25.0 );
-	float weightSW = pow( abs(dot( normalize(guideVecSW) , normalize(vSW) ) ) , 25.0 );
-	float weightW = pow( abs(dot( normalize(guideVecW) , normalize(vW) ) ) , 25.0 );
-	float weightNW = pow( abs(dot( normalize(guideVecNW) , normalize(vNW) ) ) , 25.0 );
+	float weightN = pow( abs(dot( normalize(guideVecN) , normalize(vN) ) ) , 22.0 );
+	float weightNE = pow( abs(dot( normalize(guideVecNE) , normalize(vNE) ) ) , 22.0 );
+	float weightE = pow( abs(dot( normalize(guideVecE) , normalize(vE) ) ) , 22.0 );
+	float weightSE = pow( abs(dot( normalize(guideVecSE) , normalize(vSE) ) ) , 22.0 );
+	float weightS = pow( abs(dot( normalize(guideVecS) , normalize(vS) ) ) , 22.0 );
+	float weightSW = pow( abs(dot( normalize(guideVecSW) , normalize(vSW) ) ) , 22.0 );
+	float weightW = pow( abs(dot( normalize(guideVecW) , normalize(vW) ) ) , 22.0 );
+	float weightNW = pow( abs(dot( normalize(guideVecNW) , normalize(vNW) ) ) , 22.0 );
 	float weightSum = weightN + weightNE + weightE + weightSE + weightS + weightSW + weightW + weightNW;
 
 	/*	Now calculate the guided diffusion */
 	//vec3 rgbF = ( (rgbN*weightN + rgbE*weightE + rgbS*weightS + rgbW*weightW)/weightSum ) * 0.25;
-	//vec3 rgbF = ( (rgbN + rgbE + rgbS + rgbW) + weightSum) * 0.25;
-	vec3 rgbF = (	rgbN*weightN +
-					rgbNE*weightNE +
-					rgbE*weightE +
-					rgbSE*weightSE +
-					rgbS*weightS +
-					rgbSW*weightSW +
-					rgbW*weightW +
-					rgbNW*weightNW	) /weightSum;
+	//vec3 rgbF = ( (rgbN + rgbE + rgbS + rgbW) + (weightN + weightE + weightS + weightW) ) * 0.25;
+	vec3 rgbF = ( (weightN + weightE + weightS + weightW) ) * 0.25;
+	rgbF = vec3(texture(guidanceField_tx2D,pos).xy,0.0);
+	//	vec3 rgbF = (	rgbN*weightN +
+	//					rgbNE*weightNE +
+	//					rgbE*weightE +
+	//					rgbSE*weightSE +
+	//					rgbS*weightS +
+	//					rgbSW*weightSW +
+	//					rgbW*weightW +
+	//					rgbNW*weightNW	) /weightSum;
 
 	return rgbF;
+}
+
+vec3 licImageEditing(vec2 pos)
+{
+	/*	Storage varibales for rgb and weight accumulation */
+	vec3 rgbAcc = 0.0;
+	float weightSum = 0.0;
+
+	/*
+	/	Get guidance vector at inital/start position.
+	/	Note that at the start point the same vector applies for foward and backward direction.
+	*/
+	vec2 forwardVec = normalize(texture(guidanceField_tx2D,pos).xy);
+	vec2 backwardVec = forwardVec;
+	/*	Get inital/start position */
+	vec2 forwardPos = pos;
+	vec2 backwardPos = pos;
+
+	vec3 rgbForwardStep;
+	vec3 rgbBackwardStep;
+
+	/*	In case the pixel directions are varying in x- and y-direction, use the average */
+	float hAvg = (h.x + h.y)/2.0;
+
+	/*
+	/	Move i steps along the vectorfield in forward and backward direction just like
+	/	traditional LIC and gather samples at each step.
+	*/
+	for(float i=0.0; i<20.0; i++)
+	{
+		/*	Calculate new positions in forwad and backward direction */
+		forwardPos += forwardVec*hAvg;
+		backwardPos -= backwardVec*hAvg;
+
+		/*	Get the rgb values at the current forward and backward positions */
+		rgbForwardStep = texture(currFrame_tx2D,forwardPos).xyz;
+		rgbBackwardStep = texture(currFrame_tx2D,backwardPos).xyz;
+
+		/*	
+		/	Add rgb values to the accumulator.
+		/	Use a simple weighting scheme that reduces the weight of a sample based
+		/	on it's distance from the start point along the streamline.
+		/	Sum up the weight for normalization.
+		*/
+		rgbAcc += (rgbForwardStep + rgbBackwardStep)/(i+1.0);
+		weightSum += 2.0/(i+1.0);
+
+		/*	Get new guidance vectors for forward and backward direction for the next step */
+		forwardVec = normalize(texture(guidanceField_tx2D,forwardPos).xy);
+		backwardVec = normalize(texture(guidanceField_tx2D,backwardPos).xy);
+	}
+
+	/*	Normalize the accumulated rgb values */
+	rgbAcc /= weightSum;
+
+	return rgbAcc;
 }
 
 
@@ -277,7 +335,7 @@ void main()
 	if(texture2D(mask_tx2D,uvCoord).x < 0.5f)
 	{
 		//fragColour = vec4(acceleratedPoissonImageEditing(uvCoord),1.0);
-		fragColour = vec4(guidedPoissonImageEditing(uvCoord),1.0);
+		fragColour = vec4(licImageEditing(uvCoord),1.0);
 	}
 	else
 	{

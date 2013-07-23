@@ -504,16 +504,17 @@ void renderHub::runFtvGuidanceFieldTest()
 	/*	Create the test bench */
 	ftvTestbench testbench;
 	testbench.loadImageSequence();
-	testbench.loadVectorFieldSequence();
+	if(!testbench.loadVectorFieldSequence()) std::cout<<"Couldn't load vector field data.\n";
 	testbench.initMasks();
 
 	GLuint vecFieldTx;
-	int index = 1;
+	int index = 3;
 	//testbench.getVectorTexture(vecFieldTx,1);
 
 	testbench.getFrameConfigC(&maskFbo,&primaryFbo);
-	//testbench.getFrameConfigC(&maskFbo,&primaryFbo);
-
+	testbench.getFrameConfigC(&maskFbo,&primaryFbo);
+	testbench.getFrameConfigC(&maskFbo,&primaryFbo);
+	testbench.getFrameConfigC(&maskFbo,&primaryFbo);
 
 	/*	Render Loop */
 	while(running && glfwGetWindowParam(GLFW_OPENED))
@@ -521,16 +522,16 @@ void renderHub::runFtvGuidanceFieldTest()
 		testbench.getVectorTexture(vecFieldTx,(index%51));
 		//primaryFbo.bind();
 		//pP.imageToFBO(vecFieldTx);
-		index++;
+		//index++;
 
-		testbench.getFrameConfigC(&maskFbo,&primaryFbo);
-		pP.applyGuidedPoisson(&primaryFbo,vecFieldTx,&maskFbo,500);
+		//testbench.getFrameConfigC(&maskFbo,&primaryFbo);
+		pP.applyGuidedPoisson(&primaryFbo,vecFieldTx,&maskFbo,50);
+		//pP.applyGuidedImageInpainting(&primaryFbo, &maskFbo,vecFieldTx,32);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
 		glViewport(0,0,400,400);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&primaryFbo);
 		glfwSwapBuffers();
-		glfwSleep(0.033);
 	}
 }

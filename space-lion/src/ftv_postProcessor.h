@@ -89,6 +89,8 @@ public:
 	*/
 	void applyImprovedImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, int iterations);
 
+	void applyGuidedImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, GLuint guidanceField , int iterations);
+
 	/*
 	/	Compute the coherence flow field and coherence strength.
 	/	Takes the structure tensor as input.

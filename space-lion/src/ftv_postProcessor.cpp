@@ -437,6 +437,55 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 	
 }
 
+void ftv_postProcessor::applyGuidedImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, GLuint guidanceField , int iterations)
+{
+	for(int i=0; i<iterations; i++)
+	{
+		inpaintingShaderPrg->use();
+		B.bind();
+		glViewport(0,0,B.getWidth(),B.getHeight());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		inpaintingShaderPrg->setUniform("stencilSize",1.0f);
+		inpaintingShaderPrg->setUniform("h", glm::vec2(1.0f/B.getWidth(), 1.0f/B.getHeight()));
+		glActiveTexture(GL_TEXTURE0);
+		inpaintingShaderPrg->setUniform("mask_tx2D",0);
+		mask->bindColorbuffer(0);
+		glActiveTexture(GL_TEXTURE1);
+		inpaintingShaderPrg->setUniform("input_tx2D",1);
+		inputFbo->bindColorbuffer(0);
+		glActiveTexture(GL_TEXTURE2);
+		inpaintingShaderPrg->setUniform("gradient_tx2D",2);
+		glBindTexture(GL_TEXTURE_2D, guidanceField);
+		renderPlane.draw(GL_TRIANGLES,6,0);
+		iterationCounter++;
+		
+		/*	Shrink inpainting mask */
+		shrinkFtvMask(&maskFboB,mask);
+		
+		inpaintingShaderPrg->use();
+		inputFbo->bind();
+		glViewport(0,0,inputFbo->getWidth(),inputFbo->getHeight());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		inpaintingShaderPrg->setUniform("stencilSize",1.0f);
+		inpaintingShaderPrg->setUniform("h", glm::vec2(1.0f/inputFbo->getWidth(), 1.0f/inputFbo->getHeight()));
+		glActiveTexture(GL_TEXTURE0);
+		inpaintingShaderPrg->setUniform("mask_tx2D",0);
+		maskFboB.bindColorbuffer(0);
+		glActiveTexture(GL_TEXTURE1);
+		inpaintingShaderPrg->setUniform("input_tx2D",1);
+		B.bindColorbuffer(0);
+		glActiveTexture(GL_TEXTURE2);
+		inpaintingShaderPrg->setUniform("gradient_tx2D",2);
+		glBindTexture(GL_TEXTURE_2D, guidanceField);
+		renderPlane.draw(GL_TRIANGLES,6,0);
+		iterationCounter++;
+		
+		/*	Shrink inpainting mask */
+		shrinkFtvMask(mask,&maskFboB);
+	}
+
+}
+
 void ftv_postProcessor::computeCoherence(framebufferObject *inputFbo, framebufferObject *coherenceFbo)
 {
 	coherenceShaderPrg->use();
