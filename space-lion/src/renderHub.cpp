@@ -52,7 +52,7 @@ bool renderHub::init()
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, min);
 	glfwOpenWindowHint(GLFW_FSAA_SAMPLES,4);
 
-	if(!glfwOpenWindow(1200,675,8,8,8,8,32,0,GLFW_WINDOW))
+	if(!glfwOpenWindow(400,400,8,8,8,8,32,0,GLFW_WINDOW))
 	{
 		std::cout<<"-----\n"
 				<<"The time is out of joint - O cursed spite,\n"
@@ -480,4 +480,57 @@ void renderHub::runInpaintingTest()
 
 void renderHub::runFtvGuidanceFieldTest()
 {
+	/*	This is all just experimental stuff */
+	running = true;
+	glClearColor(0.0f,0.0f,0.0f,0.0f);
+
+	/*	Create framebuffers to work with */
+	framebufferObject primaryFbo(400,400,true,false);
+	primaryFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	framebufferObject secondaryFbo(400,400,true,false);
+	secondaryFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	framebufferObject maskFbo(400,400,false,false);
+	maskFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+	maskFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
+
+	/*	Create and initialize the post-processer */
+	ftv_postProcessor pP(400,400);
+	if(!pP.ftv_init(&resourceMngr))
+	{
+		std::cout<<"Failed to create post processor"
+				<<"\n";
+	}
+
+	/*	Create the test bench */
+	ftvTestbench testbench;
+	testbench.loadImageSequence();
+	testbench.loadVectorFieldSequence();
+	testbench.initMasks();
+
+	GLuint vecFieldTx;
+	int index = 1;
+	//testbench.getVectorTexture(vecFieldTx,1);
+
+	testbench.getFrameConfigC(&maskFbo,&primaryFbo);
+	//testbench.getFrameConfigC(&maskFbo,&primaryFbo);
+
+
+	/*	Render Loop */
+	while(running && glfwGetWindowParam(GLFW_OPENED))
+	{
+		testbench.getVectorTexture(vecFieldTx,(index%51));
+		//primaryFbo.bind();
+		//pP.imageToFBO(vecFieldTx);
+		index++;
+
+		testbench.getFrameConfigC(&maskFbo,&primaryFbo);
+		pP.applyGuidedPoisson(&primaryFbo,vecFieldTx,&maskFbo,500);
+
+		glBindFramebuffer(GL_FRAMEBUFFER,0);
+		glViewport(0,0,400,400);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		pP.FBOToFBO(&primaryFbo);
+		glfwSwapBuffers();
+		glfwSleep(0.033);
+	}
 }

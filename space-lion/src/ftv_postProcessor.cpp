@@ -281,7 +281,6 @@ void ftv_postProcessor::applyGuidedPoisson(framebufferObject *currentFrame, GLui
 	}
 }
 
-
 //	void ftv_postProcessor::applyImageInpainting(framebufferObject *currentFrame, framebufferObject* mask, int iterations)
 //	{
 //		inpaintingShaderPrg->use();

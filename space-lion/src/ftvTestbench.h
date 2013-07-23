@@ -71,7 +71,9 @@ public:
 
 	void initMasks();
 
-	void getTexture(GLuint& handle, int index);
+	void getForwardTexture(GLuint& handle, int index);
+	void getBackwardTexture(GLuint& handle, int index);
+	void getVectorTexture(GLuint& handle, int index);
 
 	/*
 	/

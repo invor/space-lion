@@ -210,32 +210,64 @@ vec3 guidedPoissonImageEditing(vec2 pos)
 {
 	/*	Stencil directions */
 	vec2 vN = vec2(0.0f,h.y);
+	vec2 vNE = vec2(h.x,h.y);
 	vec2 vE = vec2(h.x,0.0f);
+	vec2 vSE = vec2(h.x,-h.y);
 	vec2 vS = vec2(0.0f,-h.y);
+	vec2 vSW = vec2(-h.x,-h.y);
 	vec2 vW = vec2(-h.x,0.0f);
+	vec2 vNW = vec2(-h.x,h.y);
 
 	/*	Get stencil values*/
-	vec3 rgbN = texture2D(currFrame_tx2D,pos+vN).xyz;
-	vec3 rgbE = texture2D(currFrame_tx2D,pos+vE).xyz;
-	vec3 rgbS = texture2D(currFrame_tx2D,pos+vS).xyz;
-	vec3 rgbW = texture2D(currFrame_tx2D,pos+vW).xyz;
+	vec3 rgbN = texture(currFrame_tx2D,pos+vN).xyz;
+	vec3 rgbNE = texture(currFrame_tx2D,pos+vNE).xyz;
+	vec3 rgbE = texture(currFrame_tx2D,pos+vE).xyz;
+	vec3 rgbSE = texture(currFrame_tx2D,pos+vSE).xyz;
+	vec3 rgbS = texture(currFrame_tx2D,pos+vS).xyz;
+	vec3 rgbSW = texture(currFrame_tx2D,pos+vSW).xyz;
+	vec3 rgbW = texture(currFrame_tx2D,pos+vW).xyz;
+	vec3 rgbNW = texture(currFrame_tx2D,pos+vNW).xyz;
 
 	/*	Get guidance field */
-	vec2 guideVecN = texture2D(guidanceField_tx2D,pos+vN).xy;
-	vec2 guideVecE = texture2D(guidanceField_tx2D,pos+vE).xy;
-	vec2 guideVecS = texture2D(guidanceField_tx2D,pos+vS).xy;
-	vec2 guideVecW = texture2D(guidanceField_tx2D,pos+vW).xy;
+	//	vec2 guideVecN = texture(guidanceField_tx2D,pos+vN*0.5f).xy;
+	//	vec2 guideVecE = texture(guidanceField_tx2D,pos+vE*0.5f).xy;
+	//	vec2 guideVecS = texture(guidanceField_tx2D,pos+vS*0.5f).xy;
+	//	vec2 guideVecW = texture(guidanceField_tx2D,pos+vW*0.5f).xy;
+	
+	vec2 guideVec = texture(guidanceField_tx2D,pos).xy;
+
+	vec2 guideVecN = texture(guidanceField_tx2D,pos+vN).xy;
+	vec2 guideVecNE = texture(guidanceField_tx2D,pos+vNE).xy;;
+	vec2 guideVecE = texture(guidanceField_tx2D,pos+vE).xy;;
+	vec2 guideVecSE = texture(guidanceField_tx2D,pos+vSE).xy;;
+	vec2 guideVecS = texture(guidanceField_tx2D,pos+vS).xy;;
+	vec2 guideVecSW = texture(guidanceField_tx2D,pos+vSW).xy;;
+	vec2 guideVecW = texture(guidanceField_tx2D,pos+vW).xy;;
+	vec2 guideVecNW = texture(guidanceField_tx2D,pos+vNW).xy;;
 
 	/*	Compute stencil weights from the guidance field */
-	float weightN = abs( dot( normalize(guideVecN) , normalize(vN) ) );
-	float weightE = abs( dot( normalize(guideVecE) , normalize(vE) ) );
-	float weightS = abs( dot( normalize(guideVecS) , normalize(vS) ) );
-	float weightW = abs( dot( normalize(guideVecW) , normalize(vW) ) );
-	float weightSum = weightN + weightE + weightS + weightW;
+	float weightN = pow( abs(dot( normalize(guideVecN) , normalize(vN) ) ) , 25.0 );
+	float weightNE = pow( abs(dot( normalize(guideVecNE) , normalize(vNE) ) ) , 25.0 );
+	float weightE = pow( abs(dot( normalize(guideVecE) , normalize(vE) ) ) , 25.0 );
+	float weightSE = pow( abs(dot( normalize(guideVecSE) , normalize(vSE) ) ) , 25.0 );
+	float weightS = pow( abs(dot( normalize(guideVecS) , normalize(vS) ) ) , 25.0 );
+	float weightSW = pow( abs(dot( normalize(guideVecSW) , normalize(vSW) ) ) , 25.0 );
+	float weightW = pow( abs(dot( normalize(guideVecW) , normalize(vW) ) ) , 25.0 );
+	float weightNW = pow( abs(dot( normalize(guideVecNW) , normalize(vNW) ) ) , 25.0 );
+	float weightSum = weightN + weightNE + weightE + weightSE + weightS + weightSW + weightW + weightNW;
 
 	/*	Now calculate the guided diffusion */
-	vec3 rgbF = ( (rgbN*weightN + rgbE*weightE + rgbS*weightS + rgbW*weightS)/weightSum ) * 0.25;
-	
+	//vec3 rgbF = ( (rgbN*weightN + rgbE*weightE + rgbS*weightS + rgbW*weightW)/weightSum ) * 0.25;
+	//vec3 rgbF = ( (rgbN + rgbE + rgbS + rgbW) + weightSum) * 0.25;
+	vec3 rgbF = (	rgbN*weightN +
+					rgbNE*weightNE +
+					rgbE*weightE +
+					rgbSE*weightSE +
+					rgbS*weightS +
+					rgbSW*weightSW +
+					rgbW*weightW +
+					rgbNW*weightNW	) /weightSum;
+
 	return rgbF;
 }
 
@@ -244,7 +276,8 @@ void main()
 {
 	if(texture2D(mask_tx2D,uvCoord).x < 0.5f)
 	{
-		fragColour = vec4(acceleratedPoissonImageEditing(uvCoord),1.0);
+		//fragColour = vec4(acceleratedPoissonImageEditing(uvCoord),1.0);
+		fragColour = vec4(guidedPoissonImageEditing(uvCoord),1.0);
 	}
 	else
 	{
