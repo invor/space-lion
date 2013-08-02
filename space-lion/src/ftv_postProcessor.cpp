@@ -377,11 +377,17 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 	for(int i=0; i<iterations; i++)
 	{
 		/*	Compute the coherence flow field and strength */
+		//	applyFtvGaussian(inputFbo,&gaussianFbo,mask,1.5f,1);
+		//	computeGradient(&gaussianFbo,&gradientFbo);
+		//	applyFtvGaussian(&gradientFbo,&gaussianFbo,mask,1.5f,1);
+		//	computeHesse(&gaussianFbo,&hesseFbo);
+		//	applyFtvGaussian(&hesseFbo,&hesseFbo,mask,1.5f,2);
+		//	computeCoherence(&hesseFbo,&coherenceFbo);
+
+		/*	Temporary fix for the very wrong implementation above */
 		applyFtvGaussian(inputFbo,&gaussianFbo,mask,1.5f,1);
-		computeGradient(&gaussianFbo,&gradientFbo);
-		applyFtvGaussian(&gradientFbo,&gaussianFbo,mask,1.5f,1);
-		computeHesse(&gaussianFbo,&hesseFbo);
-		applyFtvGaussian(&hesseFbo,&hesseFbo,mask,1.5f,2);
+		computeStructureTensor(&gaussianFbo,&hesseFbo);
+		applyFtvGaussian(&hesseFbo,&hesseFbo,mask,1.5f,3);
 		computeCoherence(&hesseFbo,&coherenceFbo);
 	
 		improvedInpaintingShaderPrg->use();
@@ -406,11 +412,17 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 		shrinkFtvMask(&maskFboB,mask);
 		
 		/*	Compute the coherence flow field and strength */
+		//	applyFtvGaussian(&B, &gaussianFbo,&maskFboB,1.5f,1);
+		//	computeGradient(&gaussianFbo,&gradientFbo);
+		//	applyFtvGaussian(&gradientFbo,&gaussianFbo,&maskFboB,1.5f,1);
+		//	computeHesse(&gaussianFbo,&hesseFbo);
+		//	applyFtvGaussian(&hesseFbo,&hesseFbo,&maskFboB,1.5f,2);
+		//	computeCoherence(&hesseFbo,&coherenceFbo);
+
+		/*	Temporary fix for the very wrong implementation above */
 		applyFtvGaussian(&B, &gaussianFbo,&maskFboB,1.5f,1);
-		computeGradient(&gaussianFbo,&gradientFbo);
-		applyFtvGaussian(&gradientFbo,&gaussianFbo,&maskFboB,1.5f,1);
-		computeHesse(&gaussianFbo,&hesseFbo);
-		applyFtvGaussian(&hesseFbo,&hesseFbo,&maskFboB,1.5f,2);
+		computeStructureTensor(&gaussianFbo,&hesseFbo);
+		applyFtvGaussian(&hesseFbo,&hesseFbo,&maskFboB,1.5f,3);
 		computeCoherence(&hesseFbo,&coherenceFbo);
 		
 		improvedInpaintingShaderPrg->use();

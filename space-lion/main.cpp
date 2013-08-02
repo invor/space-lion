@@ -12,8 +12,8 @@ int main( void )
 		//testRenderer.run();
 		//testRenderer.runVolumeTest();
 		//testRenderer.runFtvVolumeTest();
-		//testRenderer.runInpaintingTest();
-		testRenderer.runFtvGuidanceFieldTest();
+		testRenderer.runInpaintingTest();
+		//testRenderer.runFtvGuidanceFieldTest();
 	}
 
 

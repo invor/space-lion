@@ -259,16 +259,16 @@ vec3 guidedPoissonImageEditing(vec2 pos)
 	/*	Now calculate the guided diffusion */
 	//vec3 rgbF = ( (rgbN*weightN + rgbE*weightE + rgbS*weightS + rgbW*weightW)/weightSum ) * 0.25;
 	//vec3 rgbF = ( (rgbN + rgbE + rgbS + rgbW) + (weightN + weightE + weightS + weightW) ) * 0.25;
-	vec3 rgbF = ( (weightN + weightE + weightS + weightW) ) * 0.25;
-	rgbF = vec3(texture(guidanceField_tx2D,pos).xy,0.0);
-	//	vec3 rgbF = (	rgbN*weightN +
-	//					rgbNE*weightNE +
-	//					rgbE*weightE +
-	//					rgbSE*weightSE +
-	//					rgbS*weightS +
-	//					rgbSW*weightSW +
-	//					rgbW*weightW +
-	//					rgbNW*weightNW	) /weightSum;
+	//vec3 rgbF = ( (weightN + weightE + weightS + weightW) ) * 0.25;
+	//rgbF = vec3(texture(guidanceField_tx2D,pos).xy,0.0);
+	vec3 rgbF = (	rgbN*weightN +
+					rgbNE*weightNE +
+					rgbE*weightE +
+					rgbSE*weightSE +
+					rgbS*weightS +
+					rgbSW*weightSW +
+					rgbW*weightW +
+					rgbNW*weightNW	) /weightSum;
 
 	return rgbF;
 }
@@ -299,7 +299,7 @@ vec3 licImageEditing(vec2 pos)
 	/	Move i steps along the vectorfield in forward and backward direction just like
 	/	traditional LIC and gather samples at each step.
 	*/
-	for(float i=0.0; i<20.0; i++)
+	for(float i=0.0; i<10.0; i++)
 	{
 		/*	Calculate new positions in forwad and backward direction */
 		forwardPos += forwardVec*hAvg;
@@ -335,7 +335,16 @@ void main()
 	if(texture2D(mask_tx2D,uvCoord).x < 0.5f)
 	{
 		//fragColour = vec4(acceleratedPoissonImageEditing(uvCoord),1.0);
+		//fragColour = vec4(guidedPoissonImageEditing(uvCoord),1.0);
 		fragColour = vec4(licImageEditing(uvCoord),1.0);
+		//if(texture2D(mask_tx2D,uvCoord).y < 0.5f)
+		//{
+		//	//fragColour = vec4(1.0);
+		//}
+		//else
+		//{
+		//	fragColour = vec4(licImageEditing(uvCoord),1.0);
+		//}
 	}
 	else
 	{

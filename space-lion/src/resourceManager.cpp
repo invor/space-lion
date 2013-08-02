@@ -290,6 +290,12 @@ bool resourceManager::createShaderProgram(shaderType type, GLSLProgram*& inOutPr
 		shaderPrg.bindAttribLocation(0,"vPosition");
 		shaderPrg.bindAttribLocation(1,"vUVCoord");
 		break; }
+	case STRUCTURE_TENSOR : {
+		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_structureTensor.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		break; }
 	case COHERENCE : {
 		vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
 		fragSource = readShaderFile("../resources/shaders/f_ftv_coherence.glsl");

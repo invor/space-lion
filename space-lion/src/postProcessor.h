@@ -37,6 +37,11 @@ public:
 	void computeHesse(framebufferObject *inputFbo, framebufferObject *targetFbo);
 
 	/*
+	/	Computes the structure tensor (matrix) for a given scalar field (image)	
+	*/
+	void computeStructureTensor(framebufferObject *inputFbo, framebufferObject *targetFbo);
+
+	/*
 	/	Render the input texture to the currently bound framebuffer.
 	*/
 	void imageToFBO(GLuint inputImage);
@@ -60,6 +65,7 @@ protected:
 	GLSLProgram *gaussianShaderPrg;
 	GLSLProgram *gradientShaderPrg;
 	GLSLProgram *hesseShaderPrg;
+	GLSLProgram *structureTensorShaderPrg;
 };
 
 #endif

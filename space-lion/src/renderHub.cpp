@@ -433,6 +433,9 @@ void renderHub::runInpaintingTest()
 	
 	testBench.getFrameConfigC(&maskFbo,&secondaryFbo);
 	testBench.getFrameConfigC(&maskFbo,&primaryFbo);
+	testBench.getFrameConfigC(&maskFbo,&primaryFbo);
+	testBench.getFrameConfigC(&maskFbo,&primaryFbo);
+	testBench.getFrameConfigC(&maskFbo,&primaryFbo);
 
 
 	/*	Some additional FBOs are required for coherence computations */
@@ -448,9 +451,10 @@ void renderHub::runInpaintingTest()
 
 	/*	Compute the coherence flow field and strength */
 	pP.applyFtvGaussian(&primaryFbo,&gaussianFbo,&maskFbo,1.4f,3);
-	pP.computeGradient(&gaussianFbo,&gradientFbo);
-	pP.applyFtvGaussian(&gradientFbo,&gradientFbo,&maskFbo,1.4f,3);
-	pP.computeHesse(&gradientFbo,&hesseFbo);
+	pP.computeStructureTensor(&gaussianFbo,&hesseFbo);
+	//pP.computeGradient(&gaussianFbo,&gradientFbo);
+	//pP.applyFtvGaussian(&gradientFbo,&gradientFbo,&maskFbo,1.4f,3);
+	//pP.computeHesse(&gradientFbo,&hesseFbo);
 	pP.applyFtvGaussian(&hesseFbo,&hesseFbo,&maskFbo,4.0f,6);
 	pP.computeCoherence(&hesseFbo,&coherenceFbo);
 
@@ -460,8 +464,8 @@ void renderHub::runInpaintingTest()
 			double start = glfwGetTime();
 		#endif	
 
-		pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,16);
-		//pP.applyImageInpainting(&primaryFbo,&maskFbo,20);
+		pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,25);
+		pP.applyImageInpainting(&primaryFbo,&maskFbo,25);
 		//pP.applyPoisson(&primaryFbo,&secondaryFbo,&maskFbo,20,1);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
@@ -525,7 +529,7 @@ void renderHub::runFtvGuidanceFieldTest()
 		//index++;
 
 		//testbench.getFrameConfigC(&maskFbo,&primaryFbo);
-		pP.applyGuidedPoisson(&primaryFbo,vecFieldTx,&maskFbo,50);
+		pP.applyGuidedPoisson(&primaryFbo,vecFieldTx,&maskFbo,1);
 		//pP.applyGuidedImageInpainting(&primaryFbo, &maskFbo,vecFieldTx,32);
 
 		glBindFramebuffer(GL_FRAMEBUFFER,0);
@@ -533,5 +537,6 @@ void renderHub::runFtvGuidanceFieldTest()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&primaryFbo);
 		glfwSwapBuffers();
+		glfwSleep(0.5);
 	}
 }

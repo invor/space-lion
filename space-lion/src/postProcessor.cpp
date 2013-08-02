@@ -24,6 +24,7 @@ bool postProcessor::init(resourceManager* resourceMngr)
 	if( !resourceMngr->createShaderProgram(GAUSSIAN,gaussianShaderPrg) ) return false;
 	if( !resourceMngr->createShaderProgram(GRADIENT,gradientShaderPrg) ) return false;
 	if( !resourceMngr->createShaderProgram(HESSE,hesseShaderPrg) ) return false;
+	if( !resourceMngr->createShaderProgram(STRUCTURE_TENSOR,structureTensorShaderPrg) ) return false;
 
 
 	/*	Prepare the intermediate framebuffers for rendering */
@@ -118,6 +119,23 @@ void postProcessor::computeHesse(framebufferObject *inputFbo, framebufferObject 
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
 	hesseShaderPrg->setUniform("inputImage",0);
+	inputFbo->bindColorbuffer(0);
+
+	renderPlane.draw(GL_TRIANGLES,6,0);
+}
+
+void postProcessor::computeStructureTensor(framebufferObject *inputFbo, framebufferObject *targetFbo)
+{
+	structureTensorShaderPrg->use();
+
+	targetFbo->bind();
+	glViewport(0,0,targetFbo->getWidth(),targetFbo->getHeight());
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	structureTensorShaderPrg->setUniform("h", glm::vec2(1.0f/inputFbo->getWidth(),1.0f/inputFbo->getHeight()));
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	structureTensorShaderPrg->setUniform("inputImage",0);
 	inputFbo->bindColorbuffer(0);
 
 	renderPlane.draw(GL_TRIANGLES,6,0);
