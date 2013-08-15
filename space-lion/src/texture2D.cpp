@@ -1,11 +1,11 @@
 #include "texture2D.h"
 
-void texture2D::bindTexture() const
+void Texture2D::bindTexture() const
 {
 	glBindTexture(GL_TEXTURE_2D, handle);
 }
 
-bool texture2D::loadTextureFile(std::string inputPath)
+bool Texture2D::loadTextureFile(std::string inputPath)
 {
 	//TODO: Add some checks
 
@@ -29,7 +29,7 @@ bool texture2D::loadTextureFile(std::string inputPath)
 	return true;
 }
 
-bool texture2D::loadArrayF(int dimX, int dimY, float *data)
+bool Texture2D::loadArrayF(int dimX, int dimY, float *data)
 {
 	//TODO: Add some checks
 	if(sizeof(data) == 0) return false;
@@ -46,7 +46,7 @@ bool texture2D::loadArrayF(int dimX, int dimY, float *data)
 	return true;
 }
 
-void texture2D::texParameteri(GLenum param_1, GLenum param_2)
+void Texture2D::texParameteri(GLenum param_1, GLenum param_2)
 {
 	glBindTexture(GL_TEXTURE_2D, handle);
 	glTexParameteri(GL_TEXTURE_2D, param_1, param_2);

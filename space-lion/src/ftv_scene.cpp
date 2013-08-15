@@ -1,12 +1,12 @@
 #include "ftv_scene.h"
 
-bool ftv_scene::createFtvVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, vertexGeometry* geomPtr, texture3D* volPtr, GLSLProgram* prgmPtr)
+bool Ftv_Scene::createFtvVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, Mesh* geomPtr, Texture3D* volPtr, GLSLProgram* prgmPtr)
 {
-	volumetricObjectList.push_back(volumetricSceneObject(id,position,orientation,scaling,geomPtr,volPtr,prgmPtr));
+	volumetricObjectList.push_back(VolumetricSceneObject(id,position,orientation,scaling,geomPtr,volPtr,prgmPtr));
 	return true;
 }
 
-void ftv_scene::ftvRenderVolumetricObjects()
+void Ftv_Scene::ftvRenderVolumetricObjects()
 {
 	/*	obtain transformation matrices */
 	glm::mat4 modelViewMx;
@@ -20,7 +20,7 @@ void ftv_scene::ftvRenderVolumetricObjects()
 	GLSLProgram* currentPrgm(ftv_volumetricSceneObjectList.begin()->getShaderProgram());
 	currentPrgm->use();
 
-	for(std::list<ftv_volumetricSceneObject>::iterator i = ftv_volumetricSceneObjectList.begin(); i != ftv_volumetricSceneObjectList.end(); ++i)
+	for(std::list<Ftv_volumetricSceneObject>::iterator i = ftv_volumetricSceneObjectList.begin(); i != ftv_volumetricSceneObjectList.end(); ++i)
 	{
 		modelMx = i->computeModelMatrix();
 		modelViewMx = viewMx * modelMx;

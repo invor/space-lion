@@ -1,42 +1,42 @@
 #include "scene.h"
 
 
-scene::scene()
+Scene::Scene()
 {
 }
 
-scene::~scene()
+Scene::~Scene()
 {
 }
 
-bool scene::createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, vertexGeometry* geomPtr, material* mtlPtr)
+bool Scene::createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, Mesh* geomPtr, Material* mtlPtr)
 {
-	scenegraph.push_back(staticSceneObject(id,position,geomPtr,mtlPtr));
+	scenegraph.push_back(StaticSceneObject(id,position,geomPtr,mtlPtr));
 	return true;
 }
 
-bool scene::createVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, vertexGeometry* geomPtr, texture3D* volPtr, GLSLProgram* prgmPtr)
+bool Scene::createVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, Mesh* geomPtr, Texture3D* volPtr, GLSLProgram* prgmPtr)
 {
-	volumetricObjectList.push_back(volumetricSceneObject(id,position,orientation,scaling,geomPtr,volPtr,prgmPtr));
+	volumetricObjectList.push_back(VolumetricSceneObject(id,position,orientation,scaling,geomPtr,volPtr,prgmPtr));
 	return true;
 }
 
-bool scene::createSceneLight(const int id, const glm::vec3 position, glm::vec4 colour)
+bool Scene::createSceneLight(const int id, const glm::vec3 position, glm::vec4 colour)
 {
-	lightSourceList.push_back(sceneLightSource(id, position, colour));
+	lightSourceList.push_back(SceneLightSource(id, position, colour));
 	return true;
 }
 
-bool scene::createSceneCamera(const int id, const glm::vec3 position, const glm::quat orientation, float aspect, float fov)
+bool Scene::createSceneCamera(const int id, const glm::vec3 position, const glm::quat orientation, float aspect, float fov)
 {
-	cameraList.push_back(sceneCamera(id, position, orientation, aspect, fov));
+	cameraList.push_back(SceneCamera(id, position, orientation, aspect, fov));
 	return true;
 }
 
-void scene::setActiveCamera(const int inId)
+void Scene::setActiveCamera(const int inId)
 {
 	//	check camera list
-	for(std::list<sceneCamera>::iterator i = cameraList.begin(); i != cameraList.end(); ++i)
+	for(std::list<SceneCamera>::iterator i = cameraList.begin(); i != cameraList.end(); ++i)
 	{
 		if((i->getId())==inId)
 		{
@@ -45,7 +45,7 @@ void scene::setActiveCamera(const int inId)
 	}
 }
 
-void scene::testing()
+void Scene::testing()
 {
 	//	Ehhh, a few lines for testing
 	//activeCamera->rotate(12.5,glm::vec3(0.0,1.0,0.0));
@@ -53,7 +53,7 @@ void scene::testing()
 	
 	//std::cout<<textureList.size();
 	//std::cout<<vboList.size()<<"\n";
-	//std::cout<<scenegraph.size();
+	//std::cout<<Scenegraph.size();
 
 	//activeCamera->rotate(45.0,glm::vec3(0.0,1.0,0.0));
 	//activeCamera->rotate(-45.0,glm::vec3(1.0,0.0,0.0));
@@ -74,7 +74,7 @@ void scene::testing()
 /*
 /	Temporary render method
 */
-void scene::render()
+void Scene::render()
 {
 	/*	obtain transformation matrices */
 	glm::mat4 modelViewMx;
@@ -86,7 +86,7 @@ void scene::render()
 	glm::mat4 projectionMx(activeCamera->computeProjectionMatrix(0.01f,500.0f));
 
 	////
-	//	access each entity of the scene and draw it
+	//	access each entity of the Scene and draw it
 	////
 	//	if(materialList.size() > 0)
 	//	{
@@ -106,9 +106,9 @@ void scene::render()
 	//	currentMtl->getNormalMap()->bindTexture();
 
 	GLSLProgram* currentPrgm;
-	material* currentMtl;
+	Material* currentMtl;
 
-	for(std::list<staticSceneObject>::iterator i = scenegraph.begin(); i != scenegraph.end(); ++i)
+	for(std::list<StaticSceneObject>::iterator i = scenegraph.begin(); i != scenegraph.end(); ++i)
 	{
 		modelMx = i->computeModelMatrix();
 		modelViewMx = viewMx * modelMx;
@@ -127,23 +127,14 @@ void scene::render()
 		currentPrgm->setUniform("lightPosition",(lightSourceList.begin())->getPosition());
 		currentPrgm->setUniform("lightColour",(lightSourceList.begin())->getColour());
 
-		glEnable(GL_TEXTURE_2D);
-		glActiveTexture(GL_TEXTURE0);
-		currentPrgm->setUniform("diffuseMap",0);
-		currentMtl->getDiffuseMap()->bindTexture();
-		glActiveTexture(GL_TEXTURE1);
-		currentPrgm->setUniform("specularMap",1);
-		currentMtl->getSpecularMap()->bindTexture();
-		glActiveTexture(GL_TEXTURE2);
-		currentPrgm->setUniform("normalMap",2);
-		currentMtl->getNormalMap()->bindTexture();
+		currentMtl->use();
 
 		(i->getGeometry())->draw(GL_TRIANGLES,2000,0);
 		//i->rotate(0.1f,glm::vec3(0.0f,1.0f,0.0f));
 	}
 }
 
-void scene::renderVolumetricObjects()
+void Scene::renderVolumetricObjects()
 {
 	/*	obtain transformation matrices */
 	glm::mat4 modelViewMx;
@@ -157,7 +148,7 @@ void scene::renderVolumetricObjects()
 	GLSLProgram* currentPrgm(volumetricObjectList.begin()->getShaderProgram());
 	currentPrgm->use();
 
-	for(std::list<volumetricSceneObject>::iterator i = volumetricObjectList.begin(); i != volumetricObjectList.end(); ++i)
+	for(std::list<VolumetricSceneObject>::iterator i = volumetricObjectList.begin(); i != volumetricObjectList.end(); ++i)
 	{
 		modelMx = i->computeModelMatrix();
 		modelViewMx = viewMx * modelMx;

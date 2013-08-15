@@ -1,8 +1,42 @@
 #include "ftv_postProcessor.h"
 
-bool ftv_postProcessor::ftv_init(resourceManager *resourceMngr)
+bool Ftv_PostProcessor::ftv_init(ResourceManager *resourceMngr)
 {
 	if( !init(resourceMngr) ) return false;
+
+	/*	Create grid ibfvGrid */
+	float posX = -0.95;
+	float posY = -0.95;
+
+	Vertex_pu *vertexArray = new Vertex_pu[1600];
+	GLuint *indexArray = new GLuint[1600];
+
+	/*
+	/	A bit of magic.
+	*/
+	int localOffset;
+	for(int i=0;i<20;i++)
+	{
+		for(int j=0;j<20;j++)
+		{
+			localOffset = ((i*20)+j)*4;
+			vertexArray[localOffset]=Vertex_pu(posX-0.05,posY-0.05,0.0,((posX-0.05)*0.5)+0.5,((posY-0.05)*0.5)+0.5);
+			vertexArray[localOffset+1]=Vertex_pu(posX-0.05,posY+0.05,0.0,((posX-0.05)*0.5)+0.5,((posY+0.05)*0.5)+0.5);
+			vertexArray[localOffset+2]=Vertex_pu(posX+0.05,posY+0.05,0.0,((posX+0.05)*0.5)+0.5,((posY+0.05)*0.5)+0.5);
+			vertexArray[localOffset+3]=Vertex_pu(posX+0.05,posY-0.05,0.0,((posX+0.05)*0.5)+0.5,((posY-0.05)*0.5)+0.5);
+			
+			posX += 0.1;
+		}
+		posY += 0.1;
+	}
+
+	indexArray[0]=0;indexArray[1]=2;indexArray[2]=1;
+	indexArray[3]=2;indexArray[4]=0;indexArray[5]=3;
+
+	if(!(ibfvGrid.bufferDataFromArray(vertexArray,indexArray,sizeof(Vertex_pu)*1600,sizeof(GLuint)*1600))) return false;
+	ibfvGrid.setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pu),0);
+	ibfvGrid.setVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(Vertex_pu),(GLvoid*) sizeof(Vertex_p));
+
 
 	/*	Load all ftv post processing shaders */
 	if( !resourceMngr->createShaderProgram(FTV_POISSON,poissonShaderPrg) ) return false;
@@ -26,7 +60,7 @@ bool ftv_postProcessor::ftv_init(resourceManager *resourceMngr)
 	return true;
 }
 
-void ftv_postProcessor::generateDistanceMap(GLuint mask, int w, int h)
+void Ftv_PostProcessor::generateDistanceMap(GLuint mask, int w, int h)
 {
 	distanceShaderPrg->use();
 	distanceShaderPrg->setUniform("imgDim", glm::vec2(w, h));
@@ -39,7 +73,7 @@ void ftv_postProcessor::generateDistanceMap(GLuint mask, int w, int h)
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void ftv_postProcessor::generateFtvMask(framebufferObject *targetFbo, GLuint regionsTexture, float w)
+void Ftv_PostProcessor::generateFtvMask(FramebufferObject *targetFbo, GLuint regionsTexture, float w)
 {
 	targetFbo->bind();
 	glViewport(0,0,targetFbo->getWidth(),targetFbo->getHeight());
@@ -57,7 +91,7 @@ void ftv_postProcessor::generateFtvMask(framebufferObject *targetFbo, GLuint reg
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void ftv_postProcessor::shrinkFtvMask(framebufferObject* targetFbo, framebufferObject* mask)
+void Ftv_PostProcessor::shrinkFtvMask(FramebufferObject* targetFbo, FramebufferObject* mask)
 {
 	targetFbo->bind();
 	glViewport(0,0,targetFbo->getWidth(),targetFbo->getHeight());
@@ -77,7 +111,7 @@ void ftv_postProcessor::shrinkFtvMask(framebufferObject* targetFbo, framebufferO
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void ftv_postProcessor::applyMaskToImageToFBO(GLuint inputImage, GLuint mask, int w, int h)
+void Ftv_PostProcessor::applyMaskToImageToFBO(GLuint inputImage, GLuint mask, int w, int h)
 {
 	stampShaderPrg->use();
 	stampShaderPrg->setUniform("imgDim", glm::vec2(w, h));
@@ -94,7 +128,7 @@ void ftv_postProcessor::applyMaskToImageToFBO(GLuint inputImage, GLuint mask, in
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void ftv_postProcessor::applyMaskToImageToFBO(GLuint inputImage, framebufferObject* maskFbo, int w, int h)
+void Ftv_PostProcessor::applyMaskToImageToFBO(GLuint inputImage, FramebufferObject* maskFbo, int w, int h)
 {
 	stampShaderPrg->use();
 	stampShaderPrg->setUniform("imgDim", glm::vec2(w, h));
@@ -111,7 +145,7 @@ void ftv_postProcessor::applyMaskToImageToFBO(GLuint inputImage, framebufferObje
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void ftv_postProcessor::applyFtvGaussian(framebufferObject *inputFbo, framebufferObject *targetFbo, framebufferObject *maskFbo, float sigma, int stencilRadius)
+void Ftv_PostProcessor::applyFtvGaussian(FramebufferObject *inputFbo, FramebufferObject *targetFbo, FramebufferObject *maskFbo, float sigma, int stencilRadius)
 {
 	ftvGaussianShaderPrg->use();
 
@@ -150,7 +184,7 @@ void ftv_postProcessor::applyFtvGaussian(framebufferObject *inputFbo, framebuffe
 }
 
 /*
-void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, glm::vec2 lowerBound, glm::vec2 upperBound)
+void postProcessor::applyPoisson(FramebufferObject *currentFrame, FramebufferObject *previousFrame, int iterations, glm::vec2 lowerBound, glm::vec2 upperBound)
 {
 	poissonShaderPrg->use();
 	poissonShaderPrg->setUniform("lowerBound", lowerBound);
@@ -191,7 +225,7 @@ void postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObj
 }
 */
 
-void ftv_postProcessor::applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, framebufferObject* mask, int iterations, int mode)
+void Ftv_PostProcessor::applyPoisson(FramebufferObject *currentFrame, FramebufferObject *previousFrame, FramebufferObject* mask, int iterations, int mode)
 {
 	poissonShaderPrg->use();
 
@@ -236,7 +270,7 @@ void ftv_postProcessor::applyPoisson(framebufferObject *currentFrame, framebuffe
 	}
 }
 
-void ftv_postProcessor::applyGuidedPoisson(framebufferObject *currentFrame, GLuint guidanceField, framebufferObject* mask, int iterations)
+void Ftv_PostProcessor::applyGuidedPoisson(FramebufferObject *currentFrame, GLuint guidanceField, FramebufferObject* mask, int iterations)
 {
 	poissonShaderPrg->use();
 
@@ -281,7 +315,7 @@ void ftv_postProcessor::applyGuidedPoisson(framebufferObject *currentFrame, GLui
 	}
 }
 
-//	void ftv_postProcessor::applyImageInpainting(framebufferObject *currentFrame, framebufferObject* mask, int iterations)
+//	void Ftv_PostProcessor::applyImageInpainting(FramebufferObject *currentFrame, FramebufferObject* mask, int iterations)
 //	{
 //		inpaintingShaderPrg->use();
 //	
@@ -316,7 +350,7 @@ void ftv_postProcessor::applyGuidedPoisson(framebufferObject *currentFrame, GLui
 //		}
 //	}
 
-void ftv_postProcessor::applyImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, int iterations)
+void Ftv_PostProcessor::applyImageInpainting(FramebufferObject *inputFbo, FramebufferObject* mask, int iterations)
 {
 	for(int i=0; i<iterations; i++)
 	{
@@ -372,7 +406,7 @@ void ftv_postProcessor::applyImageInpainting(framebufferObject *inputFbo, frameb
 	}
 }
 
-void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, int iterations)
+void Ftv_PostProcessor::applyImprovedImageInpainting(FramebufferObject *inputFbo, FramebufferObject* mask, int iterations)
 {
 	for(int i=0; i<iterations; i++)
 	{
@@ -449,7 +483,7 @@ void ftv_postProcessor::applyImprovedImageInpainting(framebufferObject *inputFbo
 	
 }
 
-void ftv_postProcessor::applyGuidedImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, GLuint guidanceField , int iterations)
+void Ftv_PostProcessor::applyGuidedImageInpainting(FramebufferObject *inputFbo, FramebufferObject* mask, GLuint guidanceField , int iterations)
 {
 	for(int i=0; i<iterations; i++)
 	{
@@ -498,7 +532,7 @@ void ftv_postProcessor::applyGuidedImageInpainting(framebufferObject *inputFbo, 
 
 }
 
-void ftv_postProcessor::computeCoherence(framebufferObject *inputFbo, framebufferObject *coherenceFbo)
+void Ftv_PostProcessor::computeCoherence(FramebufferObject *inputFbo, FramebufferObject *coherenceFbo)
 {
 	coherenceShaderPrg->use();
 

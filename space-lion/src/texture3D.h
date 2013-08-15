@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/core/type_vec3.hpp>
 
-class texture3D : public texture
+class Texture3D : public Texture
 {
 private:
 

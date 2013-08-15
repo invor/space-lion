@@ -10,7 +10,7 @@
 	#pragma comment(lib,"glew32.lib")
 #endif
 
-class texture
+class Texture
 {
 protected:
 	//	Integer ids seemed like a bad idea for loading texture files, that themselves -unlike custom material files- won't contain such an id.
@@ -18,8 +18,8 @@ protected:
 
 	GLuint handle;
 public:
-	texture() {};
-	~texture() {};
+	Texture() {};
+	~Texture() {};
 
 	virtual void bindTexture() const = 0;
 	virtual void texParameteri(GLenum, GLenum) = 0;

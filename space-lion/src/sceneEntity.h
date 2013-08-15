@@ -7,10 +7,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "vertexGeometry.h"
+#include "mesh.h"
 #include "material.h"
 
-class sceneEntity
+class SceneEntity
 {
 protected:
 	const int id;
@@ -19,10 +19,10 @@ protected:
 	glm::quat orientation;
 	glm::vec3 scaling;
 public:
-	sceneEntity() : id(0), position(glm::vec3(0.0f)) {}
-	sceneEntity(const int inId, const glm::vec3& inPosition, const glm::quat& inOrientation = glm::quat(), const glm::vec3& inScaling = glm::vec3(1.0))
+	SceneEntity() : id(0), position(glm::vec3(0.0f)) {}
+	SceneEntity(const int inId, const glm::vec3& inPosition, const glm::quat& inOrientation = glm::quat(), const glm::vec3& inScaling = glm::vec3(1.0))
 		: id(inId), position(inPosition), orientation(inOrientation), scaling(inScaling) {}
-	~sceneEntity();
+	~SceneEntity();
 
 	void translate(const glm::vec3& tvec) { position = position + tvec; }
 	void rotate(const float angle,const glm::vec3& axis) {orientation = glm::normalize(glm::rotate(orientation,angle,axis));}

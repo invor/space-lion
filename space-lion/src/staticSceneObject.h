@@ -4,21 +4,21 @@
 //openGL Math Lib
 #include "sceneEntity.h"
 
-class staticSceneObject : public sceneEntity
+class StaticSceneObject : public SceneEntity
 {
 private:
 	bool isRendered;
 
-	vertexGeometry *geometry;
-	material *mtl;
+	Mesh *geometry;
+	Material *mtl;
 public:
-	staticSceneObject() {}
-	~staticSceneObject() {}
+	StaticSceneObject() {}
+	~StaticSceneObject() {}
 
-	staticSceneObject(const int inId, const glm::vec3& inPosition, vertexGeometry* inGeom, material* inMtl) : sceneEntity(inId, inPosition), geometry(inGeom), mtl(inMtl) {}
+	StaticSceneObject(const int inId, const glm::vec3& inPosition, Mesh* inGeom, Material* inMtl) : SceneEntity(inId, inPosition), geometry(inGeom), mtl(inMtl) {}
 
-	vertexGeometry* getGeometry() {return geometry;}
-	material* getMaterial() {return mtl;}
+	Mesh* getGeometry() {return geometry;}
+	Material* getMaterial() {return mtl;}
 
 	glm::mat4 computeModelMatrix() {return (glm::translate(glm::mat4(1.0),position))*(glm::mat4_cast(orientation))*(glm::scale(glm::mat4(1.0),scaling));}
 };

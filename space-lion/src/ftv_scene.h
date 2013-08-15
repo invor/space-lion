@@ -24,17 +24,17 @@ Description: Extension of the scene class, that adds ftv volume rendering.
 	#pragma comment(lib,"opengl32.lib")
 #endif
 
-class ftv_scene : public scene
+class Ftv_Scene : public Scene
 {
 private:
-	std::list<ftv_volumetricSceneObject> ftv_volumetricSceneObjectList;
+	std::list<Ftv_volumetricSceneObject> ftv_volumetricSceneObjectList;
 
 public:
-	ftv_scene() {}
-	~ftv_scene() {}
+	Ftv_Scene() {}
+	~Ftv_Scene() {}
 
 	/* create a volumetric scene entity for ftv testing */
-	bool createFtvVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, vertexGeometry* geomPtr, texture3D* volPtr, GLSLProgram* prgmPtr);
+	bool createFtvVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, Mesh* geomPtr, Texture3D* volPtr, GLSLProgram* prgmPtr);
 
 	/*
 	/	Render volumetric objects of the scene using a mask to indicate faulty regions in the 3d texture.

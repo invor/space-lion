@@ -13,12 +13,12 @@
 	#pragma comment(lib,"opengl32.lib")
 #endif
 
-class ftvTestbench
+class FtvTestbench
 {
 private:
 	/*	Since it's only a testbench, it has it's own postProcessor and resourceManager */
-	ftv_postProcessor imageProcessor;
-	resourceManager resourceMngr;
+	Ftv_PostProcessor imageProcessor;
+	ResourceManager resourceMngr;
 
 	/*
 	/	Static array size, since we know how many images we will load.
@@ -57,8 +57,8 @@ public:
 	/	Creating a postProcessor with a set framebuffer resolution shouldn't be encouraged for long term use.
 	/	This needs a better solution, possibly requiring changes to the framebuffer and postProcessor class.
 	*/
-	ftvTestbench() : imageProcessor(400,400), currentFrame(0) {imageProcessor.ftv_init(&resourceMngr);}
-	~ftvTestbench() {}
+	FtvTestbench() : imageProcessor(400,400), currentFrame(0) {imageProcessor.ftv_init(&resourceMngr);}
+	~FtvTestbench() {}
 
 	bool loadImageSequence();
 
@@ -78,19 +78,19 @@ public:
 	/*
 	/
 	*/
-	void getFrameConfigA(framebufferObject* maskFbo, framebufferObject* imgFbo);
+	void getFrameConfigA(FramebufferObject* maskFbo, FramebufferObject* imgFbo);
 
 	/*
 	/	Return (with successive method calls) all 51 images (from the f batch).
 	/	Inpainting region is static. (Kind of a worst case scenario for possion...)
 	*/
-	void getFrameConfigB(framebufferObject* maskFbo, framebufferObject* imgFbo);
+	void getFrameConfigB(FramebufferObject* maskFbo, FramebufferObject* imgFbo);
 
 	/*
 	/	Return (with successive method calls) all 51 images (from the f batch).
 	/	Inpainting region alternates between 3 different masks.
 	*/
-	void getFrameConfigC(framebufferObject* maskFbo, framebufferObject* imgFbo);
+	void getFrameConfigC(FramebufferObject* maskFbo, FramebufferObject* imgFbo);
 };
 
 #endif

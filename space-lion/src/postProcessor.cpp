@@ -1,22 +1,22 @@
 #include "postProcessor.h"
 
-bool postProcessor::init(resourceManager* resourceMngr)
+bool PostProcessor::init(ResourceManager* resourceMngr)
 {
 	/*
 	/	Create vertex geometry of the render plane
 	*/
-	vertex_pu *vertexArray = new vertex_pu[4];
+	Vertex_pu *vertexArray = new Vertex_pu[4];
 	GLuint *indexArray = new GLuint[6];
 
-	vertexArray[0]=vertex_pu(-1.0,-1.0,0.0,0.0,0.0);vertexArray[1]=vertex_pu(-1.0,1.0,0.0,0.0,1.0);
-	vertexArray[2]=vertex_pu(1.0,1.0,0.0,1.0,1.0);vertexArray[3]=vertex_pu(1.0,-1.0,0.0,1.0,0.0);
+	vertexArray[0]=Vertex_pu(-1.0,-1.0,0.0,0.0,0.0);vertexArray[1]=Vertex_pu(-1.0,1.0,0.0,0.0,1.0);
+	vertexArray[2]=Vertex_pu(1.0,1.0,0.0,1.0,1.0);vertexArray[3]=Vertex_pu(1.0,-1.0,0.0,1.0,0.0);
 	
 	indexArray[0]=0;indexArray[1]=2;indexArray[2]=1;
 	indexArray[3]=2;indexArray[4]=0;indexArray[5]=3;
 
-	if(!(renderPlane.bufferDataFromArray(vertexArray,indexArray,sizeof(vertex_pu)*4,sizeof(GLuint)*6))) return false;
-	renderPlane.setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pu),0);
-	renderPlane.setVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(vertex_pu),(GLvoid*) sizeof(vertex_p));
+	if(!(renderPlane.bufferDataFromArray(vertexArray,indexArray,sizeof(Vertex_pu)*4,sizeof(GLuint)*6))) return false;
+	renderPlane.setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pu),0);
+	renderPlane.setVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(Vertex_pu),(GLvoid*) sizeof(Vertex_p));
 
 	/*	Load all post processing shaders. */
 	if( !resourceMngr->createShaderProgram(FXAA,fxaaShaderPrg) ) return false;
@@ -34,7 +34,7 @@ bool postProcessor::init(resourceManager* resourceMngr)
 	return true;
 }
 
-void postProcessor::applyFxaa(GLuint inputImage)
+void PostProcessor::applyFxaa(GLuint inputImage)
 {
 	fxaaShaderPrg->use();
 
@@ -46,7 +46,7 @@ void postProcessor::applyFxaa(GLuint inputImage)
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void postProcessor::applyFxaa(framebufferObject *currentFrame)
+void PostProcessor::applyFxaa(FramebufferObject *currentFrame)
 {
 	fxaaShaderPrg->use();
 	fxaaShaderPrg->setUniform("imgDim", glm::vec2(currentFrame->getWidth(), currentFrame->getHeight()));
@@ -58,7 +58,7 @@ void postProcessor::applyFxaa(framebufferObject *currentFrame)
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void postProcessor::applyGaussian(framebufferObject *inputFbo, framebufferObject *targetFbo, float sigma, int stencilRadius)
+void PostProcessor::applyGaussian(FramebufferObject *inputFbo, FramebufferObject *targetFbo, float sigma, int stencilRadius)
 {
 	gaussianShaderPrg->use();
 
@@ -90,7 +90,7 @@ void postProcessor::applyGaussian(framebufferObject *inputFbo, framebufferObject
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void postProcessor::computeGradient(framebufferObject *inputFbo, framebufferObject *targetFbo)
+void PostProcessor::computeGradient(FramebufferObject *inputFbo, FramebufferObject *targetFbo)
 {
 	gradientShaderPrg->use();
 	
@@ -107,7 +107,7 @@ void postProcessor::computeGradient(framebufferObject *inputFbo, framebufferObje
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void postProcessor::computeHesse(framebufferObject *inputFbo, framebufferObject *targetFbo)
+void PostProcessor::computeHesse(FramebufferObject *inputFbo, FramebufferObject *targetFbo)
 {
 	hesseShaderPrg->use();
 
@@ -124,7 +124,7 @@ void postProcessor::computeHesse(framebufferObject *inputFbo, framebufferObject 
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void postProcessor::computeStructureTensor(framebufferObject *inputFbo, framebufferObject *targetFbo)
+void PostProcessor::computeStructureTensor(FramebufferObject *inputFbo, FramebufferObject *targetFbo)
 {
 	structureTensorShaderPrg->use();
 
@@ -141,7 +141,7 @@ void postProcessor::computeStructureTensor(framebufferObject *inputFbo, framebuf
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void postProcessor::imageToFBO(GLuint inputImage)
+void PostProcessor::imageToFBO(GLuint inputImage)
 {
 	idleShaderPrg->use();
 
@@ -153,7 +153,7 @@ void postProcessor::imageToFBO(GLuint inputImage)
 	renderPlane.draw(GL_TRIANGLES,6,0);
 }
 
-void postProcessor::FBOToFBO(framebufferObject *inputFbo)
+void PostProcessor::FBOToFBO(FramebufferObject *inputFbo)
 {
 	idleShaderPrg->use();
 	glEnable(GL_TEXTURE_2D);

@@ -14,29 +14,29 @@
 	#pragma comment(lib,"opengl32.lib")
 #endif
 
-class scene
+class Scene
 {
 protected:
 	/*
 	/	The following lists contain all entities (objects if you will) that are part of the scene.
 	/	The currently used std::list datastructures are to be replaced with a more sophisticated concept in the near future.
 	*/
-	std::list<sceneLightSource> lightSourceList;
-	std::list<sceneCamera> cameraList;
-	std::list<staticSceneObject> scenegraph;
-	std::list<volumetricSceneObject> volumetricObjectList;
+	std::list<SceneLightSource> lightSourceList;
+	std::list<SceneCamera> cameraList;
+	std::list<StaticSceneObject> scenegraph;
+	std::list<VolumetricSceneObject> volumetricObjectList;
 
-	sceneCamera* activeCamera;
+	SceneCamera* activeCamera;
 
 public:
-	scene();
-	~scene();
+	Scene();
+	~Scene();
 
 	//	create a scene entity with default geometry and default material
-	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, vertexGeometry* geomPtr, material* mtlPtr);
+	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, Mesh* geomPtr, Material* mtlPtr);
 	
 	/* create a volumetric scene entity */
-	bool createVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, vertexGeometry* geomPtr, texture3D* volPtr, GLSLProgram* prgmPtr);
+	bool createVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, Mesh* geomPtr, Texture3D* volPtr, GLSLProgram* prgmPtr);
 	
 	//	create a scene light source
 	bool createSceneLight(const int id, const glm::vec3 position, glm::vec4 lightColour);

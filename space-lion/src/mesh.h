@@ -1,5 +1,5 @@
-#ifndef vertexGeometry_h
-#define vertexGeometry_h
+#ifndef mesh_h
+#define mesh_h
 
 #include <string>
 #include "GL/glew.h"
@@ -10,7 +10,7 @@
 	#pragma comment(lib,"glew32.lib")
 #endif
 
-class vertexGeometry
+class Mesh
 {
 private:
 	const std::string filename;
@@ -24,12 +24,12 @@ private:
 	GLuint iboHandle;
 
 public:
-	vertexGeometry(void);
-	~vertexGeometry(void);
+	Mesh();
+	~Mesh();
 
-	vertexGeometry(const std::string fn);
+	Mesh(const std::string fn);
 
-	bool bufferDataFromArray(const vertex_p *vertexArray, const GLuint *indexArray, const GLsizei vaSize, const GLsizei viSize);
+	bool bufferDataFromArray(const Vertex_p *vertexArray, const GLuint *indexArray, const GLsizei vaSize, const GLsizei viSize);
 	bool bufferDataFromFile(const char *path);
 
 	void bindVertexBuffer();

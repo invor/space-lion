@@ -1,34 +1,34 @@
 #include "resourceManager.h"
 
-resourceManager::resourceManager(){}
+ResourceManager::ResourceManager(){}
 
-resourceManager::~resourceManager(){}
+ResourceManager::~ResourceManager(){}
 
-bool resourceManager::createTriangle(vertexGeometry*& inOutGeomPtr)
+bool ResourceManager::createTriangle(Mesh*& inOutGeomPtr)
 {
-	vertex_pn *vertexArray = new vertex_pn[3];
+	Vertex_pn *vertexArray = new Vertex_pn[3];
 	GLuint *indexArray = new GLuint[3];
 
-	vertexArray[0]=vertex_pn(-0.5f,0.0f,0.0f,1.0f,0.0f,0.0f);
-	vertexArray[1]=vertex_pn(0.5f,0.0f,0.0f,0.0f,1.0f,0.0f);
-	vertexArray[2]=vertex_pn(0.0f,1.0f,0.0f,0.0f,0.0f,1.0f);
+	vertexArray[0]=Vertex_pn(-0.5f,0.0f,0.0f,1.0f,0.0f,0.0f);
+	vertexArray[1]=Vertex_pn(0.5f,0.0f,0.0f,0.0f,1.0f,0.0f);
+	vertexArray[2]=Vertex_pn(0.0f,1.0f,0.0f,0.0f,0.0f,1.0f);
 
 	indexArray[0]=0;indexArray[1]=1;indexArray[2]=2;
 
-	geometryList.push_back(vertexGeometry("0"));
-	std::list<vertexGeometry>::iterator lastElement = --(geometryList.end());
-	if(!(lastElement->bufferDataFromArray(vertexArray,indexArray,sizeof(vertex_pn)*3,sizeof(GLuint)*3))) return false;
-	lastElement->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pn),0);
-	lastElement->setVertexAttribPointer(3,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pn),(GLvoid*) sizeof(vertex_p));
+	geometryList.push_back(Mesh("0"));
+	std::list<Mesh>::iterator lastElement = --(geometryList.end());
+	if(!(lastElement->bufferDataFromArray(vertexArray,indexArray,sizeof(Vertex_pn)*3,sizeof(GLuint)*3))) return false;
+	lastElement->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pn),0);
+	lastElement->setVertexAttribPointer(3,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pn),(GLvoid*) sizeof(Vertex_p));
 
 	inOutGeomPtr = &(*lastElement);
 	return true;
 }
 
-bool resourceManager::createBox(vertexGeometry*& inOutGeomPtr)
+bool ResourceManager::createBox(Mesh*& inOutGeomPtr)
 {
 	/*	Check list of vertexBufferObjects for default box object(filename="0") */
-	for(std::list<vertexGeometry>::iterator i = geometryList.begin(); i != geometryList.end(); ++i)
+	for(std::list<Mesh>::iterator i = geometryList.begin(); i != geometryList.end(); ++i)
 	{
 		if(i->getFilename() == "0"){
 			inOutGeomPtr = &(*i);
@@ -37,39 +37,39 @@ bool resourceManager::createBox(vertexGeometry*& inOutGeomPtr)
 	}
 
 	/*	if default box not already in list, continue here */
-	vertex_pntcu *vertexArray = new vertex_pntcu[24];
+	Vertex_pntcu *vertexArray = new Vertex_pntcu[24];
 	GLuint *indexArray = new GLuint[36];
 
 	/*	front face */
-	vertexArray[0]=vertex_pntcu(-0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,0.0,0.0);
-	vertexArray[1]=vertex_pntcu(-0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,0.0,1.0);
-	vertexArray[2]=vertex_pntcu(0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,1.0,1.0);
-	vertexArray[3]=vertex_pntcu(0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,1.0,0.0);
+	vertexArray[0]=Vertex_pntcu(-0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,0.0,0.0);
+	vertexArray[1]=Vertex_pntcu(-0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,0.0,1.0);
+	vertexArray[2]=Vertex_pntcu(0.5,0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,1.0,1.0);
+	vertexArray[3]=Vertex_pntcu(0.5,-0.5,0.5,0.0,0.0,1.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,1.0,0.0);
 	/*	right face */
-	vertexArray[4]=vertex_pntcu(0.5,-0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,0.0,0.0);
-	vertexArray[5]=vertex_pntcu(0.5,0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,0.0,1.0);
-	vertexArray[6]=vertex_pntcu(0.5,0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,1.0,1.0);
-	vertexArray[7]=vertex_pntcu(0.5,-0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,1.0,0.0);
+	vertexArray[4]=Vertex_pntcu(0.5,-0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,0.0,0.0);
+	vertexArray[5]=Vertex_pntcu(0.5,0.5,0.5,1.0,0.0,0.0,0.0,0.0,-1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,0.0,1.0);
+	vertexArray[6]=Vertex_pntcu(0.5,0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,1.0,1.0);
+	vertexArray[7]=Vertex_pntcu(0.5,-0.5,-0.5,1.0,0.0,0.0,0.0,0.0,-1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,1.0,0.0);
 	/*	left face */
-	vertexArray[8]=vertex_pntcu(-0.5,-0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,0.0,0.0);
-	vertexArray[9]=vertex_pntcu(-0.5,0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,0.0,1.0);
-	vertexArray[10]=vertex_pntcu(-0.5,0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,1.0,1.0);
-	vertexArray[11]=vertex_pntcu(-0.5,-0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,1.0,0.0);
+	vertexArray[8]=Vertex_pntcu(-0.5,-0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,0.0,0.0);
+	vertexArray[9]=Vertex_pntcu(-0.5,0.5,-0.5,-1.0,0.0,0.0,0.0,0.0,1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,0.0,1.0);
+	vertexArray[10]=Vertex_pntcu(-0.5,0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,1.0,1.0);
+	vertexArray[11]=Vertex_pntcu(-0.5,-0.5,0.5,-1.0,0.0,0.0,0.0,0.0,1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,1.0,0.0);
 	/*	back face */
-	vertexArray[12]=vertex_pntcu(0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,0.0,0.0);
-	vertexArray[13]=vertex_pntcu(0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,0.0,1.0);
-	vertexArray[14]=vertex_pntcu(-0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,1.0,1.0);
-	vertexArray[15]=vertex_pntcu(-0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,1.0,0.0);
+	vertexArray[12]=Vertex_pntcu(0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,0.0,0.0);
+	vertexArray[13]=Vertex_pntcu(0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,0.0,1.0);
+	vertexArray[14]=Vertex_pntcu(-0.5,0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,1.0,1.0);
+	vertexArray[15]=Vertex_pntcu(-0.5,-0.5,-0.5,0.0,0.0,-1.0,-1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,1.0,0.0);
 	/*	bottom face */
-	vertexArray[16]=vertex_pntcu(-0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,0.0,0.0);
-	vertexArray[17]=vertex_pntcu(-0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,0.0,1.0);
-	vertexArray[18]=vertex_pntcu(0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,1.0,1.0);
-	vertexArray[19]=vertex_pntcu(0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,1.0,0.0);
+	vertexArray[16]=Vertex_pntcu(-0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,0.0,0.0);
+	vertexArray[17]=Vertex_pntcu(-0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,0.0,1.0);
+	vertexArray[18]=Vertex_pntcu(0.5,-0.5,-0.5,0.0,-1.0,0.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,1.0,1.0);
+	vertexArray[19]=Vertex_pntcu(0.5,-0.5,0.5,0.0,-1.0,0.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)0.0,(GLubyte)1.0,1.0,0.0);
 	/*	top face */
-	vertexArray[20]=vertex_pntcu(-0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,0.0,0.0);
-	vertexArray[21]=vertex_pntcu(-0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,0.0,1.0);
-	vertexArray[22]=vertex_pntcu(0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,1.0,1.0);
-	vertexArray[23]=vertex_pntcu(0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,1.0,0.0);
+	vertexArray[20]=Vertex_pntcu(-0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,0.0,0.0);
+	vertexArray[21]=Vertex_pntcu(-0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,(GLubyte)0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,0.0,1.0);
+	vertexArray[22]=Vertex_pntcu(0.5,0.5,-0.5,0.0,1.0,0.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)1.0,1.0,1.0);
+	vertexArray[23]=Vertex_pntcu(0.5,0.5,0.5,0.0,1.0,0.0,1.0,0.0,0.0,(GLubyte)1.0,(GLubyte)1.0,(GLubyte)0.0,(GLubyte)1.0,1.0,0.0);
 
 	indexArray[0]=0;indexArray[1]=2;indexArray[2]=1;
 	indexArray[3]=2;indexArray[4]=0;indexArray[5]=3;
@@ -84,23 +84,23 @@ bool resourceManager::createBox(vertexGeometry*& inOutGeomPtr)
 	indexArray[30]=20;indexArray[31]=22;indexArray[32]=21;
 	indexArray[33]=22;indexArray[34]=20;indexArray[35]=23;
 
-	geometryList.push_back(vertexGeometry("0"));
-	std::list<vertexGeometry>::iterator lastElement = --(geometryList.end());
-	if(!(lastElement->bufferDataFromArray(vertexArray,indexArray,sizeof(vertex_pntcu)*24,sizeof(GLuint)*36))) return false;
-	lastElement->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcu),0);
-	lastElement->setVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcu),(GLvoid*) sizeof(vertex_p));
-	lastElement->setVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcu),(GLvoid*) sizeof(vertex_pn));
-	lastElement->setVertexAttribPointer(3,4,GL_UNSIGNED_BYTE,GL_FALSE,sizeof(vertex_pntcu),(GLvoid*) sizeof(vertex_pnt));
-	lastElement->setVertexAttribPointer(4,2,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcu),(GLvoid*) sizeof(vertex_pntc));
+	geometryList.push_back(Mesh("0"));
+	std::list<Mesh>::iterator lastElement = --(geometryList.end());
+	if(!(lastElement->bufferDataFromArray(vertexArray,indexArray,sizeof(Vertex_pntcu)*24,sizeof(GLuint)*36))) return false;
+	lastElement->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcu),0);
+	lastElement->setVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcu),(GLvoid*) sizeof(Vertex_p));
+	lastElement->setVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcu),(GLvoid*) sizeof(Vertex_pn));
+	lastElement->setVertexAttribPointer(3,4,GL_UNSIGNED_BYTE,GL_FALSE,sizeof(Vertex_pntcu),(GLvoid*) sizeof(Vertex_pnt));
+	lastElement->setVertexAttribPointer(4,2,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcu),(GLvoid*) sizeof(Vertex_pntc));
 
 	inOutGeomPtr = &(*lastElement);
 	return true;
 }
 
-bool resourceManager::createVertexGeometry(const char * const path, vertexGeometry*& inOutGeomPtr)
+bool ResourceManager::createMesh(const std::string path, Mesh*& inOutGeomPtr)
 {
 	/*	Check list of vertexBufferObjects for filename */
-	for(std::list<vertexGeometry>::iterator i = geometryList.begin(); i != geometryList.end(); ++i)
+	for(std::list<Mesh>::iterator i = geometryList.begin(); i != geometryList.end(); ++i)
 	{
 		if(i->getFilename() == path){
 			inOutGeomPtr = &(*i);
@@ -108,20 +108,46 @@ bool resourceManager::createVertexGeometry(const char * const path, vertexGeomet
 		}
 	}
 
-	geometryList.push_back(vertexGeometry(path));
-	std::list<vertexGeometry>::iterator lastElement = --(geometryList.end());
+	/*	Check file type before trying to load it */
+	std::string file_type;
+	std::string::const_iterator itr0 = path.end();
+	std::string::const_iterator itr1;
+	for(itr1 = path.end(); *itr1 != '.'; --itr1);
+	file_type.assign(++itr1,itr0);
+	std::cout<<file_type<<std::endl;
 
-	/* Just some testing */
-	if( !loadFbxGeometry(path,&(*lastElement)) ) {return false;}
+	if(file_type == "fbx")
+	{
+		geometryList.push_back(Mesh(path));
+		std::list<Mesh>::iterator lastElement = --(geometryList.end());
 
-	inOutGeomPtr = &(*lastElement);
+		/* Just some testing */
+		if( !loadFbxGeometry(path.c_str(),&(*lastElement)) ) {return false;}
+
+		inOutGeomPtr = &(*lastElement);
+	}
+	else if(file_type == "slraw")
+	{
+		geometryList.push_back(Mesh(path));
+		std::list<Mesh>::iterator lastElement = --(geometryList.end());
+
+		/* Just some testing */
+		if( !loadBinaryGeometry(path.c_str(),&(*lastElement)) ) {return false;}
+
+		inOutGeomPtr = &(*lastElement);
+	}
+	else
+	{
+		return false;
+	}
+
 	return true;
 }
 
-bool resourceManager::createMaterial(material*& inOutMtlPtr)
+bool ResourceManager::createMaterial(Material*& inOutMtlPtr)
 {
 	/*	Check list of materials for default material(id=0) */
-	for(std::list<material>::iterator i = materialList.begin(); i != materialList.end(); ++i)
+	for(std::list<Material>::iterator i = materialList.begin(); i != materialList.end(); ++i)
 	{
 		if((i->getId())==0)
 		{
@@ -143,26 +169,26 @@ bool resourceManager::createMaterial(material*& inOutMtlPtr)
 	normalData[0]=0.5f; normalData[1]=0.5f; normalData[2]=1.0f; normalData[3]=0.0f;
 	
 	GLSLProgram* prgPtr;
-	texture* texPtr1;
-	texture* texPtr2;
-	texture* texPtr3;
+	Texture* texPtr1;
+	Texture* texPtr2;
+	Texture* texPtr3;
 	if(!createShaderProgram(PHONG,prgPtr)) return false;
 	if(!createTexture2D(1,1,diffuseData,texPtr1)) return false;
 	if(!createTexture2D(1,1,specularData,texPtr2)) return false;
 	if(!createTexture2D(1,1,normalData,texPtr3)) return false;
-	materialList.push_back(material(0,prgPtr,texPtr1,texPtr2,texPtr3));
+	materialList.push_back(Material(0,prgPtr,texPtr1,texPtr2,texPtr3));
 
-	std::list<material>::iterator lastElement = --(materialList.end());
+	std::list<Material>::iterator lastElement = --(materialList.end());
 	inOutMtlPtr = &(*lastElement);
 	return true;
 }
 
-bool resourceManager::createMaterial(const char * const path, material*& inOutMtlPtr)
+bool ResourceManager::createMaterial(const char * const path, Material*& inOutMtlPtr)
 {
-	materialInfo inOutMtlInfo;
+	MaterialInfo inOutMtlInfo;
 	if(!parseMaterial(path,inOutMtlInfo))return false;
 
-	for(std::list<material>::iterator i = materialList.begin(); i != materialList.end(); ++i)
+	for(std::list<Material>::iterator i = materialList.begin(); i != materialList.end(); ++i)
 	{
 		if((i->getId())==inOutMtlInfo.id)
 		{
@@ -172,21 +198,21 @@ bool resourceManager::createMaterial(const char * const path, material*& inOutMt
 	}
 
 	GLSLProgram* prgPtr;
-	texture* texPtr1;
-	texture* texPtr2;
-	texture* texPtr3;
+	Texture* texPtr1;
+	Texture* texPtr2;
+	Texture* texPtr3;
 	if(!createShaderProgram(PHONG,prgPtr)) return false;
 	if(!createTexture2D(inOutMtlInfo.diff_path,texPtr1)) return false;
 	if(!createTexture2D(inOutMtlInfo.spec_path,texPtr2)) return false;
 	if(!createTexture2D(inOutMtlInfo.normal_path,texPtr3)) return false;
-	materialList.push_back(material(inOutMtlInfo.id,prgPtr,texPtr1,texPtr2,texPtr3));
+	materialList.push_back(Material(inOutMtlInfo.id,prgPtr,texPtr1,texPtr2,texPtr3));
 
-	std::list<material>::iterator lastElement = --(materialList.end());
+	std::list<Material>::iterator lastElement = --(materialList.end());
 	inOutMtlPtr = &(*lastElement);
 	return true;
 }
 
-bool resourceManager::createShaderProgram(shaderType type, GLSLProgram*& inOutPrgPtr)
+bool ResourceManager::createShaderProgram(shaderType type, GLSLProgram*& inOutPrgPtr)
 {
 	/*	Check list of shader programs for the shader type */
 	for(std::list<GLSLProgram>::iterator i = shaderProgramList.begin(); i != shaderProgramList.end(); ++i)
@@ -343,19 +369,19 @@ bool resourceManager::createShaderProgram(shaderType type, GLSLProgram*& inOutPr
 	return true;
 }
 
-bool resourceManager::createTexture2D(int dimX, int dimY, float* data, texture*& inOutTexPtr)
+bool ResourceManager::createTexture2D(int dimX, int dimY, float* data, Texture*& inOutTexPtr)
 {
-	textureList.push_back(texture2D());
-	std::list<texture2D>::iterator lastElement = --(textureList.end());
+	textureList.push_back(Texture2D());
+	std::list<Texture2D>::iterator lastElement = --(textureList.end());
 	if(!(lastElement->loadArrayF(dimX, dimY, data))) return false;
 
 	inOutTexPtr = &(*lastElement);
 	return true;
 }
 
-bool resourceManager::createTexture2D(const std::string path, texture*& inOutTexPtr)
+bool ResourceManager::createTexture2D(const std::string path, Texture*& inOutTexPtr)
 {
-	for(std::list<texture2D>::iterator i = textureList.begin(); i != textureList.end(); ++i)
+	for(std::list<Texture2D>::iterator i = textureList.begin(); i != textureList.end(); ++i)
 	{
 		if((i->getFilename())==path)
 		{
@@ -364,17 +390,17 @@ bool resourceManager::createTexture2D(const std::string path, texture*& inOutTex
 		}
 	}
 
-	textureList.push_back(texture2D());
-	std::list<texture2D>::iterator lastElement = --(textureList.end());
+	textureList.push_back(Texture2D());
+	std::list<Texture2D>::iterator lastElement = --(textureList.end());
 	if(!(lastElement->loadTextureFile(path))) return false;
 
 	inOutTexPtr = &(*lastElement);
 	return true;
 }
 
-bool resourceManager::createTexture3D(const std::string path, glm::ivec3 textureRes, texture3D*& inOutTexPtr)
+bool ResourceManager::createTexture3D(const std::string path, glm::ivec3 textureRes, Texture3D*& inOutTexPtr)
 {
-	for(std::list<texture3D>::iterator i = volumeList.begin(); i != volumeList.end(); ++i)
+	for(std::list<Texture3D>::iterator i = volumeList.begin(); i != volumeList.end(); ++i)
 	{
 		if((i->getFilename())==path)
 		{
@@ -383,25 +409,25 @@ bool resourceManager::createTexture3D(const std::string path, glm::ivec3 texture
 		}
 	}
 
-	volumeList.push_back(texture3D());
-	std::list<texture3D>::iterator lastElement = --(volumeList.end());
+	volumeList.push_back(Texture3D());
+	std::list<Texture3D>::iterator lastElement = --(volumeList.end());
 	if(!(lastElement->loadTextureFile(path,textureRes))) return false;
 
 	inOutTexPtr = &(*lastElement);
 	return true;
 }
 
-bool resourceManager::createTexture3D(float* volumeData, glm::ivec3 textureRes, GLenum internalFormat, GLenum format, texture3D*& inOutTexPtr)
+bool ResourceManager::createTexture3D(float* volumeData, glm::ivec3 textureRes, GLenum internalFormat, GLenum format, Texture3D*& inOutTexPtr)
 {
-	volumeList.push_back(texture3D());
-	std::list<texture3D>::iterator lastElement = --(volumeList.end());
+	volumeList.push_back(Texture3D());
+	std::list<Texture3D>::iterator lastElement = --(volumeList.end());
 	if(!(lastElement->loadArrayF(volumeData,textureRes,internalFormat,format))) return false;
 
 	inOutTexPtr = &(*lastElement);
 	return true;
 }
 
-bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* goemPtr)
+bool ResourceManager::loadFbxGeometry(const char* const path, Mesh* geomPtr)
 {
 	/*	Initialize an fbx sdk manager. It handles memory management */
 	FbxManager *fbxMngr = FbxManager::Create();
@@ -487,7 +513,7 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
 	std::cout<<"Vertex count: "<<vertexCount<<"\n";
 
 	/*	For reasons of simplicity I use the "full" vertex format in any case for now */
-	vertex_pntcub *vertices = new vertex_pntcub[vertexCount];
+	Vertex_pntcub *vertices = new Vertex_pntcub[vertexCount];
 	unsigned int *indices = new unsigned int[fbxPolyCount * 3];
 
 	float *uvs = NULL;
@@ -750,19 +776,89 @@ bool resourceManager::loadFbxGeometry(const char* const path, vertexGeometry* go
 
 	//std::cout<<"Filled index buffer.\n";
 
-	if( !goemPtr->bufferDataFromArray(vertices,indices,sizeof(vertex_pntcub)*vertexCount,sizeof(unsigned int)*(fbxPolyCount * 3)) ) return false;
+	if( !geomPtr->bufferDataFromArray(vertices,indices,sizeof(Vertex_pntcub)*vertexCount,sizeof(unsigned int)*(fbxPolyCount * 3)) ) return false;
 
-	goemPtr->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcub),0);
-	goemPtr->setVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcub),(GLvoid*) sizeof(vertex_p));
-	goemPtr->setVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcub),(GLvoid*) sizeof(vertex_pn));
-	goemPtr->setVertexAttribPointer(3,4,GL_UNSIGNED_BYTE,GL_FALSE,sizeof(vertex_pntcub),(GLvoid*) sizeof(vertex_pnt));
-	goemPtr->setVertexAttribPointer(4,2,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcub),(GLvoid*) sizeof(vertex_pntc));
-	goemPtr->setVertexAttribPointer(5,3,GL_FLOAT,GL_FALSE,sizeof(vertex_pntcub),(GLvoid*) sizeof(vertex_pntcu));
+	geomPtr->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),0);
+	geomPtr->setVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_p));
+	geomPtr->setVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_pn));
+	geomPtr->setVertexAttribPointer(3,4,GL_UNSIGNED_BYTE,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_pnt));
+	geomPtr->setVertexAttribPointer(4,2,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_pntc));
+	geomPtr->setVertexAttribPointer(5,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_pntcu));
 
 	return true;
 }
 
-bool resourceManager::parseMaterial(const char* const materialPath, materialInfo& inOutMtlInfo)
+bool ResourceManager::loadBinaryGeometry(const std::string path, Mesh* geomPtr)
+{
+	std::ifstream dat_file (path,std::ios::in | std::ios::binary);
+
+	/*	Check if the file could be opened */
+	if(!( dat_file.is_open() ))return false;
+
+	/*	Parse the dat file */
+	std::string buffer;
+
+	std::getline(dat_file,buffer,'\n');
+	int num_indices = atoi(buffer.c_str());
+	std::getline(dat_file,buffer,'\n');
+	int num_vertices = atoi(buffer.c_str());
+	std::getline(dat_file,buffer,'\n');
+	std::string vertex_type = buffer;
+
+	dat_file.close();
+
+	
+	/*	Create path to the index raw file */
+	std::string path_without_filename;
+	std::string::const_iterator itr0 = path.begin();
+	std::string::const_iterator itr1;
+	for(itr1 = path.end(); *itr1 != '.'; --itr1);
+	path_without_filename.assign(itr0,itr1);
+	std::string path_to_iraw = path_without_filename + ".sliraw";
+
+	/*	Load the index raw file */
+	unsigned int *indices = new unsigned int[num_indices];
+
+	FILE * iraw_file;
+
+	iraw_file = fopen (path_to_iraw.c_str(), "rb");
+	if (iraw_file==NULL) return false;
+
+	fread(indices,sizeof(unsigned int),num_indices,iraw_file);
+
+	
+	/*	Create path to the vertex raw file */
+	std::string path_to_vraw = path_without_filename + ".slvraw";
+
+	/*	Load the vertex raw file */
+	if(vertex_type == "vertex_pntcub")
+	{
+		Vertex_pntcub *vertices = new Vertex_pntcub[num_vertices];
+
+		FILE * vraw_file;
+		vraw_file = fopen (path_to_vraw.c_str(), "rb");
+		if (vraw_file==NULL) return false;
+
+		fread(vertices,sizeof(Vertex_pntcub),num_vertices,vraw_file);
+
+		if( !geomPtr->bufferDataFromArray(vertices,indices,sizeof(Vertex_pntcub)*num_vertices,sizeof(unsigned int)*num_indices) ) return false;
+	}
+	else
+	{
+		return false;
+	}
+
+	geomPtr->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),0);
+	geomPtr->setVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_p));
+	geomPtr->setVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_pn));
+	geomPtr->setVertexAttribPointer(3,4,GL_UNSIGNED_BYTE,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_pnt));
+	geomPtr->setVertexAttribPointer(4,2,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_pntc));
+	geomPtr->setVertexAttribPointer(5,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_pntcu));
+
+	return false;
+}
+
+bool ResourceManager::parseMaterial(const char* const materialPath, MaterialInfo& inOutMtlInfo)
 {
 	std::string buffer;
 	std::string tempStr;
@@ -825,7 +921,7 @@ bool resourceManager::parseMaterial(const char* const materialPath, materialInfo
 	return true;
 }
 
-const std::string resourceManager::readShaderFile(const char* const path)
+const std::string ResourceManager::readShaderFile(const char* const path)
 {
 	std::ifstream inFile( path, std::ios::in );
     if( !inFile ) {

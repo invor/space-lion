@@ -143,8 +143,10 @@
   <ItemGroup>
     <ClInclude Include="src\ftvTestbench.h" />
     <ClInclude Include="src\ftv_postProcessor.h" />
+    <ClInclude Include="src\ftv_renderHub.h" />
     <ClInclude Include="src\ftv_scene.h" />
     <ClInclude Include="src\ftv_volumetricSceneObject.h" />
+    <ClInclude Include="src\messageReceiver.h" />
     <ClInclude Include="src\postProcessor.h" />
     <ClInclude Include="src\framebufferObject.h" />
     <ClInclude Include="src\GLSLProgram.h" />
@@ -159,7 +161,7 @@
     <ClInclude Include="src\texture.h" />
     <ClInclude Include="src\texture2D.h" />
     <ClInclude Include="src\texture3D.h" />
-    <ClInclude Include="src\vertexGeometry.h" />
+    <ClInclude Include="src\mesh.h" />
     <ClInclude Include="src\vertexStructs.h" />
     <ClInclude Include="src\volumetricSceneObject.h" />
   </ItemGroup>
@@ -167,6 +169,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\ftvTestbench.cpp" />
     <ClCompile Include="src\ftv_postProcessor.cpp" />
+    <ClCompile Include="src\ftv_renderHub.cpp" />
     <ClCompile Include="src\ftv_scene.cpp" />
     <ClCompile Include="src\postProcessor.cpp" />
     <ClCompile Include="src\framebufferObject.cpp" />
@@ -180,7 +183,7 @@
     <ClCompile Include="src\sceneLightSource.cpp" />
     <ClCompile Include="src\texture2D.cpp" />
     <ClCompile Include="src\texture3D.cpp" />
-    <ClCompile Include="src\vertexGeometry.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\volumetricSceneObject.cpp" />
   </ItemGroup>
   <ItemGroup>

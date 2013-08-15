@@ -1,45 +1,45 @@
 #ifndef postProcessor_h
 #define postProcessor_h
 
-#include "vertexGeometry.h"
+#include "mesh.h"
 #include "GLSLProgram.h"
 #include "framebufferObject.h"
 #include "resourceManager.h"
 
-class postProcessor
+class PostProcessor
 {
 public:
-	postProcessor() : B(0,0,false,false), gaussianBackBuffer(0,0,false,false) {}
-	~postProcessor() {}
+	PostProcessor() : B(0,0,false,false), gaussianBackBuffer(0,0,false,false) {}
+	~PostProcessor() {}
 
-	postProcessor(int w, int h) : B(w,h,false,false), gaussianBackBuffer(w,h,false,false) {}
+	PostProcessor(int w, int h) : B(w,h,false,false), gaussianBackBuffer(w,h,false,false) {}
 
-	bool init(resourceManager* resourceMngr);
+	bool init(ResourceManager* resourceMngr);
 
 	const std::string& getLog() {return log;}
 
 	void applyFxaa(GLuint inputImage);
-	void applyFxaa(framebufferObject *currentFrame);
+	void applyFxaa(FramebufferObject *currentFrame);
 
 	/*
 	/	Applies a seperated gaussian the first color attachment of the input framebuffer
 	*/
-	void applyGaussian(framebufferObject *inputFbo, framebufferObject *targetFbo, float sigma, int stencilRadius);
+	void applyGaussian(FramebufferObject *inputFbo, FramebufferObject *targetFbo, float sigma, int stencilRadius);
 
 	/*
 	/	Computes the gradient vector
 	*/
-	void computeGradient(framebufferObject *inputFbo, framebufferObject *targetFbo);
+	void computeGradient(FramebufferObject *inputFbo, FramebufferObject *targetFbo);
 
 	/*
 	/	Computes the hesse matrix for a given gradient field	
 	*/
-	void computeHesse(framebufferObject *inputFbo, framebufferObject *targetFbo);
+	void computeHesse(FramebufferObject *inputFbo, FramebufferObject *targetFbo);
 
 	/*
 	/	Computes the structure tensor (matrix) for a given scalar field (image)	
 	*/
-	void computeStructureTensor(framebufferObject *inputFbo, framebufferObject *targetFbo);
+	void computeStructureTensor(FramebufferObject *inputFbo, FramebufferObject *targetFbo);
 
 	/*
 	/	Render the input texture to the currently bound framebuffer.
@@ -49,16 +49,16 @@ public:
 	/*
 	/	Render the color attachment of the input framebuffer to the currently bound framebuffer.
 	*/
-	void FBOToFBO(framebufferObject *inputFbo);
+	void FBOToFBO(FramebufferObject *inputFbo);
 
 protected:
 	std::string log;
 
-	vertexGeometry renderPlane;
+	Mesh renderPlane;
 
-	framebufferObject B;
+	FramebufferObject B;
 	/*	FBO used for the seperated gaussian. Not to be used outside the gaussian method! */
-	framebufferObject gaussianBackBuffer;
+	FramebufferObject gaussianBackBuffer;
 
 	GLSLProgram *fxaaShaderPrg;
 	GLSLProgram *idleShaderPrg;

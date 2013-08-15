@@ -19,25 +19,25 @@ image inpainting and poisson image editing.
 
 #include "postProcessor.h"
 
-class ftv_postProcessor : public postProcessor
+class Ftv_PostProcessor : public PostProcessor
 {
 public:
-	ftv_postProcessor() : postProcessor(), iterationCounter(1.0),
+	Ftv_PostProcessor() : PostProcessor(), iterationCounter(1.0),
 							gaussianFbo(0,0,false,false),
 							gradientFbo(0,0,false,false),
 							hesseFbo(0,0,false,false),
 							coherenceFbo(0,0,false,false),
 							maskFboB(0,0,false,false) {}
-	~ftv_postProcessor() {}
+	~Ftv_PostProcessor() {}
 
-	ftv_postProcessor(int w, int h) : postProcessor(w,h), iterationCounter(1.0),
+	Ftv_PostProcessor(int w, int h) : PostProcessor(w,h), iterationCounter(1.0),
 							gaussianFbo(w,h,false,false),
 							gradientFbo(w,h,false,false),
 							hesseFbo(w,h,false,false),
 							coherenceFbo(w,h,false,false),
 							maskFboB(w,h,false,false) {}
 
-	bool ftv_init(resourceManager *resourceMngr);
+	bool ftv_init(ResourceManager *resourceMngr);
 
 	/*
 	/	Generate a distance map for a given mask.
@@ -49,55 +49,57 @@ public:
 	/	Takes a float array as input, with every group of four floats denoting the lower left and upper right corner
 	/	of a rectangular inpainting region.
 	*/
-	void generateFtvMask(framebufferObject *targetFbo, GLuint regionsTexture, float w);
+	void generateFtvMask(FramebufferObject *targetFbo, GLuint regionsTexture, float w);
 
-	void shrinkFtvMask(framebufferObject* targetFbo, framebufferObject* mask);
+	void shrinkFtvMask(FramebufferObject* targetFbo, FramebufferObject* mask);
 
 	/*
 	/	Render the input texture to the currently bound framebuffer using a mask.
 	/	Pixels covered by black areas of the mask are rendered black.
 	*/
 	void applyMaskToImageToFBO(GLuint inputImage, GLuint mask, int w, int h);
-	void applyMaskToImageToFBO(GLuint inputImage, framebufferObject* maskFbo, int w, int h);
+	void applyMaskToImageToFBO(GLuint inputImage, FramebufferObject* maskFbo, int w, int h);
 
 	/*
 	/	Applies a modified seperated gaussian the first color attachment of the input framebuffer.
 	/	Takes inpainting regions into account during filtering -> ignores values from these regions.
 	*/
-	void applyFtvGaussian(framebufferObject *inputFbo, framebufferObject *targetFbo, framebufferObject *maskFbo, float sigma, int stencilRadius);
+	void applyFtvGaussian(FramebufferObject *inputFbo, FramebufferObject *targetFbo, FramebufferObject *maskFbo, float sigma, int stencilRadius);
 
 	/*
 	/	Apply poisson image editing to a region given by a rectangle.
 	*/
-	//void applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, int iterations, glm::vec2 lowerBound, glm::vec2 upperBound);
+	//void applyPoisson(FramebufferObject *currentFrame, FramebufferObject *previousFrame, int iterations, glm::vec2 lowerBound, glm::vec2 upperBound);
 
 	/*
 	/	Apply poisson image editing to [a] region[s] given by an image-mask.
 	*/
-	void applyPoisson(framebufferObject *currentFrame, framebufferObject *previousFrame, framebufferObject* mask, int iterations, int mode);
+	void applyPoisson(FramebufferObject *currentFrame, FramebufferObject *previousFrame, FramebufferObject* mask, int iterations, int mode);
 
-	void applyGuidedPoisson(framebufferObject *currentFrame, GLuint guidanceField, framebufferObject* mask, int iterations);
+	void applyGuidedPoisson(FramebufferObject *currentFrame, GLuint guidanceField, FramebufferObject* mask, int iterations);
 
 	/*
 	/	Apply image inpainting to [a] region[s] given by an image-mask.
 	*/
-	void applyImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, int iterations);
+	void applyImageInpainting(FramebufferObject *inputFbo, FramebufferObject* mask, int iterations);
 
 	/*
 	/	Apply image inpainting to [a] region[s] given by an image-mask.
 	/	Use precomputed coherence flow field and strength instead of computing gradients on the fly.
 	*/
-	void applyImprovedImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, int iterations);
+	void applyImprovedImageInpainting(FramebufferObject *inputFbo, FramebufferObject* mask, int iterations);
 
-	void applyGuidedImageInpainting(framebufferObject *inputFbo, framebufferObject* mask, GLuint guidanceField , int iterations);
+	void applyGuidedImageInpainting(FramebufferObject *inputFbo, FramebufferObject* mask, GLuint guidanceField , int iterations);
 
 	/*
 	/	Compute the coherence flow field and coherence strength.
 	/	Takes the structure tensor as input.
 	*/
-	void computeCoherence(framebufferObject *inputFbo, framebufferObject *coherenceFbo);
+	void computeCoherence(FramebufferObject *inputFbo, FramebufferObject *coherenceFbo);
 
 private:
+
+	Mesh ibfvGrid;
 
 	float iterationCounter;
 
@@ -112,11 +114,11 @@ private:
 	GLSLProgram *shrinkMaskPrg;
 
 	/*	Some additional FBOs are required for coherence computations */
-	framebufferObject gaussianFbo;
-	framebufferObject gradientFbo;
-	framebufferObject hesseFbo;
-	framebufferObject coherenceFbo;
-	framebufferObject maskFboB;
+	FramebufferObject gaussianFbo;
+	FramebufferObject gradientFbo;
+	FramebufferObject hesseFbo;
+	FramebufferObject coherenceFbo;
+	FramebufferObject maskFboB;
 };
 
 #endif

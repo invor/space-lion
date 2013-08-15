@@ -1,11 +1,11 @@
 #include "texture3D.h"
 
-void texture3D::bindTexture() const
+void Texture3D::bindTexture() const
 {
 	glBindTexture(GL_TEXTURE_3D, handle);
 }
 
-bool texture3D::loadTextureFile(std::string inputPath, glm::ivec3 resolution)
+bool Texture3D::loadTextureFile(std::string inputPath, glm::ivec3 resolution)
 {
 	//TODO: Add some checks
 
@@ -38,7 +38,7 @@ bool texture3D::loadTextureFile(std::string inputPath, glm::ivec3 resolution)
 	return true;
 }
 
-bool texture3D::loadArrayF(float* data, glm::ivec3 resolution, GLenum internalFormat, GLenum format)
+bool Texture3D::loadArrayF(float* data, glm::ivec3 resolution, GLenum internalFormat, GLenum format)
 {
 	//TODO: Add some checks
 	if(sizeof(data) == 0) return false;
@@ -56,7 +56,7 @@ bool texture3D::loadArrayF(float* data, glm::ivec3 resolution, GLenum internalFo
 	return true;
 }
 
-void texture3D::texParameteri(GLenum param_1, GLenum param_2)
+void Texture3D::texParameteri(GLenum param_1, GLenum param_2)
 {
 	glBindTexture(GL_TEXTURE_3D, handle);
 	glTexParameteri(GL_TEXTURE_3D, param_1, param_2);

@@ -1,5 +1,5 @@
 /**
-* \class resourceManager
+* \class ResourceManager
 * 
 * \brief Loads and manages graphic resources
 * 
@@ -27,7 +27,7 @@
 #include "material.h"
 #include "texture2D.h"
 #include "texture3D.h"
-#include "vertexGeometry.h"
+#include "mesh.h"
 
 #ifdef _WIN32
 	#pragma comment(lib,"libfbxsdk.lib")
@@ -35,11 +35,11 @@
 
 #define DEBUG_OUTPUT 0
 
-class resourceManager
+class ResourceManager
 {
 public:
-	resourceManager();
-	~resourceManager();
+	ResourceManager();
+	~ResourceManager();
 
 	/** Returns log string */
 	const std::string& getLog() {return resourcelog;}
@@ -49,30 +49,30 @@ public:
 	 * \param inOutGeomPtr A pointer set to the newly created vertex geometry via in-out parameter
 	 * \return Returns true if the triangle was succesfully created, false otherwise
 	 */
-	bool createTriangle(vertexGeometry*& inOutGeomPtr);
+	bool createTriangle(Mesh*& inOutGeomPtr);
 
 	/**
 	 * \brief Creates a simple box object for debugging purposes
 	 * \param inOutGeomPtr A pointer set to the newly created vertex geometry via in-out parameter
 	 * \return Returns true if box was succesfully created, false otherwise
 	 */
-	bool createBox(vertexGeometry*& inOutGeomPtr);
+	bool createBox(Mesh*& inOutGeomPtr);
 
 	/**
-	 * \brief Creates a vertexGeometry object from a local file.
+	 * \brief Creates a Mesh object from a local file.
 	 * \note Not yet implemented!
 	 * \param path Location of the mesh file
 	 * \param inOutGeomPtr A pointer set to the newly created vertex geometry via in-out parameter
-	 * \return Returns true if vertexGeometry was succesfully created, false otherwise
+	 * \return Returns true if Mesh was succesfully created, false otherwise
 	 */
-	bool createVertexGeometry(const char * const path, vertexGeometry*& inOutGeomPtr);
+	bool createMesh(const std::string path, Mesh*& inOutGeomPtr);
 
 	/**
 	 * \brief Creates default material object for debugging purposes
 	 * \param inOutMtlPtr A pointer set to the newly created material via in-out parameter
 	 * \return Returns true if material was succesfully created, false otherwise
 	 */
-	bool createMaterial(material*& inOutMtlPtr);
+	bool createMaterial(Material*& inOutMtlPtr);
 
 	/**
 	 * \brief Creates a material object from a local file
@@ -80,7 +80,7 @@ public:
 	 * \param inOutMtlPtr A pointer set to the newly created material via in-out parameter
 	 * \return Returns true if material was succesfully created, false otherwise
 	 */
-	bool createMaterial(const char * const path, material*& inOutMtlPtr);
+	bool createMaterial(const char * const path, Material*& inOutMtlPtr);
 
 	/**
 	 * \brief Reload a material object from file
@@ -109,7 +109,7 @@ public:
 	 * \param inOutTexPtr A pointer set to the newly created texture via in-out parameter
 	 * \return Returns true if texture was succesfully created, false otherwise
 	 */
-	bool createTexture2D(int dimX, int dimY, float* data, texture*& inOutTexPtr);
+	bool createTexture2D(int dimX, int dimY, float* data, Texture*& inOutTexPtr);
 
 	/**
 	 * \brief Creates a 2D texture from a file
@@ -117,7 +117,7 @@ public:
 	 * \param inOutTexPtr A pointer set to the newly created texture via in-out parameter
 	 * \return Returns true if texture was succesfully created, false otherwise
 	 */
-	bool createTexture2D(const std::string path, texture*& inOutTexPtr);
+	bool createTexture2D(const std::string path, Texture*& inOutTexPtr);
 
 	/**
 	 * \brief Reloads a texture in case a texture file is changed during runtime
@@ -133,7 +133,7 @@ public:
 	 * \param inOutTexPtr A pointer set to the newly created
 	 * \return Returns true if volume texture was succesfully created, false otherwise
 	 */
-	bool createTexture3D(const std::string path, glm::ivec3 textureRes, texture3D*& inOutTexPtr);
+	bool createTexture3D(const std::string path, glm::ivec3 textureRes, Texture3D*& inOutTexPtr);
 
 	/**
 	 * \brief Creates a 3D texture for volume rendering from a given float array
@@ -144,7 +144,7 @@ public:
 	 * \param inOutTexPtr A pointer set to the newly created
 	 * \return Returns true if volume texture was succesfully created, false otherwise
 	 */
-	bool createTexture3D(float* volumeData, glm::ivec3 textureRes, GLenum internalFormat, GLenum format, texture3D*& inOutTexPtr);
+	bool createTexture3D(float* volumeData, glm::ivec3 textureRes, GLenum internalFormat, GLenum format, Texture3D*& inOutTexPtr);
 
 private:
 	/** Log string */
@@ -157,25 +157,33 @@ private:
 	/	instance kept within one of these lists.
 	*/
 
-	/** List containing all vertexGeometry objects */
-	std::list<vertexGeometry> geometryList;
+	/** List containing all Mesh objects */
+	std::list<Mesh> geometryList;
 	/** List containing all materials */
-	std::list<material> materialList;
+	std::list<Material> materialList;
 	/** List containing all 2D textures */
-	std::list<texture2D> textureList;
+	std::list<Texture2D> textureList;
 	/** List containing all 3D textures */
-	std::list<texture3D> volumeList;
+	std::list<Texture3D> volumeList;
 	/** List containing all shader programs */
 	std::list<GLSLProgram> shaderProgramList;
 
 	/**
 	 * \brief Load geometry information from an fbx file
-	 * \note Not yet implemented
 	 * \param path Location of the fbx file
-	 * \param goemPtr Pointer to the vertexGeometry object where the loaded geometry will be stored
+	 * \param goemPtr Pointer to the Mesh object where the loaded geometry will be stored
 	 * \return Returns true if the geometry was succesfully loaded, false otherwise
 	 */
-	bool loadFbxGeometry(const char* const path, vertexGeometry* goemPtr);
+	bool loadFbxGeometry(const char* const path, Mesh* goemPtr);
+
+	/**
+	 * \brief Load geometry information from a binary file
+	 * \note Not yet implemented
+	 * \param path Location of the binary file
+	 * \param goemPtr Pointer to the Mesh object where the loaded geometry will be stored
+	 * \return Returns true if the geometry was succesfully loaded, false otherwise
+	 */
+	bool loadBinaryGeometry(const std::string path, Mesh* goemPtr);
 
 	/**
 	 * \brief Parses a material file
@@ -183,7 +191,7 @@ private:
 	 * \param inOutMtlInfo Contains the material information after the method is called (in-out parameter)
 	 * \return Returns true if the material file was succesfully parsed, false otherwise
 	 */
-	bool parseMaterial(const char* const materialPath, materialInfo& inOutMtlInfo);
+	bool parseMaterial(const char* const materialPath, MaterialInfo& inOutMtlInfo);
 
 	/**
 	 * \brief Read a shader source file

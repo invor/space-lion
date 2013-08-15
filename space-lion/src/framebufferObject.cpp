@@ -1,14 +1,14 @@
 #include "framebufferObject.h"
 
-framebufferObject::framebufferObject()
+FramebufferObject::FramebufferObject()
 {
 }
 
-framebufferObject::~framebufferObject()
+FramebufferObject::~FramebufferObject()
 {
 }
 
-framebufferObject::framebufferObject(int w, int h, bool hasDepth, bool hasStencil) : width(w), height(h)
+FramebufferObject::FramebufferObject(int w, int h, bool hasDepth, bool hasStencil) : width(w), height(h)
 {
 	glGenFramebuffers(1, &handle);
 	glBindFramebuffer(GL_FRAMEBUFFER, handle);
@@ -28,7 +28,7 @@ framebufferObject::framebufferObject(int w, int h, bool hasDepth, bool hasStenci
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-bool framebufferObject::createColorAttachment(GLenum internalFormat, GLenum format, GLenum type)
+bool FramebufferObject::createColorAttachment(GLenum internalFormat, GLenum format, GLenum type)
 {	
 	GLint maxAttachments;
 	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxAttachments);
@@ -61,7 +61,7 @@ bool framebufferObject::createColorAttachment(GLenum internalFormat, GLenum form
 	return true;
 }
 
-void framebufferObject::bind()
+void FramebufferObject::bind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, handle);
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -81,7 +81,7 @@ void framebufferObject::bind()
 	}
 }
 
-void framebufferObject::bindColorbuffer(int index)
+void FramebufferObject::bindColorbuffer(int index)
 {
 	//std::vector<GLuint>::iterator itr = colorbuffer.begin();
 	//for(int i = 0; i < index; i++) ++itr;
@@ -90,17 +90,17 @@ void framebufferObject::bindColorbuffer(int index)
 	glBindTexture(GL_TEXTURE_2D, colorbuffer[index]);
 }
 
-void framebufferObject::bindDepthbuffer()
+void FramebufferObject::bindDepthbuffer()
 {
 	glBindTexture(GL_TEXTURE_2D, depthbuffer);
 }
 
-void framebufferObject::bindStencilbuffer()
+void FramebufferObject::bindStencilbuffer()
 {
 	glBindTexture(GL_TEXTURE_2D, stencilbuffer);
 }
 
-bool framebufferObject::checkStatus()
+bool FramebufferObject::checkStatus()
 {
 	if(glCheckFramebufferStatus(handle) == GL_FRAMEBUFFER_COMPLETE) return true;
 	return false;

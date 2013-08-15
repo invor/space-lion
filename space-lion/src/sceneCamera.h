@@ -4,17 +4,17 @@
 //openGL Math Lib
 #include "sceneEntity.h"
 
-class sceneCamera : public sceneEntity
+class SceneCamera : public SceneEntity
 {
 private:
 	float aspectRatio;
 	float fieldOfView;
 
 public:
-	sceneCamera();
-	~sceneCamera();
+	SceneCamera();
+	~SceneCamera();
 
-	sceneCamera(const int, const glm::vec3&, const glm::quat&,float,float);
+	SceneCamera(const int, const glm::vec3&, const glm::quat&,float,float);
 
 	void setAspectRation(const float inAspectRation) {aspectRatio = inAspectRation;}
 	float getAspectRatio() {return aspectRatio;}

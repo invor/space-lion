@@ -1,10 +1,10 @@
 #include "volumetricSceneObject.h"
 
 
-volumetricSceneObject::volumetricSceneObject()
+VolumetricSceneObject::VolumetricSceneObject()
 {
 }
 
-volumetricSceneObject::~volumetricSceneObject()
+VolumetricSceneObject::~VolumetricSceneObject()
 {
 }

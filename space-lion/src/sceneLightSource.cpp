@@ -1,15 +1,15 @@
 #include "sceneLightSource.h"
 
 
-sceneLightSource::sceneLightSource()
+SceneLightSource::SceneLightSource()
 {
 }
 
-sceneLightSource::~sceneLightSource()
+SceneLightSource::~SceneLightSource()
 {
 }
 
-sceneLightSource::sceneLightSource(int inId, const glm::vec3& inPosition, const glm::vec4& inLightColour) : sceneEntity(inId, inPosition)
+SceneLightSource::SceneLightSource(int inId, const glm::vec3& inPosition, const glm::vec4& inLightColour) : SceneEntity(inId, inPosition)
 {
 	lightColour = inLightColour;
 }

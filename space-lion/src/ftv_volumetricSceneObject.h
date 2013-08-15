@@ -18,19 +18,19 @@ Description: Extends the volumetricSceneObject class. Simply adds the handle for
 #include "volumetricSceneObject.h"
 #include "texture3D.h"
 
-class ftv_volumetricSceneObject : public volumetricSceneObject
+class Ftv_volumetricSceneObject : public VolumetricSceneObject
 {
 private:
-	texture3D* ftvMaskVolume;
+	Texture3D* ftvMaskVolume;
 public:
-	ftv_volumetricSceneObject() {}
-	~ftv_volumetricSceneObject() {}
+	Ftv_volumetricSceneObject() {}
+	~Ftv_volumetricSceneObject() {}
 
-	ftv_volumetricSceneObject(const int inId, const glm::vec3& inPosition, const glm::quat& inOrientation, const glm::vec3& inScaling,
-		vertexGeometry* inGeom, texture3D* inVolume, texture3D *inFtvMaskVolume, GLSLProgram* inPrgm)
-		: volumetricSceneObject(inId,inPosition,inOrientation,inScaling,inGeom,inVolume,inPrgm), ftvMaskVolume(inFtvMaskVolume) {}
+	Ftv_volumetricSceneObject(const int inId, const glm::vec3& inPosition, const glm::quat& inOrientation, const glm::vec3& inScaling,
+		Mesh* inGeom, Texture3D* inVolume, Texture3D *inFtvMaskVolume, GLSLProgram* inPrgm)
+		: VolumetricSceneObject(inId,inPosition,inOrientation,inScaling,inGeom,inVolume,inPrgm), ftvMaskVolume(inFtvMaskVolume) {}
 
-	texture3D* getFtvMaskVolumeTexture() {return ftvMaskVolume;}
+	Texture3D* getFtvMaskVolumeTexture() {return ftvMaskVolume;}
 };
 
 #endif

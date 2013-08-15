@@ -4,15 +4,15 @@
 int main( void )
 {
 	//Let's do some tests
-	renderHub testRenderer;
+	RenderHub testRenderer;
 	if(testRenderer.init())
 	{
 		//testRenderer.addScene();
 		//testRenderer.setActiveScene(0);
-		//testRenderer.run();
+		testRenderer.run();
 		//testRenderer.runVolumeTest();
 		//testRenderer.runFtvVolumeTest();
-		testRenderer.runInpaintingTest();
+		//testRenderer.runInpaintingTest();
 		//testRenderer.runFtvGuidanceFieldTest();
 	}
 

@@ -1,19 +1,19 @@
 #include "sceneCamera.h"
 
 
-sceneCamera::sceneCamera()
+SceneCamera::SceneCamera()
 {
 }
 
-sceneCamera::~sceneCamera()
+SceneCamera::~SceneCamera()
 {
 }
 
-sceneCamera::sceneCamera(int inId, const glm::vec3& inPosition, const glm::quat& inOrientation, float inAspect, float inFov) : sceneEntity(inId,inPosition, inOrientation), aspectRatio(inAspect), fieldOfView(inFov)
+SceneCamera::SceneCamera(int inId, const glm::vec3& inPosition, const glm::quat& inOrientation, float inAspect, float inFov) : SceneEntity(inId,inPosition, inOrientation), aspectRatio(inAspect), fieldOfView(inFov)
 {
 }
 
-glm::vec3 sceneCamera::computeFrontVector()
+glm::vec3 SceneCamera::computeFrontVector()
 {
 	//	Use a pure quaternion containing the initial front vector to compute a pure quaternion
 	//	containing the front vector according the the cameras orientation
@@ -23,7 +23,7 @@ glm::vec3 sceneCamera::computeFrontVector()
 	return glm::normalize(glm::vec3(qFront.x,qFront.y,qFront.z));
 }
 
-glm::vec3 sceneCamera::computeUpVector()
+glm::vec3 SceneCamera::computeUpVector()
 {
 	//	Use a pure quaternion containing the initial front vector to compute a pure quaternion
 	//	containing the front vector according the the cameras orientation
@@ -33,7 +33,7 @@ glm::vec3 sceneCamera::computeUpVector()
 	return glm::normalize(glm::vec3(qUp.x,qUp.y,qUp.z));
 }
 
-glm::vec3 sceneCamera::computeRightHandVector()
+glm::vec3 SceneCamera::computeRightHandVector()
 {
 	//	Use a pure quaternion containing the initial front vector to compute a pure quaternion
 	//	containing the front vector according the the cameras orientation

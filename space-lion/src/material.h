@@ -4,39 +4,41 @@
 #include "GLSLProgram.h"
 #include "texture.h"
 
-struct materialInfo
+struct MaterialInfo
 {
-	materialInfo() : id(0) {}
+	MaterialInfo() : id(0) {}
 	int id;
 	char* diff_path;
 	char* spec_path;
 	char* normal_path;
 };
 
-class material
+class Material
 {
 private:
 	int id;
 
 	GLSLProgram *shaderProgram;
 
-	texture *diffuseMap;
-	texture *specularMap;
-	texture *normalMap;
+	Texture *diffuseMap;
+	Texture *specularMap;
+	Texture *normalMap;
 
 public:
-	~material();
+	~Material();
 
-	material(int,GLSLProgram*,texture*,texture*,texture*);
+	Material(int,GLSLProgram*,Texture*,Texture*,Texture*);
 	
 	//	for later use, when some kind of editor allows to change material properties at runtime
-	bool update(int,GLSLProgram*,texture*,texture*,texture*);
+	bool update(int,GLSLProgram*,Texture*,Texture*,Texture*);
+
+	void use();
 
 	int getId() {return id;}
 	GLSLProgram* getShaderProgram() {return shaderProgram;}
-	const texture* getDiffuseMap() {return diffuseMap;}
-	const texture* getSpecularMap() {return specularMap;}
-	const texture* getNormalMap() {return normalMap;}
+	const Texture* getDiffuseMap() {return diffuseMap;}
+	const Texture* getSpecularMap() {return specularMap;}
+	const Texture* getNormalMap() {return normalMap;}
 };
 
 #endif

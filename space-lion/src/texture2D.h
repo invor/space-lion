@@ -3,7 +3,7 @@
 
 #include "texture.h"
 
-class texture2D : public texture
+class Texture2D : public Texture
 {
 private:
 

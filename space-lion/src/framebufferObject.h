@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 
-class framebufferObject
+class FramebufferObject
 {
 private:
 	GLuint handle;
@@ -17,10 +17,10 @@ private:
 	int height;
 
 public:
-	framebufferObject();
-	~framebufferObject();
+	FramebufferObject();
+	~FramebufferObject();
 
-	framebufferObject(int w, int h, bool hasDepth, bool hasStencil);
+	FramebufferObject(int w, int h, bool hasDepth, bool hasStencil);
 
 	/*
 	/	Adds one color attachment to the framebuffer.

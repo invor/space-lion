@@ -4,15 +4,15 @@
 //openGL Math Lib
 #include "sceneEntity.h"
 
-class sceneLightSource : public sceneEntity
+class SceneLightSource : public SceneEntity
 {
 private:
 	glm::vec4 lightColour;
 public:
-	sceneLightSource();
-	~sceneLightSource();
+	SceneLightSource();
+	~SceneLightSource();
 
-	sceneLightSource(int, const glm::vec3&, const glm::vec4&);
+	SceneLightSource(int, const glm::vec3&, const glm::vec4&);
 
 	glm::vec4 getColour() {return lightColour;}
 };

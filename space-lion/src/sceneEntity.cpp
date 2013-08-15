@@ -1,5 +1,5 @@
 #include "sceneEntity.h"
 
-sceneEntity::~sceneEntity()
+SceneEntity::~SceneEntity()
 {
 }

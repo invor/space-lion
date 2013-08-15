@@ -1,6 +1,6 @@
 #include "ftvTestbench.h"
 
-bool ftvTestbench::readPpmHeader(const char* filename, long& headerEndPos, int& imgDimX, int& imgDimY)
+bool FtvTestbench::readPpmHeader(const char* filename, long& headerEndPos, int& imgDimX, int& imgDimY)
 {
 	/*
 	/	C stlye
@@ -142,7 +142,7 @@ bool ftvTestbench::readPpmHeader(const char* filename, long& headerEndPos, int& 
 	return true;
 }
 
-bool ftvTestbench::readPpmData(const char* filename, char* imageData, long dataBegin, int imgDimX, int imgDimY)
+bool FtvTestbench::readPpmData(const char* filename, char* imageData, long dataBegin, int imgDimX, int imgDimY)
 {
 	/*
 	/	C stlye
@@ -205,7 +205,7 @@ bool ftvTestbench::readPpmData(const char* filename, char* imageData, long dataB
 	return true;
 }
 
-bool ftvTestbench::readRawImageF(const char* filename, float* imageData, int size)
+bool FtvTestbench::readRawImageF(const char* filename, float* imageData, int size)
 {
 	//TODO: Add some checks
 
@@ -219,7 +219,7 @@ bool ftvTestbench::readRawImageF(const char* filename, float* imageData, int siz
 	return true;
 }
 
-bool ftvTestbench::loadImageSequence()
+bool FtvTestbench::loadImageSequence()
 {
 	char* imageData;
 	long dataBegin;
@@ -290,7 +290,7 @@ bool ftvTestbench::loadImageSequence()
 	
 }
 
-bool ftvTestbench::loadVectorFieldSequence()
+bool FtvTestbench::loadVectorFieldSequence()
 {
 	/*	Go for the velo.lst file, as it contains a list of all vectorfields */
 	std::vector<std::string> velo;
@@ -357,7 +357,7 @@ bool ftvTestbench::loadVectorFieldSequence()
 	return true;
 }
 
-void ftvTestbench::initMasks()
+void FtvTestbench::initMasks()
 {
 	float maskData[] = {0.1f,0.1f,0.3f,0.3f,0.5f,0.4f,0.6f,0.6f};
 	glGenTextures(1, &maskConfigB);
@@ -405,29 +405,29 @@ void ftvTestbench::initMasks()
 	glBindTexture(GL_TEXTURE_1D,0);
 }
 
-void ftvTestbench::getForwardTexture(GLuint& handle, int index)
+void FtvTestbench::getForwardTexture(GLuint& handle, int index)
 {
 	handle = textures_f[index];
 }
 
-void ftvTestbench::getBackwardTexture(GLuint& handle, int index)
+void FtvTestbench::getBackwardTexture(GLuint& handle, int index)
 {
 	handle = textures_b[index];
 }
 
-void ftvTestbench::getVectorTexture(GLuint& handle, int index)
+void FtvTestbench::getVectorTexture(GLuint& handle, int index)
 {
 	handle = textures_v[index];
 }
 
-void ftvTestbench::getFrameConfigA(framebufferObject* maskFbo, framebufferObject* imgFbo)
+void FtvTestbench::getFrameConfigA(FramebufferObject* maskFbo, FramebufferObject* imgFbo)
 {
 	imgFbo->bind();
 	glViewport(0,0,imgFbo->getWidth(),imgFbo->getHeight());
 	imageProcessor.imageToFBO(textures_f[0]);
 }
 
-void ftvTestbench::getFrameConfigB(framebufferObject* maskFbo, framebufferObject* imgFbo)
+void FtvTestbench::getFrameConfigB(FramebufferObject* maskFbo, FramebufferObject* imgFbo)
 {
 	if(currentFrame==0)
 	{
@@ -446,7 +446,7 @@ void ftvTestbench::getFrameConfigB(framebufferObject* maskFbo, framebufferObject
 	currentFrame = (currentFrame++)%49;
 }
 
-void ftvTestbench::getFrameConfigC(framebufferObject* maskFbo, framebufferObject* imgFbo)
+void FtvTestbench::getFrameConfigC(FramebufferObject* maskFbo, FramebufferObject* imgFbo)
 {
 	if(currentFrame==0)
 	{
