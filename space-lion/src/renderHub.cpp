@@ -210,7 +210,7 @@ void RenderHub::runVolumeTest()
 	GLSLProgram* prgmPtr;
 	resourceMngr.createBox(geomPtr);
 	resourceMngr.createTexture3D("../resources/volumeData/f.raw",glm::ivec3(67,67,67),volPtr);
-	resourceMngr.createShaderProgram(FTV_VOLUME_RAYCASTING,prgmPtr);
+	resourceMngr.createShaderProgram(VOLUME_RAYCASTING,prgmPtr);
 
 
 	if(!(activeScene->createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),geomPtr,volPtr,prgmPtr)))

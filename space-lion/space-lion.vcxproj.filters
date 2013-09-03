@@ -223,5 +223,8 @@
     <None Include="..\resources\shaders\f_structureTensor.glsl">
       <Filter>Shader Source Files</Filter>
     </None>
+    <None Include="..\resources\shaders\v_ftv_textureAdvection.glsl">
+      <Filter>Shader Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

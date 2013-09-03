@@ -5,35 +5,48 @@ bool Ftv_PostProcessor::ftv_init(ResourceManager *resourceMngr)
 	if( !init(resourceMngr) ) return false;
 
 	/*	Create grid ibfvGrid */
-	float posX = -0.95;
-	float posY = -0.95;
+	int subdivision = 100;
+	float tileOffset = 2.0/(float)subdivision;
+	float localOffset = 1.0/(float)subdivision;
+	float posX = -1.0+localOffset;
+	float posY = -1.0+localOffset;
+	int vertexCount = subdivision*subdivision*6;
 
-	Vertex_pu *vertexArray = new Vertex_pu[1600];
-	GLuint *indexArray = new GLuint[1600];
+	Vertex_pu *vertexArray = new Vertex_pu[vertexCount];
+	GLuint *indexArray = new GLuint[vertexCount];
 
 	/*
 	/	A bit of magic.
 	*/
-	int localOffset;
-	for(int i=0;i<20;i++)
+	int vertexTileOffset;
+	for(int i=0;i<subdivision;i++)
 	{
-		for(int j=0;j<20;j++)
+		for(int j=0;j<subdivision;j++)
 		{
-			localOffset = ((i*20)+j)*4;
-			vertexArray[localOffset]=Vertex_pu(posX-0.05,posY-0.05,0.0,((posX-0.05)*0.5)+0.5,((posY-0.05)*0.5)+0.5);
-			vertexArray[localOffset+1]=Vertex_pu(posX-0.05,posY+0.05,0.0,((posX-0.05)*0.5)+0.5,((posY+0.05)*0.5)+0.5);
-			vertexArray[localOffset+2]=Vertex_pu(posX+0.05,posY+0.05,0.0,((posX+0.05)*0.5)+0.5,((posY+0.05)*0.5)+0.5);
-			vertexArray[localOffset+3]=Vertex_pu(posX+0.05,posY-0.05,0.0,((posX+0.05)*0.5)+0.5,((posY-0.05)*0.5)+0.5);
+			vertexTileOffset = ((i*subdivision*6)+j*6);
+			//std::cout<<localOffset<<" "<<posX<<" "<<posY<<std::endl;
+			vertexArray[vertexTileOffset]=Vertex_pu(posX-localOffset,posY-localOffset,0.0,((posX-localOffset)*0.5)+0.5,((posY-localOffset)*0.5)+0.5);
+			vertexArray[vertexTileOffset+1]=Vertex_pu(posX+localOffset,posY+localOffset,0.0,((posX+localOffset)*0.5)+0.5,((posY+localOffset)*0.5)+0.5);
+			vertexArray[vertexTileOffset+2]=Vertex_pu(posX-localOffset,posY+localOffset,0.0,((posX-localOffset)*0.5)+0.5,((posY+localOffset)*0.5)+0.5);
+
+			vertexArray[vertexTileOffset+3]=Vertex_pu(posX+localOffset,posY+localOffset,0.0,((posX+localOffset)*0.5)+0.5,((posY+localOffset)*0.5)+0.5);
+			vertexArray[vertexTileOffset+4]=Vertex_pu(posX-localOffset,posY-localOffset,0.0,((posX-localOffset)*0.5)+0.5,((posY-localOffset)*0.5)+0.5);
+			vertexArray[vertexTileOffset+5]=Vertex_pu(posX+localOffset,posY-localOffset,0.0,((posX+localOffset)*0.5)+0.5,((posY-localOffset)*0.5)+0.5);
 			
-			posX += 0.1;
+			indexArray[vertexTileOffset+0]=vertexTileOffset+0;
+			indexArray[vertexTileOffset+1]=vertexTileOffset+1;
+			indexArray[vertexTileOffset+2]=vertexTileOffset+2;
+			indexArray[vertexTileOffset+3]=vertexTileOffset+3;
+			indexArray[vertexTileOffset+4]=vertexTileOffset+4;
+			indexArray[vertexTileOffset+5]=vertexTileOffset+5;
+
+			posX += tileOffset;
 		}
-		posY += 0.1;
+		posX = -1.0+localOffset;
+		posY += tileOffset;
 	}
 
-	indexArray[0]=0;indexArray[1]=2;indexArray[2]=1;
-	indexArray[3]=2;indexArray[4]=0;indexArray[5]=3;
-
-	if(!(ibfvGrid.bufferDataFromArray(vertexArray,indexArray,sizeof(Vertex_pu)*1600,sizeof(GLuint)*1600))) return false;
+	if(!(ibfvGrid.bufferDataFromArray(vertexArray,indexArray,sizeof(Vertex_pu)*vertexCount,sizeof(GLuint)*vertexCount))) return false;
 	ibfvGrid.setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pu),0);
 	ibfvGrid.setVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(Vertex_pu),(GLvoid*) sizeof(Vertex_p));
 
@@ -48,6 +61,7 @@ bool Ftv_PostProcessor::ftv_init(ResourceManager *resourceMngr)
 	if( !resourceMngr->createShaderProgram(FTV_IMPROVED_INPAINTING,improvedInpaintingShaderPrg) ) return false;
 	if( !resourceMngr->createShaderProgram(FTV_GAUSSIAN,ftvGaussianShaderPrg) ) return false;
 	if( !resourceMngr->createShaderProgram(FTV_MASK_SHRINK,shrinkMaskPrg) ) return false;
+	if( !resourceMngr->createShaderProgram(FTV_TEXTURE_ADVECTION,textureAdvectionPrg) ) return false;
 
 	/*	The FBOs used for image inpainting require different color attachments */
 	gaussianFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
@@ -419,16 +433,16 @@ void Ftv_PostProcessor::applyImprovedImageInpainting(FramebufferObject *inputFbo
 		//	computeCoherence(&hesseFbo,&coherenceFbo);
 
 		/*	Temporary fix for the very wrong implementation above */
-		applyFtvGaussian(inputFbo,&gaussianFbo,mask,1.5f,1);
+		applyFtvGaussian(inputFbo,&gaussianFbo,mask,1.4f,1);
 		computeStructureTensor(&gaussianFbo,&hesseFbo);
-		applyFtvGaussian(&hesseFbo,&hesseFbo,mask,1.5f,3);
+		applyFtvGaussian(&hesseFbo,&hesseFbo,mask,1.5f,4);
 		computeCoherence(&hesseFbo,&coherenceFbo);
 	
 		improvedInpaintingShaderPrg->use();
 		B.bind();
 		glViewport(0,0,B.getWidth(),B.getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		improvedInpaintingShaderPrg->setUniform("stencilSize",2.0f);
+		improvedInpaintingShaderPrg->setUniform("stencilSize",4.0f);
 		improvedInpaintingShaderPrg->setUniform("h", glm::vec2(1.0f/B.getWidth(), 1.0f/B.getHeight()));
 		glActiveTexture(GL_TEXTURE0);
 		improvedInpaintingShaderPrg->setUniform("mask_tx2D",0);
@@ -454,16 +468,16 @@ void Ftv_PostProcessor::applyImprovedImageInpainting(FramebufferObject *inputFbo
 		//	computeCoherence(&hesseFbo,&coherenceFbo);
 
 		/*	Temporary fix for the very wrong implementation above */
-		applyFtvGaussian(&B, &gaussianFbo,&maskFboB,1.5f,1);
+		applyFtvGaussian(&B, &gaussianFbo,&maskFboB,1.4f,1);
 		computeStructureTensor(&gaussianFbo,&hesseFbo);
-		applyFtvGaussian(&hesseFbo,&hesseFbo,&maskFboB,1.5f,3);
+		applyFtvGaussian(&hesseFbo,&hesseFbo,&maskFboB,1.5f,4);
 		computeCoherence(&hesseFbo,&coherenceFbo);
 		
 		improvedInpaintingShaderPrg->use();
 		inputFbo->bind();
 		glViewport(0,0,inputFbo->getWidth(),inputFbo->getHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		improvedInpaintingShaderPrg->setUniform("stencilSize",2.0f);
+		improvedInpaintingShaderPrg->setUniform("stencilSize",4.0f);
 		improvedInpaintingShaderPrg->setUniform("h", glm::vec2(1.0f/inputFbo->getWidth(), 1.0f/inputFbo->getHeight()));
 		glActiveTexture(GL_TEXTURE0);
 		improvedInpaintingShaderPrg->setUniform("mask_tx2D",0);
@@ -545,4 +559,18 @@ void Ftv_PostProcessor::computeCoherence(FramebufferObject *inputFbo, Framebuffe
 	glViewport(0,0,coherenceFbo->getWidth(),coherenceFbo->getHeight());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderPlane.draw(GL_TRIANGLES,6,0);
+}
+
+void Ftv_PostProcessor::textureAdvection(FramebufferObject *inputFbo, GLuint guidanceField)
+{
+	textureAdvectionPrg->use();
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	textureAdvectionPrg->setUniform("inputImage",0);
+	inputFbo->bindColorbuffer(0);
+	glActiveTexture(GL_TEXTURE1);
+	textureAdvectionPrg->setUniform("guidanceField_tx2D",1);
+	glBindTexture(GL_TEXTURE_2D,guidanceField);
+
+	ibfvGrid.draw(GL_TRIANGLES,2400,0);
 }

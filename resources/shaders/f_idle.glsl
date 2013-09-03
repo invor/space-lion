@@ -23,4 +23,6 @@ out vec4 fragColour;
 void main()
 {
 	fragColour = texture(inputImage, uvCoord);
+	/* Debugging. */
+	//fragColour = vec4(uvCoord,0.0,1.0);
 }

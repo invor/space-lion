@@ -1,17 +1,19 @@
 #include "src/renderHub.h"
+#include "src/ftv_renderHub.h"
 
 
 int main( void )
 {
 	//Let's do some tests
-	RenderHub testRenderer;
+	Ftv_RenderHub testRenderer;
 	if(testRenderer.init())
 	{
 		//testRenderer.addScene();
 		//testRenderer.setActiveScene(0);
-		testRenderer.run();
+		//testRenderer.run();
 		//testRenderer.runVolumeTest();
 		//testRenderer.runFtvVolumeTest();
+		testRenderer.runTextureAdvectionTest();
 		//testRenderer.runInpaintingTest();
 		//testRenderer.runFtvGuidanceFieldTest();
 	}

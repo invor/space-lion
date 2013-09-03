@@ -354,6 +354,12 @@ bool ResourceManager::createShaderProgram(shaderType type, GLSLProgram*& inOutPr
 		shaderPrg.bindFragDataLocation(0,"inpaintingMask");
 		shaderPrg.bindFragDataLocation(1,"distanceMap");
 		break; }
+	case FTV_TEXTURE_ADVECTION : {
+		vertSource = readShaderFile("../resources/shaders/v_ftv_textureAdvection.glsl");
+		fragSource = readShaderFile("../resources/shaders/f_idle.glsl");
+		shaderPrg.bindAttribLocation(0,"vPosition");
+		shaderPrg.bindAttribLocation(1,"vUVCoord");
+		break; }
 	default : {
 		return false;
 		break; }

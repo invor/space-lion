@@ -97,6 +97,8 @@ public:
 	*/
 	void computeCoherence(FramebufferObject *inputFbo, FramebufferObject *coherenceFbo);
 
+	void textureAdvection(FramebufferObject *inputFbo, GLuint guidanceField);
+
 private:
 
 	Mesh ibfvGrid;
@@ -112,6 +114,7 @@ private:
 	GLSLProgram *improvedInpaintingShaderPrg;
 	GLSLProgram *ftvGaussianShaderPrg;
 	GLSLProgram *shrinkMaskPrg;
+	GLSLProgram *textureAdvectionPrg;
 
 	/*	Some additional FBOs are required for coherence computations */
 	FramebufferObject gaussianFbo;

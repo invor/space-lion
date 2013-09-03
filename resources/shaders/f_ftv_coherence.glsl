@@ -36,8 +36,8 @@ void main()
 
 	float coherenceStrength;
 	/* TODO FIND VALUES */
-	float quant = 1.0/10.0;
-	float k = 10.0;
+	float quant = 1.0/255.0;
+	float k = 25.0;
 	if(lambda_1 == lambda_2)
 	{
 		coherenceStrength = 1.0;

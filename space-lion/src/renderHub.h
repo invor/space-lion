@@ -7,7 +7,7 @@
 /	is handled here.
 */
 
-#define TIMER 0
+#define TIMER 1
 
 #include <vector>
 #include "scene.h"
@@ -34,6 +34,14 @@ public:
 	/*	Initialize OpenGL context and create a window */
 	bool init();
 
+	/*	Scene handling */
+	bool addScene();
+	bool deleteScene();
+	bool setSceneParameters();
+	Scene* getScene(const int index);
+	void setActiveScene(const int index);
+	Scene* getActiveScene();
+
 	/* Render a frame of the active scene and check event-queue. */
 	void run();
 
@@ -54,14 +62,6 @@ private:
 
 	/*	Message handling */
 	void processMessage(Message *msg);
-
-	/*	Scene handling */
-	bool addScene();
-	bool deleteScene();
-	bool setSceneParameters();
-	Scene* getScene(const int index);
-	void setActiveScene(const int index);
-	Scene* getActiveScene();
 };
 
 #endif

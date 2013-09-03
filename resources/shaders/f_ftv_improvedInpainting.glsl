@@ -61,7 +61,7 @@ vec4 imageInpainting()
 				
 				//weight =  (coherence.z/length(vec2(differenceVector.x/h.x,differenceVector.y/h.y)));
 				
-				weight =  sqrt(PI/2.0) * (coherence.z/length(vec2(differenceVector.x/h.x,differenceVector.y/h.y))) * exp( -(coherence.z*coherence.z)/(2.0*stencilSize)
+				weight =  sqrt(PI/2.0) * (coherence.z/length(vec2(differenceVector.x/h.x,differenceVector.y/h.y))) * exp( -(coherence.z*coherence.z)/(2.0*stencilSize*stencilSize)
 									* pow( abs( dot(normalize(differenceVector),normalize(vec2(-coherence.y,coherence.x)) ) ),2.0 ) );
 									
 				//weight = (coherence.z/length(uvCoord - currentPos)) * abs( dot(normalize(differenceVector),normalize(coherence.xy) ) );

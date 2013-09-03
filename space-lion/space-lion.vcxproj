@@ -208,6 +208,7 @@
     <None Include="..\resources\shaders\f_structureTensor.glsl" />
     <None Include="..\resources\shaders\f_volRen.glsl" />
     <None Include="..\resources\shaders\v_flat.glsl" />
+    <None Include="..\resources\shaders\v_ftv_textureAdvection.glsl" />
     <None Include="..\resources\shaders\v_ftv_volRen.glsl" />
     <None Include="..\resources\shaders\v_genericPostProc.glsl" />
     <None Include="..\resources\shaders\v_phong.glsl" />

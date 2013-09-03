@@ -4,8 +4,13 @@
 #include <queue>
 #include <atomic>
 
+enum messageType { CREATE, DELETE, GAMEOVER };
+
 struct Message
 {
+	messageType type;
+	int id;
+	std::string node_label;
 };
 
 /**
@@ -25,7 +30,9 @@ public:
 	MessageReceiver() {}
 	~MessageReceiver() {}
 
-	void pushMessage(Message msg);
+	void pushPlaceMessage();
+	void pushRemoveMessage();
+	void pushGameOverMessage();
 	Message popMessage(); 
 
 private:

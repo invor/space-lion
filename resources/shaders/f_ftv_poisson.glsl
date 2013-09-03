@@ -334,9 +334,10 @@ void main()
 {
 	if(texture2D(mask_tx2D,uvCoord).x < 0.5f)
 	{
+		fragColour = vec4(poissonImageEditing(uvCoord),1.0);
 		//fragColour = vec4(acceleratedPoissonImageEditing(uvCoord),1.0);
 		//fragColour = vec4(guidedPoissonImageEditing(uvCoord),1.0);
-		fragColour = vec4(licImageEditing(uvCoord),1.0);
+		//fragColour = vec4(licImageEditing(uvCoord),1.0);
 		//if(texture2D(mask_tx2D,uvCoord).y < 0.5f)
 		//{
 		//	//fragColour = vec4(1.0);

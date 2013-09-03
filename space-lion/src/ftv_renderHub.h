@@ -7,7 +7,7 @@
 /	is handled here.
 */
 
-#define TIMER 0
+#define TIMER 1
 
 #include <vector>
 #include "scene.h"
@@ -17,6 +17,7 @@
 #include "ftv_postProcessor.h"
 #include "framebufferObject.h"
 #include "ftvTestbench.h"
+#include "renderHub.h"
 #include "GL/glfw.h"
 
 //pragmas seem to be only necessary in windows
@@ -25,28 +26,11 @@
 	#pragma comment(lib,"opengl32.lib")
 #endif
 
-class Ftv_RenderHub
+class Ftv_RenderHub : public RenderHub
 {
 public:
 	Ftv_RenderHub(void);
 	~Ftv_RenderHub(void);
-
-	/*	Initialize OpenGL context and create a window */
-	bool init();
-
-	/*	Scene handling */
-	bool addScene();
-	bool deleteScene();
-	bool setSceneParameters();
-	Scene* getScene(const int index);
-	void setActiveScene(const int index);
-	Scene* getActiveScene();
-
-	/* Render a frame of the active scene and check event-queue. */
-	void run();
-
-	/*	Test volume rendering */
-	void runVolumeTest();
 
 	/*	Run fault tolerant volume visuailization tests. */
 	void runFtvVolumeTest();
@@ -56,6 +40,7 @@ public:
 
 	/*	Used for crazy testing */
 	void runInpaintingTest();
+	void runTextureAdvectionTest();
 	void runFtvGuidanceFieldTest();
 
 private:
