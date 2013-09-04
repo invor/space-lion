@@ -166,13 +166,9 @@ pip-log.txt
 ## Include,Libraries,Resource files
 ############
 
-space-lion/fbx
-space-lion/glew
-space-lion/glfw
-space-lion/glm
-space-lion/soil
-space-lion/x64
-x64
+vs2013/include
+vs2013/lib
+bin
 resources/textures/other
 resources/textures/fault_tolerant_vis
 resources/meshes/workfiles

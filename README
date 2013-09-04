@@ -4,7 +4,7 @@ Space Lion
 A prototype of a multipurpose (render)engine. It is to be used for both
 computer games and as a visualization framework for scientific applications.
 
-(Readme revision 3)
+(Readme revision 4)
 
 Current milestone:
 codename 'melancholy'
@@ -14,14 +14,14 @@ codename 'melancholy'
 		- basic geometry, texture and material handling for scene objects
 		- basic phong shading (single light source)
 		- basic post processing concept
+		- glfw update
 	In progress:
 		- fault tolerant visualization (ftv)
 		- resource management improvments
 		- file loading (geometry, texture, materials)
-	Comming up:
-		- glfw update, switch to gl3w
 		- decide on a normal mapping scheme (depends on used geometry filetype)
 		- multiple light sources
+	Comming up:
 		- multi-material objects
 
 Next milestone:
