@@ -27,6 +27,9 @@ private:
 	GLuint textures_b[51];
 	GLuint textures_v[51];
 
+	/*	Single 3D texture to store all vector fields */
+	GLuint vector_fields;
+
 	int currentFrame;
 
 	/*
@@ -64,6 +67,8 @@ public:
 
 	bool loadVectorFieldSequence();
 
+	bool loadVectorFieldSequenceTo3D(int from, int to);
+
 	/*
 	/	Reset test instances to inital state.
 	*/
@@ -74,6 +79,7 @@ public:
 	void getForwardTexture(GLuint& handle, int index);
 	void getBackwardTexture(GLuint& handle, int index);
 	void getVectorTexture(GLuint& handle, int index);
+	void getVectorTexture3D(GLuint& handle);
 
 	/*
 	/

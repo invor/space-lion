@@ -353,7 +353,88 @@ bool FtvTestbench::loadVectorFieldSequence()
 		glTexImage2D(GL_TEXTURE_2D,0,GL_RG32F,imgDimX,imgDimY,0,GL_RG,GL_FLOAT,rearrangedImageData);
 		glBindTexture(GL_TEXTURE_2D,0);
 	}
-	
+
+	delete rawImageData;
+	delete rearrangedImageData;
+
+	return true;
+}
+
+bool FtvTestbench::loadVectorFieldSequenceTo3D(int from, int to)
+{
+	if( from > to ) return false;
+
+	/*	Go for the velo.lst file, as it contains a list of all vectorfields */
+	std::vector<std::string> velo;
+	std::string buffer;
+	std::string::iterator itr0;
+	std::string::iterator itr1;
+
+	std::ifstream file ("../resources/textures/fault_tolerant_vis/ftle_vectorfield/velo.lst",std::ios::in);
+	if(!( file.is_open() ))return false;
+
+	/*	Go to the beginning of the file and read the first line */
+	file.seekg(0, file.beg);
+	while(!file.eof())
+	{
+		std::getline(file,buffer,'\n');
+
+		itr0 = buffer.end();
+		itr1 = buffer.end();
+		while(*itr0 != '.') itr0--;
+		buffer.replace(itr0,itr1,".raw");
+
+		velo.push_back(buffer);
+	}
+
+	int imgDimX = 41;
+	int imgDimY = 41;
+	int imgDimZ = to - from;
+	int size_of_slice = imgDimX*imgDimY;
+	float* rawImageData = new float[size_of_slice*3];
+	/*	enough storage for 50 slices of 2d vectorfield data */
+	float* image_data_3d = new float[size_of_slice*2*imgDimZ];
+	std::string path;
+
+
+
+	/*	Careful with accessing the image arrays here! */
+	for(int i = from; i < to+1; i++)
+	{
+		path = "../resources/textures/fault_tolerant_vis/ftle_vectorfield/" + velo[i];
+
+		readRawImageF(path.c_str(),rawImageData,imgDimY*imgDimX*3);
+
+		for(int y=0;y<imgDimY;y++)
+		{
+			for(int x=0;x<imgDimX;x++)
+			{
+				/*
+				/	Save the data into the storage for the 3d texture.
+				/	We only need two of its components per texel.
+				*/
+				int z = i - from;
+				image_data_3d[z*imgDimX*imgDimY*2 + y*imgDimX*2 + x*2 + 0] = (rawImageData[(imgDimY-1-y)*imgDimX*3 + x*3 + 0]);
+				/*	Since the y-axis is inverted, the vetorfield entries have to be inverted too */
+				image_data_3d[z*imgDimX*imgDimY*2 + y*imgDimX*2 + x*2 + 1] = -(rawImageData[(imgDimY-1-y)*imgDimX*3 + x*3 + 1]);
+
+			}
+		}
+	}
+
+	glGenTextures(1, &vector_fields);
+	glBindTexture(GL_TEXTURE_3D, vector_fields);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage3D(GL_TEXTURE_3D,0,GL_RG32F,imgDimX,imgDimY,imgDimZ,0,GL_RG,GL_FLOAT,image_data_3d);
+	glBindTexture(GL_TEXTURE_3D,0);
+
+	//delete rawImageData;
+	//delete image_data_3d;
+
 	return true;
 }
 
@@ -418,6 +499,11 @@ void FtvTestbench::getBackwardTexture(GLuint& handle, int index)
 void FtvTestbench::getVectorTexture(GLuint& handle, int index)
 {
 	handle = textures_v[index];
+}
+
+void FtvTestbench::getVectorTexture3D(GLuint& handle)
+{
+	handle = vector_fields;
 }
 
 void FtvTestbench::getFrameConfigA(FramebufferObject* maskFbo, FramebufferObject* imgFbo)

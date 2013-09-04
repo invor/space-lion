@@ -568,9 +568,10 @@ void Ftv_PostProcessor::textureAdvection(FramebufferObject *inputFbo, GLuint gui
 	glActiveTexture(GL_TEXTURE0);
 	textureAdvectionPrg->setUniform("inputImage",0);
 	inputFbo->bindColorbuffer(0);
+	glEnable(GL_TEXTURE_3D);
 	glActiveTexture(GL_TEXTURE1);
-	textureAdvectionPrg->setUniform("guidanceField_tx2D",1);
-	glBindTexture(GL_TEXTURE_2D,guidanceField);
+	textureAdvectionPrg->setUniform("guidanceField_tx3D",1);
+	glBindTexture(GL_TEXTURE_3D,guidanceField);
 
 	ibfvGrid.draw(GL_TRIANGLES,2400,0);
 }

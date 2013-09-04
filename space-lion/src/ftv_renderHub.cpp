@@ -249,7 +249,7 @@ void Ftv_RenderHub::runTextureAdvectionTest()
 
 	/*	Create the test bench. */
 	FtvTestbench testbench;
-	if(!testbench.loadVectorFieldSequence()) std::cout<<"Couldn't load vector field data.\n";
+	if(!testbench.loadVectorFieldSequenceTo3D(100,150)) std::cout<<"Couldn't load vector field data.\n";
 	testbench.loadImageSequence();
 	testbench.initMasks();
 
@@ -259,7 +259,7 @@ void Ftv_RenderHub::runTextureAdvectionTest()
 
 	/*	Load vector field */
 	GLuint vecFieldTx;
-	testbench.getVectorTexture(vecFieldTx,0);
+	testbench.getVectorTexture3D(vecFieldTx);
 
 	/* Get first frame */
 	testbench.getFrameConfigC(&maskFbo,&primaryFbo);
@@ -272,7 +272,7 @@ void Ftv_RenderHub::runTextureAdvectionTest()
 	testbench.getFrameConfigC(&maskFbo,&primaryFbo);
 
 	/*	Combine the current frame and the advected previous frame with poisson */
-	pP.applyPoisson(&primaryFbo,&secondaryFbo,&maskFbo,500,0);
+	pP.applyPoisson(&primaryFbo,&secondaryFbo,&maskFbo,600,0);
 
 	#if TIMER
 			double end = glfwGetTime();
