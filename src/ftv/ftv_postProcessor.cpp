@@ -1,8 +1,8 @@
 #include "ftv_postProcessor.h"
 
-bool Ftv_PostProcessor::ftv_init(ResourceManager *resourceMngr)
+bool Ftv_PostProcessor::ftv_init(Ftv_ResourceManager *ftv_resource_mngr)
 {
-	if( !init(resourceMngr) ) return false;
+	if (!init(ftv_resource_mngr)) return false;
 
 	/*	Create grid ibfvGrid */
 	int subdivision = 100;
@@ -46,22 +46,22 @@ bool Ftv_PostProcessor::ftv_init(ResourceManager *resourceMngr)
 		posY += tileOffset;
 	}
 
-	if(!(ibfvGrid.bufferDataFromArray(vertexArray,indexArray,sizeof(Vertex_pu)*vertexCount,sizeof(GLuint)*vertexCount))) return false;
+	if(!(ibfvGrid.bufferDataFromArray(vertexArray,indexArray,sizeof(Vertex_pu)*vertexCount,sizeof(GLuint)*vertexCount,GL_TRIANGLES))) return false;
 	ibfvGrid.setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pu),0);
 	ibfvGrid.setVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(Vertex_pu),(GLvoid*) sizeof(Vertex_p));
 
 
 	/*	Load all ftv post processing shaders */
-	if( !resourceMngr->createShaderProgram(FTV_POISSON,poissonShaderPrg) ) return false;
-	if( !resourceMngr->createShaderProgram(FTV_INPAINTING,inpaintingShaderPrg) ) return false;
-	if( !resourceMngr->createShaderProgram(STAMP,stampShaderPrg) ) return false;
-	if( !resourceMngr->createShaderProgram(DISTANCEMAPPING,distanceShaderPrg) ) return false;
-	if( !resourceMngr->createShaderProgram(FTV_MASK,maskCreationShaderPrg) ) return false;
-	if( !resourceMngr->createShaderProgram(COHERENCE,coherenceShaderPrg) ) return false;
-	if( !resourceMngr->createShaderProgram(FTV_IMPROVED_INPAINTING,improvedInpaintingShaderPrg) ) return false;
-	if( !resourceMngr->createShaderProgram(FTV_GAUSSIAN,ftvGaussianShaderPrg) ) return false;
-	if( !resourceMngr->createShaderProgram(FTV_MASK_SHRINK,shrinkMaskPrg) ) return false;
-	if( !resourceMngr->createShaderProgram(FTV_TEXTURE_ADVECTION,textureAdvectionPrg) ) return false;
+	if (!ftv_resource_mngr->createFtvShaderProgram(FTV_POISSON, poissonShaderPrg)) return false;
+	if (!ftv_resource_mngr->createFtvShaderProgram(FTV_INPAINTING, inpaintingShaderPrg)) return false;
+	if (!ftv_resource_mngr->createFtvShaderProgram(STAMP, stampShaderPrg)) return false;
+	if (!ftv_resource_mngr->createFtvShaderProgram(DISTANCEMAPPING, distanceShaderPrg)) return false;
+	if (!ftv_resource_mngr->createFtvShaderProgram(FTV_MASK, maskCreationShaderPrg)) return false;
+	if (!ftv_resource_mngr->createFtvShaderProgram(COHERENCE, coherenceShaderPrg)) return false;
+	if (!ftv_resource_mngr->createFtvShaderProgram(FTV_IMPROVED_INPAINTING, improvedInpaintingShaderPrg)) return false;
+	if (!ftv_resource_mngr->createFtvShaderProgram(FTV_GAUSSIAN, ftvGaussianShaderPrg)) return false;
+	if (!ftv_resource_mngr->createFtvShaderProgram(FTV_MASK_SHRINK, shrinkMaskPrg)) return false;
+	if (!ftv_resource_mngr->createFtvShaderProgram(FTV_TEXTURE_ADVECTION, textureAdvectionPrg)) return false;
 
 	/*	The FBOs used for image inpainting require different color attachments */
 	gaussianFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
@@ -84,7 +84,7 @@ void Ftv_PostProcessor::generateDistanceMap(GLuint mask, int w, int h)
 	distanceShaderPrg->setUniform("mask",0);
 	glBindTexture(GL_TEXTURE_2D, mask);
 
-	renderPlane.draw(GL_TRIANGLES,6,0);
+	renderPlane.draw();
 }
 
 void Ftv_PostProcessor::generateFtvMask(FramebufferObject *targetFbo, GLuint regionsTexture, float w)
@@ -102,7 +102,7 @@ void Ftv_PostProcessor::generateFtvMask(FramebufferObject *targetFbo, GLuint reg
 	maskCreationShaderPrg->setUniform("inpaintingRegions_tx1D", 0);
 	glBindTexture(GL_TEXTURE_1D, regionsTexture);
 
-	renderPlane.draw(GL_TRIANGLES,6,0);
+	renderPlane.draw();
 }
 
 void Ftv_PostProcessor::shrinkFtvMask(FramebufferObject* targetFbo, FramebufferObject* mask)
@@ -122,7 +122,7 @@ void Ftv_PostProcessor::shrinkFtvMask(FramebufferObject* targetFbo, FramebufferO
 	shrinkMaskPrg->setUniform("distance_tx2D", 1);
 	mask->bindColorbuffer(1);
 
-	renderPlane.draw(GL_TRIANGLES,6,0);
+	renderPlane.draw();
 }
 
 void Ftv_PostProcessor::applyMaskToImageToFBO(GLuint inputImage, GLuint mask, int w, int h)
@@ -139,7 +139,7 @@ void Ftv_PostProcessor::applyMaskToImageToFBO(GLuint inputImage, GLuint mask, in
 	stampShaderPrg->setUniform("mask",1);
 	glBindTexture(GL_TEXTURE_2D, mask);
 
-	renderPlane.draw(GL_TRIANGLES,6,0);
+	renderPlane.draw();
 }
 
 void Ftv_PostProcessor::applyMaskToImageToFBO(GLuint inputImage, FramebufferObject* maskFbo, int w, int h)
@@ -156,7 +156,7 @@ void Ftv_PostProcessor::applyMaskToImageToFBO(GLuint inputImage, FramebufferObje
 	stampShaderPrg->setUniform("mask",1);
 	maskFbo->bindColorbuffer(0);
 
-	renderPlane.draw(GL_TRIANGLES,6,0);
+	renderPlane.draw();
 }
 
 void Ftv_PostProcessor::applyFtvGaussian(FramebufferObject *inputFbo, FramebufferObject *targetFbo, FramebufferObject *maskFbo, float sigma, int stencilRadius)
@@ -183,7 +183,7 @@ void Ftv_PostProcessor::applyFtvGaussian(FramebufferObject *inputFbo, Framebuffe
 	glActiveTexture(GL_TEXTURE2);
 	ftvGaussianShaderPrg->setUniform("inputImage",2);
 	inputFbo->bindColorbuffer(0);
-	renderPlane.draw(GL_TRIANGLES,6,0);
+	renderPlane.draw();
 
 	/*	switch rendering to the input frambuffer for the second, vertical filtering step*/
 	targetFbo->bind();
@@ -194,7 +194,7 @@ void Ftv_PostProcessor::applyFtvGaussian(FramebufferObject *inputFbo, Framebuffe
 	glActiveTexture(GL_TEXTURE2);
 	ftvGaussianShaderPrg->setUniform("inputImage",2);
 	gaussianBackBuffer.bindColorbuffer(0);
-	renderPlane.draw(GL_TRIANGLES,6,0);
+	renderPlane.draw();
 }
 
 /*
@@ -268,7 +268,7 @@ void Ftv_PostProcessor::applyPoisson(FramebufferObject *currentFrame, Framebuffe
 		glActiveTexture(GL_TEXTURE2);
 		poissonShaderPrg->setUniform("currFrame_tx2D",2);
 		currentFrame->bindColorbuffer(0);
-		renderPlane.draw(GL_TRIANGLES,6,0);
+		renderPlane.draw();
 		iterationCounter++;
 
 		currentFrame->bind();
@@ -279,7 +279,7 @@ void Ftv_PostProcessor::applyPoisson(FramebufferObject *currentFrame, Framebuffe
 		glActiveTexture(GL_TEXTURE2);
 		poissonShaderPrg->setUniform("currFrame_tx2D",2);
 		B.bindColorbuffer(0);
-		renderPlane.draw(GL_TRIANGLES,6,0);
+		renderPlane.draw();
 		iterationCounter++;
 	}
 }
@@ -313,7 +313,7 @@ void Ftv_PostProcessor::applyGuidedPoisson(FramebufferObject *currentFrame, GLui
 		glActiveTexture(GL_TEXTURE2);
 		poissonShaderPrg->setUniform("currFrame_tx2D",2);
 		currentFrame->bindColorbuffer(0);
-		renderPlane.draw(GL_TRIANGLES,6,0);
+		renderPlane.draw();
 		iterationCounter++;
 
 		currentFrame->bind();
@@ -324,7 +324,7 @@ void Ftv_PostProcessor::applyGuidedPoisson(FramebufferObject *currentFrame, GLui
 		glActiveTexture(GL_TEXTURE2);
 		poissonShaderPrg->setUniform("currFrame_tx2D",2);
 		B.bindColorbuffer(0);
-		renderPlane.draw(GL_TRIANGLES,6,0);
+		renderPlane.draw();
 		iterationCounter++;
 	}
 }
@@ -387,7 +387,7 @@ void Ftv_PostProcessor::applyImageInpainting(FramebufferObject *inputFbo, Frameb
 		glActiveTexture(GL_TEXTURE2);
 		inpaintingShaderPrg->setUniform("gradient_tx2D",2);
 		gradientFbo.bindColorbuffer(0);
-		renderPlane.draw(GL_TRIANGLES,6,0);
+		renderPlane.draw();
 		iterationCounter++;
 		
 		/*	Shrink inpainting mask */
@@ -412,7 +412,7 @@ void Ftv_PostProcessor::applyImageInpainting(FramebufferObject *inputFbo, Frameb
 		glActiveTexture(GL_TEXTURE2);
 		inpaintingShaderPrg->setUniform("gradient_tx2D",2);
 		gradientFbo.bindColorbuffer(0);
-		renderPlane.draw(GL_TRIANGLES,6,0);
+		renderPlane.draw();
 		iterationCounter++;
 		
 		/*	Shrink inpainting mask */
@@ -453,7 +453,7 @@ void Ftv_PostProcessor::applyImprovedImageInpainting(FramebufferObject *inputFbo
 		glActiveTexture(GL_TEXTURE2);
 		improvedInpaintingShaderPrg->setUniform("coherence_tx2D",2);
 		coherenceFbo.bindColorbuffer(0);
-		renderPlane.draw(GL_TRIANGLES,6,0);
+		renderPlane.draw();
 		iterationCounter++;
 		
 		/*	Shrink inpainting mask */
@@ -488,7 +488,7 @@ void Ftv_PostProcessor::applyImprovedImageInpainting(FramebufferObject *inputFbo
 		glActiveTexture(GL_TEXTURE2);
 		improvedInpaintingShaderPrg->setUniform("coherence_tx2D",2);
 		coherenceFbo.bindColorbuffer(0);
-		renderPlane.draw(GL_TRIANGLES,6,0);
+		renderPlane.draw();
 		iterationCounter++;
 		
 		/*	Shrink inpainting mask */
@@ -516,7 +516,7 @@ void Ftv_PostProcessor::applyGuidedImageInpainting(FramebufferObject *inputFbo, 
 		glActiveTexture(GL_TEXTURE2);
 		inpaintingShaderPrg->setUniform("gradient_tx2D",2);
 		glBindTexture(GL_TEXTURE_2D, guidanceField);
-		renderPlane.draw(GL_TRIANGLES,6,0);
+		renderPlane.draw();
 		iterationCounter++;
 		
 		/*	Shrink inpainting mask */
@@ -537,7 +537,7 @@ void Ftv_PostProcessor::applyGuidedImageInpainting(FramebufferObject *inputFbo, 
 		glActiveTexture(GL_TEXTURE2);
 		inpaintingShaderPrg->setUniform("gradient_tx2D",2);
 		glBindTexture(GL_TEXTURE_2D, guidanceField);
-		renderPlane.draw(GL_TRIANGLES,6,0);
+		renderPlane.draw();
 		iterationCounter++;
 		
 		/*	Shrink inpainting mask */
@@ -558,7 +558,7 @@ void Ftv_PostProcessor::computeCoherence(FramebufferObject *inputFbo, Framebuffe
 	coherenceFbo->bind();
 	glViewport(0,0,coherenceFbo->getWidth(),coherenceFbo->getHeight());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	renderPlane.draw(GL_TRIANGLES,6,0);
+	renderPlane.draw();
 }
 
 void Ftv_PostProcessor::textureAdvection(FramebufferObject *inputFbo, GLuint guidanceField)
@@ -573,5 +573,5 @@ void Ftv_PostProcessor::textureAdvection(FramebufferObject *inputFbo, GLuint gui
 	textureAdvectionPrg->setUniform("guidanceField_tx3D",1);
 	glBindTexture(GL_TEXTURE_3D,guidanceField);
 
-	ibfvGrid.draw(GL_TRIANGLES,2400,0);
+	ibfvGrid.draw();
 }

@@ -2,46 +2,55 @@
 
 void Texture2D::bindTexture() const
 {
-	glBindTexture(GL_TEXTURE_2D, handle);
+	glBindTexture(GL_TEXTURE_2D, m_handle);
 }
 
-bool Texture2D::loadArrayF(int dimX, int dimY, float *data)
+void Texture2D::texParameteri(GLenum pname, GLenum param)
 {
-	//TODO: Add some checks
-	if(sizeof(data) == 0) return false;
+	glBindTexture(GL_TEXTURE_2D, m_handle);
+	glTexParameteri(GL_TEXTURE_2D, pname, param);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
 
-	glGenTextures(1, &handle);
-	glBindTexture(GL_TEXTURE_2D, handle);
+bool Texture2D::load(GLenum internal_format, int dim_x, int dim_y, GLenum format, GLenum type, GLvoid * data)
+{
+	m_internal_format = internal_format;
+	m_format = format;
+	m_type = type;
+
+	glGenTextures(1, &m_handle);
+	glBindTexture(GL_TEXTURE_2D, m_handle);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,dimX,dimY,0,GL_RGB,GL_FLOAT,data);
+	glTexImage2D(GL_TEXTURE_2D, 0, internal_format, dim_x, dim_y, 0, format, type, data);
 	glBindTexture(GL_TEXTURE_2D,0);
 
-	return true;
+	if (glGetError() == GL_NO_ERROR) return true;
+	else return false;
 }
 
-bool Texture2D::loadArrayC(int dimX, int dimY, char *data)
+bool Texture2D::reload(int dim_x, int dim_y, GLvoid * data)
 {
-	//TODO: Add some checks
-	if(sizeof(data) == 0) return false;
+	glBindTexture(GL_TEXTURE_2D, m_handle);
+	glTexImage2D(GL_TEXTURE_2D, 0, m_internal_format, dim_x, dim_y, 0, m_format, m_type, data);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
-	glGenTextures(1, &handle);
-	glBindTexture(GL_TEXTURE_2D, handle);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,dimX,dimY,0,GL_RGB,GL_UNSIGNED_BYTE,data);
-	glBindTexture(GL_TEXTURE_2D,0);
-
-	return true;
+	if (glGetError() == GL_NO_ERROR) return true;
+	else return false;
 }
 
-void Texture2D::texParameteri(GLenum param_1, GLenum param_2)
+bool Texture2D::reload(GLenum internal_format, int dim_x, int dim_y, GLenum format, GLenum type, GLvoid * data)
 {
-	glBindTexture(GL_TEXTURE_2D, handle);
-	glTexParameteri(GL_TEXTURE_2D, param_1, param_2);
-	glBindTexture(GL_TEXTURE_2D,0);
+	m_internal_format = internal_format;
+	m_format = format;
+	m_type = type;
+
+	glBindTexture(GL_TEXTURE_2D, m_handle);
+	glTexImage2D(GL_TEXTURE_2D, 0, internal_format, dim_x, dim_y, 0, format, type, data);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	if (glGetError() == GL_NO_ERROR) return true;
+	else return false;
 }

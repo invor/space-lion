@@ -44,11 +44,12 @@ bool Mesh::bufferDataFromArray(const Vertex_p *vertex_data, const GLuint *index_
 	return true;
 }
 
-void Mesh::draw()
+void Mesh::draw(int num_instances)
 {
 	glBindVertexArray(va_handle);
 	/*	If stored correctly in the VAO, there is no need to rebind buffers again */
-	glDrawElements(type, num_vertices, GL_UNSIGNED_INT, nullptr);
+	//glDrawElements(type, num_vertices, GL_UNSIGNED_INT, nullptr);
+	glDrawElementsInstanced(type, num_vertices, GL_UNSIGNED_INT, nullptr, num_instances);
 }
 
 void Mesh::setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer)

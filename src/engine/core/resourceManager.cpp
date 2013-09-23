@@ -262,6 +262,12 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 		shaderPrg->bindAttribLocation(4,"v_uv_coord");
 		shaderPrg->bindAttribLocation(5,"v_bitangent");
 		break; }
+	case PICKING: {
+		vertSource = readShaderFile("../resources/shaders/picking_v.glsl");
+		fragSource = readShaderFile("../resources/shaders/picking_f.glsl");
+		shaderPrg->bindAttribLocation(0, "v_position");
+		shaderPrg->bindFragDataLocation(0, "frag_colour");
+		break; }
 	case FLAT : {
 		vertSource = readShaderFile("../resources/shaders/v_flat.glsl");
 		fragSource = readShaderFile("../resources/shaders/f_flat.glsl");
@@ -331,7 +337,7 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 bool ResourceManager::createTexture2D(int dimX, int dimY, float* data, std::shared_ptr<Texture> &inOutTexPtr)
 {
 	std::shared_ptr<Texture2D> texture(new Texture2D());
-	if(!(texture->loadArrayF(dimX, dimY, data))) return false;
+	if(!(texture->load(GL_RGB,dimX, dimY,GL_RGB,GL_FLOAT,data))) return false;
 	inOutTexPtr = texture;
 	texture_list.push_back(std::move(texture));
 
@@ -359,7 +365,7 @@ bool ResourceManager::createTexture2D(const std::string path, std::shared_ptr<Te
 	if(!readPpmData(path.c_str(),imageData,dataBegin,imgDimX,imgDimY)) return false;
 
 	std::shared_ptr<Texture2D> texture(new Texture2D(path));
-	if(!(texture->loadArrayC(imgDimX,imgDimY,imageData))) return false;
+	if (!(texture->load(GL_RGB, imgDimX, imgDimY, GL_RGB, GL_UNSIGNED_BYTE, imageData))) return false;
 	inOutTexPtr = texture;
 	texture_list.push_back(std::move(texture));
 

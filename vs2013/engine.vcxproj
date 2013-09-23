@@ -24,13 +24,13 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -38,9 +38,11 @@
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PlatformToolset>v120</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PlatformToolset>v120</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -123,7 +125,6 @@
     <ClCompile Include="..\src\engine\core\resourceManager.cpp" />
     <ClCompile Include="..\src\engine\core\scene.cpp" />
     <ClCompile Include="..\src\engine\core\sceneCamera.cpp" />
-    <ClCompile Include="..\src\engine\core\sceneEntity.cpp" />
     <ClCompile Include="..\src\engine\core\sceneLightSource.cpp" />
     <ClCompile Include="..\src\engine\core\texture2D.cpp" />
     <ClCompile Include="..\src\engine\core\texture3D.cpp" />
@@ -136,7 +137,6 @@
     <ClCompile Include="..\src\engine\fbx\fbx_reader.cpp" />
     <ClCompile Include="..\src\engine\fbx\fbx_unzip.cpp" />
     <ClCompile Include="..\src\engine\fbx\fbx_value.cpp" />
-    <ClCompile Include="..\src\engine\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\engine\core\controls.h" />

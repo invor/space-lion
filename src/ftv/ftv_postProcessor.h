@@ -18,6 +18,7 @@ image inpainting and poisson image editing.
 #define ftv_postProcessor_h
 
 #include "postProcessor.h"
+#include "ftv_resourceManager.h"
 
 class Ftv_PostProcessor : public PostProcessor
 {
@@ -37,7 +38,7 @@ public:
 							coherenceFbo(w,h,false,false),
 							maskFboB(w,h,false,false) {}
 
-	bool ftv_init(ResourceManager *resourceMngr);
+	bool ftv_init(Ftv_ResourceManager *ftv_resource_mngr);
 
 	/*
 	/	Generate a distance map for a given mask.
@@ -100,21 +101,20 @@ public:
 	void textureAdvection(FramebufferObject *inputFbo, GLuint guidanceField);
 
 private:
-
 	Mesh ibfvGrid;
 
 	float iterationCounter;
 
-	GLSLProgram *poissonShaderPrg;
-	GLSLProgram *inpaintingShaderPrg;
-	GLSLProgram *stampShaderPrg;
-	GLSLProgram *distanceShaderPrg;
-	GLSLProgram *maskCreationShaderPrg;
-	GLSLProgram *coherenceShaderPrg;
-	GLSLProgram *improvedInpaintingShaderPrg;
-	GLSLProgram *ftvGaussianShaderPrg;
-	GLSLProgram *shrinkMaskPrg;
-	GLSLProgram *textureAdvectionPrg;
+	std::shared_ptr<GLSLProgram> poissonShaderPrg;
+	std::shared_ptr<GLSLProgram> inpaintingShaderPrg;
+	std::shared_ptr<GLSLProgram> stampShaderPrg;
+	std::shared_ptr<GLSLProgram> distanceShaderPrg;
+	std::shared_ptr<GLSLProgram> maskCreationShaderPrg;
+	std::shared_ptr<GLSLProgram> coherenceShaderPrg;
+	std::shared_ptr<GLSLProgram> improvedInpaintingShaderPrg;
+	std::shared_ptr<GLSLProgram> ftvGaussianShaderPrg;
+	std::shared_ptr<GLSLProgram> shrinkMaskPrg;
+	std::shared_ptr<GLSLProgram> textureAdvectionPrg;
 
 	/*	Some additional FBOs are required for coherence computations */
 	FramebufferObject gaussianFbo;

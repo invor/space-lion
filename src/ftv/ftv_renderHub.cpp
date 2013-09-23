@@ -12,12 +12,12 @@ Ftv_RenderHub::~Ftv_RenderHub(void)
 void Ftv_RenderHub::runFtvVolumeTest()
 {
 	Ftv_Scene tScene;
-	Mesh* geomPtr;
-	Texture3D* volPtr;
-	GLSLProgram* prgmPtr;
+	std::shared_ptr<Mesh> geomPtr;
+	std::shared_ptr<Texture3D> volPtr;
+	std::shared_ptr<GLSLProgram> prgmPtr;
 	resourceMngr.createBox(geomPtr);
 	resourceMngr.createTexture3D("../resources/volumeData/f.raw",glm::ivec3(67,67,67),volPtr);
-	resourceMngr.createShaderProgram(FTV_VOLUME_RAYCASTING,prgmPtr);
+	resourceMngr.createFtvShaderProgram(FTV_VOLUME_RAYCASTING,prgmPtr);
 
 	if(!(tScene.createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),geomPtr,volPtr,prgmPtr)))
 	{
@@ -30,7 +30,7 @@ void Ftv_RenderHub::runFtvVolumeTest()
 		std::cout<<"Failed to create camera"
 				<<"\n";
 	}
-	if(!(tScene.createSceneLight(0,glm::vec3(0.0,2.0,0.0),glm::vec4(1.0,1.0,1.0,1.0))))
+	if(!(tScene.createSceneLight(0,glm::vec3(0.0,2.0,0.0),glm::vec3(1.0,1.0,1.0))))
 	{
 		std::cout<<"Failed to create light"
 				<<"\n";
@@ -47,14 +47,14 @@ void Ftv_RenderHub::runFtvVolumeTest()
 	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glEnable(GL_CULL_FACE);
 
-	while(running && glfwGetWindowParam(GLFW_OPENED))
+	while (running && !glfwWindowShouldClose(activeWindow))
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0,0,1200,675);
 		tScene.renderVolumetricObjects();
 
-		glfwSwapBuffers();
+		glfwSwapBuffers(activeWindow);
 	}
 }
 
@@ -100,7 +100,7 @@ void Ftv_RenderHub::runFtv()
 	
 	testBench.getFrameConfigC(&maskFbo,&secondaryFbo);
 
-	while(running && glfwGetWindowParam(GLFW_OPENED))
+	while (running && !glfwWindowShouldClose(activeWindow))
 	{
 		/*
 		/	Alternate between secondary and primary fbo.
@@ -115,8 +115,7 @@ void Ftv_RenderHub::runFtv()
 		glViewport(0,0,700,700);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&primaryFbo);
-		glfwSwapBuffers();
-		glfwSleep(1.025);
+		glfwSwapBuffers(activeWindow);
 
 		/*
 		/	Switch to secondary
@@ -130,8 +129,7 @@ void Ftv_RenderHub::runFtv()
 		glViewport(0,0,700,700);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&secondaryFbo);
-		glfwSwapBuffers();
-		glfwSleep(1.025);
+		glfwSwapBuffers(activeWindow);
 	}
 }
 
@@ -203,7 +201,7 @@ void Ftv_RenderHub::runInpaintingTest()
 	pP.applyFtvGaussian(&hesseFbo,&hesseFbo,&maskFbo,4.0f,6);
 	pP.computeCoherence(&hesseFbo,&coherenceFbo);
 
-	while(running && glfwGetWindowParam(GLFW_OPENED))
+	while (running && !glfwWindowShouldClose(activeWindow))
 	{
 		#if TIMER
 			double start = glfwGetTime();
@@ -217,8 +215,7 @@ void Ftv_RenderHub::runInpaintingTest()
 		glViewport(0,0,400,400);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&primaryFbo);
-		//glfwSleep(0.5);
-		glfwSwapBuffers();
+		glfwSwapBuffers(activeWindow);
 
 		#if TIMER
 			double end = glfwGetTime();
@@ -280,7 +277,7 @@ void Ftv_RenderHub::runTextureAdvectionTest()
 	#endif
 
 	/*	Render Loop. */
-	while(running && glfwGetWindowParam(GLFW_OPENED))
+	while(running && !glfwWindowShouldClose(activeWindow))
 	{
 		//pP.applyPoisson(&primaryFbo,&secondaryFbo,&maskFbo,75,0);
 
@@ -288,7 +285,7 @@ void Ftv_RenderHub::runTextureAdvectionTest()
 		glViewport(0,0,400,400);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&primaryFbo);
-		glfwSwapBuffers();
+		glfwSwapBuffers(activeWindow);
 	}
 }
 
@@ -331,7 +328,7 @@ void Ftv_RenderHub::runFtvGuidanceFieldTest()
 	testbench.getFrameConfigC(&maskFbo,&primaryFbo);
 
 	/*	Render Loop */
-	while(running && glfwGetWindowParam(GLFW_OPENED))
+	while(running && !glfwWindowShouldClose(activeWindow))
 	{
 		testbench.getVectorTexture(vecFieldTx,(index%51));
 		//primaryFbo.bind();
@@ -346,7 +343,6 @@ void Ftv_RenderHub::runFtvGuidanceFieldTest()
 		glViewport(0,0,400,400);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		pP.FBOToFBO(&primaryFbo);
-		glfwSwapBuffers();
-		glfwSleep(0.5);
+		glfwSwapBuffers(activeWindow);
 	}
 }

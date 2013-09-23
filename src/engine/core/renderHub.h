@@ -40,7 +40,7 @@ public:
 	/*	Test volume rendering */
 	void runVolumeTest();
 
-private:
+protected:
 	ResourceManager resourceMngr;
 	Controls controlHandler;
 

@@ -34,7 +34,8 @@ public:
 	~Ftv_Scene() {}
 
 	/* create a volumetric scene entity for ftv testing */
-	bool createFtvVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling, Mesh* geomPtr, Texture3D* volPtr, GLSLProgram* prgmPtr);
+	bool createFtvVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling,
+											std::shared_ptr<Mesh> geomPtr, std::shared_ptr<Texture3D> volPtr, std::shared_ptr<GLSLProgram> prgmPtr);
 
 	/*
 	/	Render volumetric objects of the scene using a mask to indicate faulty regions in the 3d texture.

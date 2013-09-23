@@ -2,7 +2,7 @@
 
 void Texture3D::bindTexture() const
 {
-	glBindTexture(GL_TEXTURE_3D, handle);
+	glBindTexture(GL_TEXTURE_3D, m_handle);
 }
 
 bool Texture3D::loadTextureFile(std::string inputPath, glm::ivec3 resolution)
@@ -14,7 +14,7 @@ bool Texture3D::loadTextureFile(std::string inputPath, glm::ivec3 resolution)
 	int size = resolution.x * resolution.y * resolution.z;
 
 	/* Set texture identifier to correct value (namely the filename) */
-	filename.assign(inputPath);
+	m_filename.assign(inputPath);
 
 	pFile = fopen (inputPath.c_str(), "rb");
 	if (pFile==NULL) return false;
@@ -25,8 +25,8 @@ bool Texture3D::loadTextureFile(std::string inputPath, glm::ivec3 resolution)
 
 	fread(volumeData,sizeof(GLfloat),size,pFile);
 	
-	glGenTextures(1, &handle);
-	glBindTexture(GL_TEXTURE_3D, handle);
+	glGenTextures(1, &m_handle);
+	glBindTexture(GL_TEXTURE_3D, m_handle);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
@@ -43,8 +43,8 @@ bool Texture3D::loadArrayF(float* data, glm::ivec3 resolution, GLenum internalFo
 	//TODO: Add some checks
 	if(sizeof(data) == 0) return false;
 
-	glGenTextures(1, &handle);
-	glBindTexture(GL_TEXTURE_3D, handle);
+	glGenTextures(1, &m_handle);
+	glBindTexture(GL_TEXTURE_3D, m_handle);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
@@ -58,7 +58,7 @@ bool Texture3D::loadArrayF(float* data, glm::ivec3 resolution, GLenum internalFo
 
 void Texture3D::texParameteri(GLenum param_1, GLenum param_2)
 {
-	glBindTexture(GL_TEXTURE_3D, handle);
+	glBindTexture(GL_TEXTURE_3D, m_handle);
 	glTexParameteri(GL_TEXTURE_3D, param_1, param_2);
 	glBindTexture(GL_TEXTURE_3D,0);
 }

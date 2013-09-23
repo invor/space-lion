@@ -15,16 +15,11 @@
 #include "postProcessor.h"
 #include "resourceManager.h"
 #include "ftv_postProcessor.h"
+#include "ftv_resourceManager.h"
 #include "framebufferObject.h"
 #include "ftvTestbench.h"
 #include "renderHub.h"
 #include "GLFW/glfw3.h"
-
-//pragmas seem to be only necessary in windows
-#ifdef _WIN32
-	#pragma comment(lib,"GLFW.lib")
-	#pragma comment(lib,"opengl32.lib")
-#endif
 
 class Ftv_RenderHub : public RenderHub
 {
@@ -44,7 +39,7 @@ public:
 	void runFtvGuidanceFieldTest();
 
 private:
-	ResourceManager resourceMngr;
+	Ftv_ResourceManager resourceMngr;
 
 	std::vector<FramebufferObject> framebufferList;
 	std::list<Scene> sceneList;

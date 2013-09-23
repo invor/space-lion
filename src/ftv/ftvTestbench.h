@@ -6,7 +6,7 @@
 
 #include "GLSLProgram.h"
 #include "ftv_postProcessor.h"
-#include "GL/glfw.h"
+#include "GLFW/glfw3.h"
 
 //pragmas seem to be only necessary in windows
 #ifdef _WIN32
@@ -18,7 +18,7 @@ class FtvTestbench
 private:
 	/*	Since it's only a testbench, it has it's own postProcessor and resourceManager */
 	Ftv_PostProcessor imageProcessor;
-	ResourceManager resourceMngr;
+	Ftv_ResourceManager resourceMngr;
 
 	/*
 	/	Static array size, since we know how many images we will load.
