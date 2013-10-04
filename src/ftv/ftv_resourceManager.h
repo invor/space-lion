@@ -13,7 +13,7 @@
 #define ftv_resourceManager_h
 
 /*	Include space-lion headers */
-#include "resourceManager.h"
+#include "../engine/core/resourceManager.h"
 
 #define DEBUG_OUTPUT 0
 
@@ -22,8 +22,8 @@ enum ftv_shaderType	{ DISTANCEMAPPING, COHERENCE, STAMP, FTV_POISSON, FTV_INPAIN
 class Ftv_ResourceManager : public ResourceManager
 {
 public:
-	Ftv_ResourceManager();
-	~Ftv_ResourceManager();
+	Ftv_ResourceManager() {}
+	~Ftv_ResourceManager() {}
 
 	/**
 	 * Creates a GLSLprogram object

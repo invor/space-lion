@@ -207,16 +207,31 @@ bool FtvTestbench::readPpmData(const char* filename, char* imageData, long dataB
 
 bool FtvTestbench::readRawImageF(const char* filename, float* imageData, int size)
 {
-	//TODO: Add some checks
+	std::ifstream file(filename, std::ios::in | std::ios::binary);
 
-	FILE *pFile;
+	/*	Check if the file could be opened. */
+	if (!(file.is_open()))return false;
 
-	pFile = fopen (filename, "rb");
-	if (pFile==NULL) return false;
+	/*	Determine the length from the beginning of the image data to the end of the file. */
+	file.seekg(0, file.end);
+	long length = file.tellg();
+	char* buffer = new char[length];
 
-	fread(imageData,sizeof(GLfloat),size,pFile);
+	file.seekg(0, file.beg);
+	file.read(buffer, length);
+
+	imageData = reinterpret_cast<float*>(buffer);
 
 	return true;
+
+	//FILE *pFile;
+	//
+	//pFile = fopen (filename, "rb");
+	//if (pFile==NULL) return false;
+	//
+	//fread(imageData,sizeof(GLfloat),size,pFile);
+	//
+	//return true;
 }
 
 bool FtvTestbench::loadImageSequence()

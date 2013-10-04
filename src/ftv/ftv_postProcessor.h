@@ -17,7 +17,7 @@ image inpainting and poisson image editing.
 #ifndef ftv_postProcessor_h
 #define ftv_postProcessor_h
 
-#include "postProcessor.h"
+#include "../engine/core/postProcessor.h"
 #include "ftv_resourceManager.h"
 
 class Ftv_PostProcessor : public PostProcessor

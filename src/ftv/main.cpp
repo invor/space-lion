@@ -1,21 +1,13 @@
 #include <thread>
 #include <vector>
-#include "renderHub.h"
+#include "ftv_renderHub.h"
 
 using namespace std;
 
 int main(){
 
 	
-	RenderHub testRenderer;
-	//if(testRenderer.init())
-	//{
-	//	testRenderer.addScene();
-	//	testRenderer.setActiveScene(0);
-	//	testReceiver->pushLoadSceneMessages();
-	//	std::thread renderThread(&RenderHub::run,&testRenderer);
-	//}
-	std::thread renderThread(&RenderHub::init,&testRenderer);
-
-	renderThread.join();
+	Ftv_RenderHub testRenderer;
+	testRenderer.init();
+	testRenderer.runInpaintingTest();
 }

@@ -10,15 +10,11 @@
 #define TIMER 1
 
 #include <vector>
-#include "scene.h"
 #include "ftv_scene.h"
-#include "postProcessor.h"
-#include "resourceManager.h"
 #include "ftv_postProcessor.h"
 #include "ftv_resourceManager.h"
-#include "framebufferObject.h"
 #include "ftvTestbench.h"
-#include "renderHub.h"
+#include "../engine/core/renderHub.h"
 #include "GLFW/glfw3.h"
 
 class Ftv_RenderHub : public RenderHub
@@ -39,7 +35,7 @@ public:
 	void runFtvGuidanceFieldTest();
 
 private:
-	Ftv_ResourceManager resourceMngr;
+	Ftv_ResourceManager ftv_resourceMngr;
 
 	std::vector<FramebufferObject> framebufferList;
 	std::list<Scene> sceneList;

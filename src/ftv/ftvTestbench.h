@@ -4,14 +4,11 @@
 #include <list>
 #include <fstream>
 
-#include "GLSLProgram.h"
+#include "../engine/core/GLSLProgram.h"
 #include "ftv_postProcessor.h"
 #include "GLFW/glfw3.h"
 
-//pragmas seem to be only necessary in windows
-#ifdef _WIN32
-	#pragma comment(lib,"opengl32.lib")
-#endif
+#define _CRT_SECURE_NO_WARNINGS
 
 class FtvTestbench
 {

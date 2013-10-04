@@ -16,7 +16,7 @@ Description: Extension of the scene class, that adds ftv volume rendering.
 
 #include <list>
 
-#include "scene.h"
+#include "../engine/core/scene.h"
 #include "ftv_volumetricSceneObject.h"
 
 //pragmas seem to be only necessary in windows

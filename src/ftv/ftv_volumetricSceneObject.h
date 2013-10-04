@@ -15,8 +15,8 @@ Description: Extends the volumetricSceneObject class. Simply adds the handle for
 #ifndef ftv_volumetricSceneObject_h
 #define ftv_volumetricSceneObject_h
 
-#include "volumetricSceneObject.h"
-#include "texture3D.h"
+#include "../engine/core/volumetricSceneObject.h"
+#include "../engine/core/texture3D.h"
 
 class Ftv_volumetricSceneObject : public VolumetricSceneObject
 {

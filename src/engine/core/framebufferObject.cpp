@@ -49,7 +49,7 @@ bool FramebufferObject::createColorAttachment(GLenum internalFormat, GLenum form
 		return false;
 	}
 
-	unsigned int bufsSize = m_colorbuffers.size();
+	unsigned long bufsSize = m_colorbuffers.size();
 	m_colorbuffers.push_back(Texture2D(""));
 	std::vector<Texture2D>::iterator lastElement = (--(m_colorbuffers.end()));
 

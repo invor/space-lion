@@ -15,9 +15,9 @@ void Ftv_RenderHub::runFtvVolumeTest()
 	std::shared_ptr<Mesh> geomPtr;
 	std::shared_ptr<Texture3D> volPtr;
 	std::shared_ptr<GLSLProgram> prgmPtr;
-	resourceMngr.createBox(geomPtr);
-	resourceMngr.createTexture3D("../resources/volumeData/f.raw",glm::ivec3(67,67,67),volPtr);
-	resourceMngr.createFtvShaderProgram(FTV_VOLUME_RAYCASTING,prgmPtr);
+	ftv_resourceMngr.createBox(geomPtr);
+	ftv_resourceMngr.createTexture3D("../resources/volumeData/f.raw",glm::ivec3(67,67,67),volPtr);
+	ftv_resourceMngr.createFtvShaderProgram(FTV_VOLUME_RAYCASTING,prgmPtr);
 
 	if(!(tScene.createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),geomPtr,volPtr,prgmPtr)))
 	{
@@ -60,6 +60,8 @@ void Ftv_RenderHub::runFtvVolumeTest()
 
 void Ftv_RenderHub::runFtv()
 {
+	glfwMakeContextCurrent(activeWindow);
+
 	/*
 	/	This is all just experimental stuff
 	*/
@@ -81,7 +83,7 @@ void Ftv_RenderHub::runFtv()
 	/	Create and initialize the post-processer
 	*/
 	Ftv_PostProcessor pP(400,400);
-	if(!pP.ftv_init(&resourceMngr))
+	if(!pP.ftv_init(&ftv_resourceMngr))
 	{
 		std::cout<<"Failed to create post processor"
 				<<"\n";
@@ -111,11 +113,16 @@ void Ftv_RenderHub::runFtv()
 		//pP.applyPoisson(&primaryFbo, &secondaryFbo, 20, &maskFbo);
 		pP.applyImageInpainting(&primaryFbo, &maskFbo, 200);
 
-		glBindFramebuffer(GL_FRAMEBUFFER,0);
-		glViewport(0,0,700,700);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		int width, height;
+		glfwGetFramebufferSize(activeWindow, &width, &height);
+		glViewport(0, 0, width, height);
+
 		pP.FBOToFBO(&primaryFbo);
 		glfwSwapBuffers(activeWindow);
+		glfwPollEvents();
 
 		/*
 		/	Switch to secondary
@@ -125,25 +132,26 @@ void Ftv_RenderHub::runFtv()
 		//pP.applyPoisson(&secondaryFbo, &primaryFbo, 20, &maskFbo);
 		pP.applyImageInpainting(&secondaryFbo, &maskFbo, 200);
 		
-		glBindFramebuffer(GL_FRAMEBUFFER,0);
-		glViewport(0,0,700,700);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		width, height;
+		glfwGetFramebufferSize(activeWindow, &width, &height);
+		glViewport(0, 0, width, height);
+
 		pP.FBOToFBO(&secondaryFbo);
 		glfwSwapBuffers(activeWindow);
+		glfwPollEvents();
 	}
 }
 
 void Ftv_RenderHub::runInpaintingTest()
 {
-	/*
-	/	This is all just experimental stuff
-	*/
-	running = true;
-	glClearColor(0.0f,0.0f,0.0f,0.0f);
+	glfwMakeContextCurrent(activeWindow);
 
-	/*
-	/	Create framebuffers to work with.
-	*/
+	running = true;
+
+	/*	Create framebuffers to work with. */
 	FramebufferObject primaryFbo(400,400,true,false);
 	primaryFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 	FramebufferObject secondaryFbo(400,400,true,false);
@@ -152,27 +160,15 @@ void Ftv_RenderHub::runInpaintingTest()
 	maskFbo.createColorAttachment(GL_RG32F,GL_RG,GL_FLOAT);
 	maskFbo.createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);
 
-	/*
-	/	Create and initialize the post-processer
-	*/
+	/*	Create and initialize the post-processer. */
 	Ftv_PostProcessor pP(400,400);
-	if(!pP.ftv_init(&resourceMngr))
-	{
-		std::cout<<"Failed to create post processor"
-				<<"\n";
-		return;
-	}
+	if(!pP.ftv_init(&ftv_resourceMngr))
+		std::cout<<"Failed to create post processor" <<"\n";
 
-	/*
-	/	Create the test bench
-	*/
+	/*	Create the test bench. */
 	FtvTestbench testBench;
 	testBench.loadImageSequence();
 	testBench.initMasks();
-
-	/*
-	/	Render Loop.
-	*/
 	
 	testBench.getFrameConfigC(&maskFbo,&secondaryFbo);
 	testBench.getFrameConfigC(&maskFbo,&primaryFbo);
@@ -209,13 +205,18 @@ void Ftv_RenderHub::runInpaintingTest()
 
 		//pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,25);
 		//pP.applyImageInpainting(&primaryFbo,&maskFbo,25);
-		pP.applyPoisson(&primaryFbo,&secondaryFbo,&maskFbo,20,1);
+		//pP.applyPoisson(&primaryFbo,&secondaryFbo,&maskFbo,20,1);
 
-		glBindFramebuffer(GL_FRAMEBUFFER,0);
-		glViewport(0,0,400,400);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		int width, height;
+		glfwGetFramebufferSize(activeWindow, &width, &height);
+		glViewport(0, 0, width, height);
+
 		pP.FBOToFBO(&primaryFbo);
 		glfwSwapBuffers(activeWindow);
+		glfwPollEvents();
 
 		#if TIMER
 			double end = glfwGetTime();
@@ -241,7 +242,7 @@ void Ftv_RenderHub::runTextureAdvectionTest()
 
 	/*	Create and initialize the post-processer. */
 	Ftv_PostProcessor pP(400,400);
-	if(!pP.ftv_init(&resourceMngr))
+	if(!pP.ftv_init(&ftv_resourceMngr))
 		std::cout<<"Failed to create post processor"<<"\n";
 
 	/*	Create the test bench. */
@@ -306,7 +307,7 @@ void Ftv_RenderHub::runFtvGuidanceFieldTest()
 
 	/*	Create and initialize the post-processer */
 	Ftv_PostProcessor pP(400,400);
-	if(!pP.ftv_init(&resourceMngr))
+	if(!pP.ftv_init(&ftv_resourceMngr))
 	{
 		std::cout<<"Failed to create post processor"
 				<<"\n";

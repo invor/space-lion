@@ -1,0 +1,240 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\engine">
+      <UniqueIdentifier>{fa823e68-f28e-464d-b8d9-0cc0057578d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\engine\fbx">
+      <UniqueIdentifier>{ca7cf52b-9607-4f70-b6f8-175088c93181}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\engine\core">
+      <UniqueIdentifier>{cc8404db-a103-4300-b9d9-d13ffbc8d6fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ftv">
+      <UniqueIdentifier>{02c95e81-c0bd-4c02-a5b7-23509f871868}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\engine">
+      <UniqueIdentifier>{ad5c2bcf-1d7b-4072-8e32-ecf6c880aab8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\engine\fbx">
+      <UniqueIdentifier>{01ebd1dd-f9ce-4f17-9abc-cb8427aca7f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\engine\core">
+      <UniqueIdentifier>{227c7e4b-230d-4291-8cb1-208bb1d6126e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ftv">
+      <UniqueIdentifier>{e597086d-f731-4c44-a607-8172acbac5df}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\engine\core\controls.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\framebufferObject.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\GLSLProgram.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\material.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\mesh.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\postProcessor.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\renderHub.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\resourceManager.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\scene.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\sceneCamera.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\sceneEntity.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\sceneLightSource.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\staticSceneObject.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\texture.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\texture2D.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\texture3D.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\vertexStructs.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\volumetricSceneObject.h">
+      <Filter>Header Files\engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_exceptions.hpp">
+      <Filter>Header Files\engine\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_generic_parser.hpp">
+      <Filter>Header Files\engine\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_geometry.hpp">
+      <Filter>Header Files\engine\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_node_name.hpp">
+      <Filter>Header Files\engine\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_node_property.hpp">
+      <Filter>Header Files\engine\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_opengl_geometry.hpp">
+      <Filter>Header Files\engine\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_parser.hpp">
+      <Filter>Header Files\engine\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_print.hpp">
+      <Filter>Header Files\engine\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_property.hpp">
+      <Filter>Header Files\engine\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_reader.hpp">
+      <Filter>Header Files\engine\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_types.hpp">
+      <Filter>Header Files\engine\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_unzip.hpp">
+      <Filter>Header Files\engine\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_value.hpp">
+      <Filter>Header Files\engine\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ftv\ftv_postProcessor.h">
+      <Filter>Header Files\ftv</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ftv\ftv_renderHub.h">
+      <Filter>Header Files\ftv</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ftv\ftv_resourceManager.h">
+      <Filter>Header Files\ftv</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ftv\ftv_scene.h">
+      <Filter>Header Files\ftv</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ftv\ftv_volumetricSceneObject.h">
+      <Filter>Header Files\ftv</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ftv\ftvTestbench.h">
+      <Filter>Header Files\ftv</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\engine\core\controls.cpp">
+      <Filter>Source Files\engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\core\framebufferObject.cpp">
+      <Filter>Source Files\engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\core\GLSLProgram.cpp">
+      <Filter>Source Files\engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\core\material.cpp">
+      <Filter>Source Files\engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\core\mesh.cpp">
+      <Filter>Source Files\engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\core\renderHub.cpp">
+      <Filter>Source Files\engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\core\postProcessor.cpp">
+      <Filter>Source Files\engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\core\resourceManager.cpp">
+      <Filter>Source Files\engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\core\scene.cpp">
+      <Filter>Source Files\engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\core\sceneCamera.cpp">
+      <Filter>Source Files\engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\core\sceneLightSource.cpp">
+      <Filter>Source Files\engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\core\texture2D.cpp">
+      <Filter>Source Files\engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\core\texture3D.cpp">
+      <Filter>Source Files\engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp">
+      <Filter>Source Files\engine\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_node_name.cpp">
+      <Filter>Source Files\engine\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_opengl_geometry.cpp">
+      <Filter>Source Files\engine\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_parser.cpp">
+      <Filter>Source Files\engine\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_print.cpp">
+      <Filter>Source Files\engine\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_property.cpp">
+      <Filter>Source Files\engine\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_reader.cpp">
+      <Filter>Source Files\engine\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_unzip.cpp">
+      <Filter>Source Files\engine\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_value.cpp">
+      <Filter>Source Files\engine\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ftv\ftv_postProcessor.cpp">
+      <Filter>Source Files\ftv</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ftv\ftv_renderHub.cpp">
+      <Filter>Source Files\ftv</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ftv\ftv_resourceManager.cpp">
+      <Filter>Source Files\ftv</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ftv\ftv_scene.cpp">
+      <Filter>Source Files\ftv</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ftv\ftvTestbench.cpp">
+      <Filter>Source Files\ftv</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ftv\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

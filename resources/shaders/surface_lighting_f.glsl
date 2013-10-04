@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------------
-FFile: surface_lighting_f.glsl
+File: surface_lighting_f.glsl
 Author: Michael Becher
-Date of (presumingly) last edit: 26.08.2013
+Date of (presumingly) last edit: 11.09.2013
 
 Description: Standard fragment shader for lighting calculations of opaque surfaces.
 			 Based on the Cook-Torrance BRDF.
@@ -9,11 +9,12 @@ Description: Standard fragment shader for lighting calculations of opaque surfac
 #version 330
 
 #define PI 3.1415926535
+#define INV_PI 0.318309886183
 
 struct LightProperties 
 {
-	vec3 position[5];
-	vec3 intensity[5];
+	vec3 position;
+	vec3 intensity;
 };
 
 uniform sampler2D diffuse_tx2D;
@@ -27,13 +28,10 @@ uniform int num_lights;
 uniform mat4 view_matrix;
 
 in vec3 position;
-in vec4 colour;
+//in vec4 colour;
 in vec2 uv_coord;
 in vec3 viewer_direction;
-in vec3 normal;
-in vec3 tangent;
-in vec3 bitangent;
-in LightProperties lights_tangent_space;
+in mat3 tangent_space_matrix;
 
 out vec4 fragColour;
 
@@ -54,48 +52,46 @@ vec3 cookTorranceShading(in vec3 surface_albedo, in vec3 surface_specular_color,
 	float n_dot_h = dot(surface_normal,halfway);
 	float n_dot_l = dot(surface_normal,light_direction);
 	float n_dot_v = dot(surface_normal,viewer_direction);
-	float v_dot_h = dot(viewer_direction,halfway);
-	float l_dot_h = v_dot_h;
+	float l_dot_h = dot(light_direction,halfway);
+	float roughness_squared = pow(surface_roughness,2.0);
 	
 	/*
 	/	Compute Fresnel term using the Schlick approximation.
-	/	To avoid artifact, a small epsilon is added to 1.0-l_dot_h
+	/	To avoid artefacts, a small epsilon is added to 1.0-l_dot_h
 	*/
 	vec3 fresnel_term = mix(surface_specular_color,vec3(1.0), pow(1.01-l_dot_h,5.0) );
 	
 	/*	
-	/	Compute geometric attenuation, based on Smith shadowing term and following 
-	/	"Crafting a Next-Gen Material Pipeline for The Order: 1886" Euqation 5.
+	/	Compute geometric attenuation / visbility term, based on Smith shadowing term and following 
+	/	"Crafting a Next-Gen Material Pipeline for The Order: 1886" Equation 8/9
+	/	from SIGGRAPH 2013 Course Notes.
 	*/
-	float g_1 = (2.0*n_dot_v) / (n_dot_v + sqrt(1.0 + pow(surface_roughness,2.0)*(1.0 - pow(n_dot_v,2.0))));
-	float g_2 = (2.0*n_dot_l) / (n_dot_l + sqrt(1.0 + pow(surface_roughness,2.0)*(1.0 - pow(n_dot_l,2.0))));
-	float geometry_term = g_1*g_2;
-	//	float geometry_term = min( min(1.0, (2.0*n_dot_h*n_dot_v)/v_dot_h) , (2.0*n_dot_h*n_dot_l)/v_dot_h );
+	float v_1 = n_dot_v + sqrt( roughness_squared+pow(n_dot_v,2.0)-roughness_squared*pow(n_dot_v,2.0) );
+	float v_2 = n_dot_l + sqrt( roughness_squared+pow(n_dot_l,2.0)-roughness_squared*pow(n_dot_l,2.0) ) ; 
+	float visibility_term =  1.0/(v_1 * v_2);
 	
-	/*	Compute microfacet normal distrubution term using GGX distribution by Walter et al (2007) */
-	float distribution_term = pow(surface_roughness,2.0)/
-								(PI*pow(pow(n_dot_h,2.0)*(pow(surface_roughness,2.0)-1.0)+1.0 , 2.0));
-	//	/*	Beckman distribution */
-	//	float distribution_term = exp( -(1.0-pow(n_dot_h,2.0))/(pow(surface_roughness,2.0)*pow(n_dot_h,2.0)) )/
-	//								(PI*pow(surface_roughness,2.0)*pow(n_dot_h,4.0));
+	/*	Compute micro-facet normal distribution term using GGX distribution by Walter et al (2007) */
+	float distribution_term = roughness_squared/
+								(PI*pow(pow(n_dot_h,2.0)*roughness_squared-pow(n_dot_h,2.0)+1.0 , 2.0));
 								
 	/*	Compute Cook Torrance BRDF */
-	vec3 specular_brdf = (fresnel_term*geometry_term*distribution_term)/(4.0*n_dot_l*n_dot_v);
+	vec3 specular_brdf = fresnel_term*(visibility_term*distribution_term);
 	
 	/*
 	/	Compute diffuse lambertian BRDF.
 	/	The specular reflection takes away some energy from the diffuse reflection.
-	/	Only the fresnel term is considered, as to not include specular reflected light "blocked" 
+	/	Only the Fresnel term is considered, as to not include specular reflected light "blocked" 
 	/	by the geometry or distribution term in the diffuse energy.
-	/	To avoid tampering of the color, the mean of all three color channels is considered.
+	/	To avoid tampering of the colour, the mean of all three colour channels is considered.
+	/
+	/	dot product with vec(1/3)  implements (r+g+b)/3
 	*/
-	float used_up_energy = (fresnel_term.x+fresnel_term.y+fresnel_term.z)/3.0;
-	vec3 diffuse_brdf = (1.0-used_up_energy)*(surface_albedo/PI);
-
-	vec3 surfance_reflectance = light_colour * (diffuse_brdf+specular_brdf) * max(0.0,n_dot_l);
-
-	return surfance_reflectance;
+	const vec3 third = vec3(0.333);
+	vec3 diffuse_brdf = surface_albedo * (INV_PI-dot(fresnel_term,third)*INV_PI);
+    
+	return (light_colour*diffuse_brdf + light_colour*specular_brdf) * max(0.0,n_dot_l);
 }
+
 
 void main()
 {
@@ -118,14 +114,19 @@ void main()
 
 	/*	Calculate Cook Torrance shading for each light source */
 	vec3 rgb_linear = vec3(0.0);
-	for(int i=0;i<num_lights;i++)
-	{
-		/*	Quick&Dirty light attenuation */
-		vec3 light_intensity = 100.0 * lights_tangent_space.intensity[i] / pow(length(position-(view_matrix*vec4(lights.position[i],1.0)).xyz),2.0);
-		
-		rgb_linear += cookTorranceShading(tColour,tSpecColour,tRoughness,
-											tNormal, lights_tangent_space.position[i], viewer_direction, light_intensity);
-	}
+
+	/*	CAUTION: arbitrary values in use */
+	LightProperties lights_tangent_space;
+	lights_tangent_space.intensity = lights.intensity;
+	lights_tangent_space.position = normalize(tangent_space_matrix * normalize((view_matrix * vec4(lights.position,1.0)).xyz - position));
+	
+	/*	Quick&Dirty light attenuation */
+	vec3 light_intensity = 100.0 * lights_tangent_space.intensity / pow(length(position-(view_matrix*vec4(lights.position,1.0)).xyz),2.0);
+	
+	rgb_linear += cookTorranceShading(tColour,tSpecColour,tRoughness,
+											tNormal, lights_tangent_space.position, viewer_direction, light_intensity);
+												
+											
 	
 	/*	Temporary gamma correction */
 	fragColour = vec4( pow( rgb_linear, vec3(1.0/2.2) ), 1.0);
