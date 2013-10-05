@@ -50,21 +50,21 @@ bool FramebufferObject::createColorAttachment(GLenum internalFormat, GLenum form
 	}
 
 	unsigned long bufsSize = m_colorbuffers.size();
-	m_colorbuffers.push_back(Texture2D(""));
-	std::vector<Texture2D>::iterator lastElement = (--(m_colorbuffers.end()));
-
-	glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
+	std::shared_ptr<Texture2D> new_color_atttachment(new Texture2D( "fbo_"+std::to_string(m_handle)+"_color_attachment_"+std::to_string(bufsSize) ));
+	m_colorbuffers.push_back(new_color_atttachment);
 	
-	lastElement->load(internalFormat, m_width, m_height, format, type, NULL);
-	lastElement->bindTexture();
+	new_color_atttachment->load(internalFormat, m_width, m_height, format, type, NULL);
+	new_color_atttachment->bindTexture();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+bufsSize, GL_TEXTURE_2D, lastElement->getHandle(), 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+bufsSize, GL_TEXTURE_2D, new_color_atttachment->getHandle(), 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
 
 	return true;
 }
@@ -91,7 +91,7 @@ void FramebufferObject::bind()
 
 void FramebufferObject::bindColorbuffer(int index)
 {
-	if (index < m_colorbuffers.size()) m_colorbuffers[index].bindTexture();
+	if (index < m_colorbuffers.size()) m_colorbuffers[index]->bindTexture();
 }
 
 void FramebufferObject::bindDepthbuffer()
@@ -112,8 +112,8 @@ bool FramebufferObject::checkStatus()
 
 void FramebufferObject::resize(int new_width, int new_height)
 {
-	for (std::vector<Texture2D>::iterator itr = m_colorbuffers.begin(); itr != m_colorbuffers.end(); ++itr)
+	for (std::vector<std::shared_ptr<Texture2D>>::iterator itr = m_colorbuffers.begin(); itr != m_colorbuffers.end(); ++itr)
 	{
-		itr->reload(new_width, new_height, NULL);
+		(*itr)->reload(new_width, new_height, NULL);
 	}
 }

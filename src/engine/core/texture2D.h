@@ -68,6 +68,9 @@ public:
 	* \return Returns true if the texture was succesfully created, false otherwise
 	*/
 	bool reload(GLenum internal_format, int dim_x, int dim_y, GLenum format, GLenum type, GLvoid * data);
+
+private:
+	Texture2D(Texture2D &cpy) {}
 };
 
 #endif

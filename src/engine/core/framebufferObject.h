@@ -7,6 +7,8 @@
 /*	Include system libraries */
 #include <vector>
 #include <iostream>
+#include <string>
+#include <memory>
 
 
 /**
@@ -24,16 +26,16 @@
 class FramebufferObject
 {
 private:
+	/*	Private copy constructor. Don't wanna go around copying objects with OpenGL handles. */
+	FramebufferObject(FramebufferObject&);
+
 	GLuint m_handle;
-	std::vector<Texture2D> m_colorbuffers;
+	std::vector<std::shared_ptr<Texture2D>> m_colorbuffers;
 	GLuint m_depthbuffer;
 	GLuint m_stencilbuffer;
 
 	int m_width;
 	int m_height;
-
-	/*	Private copy constructor. Don't wanna go around copying objects with OpenGL handles. */
-	FramebufferObject(FramebufferObject&);
 
 public:
 	FramebufferObject();

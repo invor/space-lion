@@ -9,8 +9,6 @@
 
 class Texture3D : public Texture
 {
-private:
-
 public:
 	Texture3D() {}
 	Texture3D(std::string in_filename) : Texture(in_filename) {}
@@ -27,6 +25,9 @@ public:
 	/	load a texture from an array of floats
 	*/
 	bool loadArrayF(float* data, glm::ivec3 resolution, GLenum internalFormat, GLenum format);
+
+private:
+	Texture3D(Texture3D &cpy) {}
 };
 
 #endif

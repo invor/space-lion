@@ -16,6 +16,8 @@ enum shaderType	{ SURFACE_LIGHTING,PICKING,FLAT, FXAA, IDLE, VOLUME_RAYCASTING, 
 class GLSLProgram
 {
 private:
+	GLSLProgram(GLSLProgram &cpy) {}
+
 	shaderType type;
 	GLuint handle;
 	bool linkStatus;

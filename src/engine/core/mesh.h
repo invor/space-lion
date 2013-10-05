@@ -38,6 +38,9 @@ public:
 	const std::string getFilename() {return filename;}
 
 	static std::shared_ptr<Mesh> loadFromFBX(const std::string &filename, FBX::OpenGL::BindAttribLocations locations = FBX::OpenGL::BindAttribLocations());
+
+private:
+	Mesh(Mesh &cpy) {}
 };
 
 #endif
