@@ -1,25 +1,29 @@
 #ifndef mesh_h
 #define mesh_h
 
+/*	Include space-lion files */
+#include "vertexStructs.h"
+#include "../fbx/fbx_opengl_geometry.hpp"
+
+/*	Include system libraries */
 #include <string>
 #include <GL/glew.h>
-#include "vertexStructs.h"
 #include <iostream>
-#include "../fbx/fbx_opengl_geometry.hpp"
+
 
 class Mesh
 {
 private:
-	const std::string filename;
-	GLuint num_vertices;
-	GLenum type;
+	const std::string m_filename;
+	GLuint m_num_vertices;
+	GLenum m_mesh_type;
 
 	/*	Handle of the vertex array on the GPU */
-	GLuint va_handle;
+	GLuint m_va_handle;
 	/*	Handle of the vertex buffer object on the GPU */
-	GLuint vbo_handle;
+	GLuint m_vbo_handle;
 	/*	Handle of the index buffer object  on the GPU */
-	GLuint ibo_handle;
+	GLuint m_ibo_handle;
 
 public:
 	Mesh();
@@ -35,9 +39,9 @@ public:
 	void setVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);
 	void setVertexAttribLPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);
 
-	const std::string getFilename() {return filename;}
+	const std::string getFilename() {return m_filename;}
 
-	static std::shared_ptr<Mesh> loadFromFBX(const std::string &filename, FBX::OpenGL::BindAttribLocations locations = FBX::OpenGL::BindAttribLocations());
+	//static std::shared_ptr<Mesh> loadFromFBX(const std::string &filename, FBX::OpenGL::BindAttribLocations locations = FBX::OpenGL::BindAttribLocations());
 
 private:
 	Mesh(Mesh &cpy) {}

@@ -245,7 +245,7 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 		}
 	}
 
-	std::shared_ptr<GLSLProgram> shaderPrg(new GLSLProgram());
+	std::shared_ptr<GLSLProgram> shaderPrg(new GLSLProgram(type));
 	shaderPrg->init();
 	std::string vertSource;
 	std::string fragSource;
@@ -356,7 +356,7 @@ bool ResourceManager::createTexture2D(const std::string path, std::shared_ptr<Te
 	}
 
 	char* imageData;
-	long dataBegin;
+	unsigned long dataBegin;
 	int imgDimX;
 	int imgDimY;
 
@@ -369,7 +369,7 @@ bool ResourceManager::createTexture2D(const std::string path, std::shared_ptr<Te
 	inOutTexPtr = texture;
 	texture_list.push_back(std::move(texture));
 
-	delete imageData;
+	delete[] imageData;
 	return true;
 }
 
@@ -404,9 +404,63 @@ bool ResourceManager::createTexture3D(float* volumeData, glm::ivec3 textureRes, 
 
 bool ResourceManager::loadFbxGeometry(const std::string &path, std::shared_ptr<Mesh> &geomPtr)
 {
-	try {
-		geomPtr = Mesh::loadFromFBX(path);
-	} catch (FBX::BaseException e) {
+	try
+	{
+		FBX::OpenGL::BindAttribLocations locations;
+
+		std::shared_ptr<Mesh> mesh(new Mesh(path));
+
+		std::shared_ptr<FBX::Geometry> geometry = FBX::Geometry::fbxLoadFirstGeometry(path);
+		FBX::OpenGL::GeometrySerialize serialize(geometry->features);
+
+		uint8_t* memory;
+		size_t memory_size;
+		serialize.serialize(memory, memory_size, geometry->vertices);
+
+		if (sizeof(unsigned int) == sizeof(GLuint)) {
+			mesh->bufferDataFromArray(reinterpret_cast<Vertex_p*>(memory),
+				reinterpret_cast<const GLuint*>(geometry->triangle_indices.data()),
+				static_cast<GLsizei>(memory_size),
+				static_cast<GLsizei>(geometry->triangle_indices.size()) * sizeof(GLuint), GL_TRIANGLES);
+		}
+		else {
+			std::vector<GLuint> gluint_indices(geometry->triangle_indices.begin(), geometry->triangle_indices.end());
+			mesh->bufferDataFromArray(reinterpret_cast<Vertex_p*>(memory), gluint_indices.data(), static_cast<GLsizei>(memory_size), static_cast<GLsizei>(geometry->triangle_indices.size()) * sizeof(GLuint), GL_TRIANGLES);
+		}
+
+		delete [] memory;
+
+		const FBX::OpenGL::GeometrySerialize::Settings &s(serialize.settings());
+
+		if (locations.ndx_position >= 0) {
+			mesh->setVertexAttribPointer(locations.ndx_position, 3, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(s.stride), (void*) s.offset_position);
+		}
+		if (s.features & FBX::Geometry::NORMAL && locations.ndx_normal >= 0) {
+			mesh->setVertexAttribPointer(locations.ndx_normal, 3, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(s.stride), (void*) s.offset_normal);
+		}
+		if (s.features & FBX::Geometry::TANGENT && locations.ndx_tangent >= 0) {
+			mesh->setVertexAttribPointer(locations.ndx_tangent, 3, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(s.stride), (void*) s.offset_tangent);
+		}
+		if (s.features & FBX::Geometry::COLOR && locations.ndx_color >= 0) {
+			mesh->setVertexAttribPointer(locations.ndx_color, 4, GL_UNSIGNED_BYTE, GL_TRUE, static_cast<GLsizei>(s.stride), (void*) s.offset_color);
+			// no static color support in Mesh
+			// ndx_static_color = -1;
+		}
+		else {
+			// no static color support in Mesh
+			// ndx_static_color = locations.ndx_color;
+		}
+		if (s.features & FBX::Geometry::UVCOORD && locations.ndx_uvcoord >= 0) {
+			mesh->setVertexAttribPointer(locations.ndx_uvcoord, 2, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(s.stride), (void*) s.offset_uvcoord);
+		}
+		if (s.features & FBX::Geometry::BINORMAL && locations.ndx_binormal >= 0) {
+			mesh->setVertexAttribPointer(locations.ndx_binormal, 3, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(s.stride), (void*) s.offset_binormal);
+		}
+
+		geomPtr =  mesh;
+	}
+	catch (FBX::BaseException e)
+	{
 		std::cerr << "Couldn't load " << path << ": " << e.what() << "\n";
 		return false;
 	}
@@ -571,7 +625,7 @@ const std::string ResourceManager::readShaderFile(const char* const path)
 	return source.str();
 }
 
-bool ResourceManager::readPpmHeader(const char* filename, long& headerEndPos, int& imgDimX, int& imgDimY)
+bool ResourceManager::readPpmHeader(const char* filename, unsigned long& headerEndPos, int& imgDimX, int& imgDimY)
 {
 	int currentComponent = 0;
 	bool firstline = false;
@@ -634,7 +688,7 @@ bool ResourceManager::readPpmHeader(const char* filename, long& headerEndPos, in
 	*/
 	if(firstline)
 	{
-		headerEndPos = file.tellg();
+		headerEndPos = static_cast<long>(file.tellg());
 		file.close();
 		return true;
 	}
@@ -680,12 +734,12 @@ bool ResourceManager::readPpmHeader(const char* filename, long& headerEndPos, in
 	/	Note down the position after this line and exit with return true after closing the file.
 	*/
 	std::getline(file,buffer,'\n');
-	headerEndPos = file.tellg();
+	headerEndPos = static_cast<unsigned long>(file.tellg());
 	file.close();
 	return true;
 }
 
-bool ResourceManager::readPpmData(const char* filename, char* imageData, long dataBegin, int imgDimX, int imgDimY)
+bool ResourceManager::readPpmData(const char* filename, char* imageData, unsigned long dataBegin, int imgDimX, int imgDimY)
 {
 	std::ifstream file (filename,std::ios::in | std::ios::binary);
 
@@ -698,7 +752,7 @@ bool ResourceManager::readPpmData(const char* filename, char* imageData, long da
 	/	Determine the length from the beginning of the image data to the end of the file.
 	*/
 	file.seekg(0, file.end);
-	long length = file.tellg();
+	unsigned long length = static_cast<unsigned long>(file.tellg());
 	length = length - dataBegin;
 	char* buffer = new char[length];
 

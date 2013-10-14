@@ -42,7 +42,6 @@ public:
 
 protected:
 	ResourceManager resourceMngr;
-	Controls controlHandler;
 
 	std::list<Scene> sceneList;
 

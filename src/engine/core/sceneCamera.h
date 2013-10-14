@@ -18,10 +18,10 @@ public:
 	~SceneCamera() {}
 
 	SceneCamera(int inId, const glm::vec3& inPosition, const glm::quat& inOrientation, float inAspect, float inFov)
-		: SceneEntity(inId, inPosition, inOrientation, glm::vec3(1.0f)), look_at(glm::vec3(0.0f)), aspect_ratio(inAspect), field_of_view(inFov) {}
+		: SceneEntity(inId, inPosition, inOrientation, glm::vec3(1.0f)), aspect_ratio(inAspect), field_of_view(inFov), look_at(glm::vec3(0.0f)){}
 
 	SceneCamera(int inId, const glm::vec3& inPosition, const glm::vec3& inLookAt, float inAspect, float inFov)
-		: SceneEntity(inId, inPosition, glm::quat(), glm::vec3(1.0f)), look_at(inLookAt), aspect_ratio(inAspect), field_of_view(inFov)
+		: SceneEntity(inId, inPosition, glm::quat(), glm::vec3(1.0f)), aspect_ratio(inAspect), field_of_view(inFov), look_at(inLookAt)
 	{
 		/*	Compute initial orientation as given by position and look-at-point */
 		glm::vec3 difference_vec = glm::normalize(inLookAt - inPosition);

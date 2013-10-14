@@ -209,7 +209,7 @@ protected:
 	 * \param imgDimY Out parameter, containing the dimension of the image in Y direction in pixels
 	 * \return Returns true if the ppm header was succesfully read, false otherwise
 	 */
-	bool readPpmHeader(const char* filename, long& headerEndPos, int& imgDimX, int& imgDimY);
+	bool readPpmHeader(const char* filename, unsigned long& headerEndPos, int& imgDimX, int& imgDimY);
 
 	/**
 	 * \brief Read a the data of a ppm image file. Courtesy to the computer vision lecture I attended.
@@ -220,7 +220,7 @@ protected:
 	 * \param imgDimY Dimension of the image in Y direction in pixels
 	 * \return Returns true if the ppm header was succesfully read, false otherwise
 	 */
-	bool readPpmData(const char* filename, char* imageData, long dataBegin, int imgDimX, int imgDimY);
+	bool readPpmData(const char* filename, char* imageData, unsigned long dataBegin, int imgDimX, int imgDimY);
 };
 
 #endif

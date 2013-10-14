@@ -79,6 +79,8 @@ public:
 
 	void applyGuidedPoisson(FramebufferObject *currentFrame, GLuint guidanceField, FramebufferObject* mask, int iterations);
 
+	void applyLicInpainting(FramebufferObject *currentFrame, GLuint guidanceField, FramebufferObject* mask, int iterations);
+
 	/*
 	/	Apply image inpainting to [a] region[s] given by an image-mask.
 	*/
@@ -106,6 +108,7 @@ private:
 	float iterationCounter;
 
 	std::shared_ptr<GLSLProgram> poissonShaderPrg;
+	std::shared_ptr<GLSLProgram> licInpaintingShaderPrg;
 	std::shared_ptr<GLSLProgram> inpaintingShaderPrg;
 	std::shared_ptr<GLSLProgram> stampShaderPrg;
 	std::shared_ptr<GLSLProgram> distanceShaderPrg;

@@ -205,28 +205,30 @@ bool FtvTestbench::readPpmData(const char* filename, char* imageData, long dataB
 	return true;
 }
 
-bool FtvTestbench::readRawImageF(const char* filename, float* imageData, int size)
+bool FtvTestbench::readRawImageF(const char* filename, float*& imageData, int& size)
 {
 	std::ifstream file(filename, std::ios::in | std::ios::binary);
-
+	
 	/*	Check if the file could be opened. */
 	if (!(file.is_open()))return false;
-
+	
 	/*	Determine the length from the beginning of the image data to the end of the file. */
 	file.seekg(0, file.end);
 	long length = file.tellg();
 	char* buffer = new char[length];
-
+	
 	file.seekg(0, file.beg);
 	file.read(buffer, length);
-
+	
 	imageData = reinterpret_cast<float*>(buffer);
-
+	/*	Length of the float array equals length in byte diveded by four, since sizeof(float)=4 */
+	size = length / 4;
+	
 	return true;
 
 	//FILE *pFile;
 	//
-	//pFile = fopen (filename, "rb");
+	//fopen_s(&pFile,filename, "rb");
 	//if (pFile==NULL) return false;
 	//
 	//fread(imageData,sizeof(GLfloat),size,pFile);
@@ -333,7 +335,8 @@ bool FtvTestbench::loadVectorFieldSequence()
 	int imgDimX = 41;
 	int imgDimY = 41;
 	int size = imgDimX*imgDimY;
-	float* rawImageData = new float[size*3];
+	//float* rawImageData = new float[size*3];
+	float* rawImageData = NULL;
 	float* rearrangedImageData = new float[size*2];
 	std::string path;
 
@@ -345,7 +348,8 @@ bool FtvTestbench::loadVectorFieldSequence()
 		path = "../resources/textures/fault_tolerant_vis/ftle_vectorfield/";
 		path += velo[i];
 
-		readRawImageF(path.c_str(),rawImageData,imgDimY*imgDimX*3);
+		int float_array_length;
+		readRawImageF(path.c_str(), rawImageData, float_array_length);
 
 		/*	We only need two of its components per texel */
 		for(int y=0;y<imgDimY;y++)
@@ -360,7 +364,7 @@ bool FtvTestbench::loadVectorFieldSequence()
 
 		glGenTextures(1, &textures_v[i-100]);
 		glBindTexture(GL_TEXTURE_2D, textures_v[i-100]);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		//glGenerateMipmap(GL_TEXTURE_2D);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -406,7 +410,7 @@ bool FtvTestbench::loadVectorFieldSequenceTo3D(int from, int to)
 	int imgDimY = 41;
 	int imgDimZ = to - from;
 	int size_of_slice = imgDimX*imgDimY;
-	float* rawImageData = new float[size_of_slice*3];
+	float* rawImageData = NULL;
 	/*	enough storage for 50 slices of 2d vectorfield data */
 	float* image_data_3d = new float[size_of_slice*2*imgDimZ];
 	std::string path;
@@ -418,7 +422,8 @@ bool FtvTestbench::loadVectorFieldSequenceTo3D(int from, int to)
 	{
 		path = "../resources/textures/fault_tolerant_vis/ftle_vectorfield/" + velo[i];
 
-		readRawImageF(path.c_str(),rawImageData,imgDimY*imgDimX*3);
+		int float_array_length;
+		readRawImageF(path.c_str(), rawImageData, float_array_length);
 
 		for(int y=0;y<imgDimY;y++)
 		{
@@ -575,4 +580,41 @@ void FtvTestbench::getFrameConfigC(FramebufferObject* maskFbo, FramebufferObject
 	imageProcessor.applyMaskToImageToFBO(textures_f[currentFrame],maskFbo,400,400);
 
 	currentFrame = (currentFrame++)%49;
+}
+
+void FtvTestbench::createVolumeMask(float*& volume_data, glm::ivec3 volume_dimension, glm::ivec3 lower_bb_corner, glm::ivec3 upper_bb_corner)
+{
+	int index = 0;
+	glm::vec3 texture_coord = glm::vec3(0.0);
+
+	for (int z = 0; z < volume_dimension.z; z++)
+	{
+		for (int y = 0; y < volume_dimension.y; y++)
+		{
+			for (int x = 0; x < volume_dimension.x; x++)
+			{
+				//texture_coord = glm::vec3( (float(x)/float(volume_dimension.x)),
+				//							(float(y) / float(volume_dimension.y)),
+				//							(float(z) / float(volume_dimension.z)) );
+
+				//if ((texture_coord.x < lower_bb_corner.x || texture_coord.x > upper_bb_corner.x) &&
+				//	(texture_coord.y < lower_bb_corner.y || texture_coord.y > upper_bb_corner.y) &&
+				//	(texture_coord.z < lower_bb_corner.z || texture_coord.z > upper_bb_corner.z))
+				if ((x > lower_bb_corner.x && x < upper_bb_corner.x) &&
+					(y > lower_bb_corner.y && y < upper_bb_corner.y) &&
+					(z > lower_bb_corner.z && z < upper_bb_corner.z))
+				{
+					//	Outside of the fault region.
+					volume_data[index] = 1.0;
+				}
+				else
+				{
+					//	Inside of the fault region.
+					volume_data[index] = 0.0;
+				}
+
+				index += 1;
+			}
+		}
+	}
 }

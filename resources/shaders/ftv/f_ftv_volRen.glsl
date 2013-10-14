@@ -67,9 +67,9 @@ void main()
 		vec4 rgbaVol = vec4(texture3D(volumeTexture,sampleCoord).x);
 		
 		float maskValue = texture3D(mask,sampleCoord).x;
-		if( maskValue < 0.5 )
+		if( maskValue > 0.5 )
 		{
-			rgbaVol = vec4(0.0);
+			rgbaVol = vec4(1.0,0.0,0.0,0.025);
 		}
 		
 		/*	Accumulate color */
@@ -78,7 +78,7 @@ void main()
 		rgbaOut.a += (1.0 - rgbaOut.a) * rgbaVol.a * density;
 		
 		/*	Add the distance to the next sample point to the so far traveled distance */
-		traveledDistance += 0.005;
+		traveledDistance += 0.0025;
 		
 		/*	Check if the exit point has been reached */
 		if( traveledDistance > exitDistance )

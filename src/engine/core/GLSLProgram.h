@@ -26,6 +26,7 @@ private:
 	GLuint getUniformLocation(const char *name);
 public:
 	GLSLProgram();
+	GLSLProgram(shaderType shader_type);
 	~GLSLProgram();
 
 	shaderType getType() {return type;}

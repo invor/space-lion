@@ -1,9 +1,9 @@
 #include "ftv_scene.h"
 
 bool Ftv_Scene::createFtvVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling,
-												std::shared_ptr<Mesh> geomPtr, std::shared_ptr<Texture3D> volPtr, std::shared_ptr<GLSLProgram> prgmPtr)
+	std::shared_ptr<Mesh> geomPtr, std::shared_ptr<Texture3D> volPtr, std::shared_ptr<Texture3D> maskPtr, std::shared_ptr<GLSLProgram> prgmPtr)
 {
-	volumetricObjectList.push_back(VolumetricSceneObject(id,position,orientation,scaling,geomPtr,volPtr,prgmPtr));
+	ftv_volumetricSceneObjectList.push_back(Ftv_volumetricSceneObject(id,position,orientation,scaling,geomPtr,volPtr,maskPtr,prgmPtr));
 	return true;
 }
 
@@ -48,6 +48,6 @@ void Ftv_Scene::ftvRenderVolumetricObjects()
 		currentPrgm->setUniform("cameraPosition",activeCamera->getPosition());
 
 		(i->getGeometry())->draw();
-		i->rotate(0.1f,glm::vec3(0.0f,1.0f,0.0f));
+		//i->rotate(0.1f,glm::vec3(0.0f,1.0f,0.0f));
 	}
 }

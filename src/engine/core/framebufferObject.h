@@ -66,7 +66,7 @@ public:
 	* \brief Bind a color attachment as GL_TEXTURE_2D.
 	* \param index Specifies which color is bound. If index > #attachments, the method simply won't bind a texture.
 	*/
-	void bindColorbuffer(int index);
+	void bindColorbuffer(unsigned int index);
 
 	/**
 	* \brief Bind the depth buffer as GL_TEXTURE_2D.

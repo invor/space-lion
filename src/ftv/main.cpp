@@ -9,5 +9,5 @@ int main(){
 	
 	Ftv_RenderHub testRenderer;
 	testRenderer.init();
-	testRenderer.runInpaintingTest();
+	testRenderer.runFtvVolumeTest();
 }

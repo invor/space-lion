@@ -21,16 +21,16 @@ Description: Extends the volumetricSceneObject class. Simply adds the handle for
 class Ftv_volumetricSceneObject : public VolumetricSceneObject
 {
 private:
-	Texture3D* ftvMaskVolume;
+	std::shared_ptr<Texture3D> ftvMaskVolume;
 public:
 	Ftv_volumetricSceneObject() {}
 	~Ftv_volumetricSceneObject() {}
 
 	Ftv_volumetricSceneObject(const int inId, const glm::vec3& inPosition, const glm::quat& inOrientation, const glm::vec3& inScaling,
-		std::shared_ptr<Mesh> inGeom, std::shared_ptr<Texture3D> inVolume, Texture3D *inFtvMaskVolume, std::shared_ptr<GLSLProgram> inPrgm)
+		std::shared_ptr<Mesh> inGeom, std::shared_ptr<Texture3D> inVolume, std::shared_ptr<Texture3D> inFtvMaskVolume, std::shared_ptr<GLSLProgram> inPrgm)
 		: VolumetricSceneObject(inId,inPosition,inOrientation,inScaling,inGeom,inVolume,inPrgm), ftvMaskVolume(inFtvMaskVolume) {}
 
-	Texture3D* getFtvMaskVolumeTexture() {return ftvMaskVolume;}
+	std::shared_ptr<Texture3D> getFtvMaskVolumeTexture() { return ftvMaskVolume; }
 };
 
 #endif

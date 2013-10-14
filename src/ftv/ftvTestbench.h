@@ -51,7 +51,7 @@ private:
 	 * \param size Length of the imageData array and size of the file 
 	 * \return Returns true if file was succesfully read, false otherwise
 	 */
-	bool readRawImageF(const char* filename, float* imageData, int size);
+	bool readRawImageF(const char* filename, float*& imageData, int& size);
 public:
 	/*
 	/	Creating a postProcessor with a set framebuffer resolution shouldn't be encouraged for long term use.
@@ -94,6 +94,8 @@ public:
 	/	Inpainting region alternates between 3 different masks.
 	*/
 	void getFrameConfigC(FramebufferObject* maskFbo, FramebufferObject* imgFbo);
+
+	void createVolumeMask(float*& volume_data, glm::ivec3 volume_dimension, glm::ivec3 lower_bb_corner, glm::ivec3 upper_bb_corner);
 };
 
 #endif

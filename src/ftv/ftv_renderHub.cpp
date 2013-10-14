@@ -11,50 +11,65 @@ Ftv_RenderHub::~Ftv_RenderHub(void)
 
 void Ftv_RenderHub::runFtvVolumeTest()
 {
+	glfwMakeContextCurrent(activeWindow);
+
 	Ftv_Scene tScene;
 	std::shared_ptr<Mesh> geomPtr;
 	std::shared_ptr<Texture3D> volPtr;
+	std::shared_ptr<Texture3D> maskPtr;
 	std::shared_ptr<GLSLProgram> prgmPtr;
+
 	ftv_resourceMngr.createBox(geomPtr);
+
+	FtvTestbench testbench;
+	float* vol_mask = new float[67 * 67 * 67];
+	testbench.createVolumeMask(vol_mask, glm::ivec3(67, 67, 67), glm::ivec3(15, 15, 15), glm::ivec3(35, 35, 35));
+	ftv_resourceMngr.createTexture3D(vol_mask, glm::ivec3(67, 67, 67), GL_RED, GL_RED, maskPtr);
+	delete [] vol_mask;
+	maskPtr->texParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	maskPtr->texParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	ftv_resourceMngr.createTexture3D("../resources/volumeData/f.raw",glm::ivec3(67,67,67),volPtr);
 	ftv_resourceMngr.createFtvShaderProgram(FTV_VOLUME_RAYCASTING,prgmPtr);
 
-	if(!(tScene.createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),geomPtr,volPtr,prgmPtr)))
-	{
-		std::cout<<"Failed to create scene object"
-				<<"\n";
-	}
 
-	if(!(tScene.createSceneCamera(0,glm::vec3(1.5,1.0,1.5),glm::quat(),16.0f/9.0f,55.0f)))
+	tScene.createFtvVolumetricSceneObject(0, glm::vec3(0.0, 0.0, 0.0), glm::quat(), glm::vec3(1.0, 1.0, 1.0), geomPtr, volPtr, maskPtr, prgmPtr);
+
+	//if(!(tScene.createVolumetricSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0,1.0,1.0),geomPtr,volPtr,prgmPtr)))
+	//{
+	//	std::cout<<"Failed to create scene object"
+	//			<<"\n";
+	//}
+
+	if(!(tScene.createSceneCamera(0,glm::vec3(0.0,0.0,1.5),glm::quat(),16.0f/9.0f,55.0f)))
 	{
 		std::cout<<"Failed to create camera"
-				<<"\n";
-	}
-	if(!(tScene.createSceneLight(0,glm::vec3(0.0,2.0,0.0),glm::vec3(1.0,1.0,1.0))))
-	{
-		std::cout<<"Failed to create light"
 				<<"\n";
 	}
 
 	tScene.setActiveCamera(0);
 
-	tScene.testing();
-
 	running = true;
 	glClearColor(0.0f,0.0f,0.0f,1.0f);
 	glEnable (GL_DEPTH_TEST);
-	//glEnable (GL_BLEND);
-	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable (GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glEnable(GL_CULL_FACE);
 
 	while (running && !glfwWindowShouldClose(activeWindow))
 	{
+		Controls::updateCamera(activeWindow, tScene.getActiveCamera());
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glViewport(0,0,1200,675);
-		tScene.renderVolumetricObjects();
+		int width, height;
+		glfwGetFramebufferSize(activeWindow, &width, &height);
+		glViewport(0, 0, width, height);
+
+		tScene.ftvRenderVolumetricObjects();
 
 		glfwSwapBuffers(activeWindow);
+		glfwPollEvents();
 	}
 }
 
@@ -205,7 +220,7 @@ void Ftv_RenderHub::runInpaintingTest()
 
 		//pP.applyImprovedImageInpainting(&primaryFbo,&maskFbo,25);
 		//pP.applyImageInpainting(&primaryFbo,&maskFbo,25);
-		//pP.applyPoisson(&primaryFbo,&secondaryFbo,&maskFbo,20,1);
+		pP.applyPoisson(&primaryFbo,&secondaryFbo,&maskFbo,20,1);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -227,7 +242,8 @@ void Ftv_RenderHub::runInpaintingTest()
 
 void Ftv_RenderHub::runTextureAdvectionTest()
 {
-	/*	This is all just experimental stuff */
+	glfwMakeContextCurrent(activeWindow);
+
 	running = true;
 	glClearColor(0.0f,0.0f,0.0f,0.0f);
 
@@ -282,17 +298,24 @@ void Ftv_RenderHub::runTextureAdvectionTest()
 	{
 		//pP.applyPoisson(&primaryFbo,&secondaryFbo,&maskFbo,75,0);
 
-		glBindFramebuffer(GL_FRAMEBUFFER,0);
-		glViewport(0,0,400,400);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		int width, height;
+		glfwGetFramebufferSize(activeWindow, &width, &height);
+		glViewport(0, 0, width, height);
+
 		pP.FBOToFBO(&primaryFbo);
+
 		glfwSwapBuffers(activeWindow);
+		glfwPollEvents();
 	}
 }
 
 void Ftv_RenderHub::runFtvGuidanceFieldTest()
 {
-	/*	This is all just experimental stuff */
+	glfwMakeContextCurrent(activeWindow);
+
 	running = true;
 	glClearColor(0.0f,0.0f,0.0f,0.0f);
 
@@ -309,7 +332,7 @@ void Ftv_RenderHub::runFtvGuidanceFieldTest()
 	Ftv_PostProcessor pP(400,400);
 	if(!pP.ftv_init(&ftv_resourceMngr))
 	{
-		std::cout<<"Failed to create post processor"
+		std::cout<<"Failed to create post processor for guidance field test."
 				<<"\n";
 	}
 
@@ -337,13 +360,19 @@ void Ftv_RenderHub::runFtvGuidanceFieldTest()
 		//index++;
 
 		//testbench.getFrameConfigC(&maskFbo,&primaryFbo);
-		pP.applyGuidedPoisson(&primaryFbo,vecFieldTx,&maskFbo,1);
+		//pP.applyGuidedPoisson(&primaryFbo,vecFieldTx,&maskFbo,1);
 		//pP.applyGuidedImageInpainting(&primaryFbo, &maskFbo,vecFieldTx,32);
+		pP.applyLicInpainting(&primaryFbo, vecFieldTx, &maskFbo, 50);
 
-		glBindFramebuffer(GL_FRAMEBUFFER,0);
-		glViewport(0,0,400,400);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		int width, height;
+		glfwGetFramebufferSize(activeWindow, &width, &height);
+		glViewport(0, 0, width, height);
+
 		pP.FBOToFBO(&primaryFbo);
 		glfwSwapBuffers(activeWindow);
+		glfwPollEvents();
 	}
 }

@@ -300,6 +300,6 @@ void Scene::renderVolumetricObjects()
 		currentPrgm->setUniform("cameraPosition",activeCamera->getPosition());
 
 		(i->getGeometry())->draw();
-		i->rotate(0.1f,glm::vec3(0.0f,1.0f,0.0f));
+		//i->rotate(0.1f,glm::vec3(0.0f,1.0f,0.0f));
 	}
 }

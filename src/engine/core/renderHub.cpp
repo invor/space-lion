@@ -56,8 +56,7 @@ bool RenderHub::init()
 	setActiveInstance(this);
 	glfwSetWindowSizeCallback(activeWindow,windowSizeCallback);
 	glfwSetWindowCloseCallback(activeWindow,windowCloseCallback);
-	controlHandler.setActive(&controlHandler);
-	glfwSetScrollCallback(activeWindow, Controls::mouseScrollFeedback);
+	Controls::setControlCallbacks(activeWindow);
 
 	/*	Initialize glew */
 	//glewExperimental = GL_TRUE;
@@ -191,7 +190,7 @@ void RenderHub::run()
 	//while(running)
 	{
 		/*	For now, I avoid using a glfw callback function for this */
-		controlHandler.updateCamera(activeWindow,activeScene);
+		Controls::updateCamera(activeWindow, activeScene->getActiveCamera());
 
 		/*  Test picking pass */
 		//picking_fbo.bind();
@@ -277,7 +276,7 @@ void RenderHub::runVolumeTest()
 
 	while(running && !glfwWindowShouldClose(activeWindow))
 	{
-		controlHandler.updateCamera(activeWindow, activeScene);
+		Controls::updateCamera(activeWindow, activeScene->getActiveCamera());
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);

@@ -33,6 +33,7 @@ bool Texture3D::loadTextureFile(std::string inputPath, glm::ivec3 resolution)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage3D(GL_TEXTURE_3D,0,GL_RED,resolution.x,resolution.y,resolution.z,0,GL_RED,GL_FLOAT,volumeData);
+	glBindTexture(GL_TEXTURE_3D, 0);
 	delete [] volumeData;
 
 	return true;

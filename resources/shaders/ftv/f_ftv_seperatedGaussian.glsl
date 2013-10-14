@@ -41,12 +41,12 @@ void main()
 	/*
 	/	Careful, dirty hack!
 	/
-	/	For use with ftv, the seperated gaussian has to change its behaviour
+	/	For use with ftv, the separated gaussian has to change its behaviour
 	/	during the second (vertical) execution. Some pixels inside on the border
 	/	of the inpainting region were filled with color values during the first
 	/	execution. This is desired and those pixel shouldn't be seen as invalid
 	/	during the second pass.
-	/	Therefore we need to deteced whether we are in the second pass and if
+	/	Therefore we need to detect whether we are in the second pass and if
 	/	we are located on the vertical border of the inpainting region.
 	/	If we are, we add an offset to the mask texture lookup so that the pixels
 	/	will be used.

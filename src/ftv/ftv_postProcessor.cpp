@@ -53,6 +53,7 @@ bool Ftv_PostProcessor::ftv_init(Ftv_ResourceManager *ftv_resource_mngr)
 
 	/*	Load all ftv post processing shaders */
 	if (!ftv_resource_mngr->createFtvShaderProgram(FTV_POISSON, poissonShaderPrg)) return false;
+	if (!ftv_resource_mngr->createFtvShaderProgram(FTV_LIC_INPAINTING, licInpaintingShaderPrg)) return false;
 	if (!ftv_resource_mngr->createFtvShaderProgram(FTV_INPAINTING, inpaintingShaderPrg)) return false;
 	if (!ftv_resource_mngr->createFtvShaderProgram(STAMP, stampShaderPrg)) return false;
 	if (!ftv_resource_mngr->createFtvShaderProgram(DISTANCEMAPPING, distanceShaderPrg)) return false;
@@ -363,6 +364,42 @@ void Ftv_PostProcessor::applyGuidedPoisson(FramebufferObject *currentFrame, GLui
 //			iterationCounter++;
 //		}
 //	}
+
+void Ftv_PostProcessor::applyLicInpainting(FramebufferObject *currentFrame, GLuint guidanceField, FramebufferObject* mask, int iterations)
+{
+	licInpaintingShaderPrg->use();
+
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	licInpaintingShaderPrg->setUniform("mask_tx2D", 0);
+	mask->bindColorbuffer(0);
+	glActiveTexture(GL_TEXTURE1);
+	licInpaintingShaderPrg->setUniform("guidanceField_tx2D", 1);
+	glBindTexture(GL_TEXTURE_2D, guidanceField);
+
+	iterationCounter = 1.0f;
+
+	for (int i = 0; i < iterations; i++)
+	{
+		B.bind();
+		glViewport(0, 0, B.getWidth(), B.getHeight());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		licInpaintingShaderPrg->setUniform("h", glm::vec2(1.0 / B.getWidth(), 1.0 / B.getHeight()));
+		glActiveTexture(GL_TEXTURE2);
+		licInpaintingShaderPrg->setUniform("currFrame_tx2D", 2);
+		currentFrame->bindColorbuffer(0);
+		renderPlane.draw();
+
+		currentFrame->bind();
+		glViewport(0, 0, currentFrame->getWidth(), currentFrame->getHeight());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		licInpaintingShaderPrg->setUniform("h", glm::vec2(1.0 / B.getWidth(), 1.0 / B.getHeight()));
+		glActiveTexture(GL_TEXTURE2);
+		licInpaintingShaderPrg->setUniform("currFrame_tx2D", 2);
+		B.bindColorbuffer(0);
+		renderPlane.draw();
+	}
+}
 
 void Ftv_PostProcessor::applyImageInpainting(FramebufferObject *inputFbo, FramebufferObject* mask, int iterations)
 {
