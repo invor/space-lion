@@ -24,7 +24,7 @@ public:
 	/*
 	/	load a texture from an array of floats
 	*/
-	bool loadArrayF(float* data, glm::ivec3 resolution, GLenum internalFormat, GLenum format);
+	bool load(GLenum internal_format, int dim_x, int dim_y, int dim_z, GLenum format, GLenum type, GLvoid * data);
 
 private:
 	Texture3D(Texture3D &cpy) {}

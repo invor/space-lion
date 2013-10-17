@@ -39,7 +39,7 @@ bool Texture3D::loadTextureFile(std::string inputPath, glm::ivec3 resolution)
 	return true;
 }
 
-bool Texture3D::loadArrayF(float* data, glm::ivec3 resolution, GLenum internalFormat, GLenum format)
+bool Texture3D::load(GLenum internal_format, int dim_x, int dim_y, int dim_z, GLenum format, GLenum type, GLvoid * data)
 {
 	//TODO: Add some checks
 	if(sizeof(data) == 0) return false;
@@ -51,7 +51,7 @@ bool Texture3D::loadArrayF(float* data, glm::ivec3 resolution, GLenum internalFo
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage3D(GL_TEXTURE_3D,0,internalFormat,resolution.x,resolution.y,resolution.z,0,format,GL_FLOAT,data);
+	glTexImage3D(GL_TEXTURE_3D, 0, internal_format, dim_x, dim_y, dim_z, 0, format, type, data);
 	glBindTexture(GL_TEXTURE_3D,0);
 
 	return true;

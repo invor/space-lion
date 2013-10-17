@@ -95,7 +95,7 @@ public:
 	*/
 	void getFrameConfigC(FramebufferObject* maskFbo, FramebufferObject* imgFbo);
 
-	void createVolumeMask(float*& volume_data, glm::ivec3 volume_dimension, glm::ivec3 lower_bb_corner, glm::ivec3 upper_bb_corner);
+	void createVolumeMask(char*& volume_data, glm::ivec3 volume_dimension, glm::ivec3 lower_bb_corner, glm::ivec3 upper_bb_corner);
 };
 
 #endif

@@ -14,6 +14,49 @@ in vec3 colour;
 
 out vec4 fragColour;
 
+
+vec2 intersection(vec3 ray_direction, vec3 ray_origin, vec3 lower_box_vertex, vec3 upper_box_vertex)
+{
+	// compute intersection of ray with all six box planes
+    vec3 invR = vec3(1.0) / ray_direction;
+    vec3 tbot = invR * (lower_box_vertex - ray_origin);
+    vec3 ttop = invR * (upper_box_vertex - ray_origin);
+	
+
+    // re-order intersections to find smallest and largest on each axis
+    vec3 tmin;
+    tmin.x = min(ttop.x, tbot.x);
+    tmin.y = min(ttop.y, tbot.y);
+    tmin.z = min(ttop.z, tbot.z);
+    vec3 tmax;
+    tmax.x = max(ttop.x, tbot.x);
+    tmax.y = max(ttop.y, tbot.y);
+    tmax.z = max(ttop.z, tbot.z);
+
+    // find the largest tmin and the smallest tmax
+    float largest_tmin = max(max(tmin.x, tmin.y), max(tmin.x, tmin.z));
+    float smallest_tmax = min(min(tmax.x, tmax.y), min(tmax.x, tmax.z));
+
+	float tnear = largest_tmin;
+	float tfar = smallest_tmax;
+
+	return vec2(tnear,tfar);
+}
+
+bool planeIntersection(vec3 ray_origin, vec3 ray_direction, vec3 plane_center, vec3 plane_normal, out float t_intersection, out vec3 intersection_point)
+{
+	t_intersection = dot(plane_normal,(plane_center-ray_origin)) / dot(plane_normal,ray_direction);
+	
+	intersection_point = ray_origin + t_intersection*ray_direction;
+	
+	return (t_intersection > 0.0);
+}
+
+vec3 lighting(vec3 surface_point, vec3 surface_normal, vec3 surface_color, vec3 light_position)
+{
+	return vec3(1.0);
+}
+
 void main()
 {
 	/*
@@ -48,6 +91,7 @@ void main()
 		entryPoint = cameraTextureCoord;
 	}
 	
+	
 	/*	Storage for output color. */
 	vec4 rgbaOut = vec4(0.0);
 	
@@ -60,17 +104,64 @@ void main()
 										max((1.0 - entryPoint.y)/ rayDirection.y , entryPoint.y/(-rayDirection.y))	),
 								max((1.0 - entryPoint.z)/ rayDirection.z , entryPoint.z/(-rayDirection.z))	);
 	
+
+	/*	Intersect with bounding box around fault region */
+	vec2 intersections = intersection(rayDirection,entryPoint,vec3(0.0),vec3(0.5));	
+	/* Failsafe for fault region bounding box rendering */
+	if(intersections.y < intersections.x) intersections = vec2(exitDistance+1.0);
+	
+	
+	
+	float clip_plane_intersection_t;
+	vec3 clip_plane_intersection_point;;
+	vec3 clip_plane_center = vec3(1.5);
+	vec3 clip_plane_normal = vec3(0.0,1.0,0.0);
+	planeIntersection(entryPoint,rayDirection,clip_plane_center,clip_plane_normal,clip_plane_intersection_t,clip_plane_intersection_point);
+	
+	/*	Manipulate entryPoint and exitDistance so that the sampling loop will only run for sampley below the clip-plane. */
+	if( dot(normalize(entryPoint-clip_plane_center),clip_plane_normal) > 0.0)
+	{
+		if(clip_plane_intersection_t<0.0)
+		{
+			exitDistance = -1.0;
+		}
+		else
+		{
+			entryPoint = clip_plane_intersection_point;
+			exitDistance -= clip_plane_intersection_t;
+		}
+	}
+	else
+	{
+		if(clip_plane_intersection_t>0.0)
+		{
+			exitDistance = min(clip_plane_intersection_t,exitDistance);
+		}
+	}
+	
+	//rgbaOut = vec4(vec3(dot(test,clip_plane_normal)),1.0);
+	
 	while(rgbaOut.a < 0.99)
 	{	
+		/*	Check if the exit point has been reached */
+		if( traveledDistance > exitDistance )
+		{
+			break;
+		}
+		
 		/*	Obtain values from the 3d texture at the current location. */
 		vec3 sampleCoord = entryPoint+(rayDirection*traveledDistance);
-		vec4 rgbaVol = vec4(texture3D(volumeTexture,sampleCoord).x);
+		vec4 rgbaVol = vec4(texture(volumeTexture,sampleCoord).x);
 		
-		float maskValue = texture3D(mask,sampleCoord).x;
-		if( maskValue > 0.5 )
-		{
-			rgbaVol = vec4(1.0,0.0,0.0,0.025);
-		}
+		//float maskValue = texture3D(mask,sampleCoord).x;
+		//if( maskValue > 0.5 )
+		//{
+		//	rgbaVol = vec4(1.0,0.0,0.0,0.025);
+		//}
+		
+		/*	A simple but costly solution for "discarding" all sample above the clip plane. */
+		//	if( dot(normalize(sampleCoord-clip_plane_center),clip_plane_normal) > 0.0)
+		//		rgbaVol.a = 0.0;
 		
 		/*	Accumulate color */
 		rgbaOut.rgb += (1.0 - rgbaOut.a) * rgbaVol.rgb * rgbaVol.a * density;
@@ -80,12 +171,14 @@ void main()
 		/*	Add the distance to the next sample point to the so far traveled distance */
 		traveledDistance += 0.0025;
 		
-		/*	Check if the exit point has been reached */
-		if( traveledDistance > exitDistance )
-		{
-			break;
-		}
+		/* Check against bb intersection */
+		//if(traveledDistance > intersections.x)
+		//{
+		//	rgbaOut.rgb += (1.0 - rgbaOut.a) * vec3(1.0);
+		//	rgbaOut.a = 1.0;
+		//}
 	}
 	
 	fragColour = vec4(rgbaOut);
+	
 }

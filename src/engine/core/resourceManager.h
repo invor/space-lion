@@ -138,14 +138,15 @@ public:
 
 	/**
 	 * \brief Creates a 3D texture for volume rendering from a given float array
-	 * \param volumeData Float array containing the voxel information
-	 * \param textureRes Resolution of the volume
 	 * \param internalFormat Internal format of the volume data
+	 * \param textureRes Resolution of the volume
 	 * \param format Format of the volume data
+	 * \param type Specifies the type of data (e.g. GL_FLOAT)
+	 * \param volumeData Array containing the voxel information
 	 * \param inOutTexPtr A pointer set to the newly created
 	 * \return Returns true if volume texture was succesfully created, false otherwise
 	 */
-	bool createTexture3D(float* volumeData, glm::ivec3 textureRes, GLenum internalFormat, GLenum format, std::shared_ptr<Texture3D> &inOutTexPtr);
+	bool createTexture3D(GLenum internalFormat, glm::ivec3 textureRes, GLenum format, GLenum type, GLvoid* volumeData, std::shared_ptr<Texture3D> &inOutTexPtr);
 
 protected:
 	/** Log string */

@@ -392,10 +392,10 @@ bool ResourceManager::createTexture3D(const std::string path, glm::ivec3 texture
 	return true;
 }
 
-bool ResourceManager::createTexture3D(float* volumeData, glm::ivec3 textureRes, GLenum internalFormat, GLenum format, std::shared_ptr<Texture3D> &inOutTexPtr)
+bool ResourceManager::createTexture3D(GLenum internalFormat, glm::ivec3 textureRes, GLenum format, GLenum type, GLvoid* volumeData, std::shared_ptr<Texture3D> &inOutTexPtr)
 {
 	std::shared_ptr<Texture3D> volume(new Texture3D());
-	if(!(volume->loadArrayF(volumeData,textureRes,internalFormat,format))) return false;
+	if (!(volume->load(internalFormat, textureRes.x, textureRes.y, textureRes.z, format, type, volumeData))) return false;
 	inOutTexPtr = volume;
 	volume_list.push_back(std::move(volume));
 

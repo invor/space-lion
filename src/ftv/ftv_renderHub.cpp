@@ -22,9 +22,9 @@ void Ftv_RenderHub::runFtvVolumeTest()
 	ftv_resourceMngr.createBox(geomPtr);
 
 	FtvTestbench testbench;
-	float* vol_mask = new float[67 * 67 * 67];
-	testbench.createVolumeMask(vol_mask, glm::ivec3(67, 67, 67), glm::ivec3(15, 15, 15), glm::ivec3(35, 35, 35));
-	ftv_resourceMngr.createTexture3D(vol_mask, glm::ivec3(67, 67, 67), GL_RED, GL_RED, maskPtr);
+	char* vol_mask = new char[68 * 67 * 68];
+	testbench.createVolumeMask(vol_mask, glm::ivec3(68, 67, 68), glm::ivec3(20, 20, 20), glm::ivec3(40, 40, 40));
+	ftv_resourceMngr.createTexture3D(GL_R8, glm::ivec3(67, 67, 67), GL_RED, GL_BYTE, vol_mask, maskPtr);
 	delete [] vol_mask;
 	maskPtr->texParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	maskPtr->texParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -53,7 +53,7 @@ void Ftv_RenderHub::runFtvVolumeTest()
 	glEnable (GL_DEPTH_TEST);
 	glEnable (GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	while (running && !glfwWindowShouldClose(activeWindow))
 	{

@@ -582,7 +582,7 @@ void FtvTestbench::getFrameConfigC(FramebufferObject* maskFbo, FramebufferObject
 	currentFrame = (currentFrame++)%49;
 }
 
-void FtvTestbench::createVolumeMask(float*& volume_data, glm::ivec3 volume_dimension, glm::ivec3 lower_bb_corner, glm::ivec3 upper_bb_corner)
+void FtvTestbench::createVolumeMask(char*& volume_data, glm::ivec3 volume_dimension, glm::ivec3 lower_bb_corner, glm::ivec3 upper_bb_corner)
 {
 	int index = 0;
 	glm::vec3 texture_coord = glm::vec3(0.0);
@@ -600,21 +600,30 @@ void FtvTestbench::createVolumeMask(float*& volume_data, glm::ivec3 volume_dimen
 				//if ((texture_coord.x < lower_bb_corner.x || texture_coord.x > upper_bb_corner.x) &&
 				//	(texture_coord.y < lower_bb_corner.y || texture_coord.y > upper_bb_corner.y) &&
 				//	(texture_coord.z < lower_bb_corner.z || texture_coord.z > upper_bb_corner.z))
-				if ((x > lower_bb_corner.x && x < upper_bb_corner.x) &&
-					(y > lower_bb_corner.y && y < upper_bb_corner.y) &&
-					(z > lower_bb_corner.z && z < upper_bb_corner.z))
+				if ((x >= lower_bb_corner.x && x <= upper_bb_corner.x) &&
+					(y >= lower_bb_corner.y && y <= upper_bb_corner.y) &&
+					(z >= lower_bb_corner.z && z <= upper_bb_corner.z))
 				{
-					//	Outside of the fault region.
-					volume_data[index] = 1.0;
+					//	Inside of the fault region.
+					volume_data[index] = static_cast<char>(127);
 				}
 				else
 				{
-					//	Inside of the fault region.
-					volume_data[index] = 0.0;
+					//	Outside of the fault region.
+					volume_data[index] = static_cast<char>(0);
 				}
+
+				if (z == 66) volume_data[index] = static_cast<char>(127);
+
+				//if (z == 0 && y == 1)
+				//{
+				//	std::cout << "x:" << x << std::endl;
+				//	std::cout << "index:" << index << std::endl << std::endl;
+				//}
 
 				index += 1;
 			}
 		}
 	}
+	std::cout << "index:" << index << std::endl << std::endl;
 }
