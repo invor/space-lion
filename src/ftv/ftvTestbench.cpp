@@ -625,5 +625,4 @@ void FtvTestbench::createVolumeMask(char*& volume_data, glm::ivec3 volume_dimens
 			}
 		}
 	}
-	std::cout << "index:" << index << std::endl << std::endl;
 }
