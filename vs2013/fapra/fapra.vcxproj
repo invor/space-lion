@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{67C70BD9-7CD4-4F5F-85CD-F57176D31944}</ProjectGuid>
+    <RootNamespace>fapra</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)/../bin/</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)/../bin/</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)/../bin/</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)/../bin/</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\engine\core\controls.h" />
+    <ClInclude Include="..\..\src\engine\core\framebufferObject.h" />
+    <ClInclude Include="..\..\src\engine\core\GLSLProgram.h" />
+    <ClInclude Include="..\..\src\engine\core\material.h" />
+    <ClInclude Include="..\..\src\engine\core\mesh.h" />
+    <ClInclude Include="..\..\src\engine\core\postProcessor.h" />
+    <ClInclude Include="..\..\src\engine\core\renderHub.h" />
+    <ClInclude Include="..\..\src\engine\core\resourceManager.h" />
+    <ClInclude Include="..\..\src\engine\core\scene.h" />
+    <ClInclude Include="..\..\src\engine\core\sceneCamera.h" />
+    <ClInclude Include="..\..\src\engine\core\sceneEntity.h" />
+    <ClInclude Include="..\..\src\engine\core\sceneLightSource.h" />
+    <ClInclude Include="..\..\src\engine\core\staticSceneObject.h" />
+    <ClInclude Include="..\..\src\engine\core\texture.h" />
+    <ClInclude Include="..\..\src\engine\core\texture2D.h" />
+    <ClInclude Include="..\..\src\engine\core\texture3D.h" />
+    <ClInclude Include="..\..\src\engine\core\vertexStructs.h" />
+    <ClInclude Include="..\..\src\engine\core\volumetricSceneObject.h" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_exceptions.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_generic_parser.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_geometry.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_node_name.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_node_property.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_opengl_geometry.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_parser.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_print.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_property.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_reader.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_types.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_unzip.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_value.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\engine\core\controls.cpp" />
+    <ClCompile Include="..\..\src\engine\core\framebufferObject.cpp" />
+    <ClCompile Include="..\..\src\engine\core\GLSLProgram.cpp" />
+    <ClCompile Include="..\..\src\engine\core\material.cpp" />
+    <ClCompile Include="..\..\src\engine\core\mesh.cpp" />
+    <ClCompile Include="..\..\src\engine\core\postProcessor.cpp" />
+    <ClCompile Include="..\..\src\engine\core\renderHub.cpp" />
+    <ClCompile Include="..\..\src\engine\core\resourceManager.cpp" />
+    <ClCompile Include="..\..\src\engine\core\scene.cpp" />
+    <ClCompile Include="..\..\src\engine\core\sceneCamera.cpp" />
+    <ClCompile Include="..\..\src\engine\core\sceneLightSource.cpp" />
+    <ClCompile Include="..\..\src\engine\core\texture2D.cpp" />
+    <ClCompile Include="..\..\src\engine\core\texture3D.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_node_name.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_opengl_geometry.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_parser.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_print.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_property.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_reader.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_unzip.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_value.cpp" />
+    <ClCompile Include="..\..\src\engine\main.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

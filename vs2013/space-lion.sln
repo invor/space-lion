@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.20827.3
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "engine", "engine\engine.vcxproj", "{99AE58AF-93C8-4AD8-8811-60D9223C709C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fault-tolerant-visualization", "fault-tolerant-visualization\fault-tolerant-visualization.vcxproj", "{DC6D70DA-081C-437F-B98E-45052000C8C7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fapra", "fapra\fapra.vcxproj", "{67C70BD9-7CD4-4F5F-85CD-F57176D31944}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,18 @@ Global
 		{DC6D70DA-081C-437F-B98E-45052000C8C7}.Release|Win32.Build.0 = Release|Win32
 		{DC6D70DA-081C-437F-B98E-45052000C8C7}.Release|x64.ActiveCfg = Release|x64
 		{DC6D70DA-081C-437F-B98E-45052000C8C7}.Release|x64.Build.0 = Release|x64
+		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Debug|Win32.ActiveCfg = Debug|Win32
+		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Debug|Win32.Build.0 = Debug|Win32
+		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Debug|x64.ActiveCfg = Debug|x64
+		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Debug|x64.Build.0 = Debug|x64
+		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Release|Win32.ActiveCfg = Release|Win32
+		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Release|Win32.Build.0 = Release|Win32
+		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Release|x64.ActiveCfg = Release|x64
+		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

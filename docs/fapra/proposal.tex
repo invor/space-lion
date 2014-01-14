@@ -1,0 +1,142 @@
+\documentclass[12pt,german]{article}
+%\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{german}
+\usepackage{babel}
+\usepackage{hyperref}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright} 
+        \begin{large}
+                \textbf{\textsc{Practical Course Visual Computing}}\\
+                \bigskip
+                \textbf{WS 2013/14} \\
+                \bigskip
+                \textbf{Exercise 5: ``Atmospheric Scattering''} \\
+        \end{large}
+        \bigskip
+
+        %%% "A. StudentInnen" mit Deine Name ersetzen (zB "Max Payne" oder
+        %%%  "Giesela Genial")
+        Michael Becher
+\end{flushright}
+\hrule
+
+%%%%%%%%%%%%%%%%%%%%% Themen %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Topic}
+
+Realtime rendering of planetary atmospheres.
+
+%%%%%%%%%%%%%%%%%%%%%% Aufgabenstellung %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Task Assignment}
+
+The goal of this assignment is to implement terrain rendering, focusing primarily on rendering planetary atmospheres to create a believable sky without a skymap. Although the implementation should be capable of rendering a planetary atmosphere from space, terrain rendering will be limited to a simple height-map based approach, since the focus should remain on rendering the atmosphere. 
+
+\subsection*{Introduction to space-lion}
+In order to concentrate on the core features and challenges of atmospheric scattering, a basic OpenGL framework/engine is used as a starting point. To that end, a new branch of the space-lion framework was created for this project and is publicly viewable at \url{https://github.com/invor/space-lion/tree/fapra}.\newline
+Notable features of space-lion currently are: Context and window creation. Wrapping/implementation of OpenGL core concepts e.g. GLSL shaders, vertex buffer objects, texture objects and framebuffer objects. Basic resource management including loading and management of shaders, textures, meshes and custom materials. Basic scene handling. Basic scene rendering using physically based shading. And the option of adding post processing effects to the rendering pipeline.\newline
+As these basic features are mostly unrelated to the task given by this assignment, atmospheric scattering will be a noticeable and useful addition. Stability and reliability of space-lion has been previously field-tested by me in the sea-crossing\footnote{\url{https://github.com/chaot4/sea-crossing}} project.
+
+%%%%%%%%%%%%%%%%%%%% Ziele %%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Goals}
+
+\begin{itemize}
+\item Pull the latest commit of the fapra branch and see to it, that everything is working as it should.
+\item Basic terrain rendering.
+\item Texturing the terrain.
+\item Pre-computation of the scattering integrals and storage of the result in 2D/3D textures.
+\item Actual sky-rendering.
+\item Day/Night cycles are possible by changing the sun position.
+\item Bonus! The sky is looking good, but the terrain is still a bit blank. Make use of space-lion's fbx capabilites and load a few meshes to place on the terrain. 
+\item \ldots
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%% Input/Output/Interaktion %%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Input/Output/Interaction}
+
+Description \ldots
+
+%%%%%%%%%%%%%%%%%%%% Modulen %%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Modules}
+
+\subsection*{Module A: Fapra}
+Check {\tt src/fapra} and {\tt resources/shaders/fapra} for the source code.\newline
+Terrain surface will probably use the space-lion default surface shader.
+
+\subsection*{Module B: Space-Lion Core}
+Already existing module. Check {\tt src/engine/core} for the source code.\newline
+Modifications to the sources in this module are expected depending on problems and requirement that will arise in the course of this assignment.
+%Besteht aus {\tt name-a.h } und {\tt name-a.c } \ldots
+
+\subsection*{Module C: Space-Lion Fbx}
+Already existing module. Check {\tt src/engine/fbx} for the source code.\newline
+Changes or frequent use of this module are not expected in the scope of this assignment.
+%Besteht aus {\tt name-b.h} und {\tt name-b.c } \ldots
+
+%%%%%%%%%%%%%%%%%%%% Technischen "Uberblick %%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Technical Overview}
+
+Description
+
+%%%%%%%%%%%%%%%%%%%% Wegbeschreibung %%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Approach}
+
+Description.
+
+%%%%%%%%%%%%%%%%%%%% Lituraturliste %%%%%%%%%%%%%%%%%%%%%%%%
+
+%\nocite{Pedoe, Foley}
+%\begin{thebibliography}{m}
+%\bibitem{Pedoe} D. Pedoe, \textit{Geometry, A Comprehensive Course}, Dover:
+%New York, 1988.
+
+%\bibitem{Foley} v. D. Foley et al, \textit{Computer Graphics Principles and
+%Practice}, 2nd Edition, Addison-Wesley: Reading, 1990.
+%\end{thebibliography}
+
+%%%%%%%%%%%%%%%%%%%% Bewertungsliste %%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Criteria of Grading}
+
+The overall 20 points given for this assignment are distributed to the following criteria:
+
+{\bf Compulsory Criteria}
+
+%%
+%% es lohnt sich nicht, hier etwas zu aendern...
+%% ich hoffe die Übersetzung entspricht der Intention der Autoren
+%%
+
+\begin{tabular}{lp{11cm}}
+1 Point & An original concept is handed in. The originality will be illustrated by two high resolution screenshots of the final product.\\[1ex]
+1 Point & The code is well structured and documented. \\[1ex]
+1 Point & The {\tt proposal.tex} meets all requirements. \\[1ex]
+1 Point & The {\tt README}-file contains a Section {\em
+    MANUAL} that describes in detail the usage of the program. \\[1ex]
+1 Point & The {\tt README}-file contains a section {\em
+    IMPLEMENTATION} that describes the fundamental parts of the implementation. \\[1ex]
+\end{tabular}
+
+{\bf Self-defined Criteria}
+
+%%
+%% hier dagegen schon...
+%%
+
+\begin{tabular}{lp{11cm}}
+x Points &  \\[1ex]
+x Points &  \\[1ex]
+x Points & \ldots \\[1ex]
+\end{tabular}
+
+\end{document}
