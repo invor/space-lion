@@ -20,31 +20,31 @@ bool Ftv_ResourceManager::createFtvShaderProgram(ftv_shaderType type, std::share
 	switch (type)
 	{
 		case FTV_POISSON: {
-			vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+			vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 			fragSource = readShaderFile("../resources/shaders/ftv/f_ftv_poisson.glsl");
 			shaderPrg->bindAttribLocation(0, "vPosition");
 			shaderPrg->bindAttribLocation(1, "vUVCoord");
 			break; }
 		case STAMP: {
-			vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+			vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 			fragSource = readShaderFile("../resources/shaders/ftv/f_ftv_stamp.glsl");
 			shaderPrg->bindAttribLocation(0, "vPosition");
 			shaderPrg->bindAttribLocation(1, "vUVCoord");
 			break; }
 		case FTV_INPAINTING: {
-			vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+			vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 			fragSource = readShaderFile("../resources/shaders/ftv/f_ftv_imageInpainting.glsl");
 			shaderPrg->bindAttribLocation(0, "vPosition");
 			shaderPrg->bindAttribLocation(1, "vUVCoord");
 			break; }
 		case DISTANCEMAPPING: {
-			vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+			vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 			fragSource = readShaderFile("../resources/shaders/ftv/f_ftv_distanceMapping.glsl");
 			shaderPrg->bindAttribLocation(0, "vPosition");
 			shaderPrg->bindAttribLocation(1, "vUVCoord");
 			break; }
 		case FTV_MASK: {
-			vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+			vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 			fragSource = readShaderFile("../resources/shaders/ftv/f_ftv_mask.glsl");
 			shaderPrg->bindAttribLocation(0, "vPosition");
 			shaderPrg->bindAttribLocation(1, "vUVCoord");
@@ -58,25 +58,25 @@ bool Ftv_ResourceManager::createFtvShaderProgram(ftv_shaderType type, std::share
 			shaderPrg->bindAttribLocation(3, "vColour");
 			break; }
 		case COHERENCE: {
-			vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+			vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 			fragSource = readShaderFile("../resources/shaders/ftv/f_ftv_coherence.glsl");
 			shaderPrg->bindAttribLocation(0, "vPosition");
 			shaderPrg->bindAttribLocation(1, "vUVCoord");
 			break; }
 		case FTV_IMPROVED_INPAINTING: {
-			vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+			vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 			fragSource = readShaderFile("../resources/shaders/ftv/f_ftv_improvedInpainting.glsl");
 			shaderPrg->bindAttribLocation(0, "vPosition");
 			shaderPrg->bindAttribLocation(1, "vUVCoord");
 			break; }
 		case FTV_GAUSSIAN: {
-			vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+			vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 			fragSource = readShaderFile("../resources/shaders/ftv/f_ftv_seperatedGaussian.glsl");
 			shaderPrg->bindAttribLocation(0, "vPosition");
 			shaderPrg->bindAttribLocation(1, "vUVCoord");
 			break; }
 		case FTV_MASK_SHRINK: {
-			vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+			vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 			fragSource = readShaderFile("../resources/shaders/ftv/f_ftv_shrinkMask.glsl");
 			shaderPrg->bindAttribLocation(0, "vPosition");
 			shaderPrg->bindAttribLocation(1, "vUVCoord");
@@ -90,7 +90,7 @@ bool Ftv_ResourceManager::createFtvShaderProgram(ftv_shaderType type, std::share
 			shaderPrg->bindAttribLocation(1, "vUVCoord");
 			break; }
 		case FTV_LIC_INPAINTING: {
-			vertSource = readShaderFile("../resources/shaders/v_genericPostProc.glsl");
+			vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 			fragSource = readShaderFile("../resources/shaders/ftv/f_ftv_licInpainting.glsl");
 			shaderPrg->bindAttribLocation(0, "vPosition");
 			shaderPrg->bindAttribLocation(1, "vUVCoord");
