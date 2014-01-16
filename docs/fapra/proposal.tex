@@ -1,9 +1,13 @@
 \documentclass[12pt,german]{article}
 %\usepackage[T1]{fontenc}
 \usepackage[latin1]{inputenc}
-\usepackage{german}
-\usepackage{babel}
+%\usepackage{german}
+\usepackage[english]{babel}
 \usepackage{hyperref}
+\usepackage{color}
+
+\definecolor{gray}{rgb}{0.4,0.4,0.4}
+\newenvironment{graytext}{\color{gray}}{\ignorespacesafterend}
 
 \pagestyle{empty}
 
@@ -15,7 +19,7 @@
                 \bigskip
                 \textbf{WS 2013/14} \\
                 \bigskip
-                \textbf{Exercise 5: ``Atmospheric Scattering''} \\
+                \textbf{Exercise 5: ``Planetary Atmosphere and Terrain''} \\
         \end{large}
         \bigskip
 
@@ -28,49 +32,56 @@
 %%%%%%%%%%%%%%%%%%%%% Themen %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section*{Topic}
-
-Realtime rendering of planetary atmospheres.
+Realtime rendering of planetary atmospheres and terrain.
 
 %%%%%%%%%%%%%%%%%%%%%% Aufgabenstellung %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section*{Task Assignment}
-
-The goal of this assignment is to implement terrain rendering, focusing primarily on rendering planetary atmospheres to create a believable sky without a skymap. Although the implementation should be capable of rendering a planetary atmosphere from space, terrain rendering will be limited to a simple height-map based approach, since the focus should remain on rendering the atmosphere. 
+The goal of this assignment is to implement terrain rendering, focusing primarily on rendering planetary atmospheres to create a believable sky without the use of a high-res skybox. Although the implementation should be capable of rendering a planetary atmosphere from space, terrain rendering will be limited to a small, static area using a height-map based approach. The focus remains on rendering the planet's atmosphere by simulating/approximating Rayleigh and Mie scattering.
 
 \subsection*{Introduction to space-lion}
-In order to concentrate on the core features and challenges of atmospheric scattering, a basic OpenGL framework/engine is used as a starting point. To that end, a new branch of the space-lion framework was created for this project and is publicly viewable at \url{https://github.com/invor/space-lion/tree/fapra}.\newline
-Notable features of space-lion currently are: Context and window creation. Wrapping/implementation of OpenGL core concepts e.g. GLSL shaders, vertex buffer objects, texture objects and framebuffer objects. Basic resource management including loading and management of shaders, textures, meshes and custom materials. Basic scene handling. Basic scene rendering using physically based shading. And the option of adding post processing effects to the rendering pipeline.\newline
+In order to concentrate on the core features and challenges of the assignment, a basic OpenGL framework/engine is used as a starting point. To that end, I created a new branch of the space-lion framework for this project, which is publicly viewable at \url{https://github.com/invor/space-lion/tree/fapra}.\newline
+For the sake of completion and the for reviewers of this assignment, the notable features of space-lion are listed below. \begin{itemize}
+\item Context and window creation
+\item Wrapping/implementation of OpenGL core concepts, e.g. GLSL shaders, vertex buffer objects, texture objects and framebuffer objects
+\item Basic resource management including loading and management of shaders, textures, meshes and custom materials
+\item Basic scene handling
+\item Basic scene rendering using physically based shading
+\item Ability to add post processing steps to the render pipeline
+\end{itemize}
 As these basic features are mostly unrelated to the task given by this assignment, atmospheric scattering will be a noticeable and useful addition. Stability and reliability of space-lion has been previously field-tested by me in the sea-crossing\footnote{\url{https://github.com/chaot4/sea-crossing}} project.
 
 %%%%%%%%%%%%%%%%%%%% Ziele %%%%%%%%%%%%%%%%%%%%%%%%
 
 \section*{Goals}
-
-\begin{itemize}
-\item Pull the latest commit of the fapra branch and see to it, that everything is working as it should.
+\begin{enumerate}
 \item Basic terrain rendering.
-\item Texturing the terrain.
-\item Pre-computation of the scattering integrals and storage of the result in 2D/3D textures.
-\item Actual sky-rendering.
-\item Day/Night cycles are possible by changing the sun position.
-\item Bonus! The sky is looking good, but the terrain is still a bit blank. Make use of space-lion's fbx capabilites and load a few meshes to place on the terrain. 
-\item \ldots
-\end{itemize}
+\item (Bonus) Use hardware tessellation to increase terrain detail. Skip this if it takes to long and gets in the way of more important goals.
+\item Textures are applied to the terrain. Optimally this would include a diffuse albedo, specular colour, roughness and normal map.
+\item Scattering integrals are precomputed at program start and stored in 2D/3D textures.
+\item The atmosphere/sky is rendered using the precomputed lookup-tables.
+\item Variable sun position for day/night cycles.
+\item (Bonus) The sky is looking good, but the terrain is still a bit blank. Place a few static meshes in the scene.
+\item (Bonus) Animate the camera to follow a path to create a benchmark scene.
+\end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%% Input/Output/Interaktion %%%%%%%%%%%%%%%%%%%%%%%%
 
-\section*{Input/Output/Interaction}
+%\section*{Input/Output/Interaction}
 
-Description \ldots
+%Description \ldots
 
 %%%%%%%%%%%%%%%%%%%% Modulen %%%%%%%%%%%%%%%%%%%%%%%%
 
 \section*{Modules}
 
-\subsection*{Module A: Fapra}
+\subsection*{Module A: Atmosphere/Terrain Rendering}
 Check {\tt src/fapra} and {\tt resources/shaders/fapra} for the source code.\newline
-Terrain surface will probably use the space-lion default surface shader.
+This module is expected to contain the main/render loop, classes for terrain and atmosphere, as well as a class for a planetary scene that features terrain and sky.\newline
+Furthermore, shaders necessary for pre-computing and rendering the atmosphere are part of this module (the terrain surface will probably use the space-lion default surface shader).\newline
+Files likely to exist are: {\tt fapra\_renderHub.\{h,cpp\}}, {\tt planetaryScene.\{h,cpp\}}, {\tt terrain.\{h,cpp\}}, {\tt atmosphere.\{h,cpp\}}, {\tt sky\_\{v,f\}.glsl} \dots
 
+\begin{graytext}
 \subsection*{Module B: Space-Lion Core}
 Already existing module. Check {\tt src/engine/core} for the source code.\newline
 Modifications to the sources in this module are expected depending on problems and requirement that will arise in the course of this assignment.
@@ -80,18 +91,25 @@ Modifications to the sources in this module are expected depending on problems a
 Already existing module. Check {\tt src/engine/fbx} for the source code.\newline
 Changes or frequent use of this module are not expected in the scope of this assignment.
 %Besteht aus {\tt name-b.h} und {\tt name-b.c } \ldots
-
+\end{graytext}
 %%%%%%%%%%%%%%%%%%%% Technischen "Uberblick %%%%%%%%%%%%%%%%%%%%%%%%
 
 \section*{Technical Overview}
 
-Description
+The application is written in C++ and makes heavy use of C++11, thus requiring a very recent compiler (e.g. Visual Studio 2013's compiler). A Visual Studio 2013 solution file is supplied with the project. Beware that the Linux makefile hasn't been touched in ages. While the application should run fine on Linux (sea-crossing is being developed on both Linux and windows), the makefile has to be updated/rewritten first.\newline
+A minimum of OpenGL version 3.3 is currently required/recommended and will be updated to version 4.x with the use of tessellation shaders. For the OpenGL context creation and window handling, GLFW \footnote{\url{http://www.glfw.org/}} -a lightweight, open source, portable framework for OpenGL application development- is used. Additionally, glew \footnote{\url{http://glew.sourceforge.net/}} is used to get access to the most recent OpenGL functionality. Out of convenience, space-lion currently uses glm \footnote{\url{http://glm.g-truc.net/0.9.5/index.html}} for vector and matrix calculations.\newline
+(At a later point, a readme will contain the details regarding the expected directories for include and lib folders.)
 
 %%%%%%%%%%%%%%%%%%%% Wegbeschreibung %%%%%%%%%%%%%%%%%%%%%%%%
 
 \section*{Approach}
 
-Description.
+Start by pulling the latest commit from the fapra branch. See to it that all relevant classes of the framework are properly working.\newline
+To begin with, the RenderHub and Scene class need to be extended, since neither of them currently support handling and rendering of special scene elements, such as the terrain and the sky will be. Derive a new class FapraRenderHub and PlanetaryScene. Now create a class Terrain that contains the data and functionality for a height-map terrain and add an instance of it as a new member to the PlanetaryScene class. Do roughly the same for the sky/atmosphere.\newline
+Implement any method necessary in FapraRenderHub, PlanetaryScene and Terrain for rendering the terrain using instanced quads (space-lion already uses instancing per default if several objects share the same mesh and shader, but adding all quads for the terrain as separate objects doesn't seem like a good idea).\newline
+Parallel to implementing terrain rendering, research the details for rendering the atmosphere using -among others- the references listed below. As soon as the terrain reaches an acceptable stage (preferably by the beginning of the second week), start to implement the methods for pre-computing the necessary look-up tables (i.e. textures) using either CPU- or GPU-based implementations.\newline
+Following that, implement the methods for actually rendering the sky (this should happen some time during the third week).\newline
+If all normal goals are met by the fourth week, implement the remaining bonus features.
 
 %%%%%%%%%%%%%%%%%%%% Lituraturliste %%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -103,6 +121,14 @@ Description.
 %\bibitem{Foley} v. D. Foley et al, \textit{Computer Graphics Principles and
 %Practice}, 2nd Edition, Addison-Wesley: Reading, 1990.
 %\end{thebibliography}
+
+\nocite{Sperlhofer, Elek, ElekKmoch}
+\begin{thebibliography}{m}
+\bibitem{Sperlhofer} S. Sperlhofer, \textit{Deferred Rendering of Planetary Terrains with Accurate Atmospheres}, Master's Thesis: Vienna, 2011.
+\bibitem{Elek} O. Elek, \textit{Rendering Parametrizable Planetary Atmospheres with Multiple Scattering in Real-Time}, CESCG: 2009.
+\bibitem{ElekKmoch} O. Elek, P. Kmoch, \textit{Real-time spectral scattering in large-scale natural participating media}, SCCG: 2010.
+\bibitem{Bruneton} E. Bruneton, F. Neyret, \textit{Precomputed Atmospheric Scattering}, Eurographics Symposium on Rendering: 2008.
+\end{thebibliography}
 
 %%%%%%%%%%%%%%%%%%%% Bewertungsliste %%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -121,12 +147,13 @@ The overall 20 points given for this assignment are distributed to the following
 1 Point & An original concept is handed in. The originality will be illustrated by two high resolution screenshots of the final product.\\[1ex]
 1 Point & The code is well structured and documented. \\[1ex]
 1 Point & The {\tt proposal.tex} meets all requirements. \\[1ex]
-1 Point & The {\tt README}-file contains a Section {\em
+1 Point & The {\tt readme.pdf} file contains a Section {\em
     MANUAL} that describes in detail the usage of the program. \\[1ex]
-1 Point & The {\tt README}-file contains a section {\em
+1 Point & The {\tt readme.pdf} file contains a section {\em
     IMPLEMENTATION} that describes the fundamental parts of the implementation. \\[1ex]
 \end{tabular}
-
+\textit{Student's note: There already exits a README file for space-lion, which wouldn't be really suited for containing the information mentioned above. Therefore I would like to create an additional readme document (in Latex) and place it in the same directory as this document.}\vspace{1cm}
+\newpage
 {\bf Self-defined Criteria}
 
 %%
@@ -134,9 +161,14 @@ The overall 20 points given for this assignment are distributed to the following
 %%
 
 \begin{tabular}{lp{11cm}}
-x Points &  \\[1ex]
-x Points &  \\[1ex]
-x Points & \ldots \\[1ex]
+3 Points & Basic terrain rendering. \\[1ex]
+2 Points & Textured terrain. \\[1ex]
+2 Points & (Bonus) Tessellated terrain. \\[1ex]
+5 Points & Pre-computation of scattering integrals. \\[1ex]
+3 Points & Sky rendering with atmospheric scattering. \\[1ex]
+2 Points & Day/night cycle. \\[1ex]
+1 Point & (Bonus) Decorative objects are added to the scene. \\[1ex]
+1 Point & (Bonus) Benchmark sequence with animated camera.
 \end{tabular}
 
 \end{document}

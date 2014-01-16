@@ -25,6 +25,12 @@
     <Filter Include="Source Files\fbx">
       <UniqueIdentifier>{27ab7e09-4ca6-4bdc-9ccf-d3847bd1c012}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\fapra">
+      <UniqueIdentifier>{580de887-2a1c-4c40-b545-a09edc1a95de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\fapra">
+      <UniqueIdentifier>{d15b1516-a6d1-4f92-993d-8a1546a743de}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\fbx\fbx_exceptions.hpp">
@@ -120,6 +126,9 @@
     <ClInclude Include="..\..\src\engine\core\volumetricSceneObject.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\fapra\fapra_renderHub.h">
+      <Filter>Header Files\fapra</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp">
@@ -188,8 +197,11 @@
     <ClCompile Include="..\..\src\engine\core\texture3D.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\main.cpp">
+    <ClCompile Include="..\..\src\fapra\main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fapra\fapra_renderHub.cpp">
+      <Filter>Source Files\fapra</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
