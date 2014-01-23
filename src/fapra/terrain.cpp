@@ -41,6 +41,8 @@ bool Terrain::init(std::shared_ptr<Material> material, std::shared_ptr<Texture> 
 	m_heightmap = heightmap;
 	m_heightmap->texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	m_heightmap->texParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	m_heightmap->texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	m_heightmap->texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 	return true;
 }

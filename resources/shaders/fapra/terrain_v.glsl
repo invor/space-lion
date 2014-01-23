@@ -35,7 +35,7 @@ void main()
 	uv_coord = (v_position+translation).xz / vec2(size);
 	
 	/*	use normalized position to access height-map and retrieve height-value (y-coordinate) */
-	position.y = texture(heightmap_tx2D,uv_coord).x  * 50.0;
+	position.y = texture(heightmap_tx2D,uv_coord).x  * 128.0;
 	
 	/*	Transform vertex position to view space */
 	position =  position+translation;
@@ -43,8 +43,8 @@ void main()
 	/*	Compute tangent and bitangent from heightmap */
 	vec2 x_neighbour_uv = uv_coord + vec2(1.0/float(size),0.0);
 	vec2 z_neighbour_uv = uv_coord + vec2(0.0,1.0/float(size));
-	float x_neighbour_height = texture(heightmap_tx2D,x_neighbour_uv).x * 50.0;
-	float z_neighbour_height = texture(heightmap_tx2D,z_neighbour_uv).x * 50.0;
+	float x_neighbour_height = texture(heightmap_tx2D,x_neighbour_uv).x * 128.0;
+	float z_neighbour_height = texture(heightmap_tx2D,z_neighbour_uv).x * 128.0;
 	
 	vec3 tangent = normalize(vec3(0.0,z_neighbour_height-position.y,1.0));
 	vec3 bitangent = normalize(vec3(1.0,x_neighbour_height-position.y,0.0));

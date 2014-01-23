@@ -1,6 +1,6 @@
 3
 0
-td ../resources/textures/default_diffuse_albedo.ppm
-ts ../resources/textures/default_specular_colour.ppm
-tr ../resources/textures/default_roughness.ppm
+td ../resources/textures/fapra/terrain_diffuse_albedo.ppm
+ts ../resources/textures/fapra/terrain_specular_colour.ppm
+tr ../resources/textures/fapra/terrain_roughness.ppm
 tn ../resources/textures/default_normal.ppm
