@@ -13,9 +13,9 @@ RenderHub::~RenderHub()
 
 bool RenderHub::init()
 {
-	//std::cout<<"----------------------------\n"
-	//		<<"SPACE LION - Early Prototype\n"
-	//		<<"----------------------------\n";
+	std::cout<<"----------------------------\n"
+			<<"SPACE LION - Early Prototype\n"
+			<<"----------------------------\n";
 	//	Initialize GLFW
 	if(!glfwInit())
 	{
@@ -33,7 +33,7 @@ bool RenderHub::init()
 	//glfwWindowHint(GLFW_VERSION_MINOR,3);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	activeWindow = glfwCreateWindow(800,450,"Sea-Crossing",NULL,NULL);
+	activeWindow = glfwCreateWindow(800,450,"Space-Lion",NULL,NULL);
 
 	if(!activeWindow)
 	{

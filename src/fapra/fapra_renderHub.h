@@ -7,8 +7,14 @@
 /	is handled here.
 */
 
+/*	std includes */
 #include <vector>
+
+/*	space-lion includes */
 #include "../engine/core/renderHub.h"
+#include "planetaryScene.h"
+
+/*	external lib includes */
 #include "GLFW/glfw3.h"
 
 class FapraRenderHub : public RenderHub
@@ -20,6 +26,8 @@ public:
 	void renderActiveScene();
 
 private:
+	PlanetaryScene demo_scene;
+
 	std::vector<FramebufferObject> framebufferList;
 
 	FramebufferObject *activeFramebuffer;

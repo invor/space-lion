@@ -1,5 +1,5 @@
-1
-1
+3
+0
 td ../resources/textures/default_diffuse_albedo.ppm
 ts ../resources/textures/default_specular_colour.ppm
 tr ../resources/textures/default_roughness.ppm

@@ -11,18 +11,6 @@ FapraRenderHub::~FapraRenderHub(void)
 
 void FapraRenderHub::renderActiveScene()
 {
-	/*	
-	/	Create resource needed for additional render passes, e.g. shader programs not related to object materials
-	/	and framebuffer objects.
-	/	Framebuffers are created and stored locally in the context of this method.
-	*/
-	//std::shared_ptr<GLSLProgram> picking_prgm;
-	//resourceMngr.createShaderProgram(PICKING, picking_prgm);
-	//
-	//FramebufferObject picking_fbo(800,450,true,false);
-	//picking_fbo.createColorAttachment(GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT);
-	//
-
 	glfwMakeContextCurrent(activeWindow);
 
 	PostProcessor post_proc(800, 450);
@@ -36,60 +24,59 @@ void FapraRenderHub::renderActiveScene()
 	/	Support for adding cameras and lights via message system will follow later on
 	*/
 
-	/*	TEMPORARY SHADER TESTING */
-	std::shared_ptr<Mesh> geomPtr;
-	std::shared_ptr<Material> matPtr;
-	//resourceMngr.createBox(geomPtr);
-	//resourceMngr.createMesh("../resources/meshes/demo_hangar.fbx",geomPtr);
-	//if(!(resourceMngr.createMaterial("../resources/materials/demo_hangar.slmtl",matPtr)))
-	//	std::cout<<"Failed to create material."<<std::endl;
-	//if(!(activeScene->createStaticSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0),geomPtr,matPtr)))
-	//	std::cout<<"Failed to create scene object."<<std::endl;
-	//
-	//geomPtr.reset();
-	//matPtr.reset();
-	
-	resourceMngr.createMesh("../resources/meshes/terrain.fbx", geomPtr);
-	if (!(resourceMngr.createMaterial("../resources/materials/default.slmtl", matPtr)))
+	/*	Terrain debuggin */
+	std::shared_ptr<Material> terrain_mtl;
+	std::shared_ptr<Texture> terrain_heightmap;
+	if(!(resourceMngr.createTexture2D("../resources/textures/fapra/jacks_secret_stache_eroded_mountains_512.ppm",terrain_heightmap)))
+		std::cout << "Failed to create heightmap texture." << std::endl;
+	if (!(resourceMngr.createMaterial("../resources/materials/fapra/default_terrain.slmtl", terrain_mtl)))
 		std::cout << "Failed to create material." << std::endl;
-	if (!(activeScene->createStaticSceneObject(1, glm::vec3(0.0,0.0, 0.0), glm::quat(),glm::vec3(5000.0), geomPtr, matPtr)))
-		std::cout << "Failed to create scene object." << std::endl;
-	
-	geomPtr.reset();
-	matPtr.reset();
+	if(!(demo_scene.loadTerrain(512, terrain_mtl, terrain_heightmap)))
+		std::cout << "Failed to load terrain." << std::endl;
 
-	if(!(activeScene->createSceneCamera(0,glm::vec3(0.0,2000.0,5.0),glm::vec3(0.0,2000.0,0.0),16.0f/9.0f,(9.0f/16.0f)*60.0f)))
+	terrain_mtl.reset();
+	terrain_heightmap.reset();
+	
+	if(!(demo_scene.createSceneCamera(0,glm::vec3(0.0,0.0,5.0),glm::vec3(0.0,0.0,0.0),16.0f/9.0f,(9.0f/16.0f)*60.0f)))
 		std::cout<<"Failed to create camera"<<"\n";
 
-	if(!(activeScene->createSceneLight(0,glm::vec3(2500.0,2500.0,1500.0),glm::vec3(150000.0))))
+	if(!(demo_scene.createSceneLight(0,glm::vec3(256.0,256.0,256.0),glm::vec3(50.0))))
 		std::cout<<"Failed to create light"<<"\n";
+	
+	demo_scene.setActiveCamera(0);
 
-	activeScene->setActiveCamera(0);
+
+	//	/*	TEMPORARY SHADER TESTING */
+	//	std::shared_ptr<Mesh> geomPtr;
+	//	std::shared_ptr<Material> matPtr;
+	//	resourceMngr.createBox(geomPtr);
+	//	//resourceMngr.createMesh("../resources/meshes/maya_box.fbx", geomPtr);
+	//	if (!(resourceMngr.createMaterial("../resources/materials/default.slmtl", matPtr)))
+	//		std::cout << "Failed to create material." << std::endl;
+	//	if (!(activeScene->createStaticSceneObject(1, glm::vec3(0.0,0.0,0.0), glm::quat(),glm::vec3(1.0), geomPtr, matPtr)))
+	//		std::cout << "Failed to create scene object." << std::endl;
+	//	
+	//	geomPtr.reset();
+	//	matPtr.reset();
+	//	
+	//	if(!(activeScene->createSceneCamera(0,glm::vec3(0.0,0.0,5.0),glm::vec3(0.0,0.0,0.0),16.0f/9.0f,(9.0f/16.0f)*60.0f)))
+	//		std::cout<<"Failed to create camera"<<"\n";
+	//	
+	//	if(!(activeScene->createSceneLight(0,glm::vec3(5.0,2.5,1.5),glm::vec3(1.0))))
+	//		std::cout<<"Failed to create light"<<"\n";
+	//	
+	//	activeScene->setActiveCamera(0);
 
 	running = true;
 	glClearColor(0.2f,0.2f,0.2f,1.0f);
 	glEnable (GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glEnable( GL_MULTISAMPLE );
-
-	/*  Test picking pass */
-	GLuint *data = new GLuint[1];
+	//glEnable( GL_MULTISAMPLE );
 
 	while(running && !glfwWindowShouldClose(activeWindow))
-	//while(running)
 	{
 		/*	For now, I avoid using a glfw callback function for this */
-		Controls::updateCamera(activeWindow, activeScene->getActiveCamera());
-
-		/*  Test picking pass */
-		//picking_fbo.bind();
-		//glClearColor(0, 0, 0, 0);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//glViewport(0, 0, picking_fbo.getWidth(), picking_fbo.getHeight());
-		//activeScene->drawPicking(picking_prgm);
-		//glReadBuffer(GL_COLOR_ATTACHMENT0);
-		//glReadPixels(400, 225, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, data);
-		//std::cout << data[0] << std::endl;
+		Controls::updateCamera(activeWindow, demo_scene.getActiveCamera());
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -98,7 +85,7 @@ void FapraRenderHub::renderActiveScene()
 		glfwGetFramebufferSize(activeWindow, &width, &height);
 		glViewport(0, 0, width, height);
 
-		activeScene->drawFroward();
+		demo_scene.renderTerrain();
 
 		glfwSwapBuffers(activeWindow);
 		glfwPollEvents();

@@ -173,7 +173,10 @@
     <ClInclude Include="..\..\src\engine\fbx\fbx_types.hpp" />
     <ClInclude Include="..\..\src\engine\fbx\fbx_unzip.hpp" />
     <ClInclude Include="..\..\src\engine\fbx\fbx_value.hpp" />
+    <ClInclude Include="..\..\src\fapra\atmosphere.h" />
     <ClInclude Include="..\..\src\fapra\fapra_renderHub.h" />
+    <ClInclude Include="..\..\src\fapra\planetaryScene.h" />
+    <ClInclude Include="..\..\src\fapra\terrain.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\core\controls.cpp" />
@@ -198,8 +201,11 @@
     <ClCompile Include="..\..\src\engine\fbx\fbx_reader.cpp" />
     <ClCompile Include="..\..\src\engine\fbx\fbx_unzip.cpp" />
     <ClCompile Include="..\..\src\engine\fbx\fbx_value.cpp" />
+    <ClCompile Include="..\..\src\fapra\atmosphere.cpp" />
     <ClCompile Include="..\..\src\fapra\fapra_renderHub.cpp" />
     <ClCompile Include="..\..\src\fapra\main.cpp" />
+    <ClCompile Include="..\..\src\fapra\planetaryScene.cpp" />
+    <ClCompile Include="..\..\src\fapra\terrain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

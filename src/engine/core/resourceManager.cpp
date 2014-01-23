@@ -216,7 +216,8 @@ bool ResourceManager::createMaterial(const char * const path, std::shared_ptr<Ma
 	std::shared_ptr<Texture> texPtr2;
 	std::shared_ptr<Texture> texPtr3;
 	std::shared_ptr<Texture> texPtr4;
-	if(!createShaderProgram(SURFACE_LIGHTING,prgPtr)) return false;
+	//if(!createShaderProgram(SURFACE_LIGHTING,prgPtr)) return false;
+	if(!createShaderProgram(static_cast<shaderType>(inOutMtlInfo.shader_type),prgPtr)) return false;
 	if(!createTexture2D(inOutMtlInfo.diff_path,texPtr1)) return false;
 	if(!createTexture2D(inOutMtlInfo.spec_path,texPtr2)) return false;
 	if(!createTexture2D(inOutMtlInfo.roughness_path,texPtr3)) return false;
@@ -252,6 +253,11 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 
 	switch(type)
 	{
+	case TERRAIN : {
+		vertSource = readShaderFile("../resources/shaders/fapra/terrain_v.glsl");
+		fragSource = readShaderFile("../resources/shaders/surface_lighting_f.glsl");
+		shaderPrg->bindAttribLocation(0,"v_position");
+		break; }
 	case SURFACE_LIGHTING : {
 		vertSource = readShaderFile("../resources/shaders/surface_lighting_v.glsl");
 		fragSource = readShaderFile("../resources/shaders/surface_lighting_f.glsl");
@@ -324,6 +330,7 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 		break; }
 	}
 
+	//TODO geometry and tessellation shader support
 	if(!shaderPrg->compileShaderFromString(&vertSource,GL_VERTEX_SHADER)){ std::cout<<shaderPrg->getLog(); return false;}
 	if(!shaderPrg->compileShaderFromString(&fragSource,GL_FRAGMENT_SHADER)){ std::cout<<shaderPrg->getLog(); return false;}
 	if(!shaderPrg->link()){ std::cout<<shaderPrg->getLog(); return false;}
@@ -556,6 +563,9 @@ bool ResourceManager::parseMaterial(const char* const materialPath, MaterialInfo
 
 		std::getline(file,buffer,'\n');
 		inOutMtlInfo.id = atoi(buffer.c_str());
+
+		std::getline(file,buffer,'\n');
+		inOutMtlInfo.shader_type = atoi(buffer.c_str());
 
 		while(!file.eof())
 		{

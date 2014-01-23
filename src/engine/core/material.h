@@ -9,6 +9,8 @@ struct MaterialInfo
 {
 	MaterialInfo() : id(0) {}
 	int id;
+	/*	shader type should be the index of a ShaderType enum */
+	int shader_type;
 	char* diff_path;
 	char* spec_path;
 	char* roughness_path;

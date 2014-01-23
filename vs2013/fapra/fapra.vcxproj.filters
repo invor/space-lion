@@ -129,6 +129,15 @@
     <ClInclude Include="..\..\src\fapra\fapra_renderHub.h">
       <Filter>Header Files\fapra</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\fapra\atmosphere.h">
+      <Filter>Header Files\fapra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\fapra\PlanetaryScene.h">
+      <Filter>Header Files\fapra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\fapra\terrain.h">
+      <Filter>Header Files\fapra</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp">
@@ -201,6 +210,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\fapra\fapra_renderHub.cpp">
+      <Filter>Source Files\fapra</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fapra\atmosphere.cpp">
+      <Filter>Source Files\fapra</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fapra\PlanetaryScene.cpp">
+      <Filter>Source Files\fapra</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fapra\terrain.cpp">
       <Filter>Source Files\fapra</Filter>
     </ClCompile>
   </ItemGroup>
