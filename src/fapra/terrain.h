@@ -22,9 +22,13 @@ class Terrain
 {
 private:
 	/**
-	Size in meters. One quad is used per square meter.
+	* Size in meters. One quad is used per square meter.
 	*/
 	int m_size;
+	/**
+	* Maximum altitude of the terrain i.e. the height, that the highest possible value of the heightmap is mapped to.
+	*/
+	GLfloat m_range;
 
 	Mesh m_quad;
 	std::shared_ptr<Material> m_base_material;
@@ -34,7 +38,7 @@ public:
 	Terrain();
 	~Terrain();
 
-	Terrain(int size);
+	Terrain(int size, GLfloat range);
 
 	/**
 	* \brief Initialize resources for the terrain.
@@ -61,6 +65,17 @@ public:
 	* \return Returns edge length of terrain.
 	*/
 	int getSize();
+	/**
+	* \brief Set new maximum terrain height.
+	* \param range New maximum terrain height
+	*/
+	void setRange(GLfloat range);
+	/**
+	* \brief Get current maximum terrain height.
+	* \return Returns the maximum height of the terrain
+	*/
+	GLfloat getRange();
+
 
 	std::shared_ptr<Material> getMaterial();
 };

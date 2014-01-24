@@ -1,6 +1,6 @@
 #include "terrain.h"
 
-Terrain::Terrain() : m_size(0)
+Terrain::Terrain() : m_size(0), m_range(0)
 {
 }
 
@@ -8,7 +8,7 @@ Terrain::~Terrain()
 {
 }
 
-Terrain::Terrain(int size) : m_size(size)
+Terrain::Terrain(int size, GLfloat range) : m_size(size), m_range(range)
 {
 }
 
@@ -26,7 +26,7 @@ bool Terrain::init(std::shared_ptr<Material> material, std::shared_ptr<Texture> 
 
 	indexArray[0]=3;indexArray[1]=2;indexArray[2]=1;indexArray[3]=0;
 	
-	if(!(m_quad.bufferDataFromArray(vertexArray,indexArray,sizeof(Vertex_p)*4,sizeof(GLuint)*4,GL_QUADS))) return false;
+	if(!(m_quad.bufferDataFromArray(vertexArray,indexArray,sizeof(Vertex_p)*4,sizeof(GLuint)*4,GL_PATCHES))) return false;
 	m_quad.setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_p),0);
 
 	/*	set material - check if shader program is of valid type! */
@@ -68,8 +68,10 @@ void Terrain::render()
 	m_heightmap->bindTexture();
 
 	m_base_material->getShaderProgram()->setUniform("size", m_size);
+	m_base_material->getShaderProgram()->setUniform("range", m_range);
 
 	/*	assume square terrain - render a quad per square meter */
+	glPatchParameteri(GL_PATCH_VERTICES, 4);
 	m_quad.draw(m_size*m_size);
 }
 
@@ -81,6 +83,16 @@ void Terrain::setSize(int size)
 int Terrain::getSize()
 {
 	return m_size;
+}
+
+void Terrain::setRange(GLfloat range)
+{
+	m_range = range;
+}
+
+GLfloat Terrain::getRange()
+{
+	return m_range;
 }
 
 std::shared_ptr<Material> Terrain::getMaterial()

@@ -1,12 +1,12 @@
 /*---------------------------------------------------------------------------------------------------
-File: surface_lighting_f.glsl
+File: terrain_f.glsl
 Author: Michael Becher
-Date of (presumingly) last edit: 11.09.2013
+Date of (presumingly) last edit: 24.01.2014
 
-Description: Standard fragment shader for lighting calculations of opaque surfaces.
-			 Based on the Cook-Torrance BRDF.
+Description: 
 ---------------------------------------------------------------------------------------------------*/
-#version 330
+
+#version 430
 
 #define PI 3.1415926535
 #define INV_PI 0.318309886183
@@ -28,22 +28,12 @@ uniform int num_lights;
 uniform mat4 view_matrix;
 
 in vec3 position;
-//in vec4 colour;
 in vec2 uv_coord;
 in vec3 viewer_direction;
 in mat3 tangent_space_matrix;
 
 out vec4 fragColour;
 
-vec3 phongShading(in float specFactor ,in vec3 sColour , in vec3 sNormal, in vec3 lightDir, in vec4 light_colour)
-{
-	vec3 n = normalize(sNormal);
-	vec3 reflection = reflect(-normalize(lightDir), n);
-
-	return light_colour.w *
-		( sColour*max( dot(normalize(lightDir), n), 0.0)) +
-			(specFactor*light_colour.xyz*pow(max(dot(reflection,normalize(viewer_direction)),0.0),55.0) );
-}
 
 vec3 cookTorranceShading(in vec3 surface_albedo, in vec3 surface_specular_color, in float surface_roughness,
 							in vec3 surface_normal, in vec3 light_direction, in vec3 viewer_direction, in vec3 light_colour)

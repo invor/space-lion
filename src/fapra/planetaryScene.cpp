@@ -13,9 +13,10 @@ void PlanetaryScene::initAtmosphere()
 {
 }
 
-bool PlanetaryScene::loadTerrain(int size, std::shared_ptr<Material> material, std::shared_ptr<Texture> heightmap)
+bool PlanetaryScene::loadTerrain(int size, float range, std::shared_ptr<Material> material, std::shared_ptr<Texture> heightmap)
 {
 	m_terrain.setSize(size);
+	m_terrain.setRange(range);
 	if(!(m_terrain.init(material, heightmap)))
 		return false;
 	return true;

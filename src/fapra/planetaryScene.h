@@ -15,7 +15,7 @@ public:
 	~PlanetaryScene();
 
 	void initAtmosphere();
-	bool loadTerrain(int size, std::shared_ptr<Material> material, std::shared_ptr<Texture> heightmap);
+	bool loadTerrain(int size, float range, std::shared_ptr<Material> material, std::shared_ptr<Texture> heightmap);
 
 	void renderTerrain();
 	void renderSky();

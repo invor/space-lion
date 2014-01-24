@@ -31,7 +31,7 @@ void FapraRenderHub::renderActiveScene()
 		std::cout << "Failed to create heightmap texture." << std::endl;
 	if (!(resourceMngr.createMaterial("../resources/materials/fapra/default_terrain.slmtl", terrain_mtl)))
 		std::cout << "Failed to create material." << std::endl;
-	if(!(demo_scene.loadTerrain(512, terrain_mtl, terrain_heightmap)))
+	if(!(demo_scene.loadTerrain(32, 16, terrain_mtl, terrain_heightmap)))
 		std::cout << "Failed to load terrain." << std::endl;
 
 	terrain_mtl.reset();

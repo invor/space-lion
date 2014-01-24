@@ -249,13 +249,17 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 	std::shared_ptr<GLSLProgram> shaderPrg(new GLSLProgram(type));
 	shaderPrg->init();
 	std::string vertSource;
+	std::string tessContSource;
+	std::string tessEvalSource;
 	std::string fragSource;
 
 	switch(type)
 	{
 	case TERRAIN : {
 		vertSource = readShaderFile("../resources/shaders/fapra/terrain_v.glsl");
-		fragSource = readShaderFile("../resources/shaders/surface_lighting_f.glsl");
+		tessContSource = readShaderFile("../resources/shaders/fapra/terrain_tc.glsl");
+		tessEvalSource = readShaderFile("../resources/shaders/fapra/terrain_te.glsl");
+		fragSource = readShaderFile("../resources/shaders/fapra/terrain_f.glsl");
 		shaderPrg->bindAttribLocation(0,"v_position");
 		break; }
 	case SURFACE_LIGHTING : {
@@ -333,6 +337,12 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 	//TODO geometry and tessellation shader support
 	if(!shaderPrg->compileShaderFromString(&vertSource,GL_VERTEX_SHADER)){ std::cout<<shaderPrg->getLog(); return false;}
 	if(!shaderPrg->compileShaderFromString(&fragSource,GL_FRAGMENT_SHADER)){ std::cout<<shaderPrg->getLog(); return false;}
+
+	if(!tessContSource.empty())
+		if(!shaderPrg->compileShaderFromString(&tessContSource,GL_TESS_CONTROL_SHADER)){ std::cout<<shaderPrg->getLog(); return false;}
+	if(!tessEvalSource.empty())
+		if(!shaderPrg->compileShaderFromString(&tessEvalSource,GL_TESS_EVALUATION_SHADER)){ std::cout<<shaderPrg->getLog(); return false;}
+
 	if(!shaderPrg->link()){ std::cout<<shaderPrg->getLog(); return false;}
 
 	inOutPrgPtr = shaderPrg;
