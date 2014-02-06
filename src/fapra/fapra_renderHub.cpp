@@ -27,12 +27,22 @@ void FapraRenderHub::renderActiveScene()
 	/*	Terrain debuggin */
 	std::shared_ptr<Material> terrain_mtl;
 	std::shared_ptr<Texture> terrain_heightmap;
-	if(!(resourceMngr.createTexture2D("../resources/textures/fapra/terrain_heightmap.ppm",terrain_heightmap)))
+	if(!(resourceMngr.createTexture2D("../resources/textures/fapra/terrain_heightmap.ppm",terrain_heightmap))){
 		std::cout << "Failed to create heightmap texture." << std::endl;
-	if (!(resourceMngr.createMaterial("../resources/materials/fapra/default_terrain.slmtl", terrain_mtl)))
+		return;
+	}
+	if (!(resourceMngr.createMaterial("../resources/materials/fapra/default_terrain.slmtl", terrain_mtl))){
 		std::cout << "Failed to create material." << std::endl;
-	if(!(demo_scene.loadTerrain(32, 16, terrain_mtl, terrain_heightmap)))
+		return;
+	}
+	if(!(demo_scene.loadTerrain(32, 12, terrain_mtl, terrain_heightmap))){
 		std::cout << "Failed to load terrain." << std::endl;
+		return;
+	}
+	if(!(demo_scene.initAtmosphere(&resourceMngr))){
+		std::cout << "Failed to create atmosphere." << std::endl;
+		return;
+	}
 
 	terrain_mtl.reset();
 	terrain_heightmap.reset();
@@ -87,7 +97,8 @@ void FapraRenderHub::renderActiveScene()
 		glViewport(0, 0, width, height);
 
 		//activeScene->drawFroward();
-		demo_scene.renderTerrain();
+		//demo_scene.renderTerrain();
+		demo_scene.renderSky(&post_proc);
 
 		glfwSwapBuffers(activeWindow);
 		glfwPollEvents();

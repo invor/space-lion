@@ -14,11 +14,11 @@ public:
 	PlanetaryScene();
 	~PlanetaryScene();
 
-	void initAtmosphere();
+	bool initAtmosphere(ResourceManager* resourceMngr);
 	bool loadTerrain(int size, float range, std::shared_ptr<Material> material, std::shared_ptr<Texture> heightmap);
 
 	void renderTerrain();
-	void renderSky();
+	void renderSky(PostProcessor* post_proc);
 };
 
 #endif

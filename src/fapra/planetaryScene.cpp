@@ -9,8 +9,9 @@ PlanetaryScene::~PlanetaryScene()
 }
 
 
-void PlanetaryScene::initAtmosphere()
+bool PlanetaryScene::initAtmosphere(ResourceManager* resourceMngr)
 {
+	return m_sky.init(resourceMngr);
 }
 
 bool PlanetaryScene::loadTerrain(int size, float range, std::shared_ptr<Material> material, std::shared_ptr<Texture> heightmap)
@@ -41,6 +42,7 @@ void PlanetaryScene::renderTerrain()
 	m_terrain.render();
 }
 
-void PlanetaryScene::renderSky()
+void PlanetaryScene::renderSky(PostProcessor* post_proc)
 {
+	m_sky.render(post_proc);
 }

@@ -11,7 +11,7 @@
 #include <string>
 #include <iostream>
 
-enum shaderType	{ TERRAIN,SURFACE_LIGHTING,PICKING,FLAT, FXAA, IDLE, VOLUME_RAYCASTING, GAUSSIAN, GRADIENT, STRUCTURE_TENSOR, HESSE };
+enum shaderType	{ IRRADIANCE_SINGLE,INSCATTER_SINGLE,TRANSMITTANCE_COMPUTE,TERRAIN,SURFACE_LIGHTING,PICKING,FLAT, FXAA, IDLE, VOLUME_RAYCASTING, GAUSSIAN, GRADIENT, STRUCTURE_TENSOR, HESSE };
 
 class GLSLProgram
 {
@@ -21,6 +21,7 @@ private:
 	shaderType type;
 	GLuint handle;
 	bool linkStatus;
+	bool computeShader;
 	std::string shaderlog;
 
 	GLuint getUniformLocation(const char *name);
@@ -35,9 +36,11 @@ public:
 	bool compileShaderFromString(const std::string * const source, GLenum shaderType);
 	bool link();
 	bool use();
+	bool dispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
 	const std::string& getLog();
 	GLuint getHandle();
 	bool isLinked();
+	bool isComputeShader();
 	void bindAttribLocation(GLuint location, const char *name);
 	void bindFragDataLocation(GLuint location, const char *name);
 	void setUniform(const char *name, const glm::vec2 &v);

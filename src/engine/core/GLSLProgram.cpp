@@ -1,10 +1,10 @@
 #include "GLSLProgram.h"
 
-GLSLProgram::GLSLProgram() : linkStatus(false)
+GLSLProgram::GLSLProgram() : linkStatus(false), computeShader(false)
 {
 }
 
-GLSLProgram::GLSLProgram(shaderType shader_type) : type(shader_type), linkStatus(false)
+GLSLProgram::GLSLProgram(shaderType shader_type) : type(shader_type), linkStatus(false), computeShader(false)
 {
 }
 
@@ -37,6 +37,8 @@ bool GLSLProgram::compileShaderFromString(const std::string * const source, GLen
 	const GLchar* c_source = source->c_str();
 	GLuint shader = glCreateShader(shaderType);
 	glShaderSource(shader, 1, &c_source, NULL);
+
+	if(shaderType == GL_COMPUTE_SHADER) computeShader = true;
 
 	/* Compile shader */
 	glCompileShader(shader);
@@ -125,6 +127,19 @@ bool GLSLProgram::use()
 	if( !linkStatus ) return false;
 
 	glUseProgram(handle);
+
+	return true;
+}
+
+bool GLSLProgram::dispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
+{
+	GLuint current_prgm;
+	glGetIntegerv(GL_CURRENT_PROGRAM,(GLint*) &current_prgm);
+
+	if((current_prgm != handle) || !computeShader)
+		return false;
+
+	glDispatchCompute(num_groups_x,num_groups_y,num_groups_z);
 
 	return true;
 }

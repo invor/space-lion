@@ -252,9 +252,19 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 	std::string tessContSource;
 	std::string tessEvalSource;
 	std::string fragSource;
+	std::string computeSource;
 
 	switch(type)
 	{
+	case TRANSMITTANCE_COMPUTE : {
+		computeSource = readShaderFile("../resources/shaders/fapra/transmittance_c.glsl");
+		break; }
+	case INSCATTER_SINGLE : {
+		computeSource = readShaderFile("../resources/shaders/fapra/inscatter_single_c.glsl");
+		break; }
+	case IRRADIANCE_SINGLE : {
+		computeSource = readShaderFile("../resources/shaders/fapra/irradiance_single_c.glsl");
+		break; }
 	case TERRAIN : {
 		vertSource = readShaderFile("../resources/shaders/fapra/terrain_v.glsl");
 		tessContSource = readShaderFile("../resources/shaders/fapra/terrain_tc.glsl");
@@ -334,14 +344,20 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 		break; }
 	}
 
-	//TODO geometry and tessellation shader support
-	if(!shaderPrg->compileShaderFromString(&vertSource,GL_VERTEX_SHADER)){ std::cout<<shaderPrg->getLog(); return false;}
-	if(!shaderPrg->compileShaderFromString(&fragSource,GL_FRAGMENT_SHADER)){ std::cout<<shaderPrg->getLog(); return false;}
-
+	if(!vertSource.empty())
+		if(!shaderPrg->compileShaderFromString(&vertSource,GL_VERTEX_SHADER)){ std::cout<<shaderPrg->getLog(); return false;}
+	if(!fragSource.empty())
+		if(!shaderPrg->compileShaderFromString(&fragSource,GL_FRAGMENT_SHADER)){ std::cout<<shaderPrg->getLog(); return false;}
 	if(!tessContSource.empty())
 		if(!shaderPrg->compileShaderFromString(&tessContSource,GL_TESS_CONTROL_SHADER)){ std::cout<<shaderPrg->getLog(); return false;}
 	if(!tessEvalSource.empty())
 		if(!shaderPrg->compileShaderFromString(&tessEvalSource,GL_TESS_EVALUATION_SHADER)){ std::cout<<shaderPrg->getLog(); return false;}
+	/*
+	*	A non-empty compute source string should only happen if all other sources are empty strings.
+	*	I won't check for this though, assuming that nobody - i.e. me - fucked up a compute shader case above.
+	*/
+	if(!computeSource.empty())
+		if(!shaderPrg->compileShaderFromString(&computeSource,GL_COMPUTE_SHADER)){ std::cout<<shaderPrg->getLog(); return false;}
 
 	if(!shaderPrg->link()){ std::cout<<shaderPrg->getLog(); return false;}
 
