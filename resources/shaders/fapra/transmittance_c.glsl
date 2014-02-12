@@ -1,9 +1,9 @@
 #version 430
 
 #define M_PI 3.1415926535897932384626433832795
-#define TRANSMITTANCE_INTEGRAL_SAMPLES 200
+#define TRANSMITTANCE_INTEGRAL_SAMPLES 100
 
-layout(RGBA32F) uniform image2D transmittance_tx2D;
+layout(rgba32f) uniform image2D transmittance_tx2D;
 uniform float min_altitude;
 uniform float max_altitude;
 /*	extinction coefficient for Rayleight scattering */
@@ -78,11 +78,11 @@ float intersectAtmosphere(in float altitude, in float cosZenithAngle)
 float computeDensity(in float scaleHeight, in float altitude, in float cosZenithAngle) 
 {
 	// if ray below horizon return max density
-	//float cosHorizon = -sqrt(1.0f - ((min_altitude*min_altitude)/(altitude*altitude)));
-	//if(cosZenithAngle < cosHorizon)
-	//	return 1e9;
+	float cosHorizon = -sqrt(1.0f - ((min_altitude*min_altitude)/(altitude*altitude)));
+	if(cosZenithAngle < cosHorizon)
+		return 1e9;
 	
-	/*	step-size of the discretized integration */
+	/*	step-size of the discrete integration */
 	float dx = intersectAtmosphere(altitude,cosZenithAngle) / float(TRANSMITTANCE_INTEGRAL_SAMPLES);
 	
 	/*	rho value at beginning of interval */
@@ -118,11 +118,17 @@ void main()
 	float s = float(storePos.x)/float(gl_NumWorkGroups.x);
 	float t = float(storePos.y)/float(gl_NumWorkGroups.y);
 	
-	float angle = mix(0.0f,M_PI,s);
-	float altitude = mix(max_altitude,min_altitude,t);
+	//float angle = mix(0.0f,M_PI,s);
+	//float altitude = mix(min_altitude,max_altitude,t);
+	/*	parametrization following Bruneton and Neyert */
+	float angle = -0.15 + tan(1.5 * s) / tan(1.5) * (1.0 + 0.15);
+	//angle = cos(mix(0.0,M_PI,s));
+	float altitude = mix(min_altitude,max_altitude,t*t);
+	vec3 ext_factor = beta_r * computeDensity(h_r,altitude, angle ) +
+								beta_m * computeDensity(h_m,altitude, angle );
 	
-	vec3 ext_factor = beta_r * computeDensity(h_r,altitude, cos(angle) ) +
-								beta_m * computeDensity(h_m,altitude, cos(angle) );
+	//vec3 ext_factor = beta_r * computeDensity(h_r,altitude, cos(angle) ) +
+	//							beta_m * computeDensity(h_m,altitude, cos(angle) );
 	
-	imageStore(transmittance_tx2D,storePos,vec4( ext_factor ,1.0));
+	imageStore(transmittance_tx2D,storePos,vec4( exp(-ext_factor) ,1.0));
 }

@@ -1,12 +1,12 @@
 #version 330
 
-in vec3 vPosition;
-in vec2 vUVCoord;
+in vec3 v_position;
+in vec2 v_uvCoord;
 
 out vec2 uvCoord;
 
 void main()
 {
-	uvCoord = vUVCoord;
-	gl_Position =  vec4(vPosition, 1.0);
+	uvCoord = v_uvCoord;
+	gl_Position =  vec4(v_position, 1.0);
 }

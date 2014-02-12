@@ -44,5 +44,5 @@ void PlanetaryScene::renderTerrain()
 
 void PlanetaryScene::renderSky(PostProcessor* post_proc)
 {
-	m_sky.render(post_proc);
+	m_sky.render(post_proc,activeCamera);
 }

@@ -256,6 +256,12 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 
 	switch(type)
 	{
+	case SKY : {
+		vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
+		fragSource = readShaderFile("../resources/shaders/fapra/sky_f.glsl");
+		shaderPrg->bindAttribLocation(0,"v_position");
+		shaderPrg->bindAttribLocation(1,"v_uvCoord");
+		break; }
 	case TRANSMITTANCE_COMPUTE : {
 		computeSource = readShaderFile("../resources/shaders/fapra/transmittance_c.glsl");
 		break; }
@@ -300,14 +306,14 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 	case FXAA : {
 		vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 		fragSource = readShaderFile("../resources/shaders/fxaa_f.glsl");
-		shaderPrg->bindAttribLocation(0,"vPosition");
-		shaderPrg->bindAttribLocation(1,"vUVCoord");
+		shaderPrg->bindAttribLocation(0,"v_position");
+		shaderPrg->bindAttribLocation(1,"v_uvCoord");
 		break; }
 	case IDLE : {
 		vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 		fragSource = readShaderFile("../resources/shaders/idle_f.glsl");
-		shaderPrg->bindAttribLocation(0,"vPosition");
-		shaderPrg->bindAttribLocation(1,"vUVCoord");
+		shaderPrg->bindAttribLocation(0,"v_position");
+		shaderPrg->bindAttribLocation(1,"v_uvCoord");
 		break; }
 	case VOLUME_RAYCASTING : {
 		vertSource = readShaderFile("../resources/shaders/volRen_v.glsl");
@@ -318,26 +324,26 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 	case GAUSSIAN : {
 		vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 		fragSource = readShaderFile("../resources/shaders/seperatedGaussian_f.glsl");
-		shaderPrg->bindAttribLocation(0,"vPosition");
-		shaderPrg->bindAttribLocation(1,"vUVCoord");
+		shaderPrg->bindAttribLocation(0,"v_position");
+		shaderPrg->bindAttribLocation(1,"v_uvCoord");
 		break; }
 	case GRADIENT : {
 		vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 		fragSource = readShaderFile("../resources/shaders/gradient_f.glsl");
-		shaderPrg->bindAttribLocation(0,"vPosition");
-		shaderPrg->bindAttribLocation(1,"vUVCoord");
+		shaderPrg->bindAttribLocation(0,"v_position");
+		shaderPrg->bindAttribLocation(1,"v_uvCoord");;
 		break; }
 	case STRUCTURE_TENSOR : {
 		vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 		fragSource = readShaderFile("../resources/shaders/structureTensor_f.glsl");
-		shaderPrg->bindAttribLocation(0,"vPosition");
-		shaderPrg->bindAttribLocation(1,"vUVCoord");
+		shaderPrg->bindAttribLocation(0,"v_position");
+		shaderPrg->bindAttribLocation(1,"v_uvCoord");
 		break; }
 	case HESSE : {
 		vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
 		fragSource = readShaderFile("../resources/shaders/hesse_f.glsl");
-		shaderPrg->bindAttribLocation(0,"vPosition");
-		shaderPrg->bindAttribLocation(1,"vUVCoord");
+		shaderPrg->bindAttribLocation(0,"v_position");
+		shaderPrg->bindAttribLocation(1,"v_uvCoord");
 		break; }
 	default : {
 		return false;

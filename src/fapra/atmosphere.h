@@ -6,6 +6,7 @@
 #include "../engine/core/texture.h"
 #include "../engine/core/resourceManager.h"
 #include "../engine/core/postProcessor.h"
+#include "../engine/core/sceneCamera.h"
 
 class Atmosphere
 {
@@ -14,7 +15,8 @@ private:
 	* Textures storing the precomputed atmospheric scattering results
 	*/
 	std::shared_ptr<Texture2D> m_transmittance_table;
-	std::shared_ptr<Texture3D> m_inscatter_table;
+	std::shared_ptr<Texture3D> m_rayleigh_inscatter_table;
+	std::shared_ptr<Texture3D> m_mie_inscatter_table;
 	std::shared_ptr<Texture2D> m_irradiance_table;
 
 	/**
@@ -31,10 +33,21 @@ private:
 	std::shared_ptr<GLSLProgram> m_copy_irradiance_prgm;
 
 	/**
+	* GLSL shader for rendering atmosphere
+	*/
+	std::shared_ptr<GLSLProgram> m_sky_prgm;
+
+	/**
+	* Screen-filling quad for rendering
+	*/
+	Mesh m_render_plane;
+
+	/**
 	* Atmosphere attributes
 	*/
 	GLfloat m_min_altitide;
 	GLfloat m_max_altitude;
+	GLfloat center;
 
 public:
 	Atmosphere();
@@ -47,7 +60,7 @@ public:
 	void precomputeInscatterSingle();
 	void precomputeIrradianceSingle();
 
-	void render(PostProcessor* post_proc);
+	void render(PostProcessor* post_proc, SceneCamera * const camera_ptr);
 };
 
 #endif

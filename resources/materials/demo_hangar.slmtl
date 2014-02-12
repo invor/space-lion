@@ -1,5 +1,5 @@
 2
-4
+5
 td ../resources/textures/demo_hangar/demo_hangar_diffuse_albedo.ppm
 ts ../resources/textures/demo_hangar/demo_hangar_specular_colour.ppm
 tr ../resources/textures/demo_hangar/demo_hangar_roughness.ppm
