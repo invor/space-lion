@@ -50,11 +50,11 @@ bool FramebufferObject::createColorAttachment(GLenum internalFormat, GLenum form
 	}
 
 	unsigned int bufsSize = static_cast<unsigned int>(m_colorbuffers.size());
-	std::shared_ptr<Texture2D> new_color_atttachment(new Texture2D( "fbo_"+std::to_string(m_handle)+"_color_attachment_"+std::to_string(bufsSize) ));
-	m_colorbuffers.push_back(new_color_atttachment);
+	std::shared_ptr<Texture2D> new_color_attachment(new Texture2D( "fbo_"+std::to_string(m_handle)+"_color_attachment_"+std::to_string(bufsSize) ));
+	m_colorbuffers.push_back(new_color_attachment);
 	
-	new_color_atttachment->load(internalFormat, m_width, m_height, format, type, NULL);
-	new_color_atttachment->bindTexture();
+	if(!new_color_attachment->load(internalFormat, m_width, m_height, format, type, NULL)) return false;
+	new_color_attachment->bindTexture();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -62,7 +62,7 @@ bool FramebufferObject::createColorAttachment(GLenum internalFormat, GLenum form
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+bufsSize, GL_TEXTURE_2D, new_color_atttachment->getHandle(), 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+bufsSize, GL_TEXTURE_2D, new_color_attachment->getHandle(), 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
 

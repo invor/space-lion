@@ -4,9 +4,10 @@
 
 uniform mat4 view_mx;
 
-uniform sampler2D scene_depth_tx2D;
 uniform sampler3D rayleigh_inscatter_tx3D;
 uniform sampler3D mie_inscatter_tx3D;
+uniform sampler2D scene_depth_tx2D;
+uniform sampler2D test_tx2D;
 
 uniform vec3 camera_position;
 uniform float fov_y;
@@ -92,14 +93,19 @@ vec4 accessInscatterTexture(sampler3D inscatter_tx3D, float altitude, float view
     // better formula
     //float uMuS = 0.5 / res_mu_s + (atan(max(sunZenith, -0.1975) * tan(1.26 * 1.1)) / 1.1 + (1.0 - 0.26)) * 0.5 * (1.0 - 1.0 / res_mu_s);
 	
-    float lerp = (viewSun + 1.0) / 2.0 * (res_nu - 1.0);
-    float uNu = floor(lerp);
-    lerp = lerp - uNu;
+    //float lerp = (viewSun + 1.0) / 2.0 * (res_nu - 1.0);
+    //float uNu = floor(lerp);
+    //lerp = lerp - uNu;
 	
-	//TODO recalculate x value...I don't trust it
-	float x_coord = viewSun * (1.0/res_mu_s);
-	x_coord += max((1.0 - exp(-3.0 * sunZenith - 0.6)) / (1.0 - exp(-3.6)), 0.0) * (1.0 - 1.0 / res_mu_s);
-	return texture3D(inscatter_tx3D, vec3(x_coord, uMu, uR));
+	//making my own calculation for the x access coordinate...I don't trust the orig
+	float x_coord = max((1.0 - exp(-3.0 * sunZenith - 0.6)) / (1.0 - exp(-3.6)), 0.0) * (1.0 - 1.0 / res_mu_s);
+	float lerp = mod(x_coord,1.0 / res_mu_s);
+	x_coord += viewSun * (1.0/res_mu_s);
+	float x_coord_l = x_coord - lerp;
+	float x_coord_u = x_coord + ((1.0 / res_mu_s)-lerp);
+	lerp /= (1.0/res_mu_s);
+	return texture3D(inscatter_tx3D, vec3(x_coord_l, uMu, uR)) * (1.0 - lerp) +
+					texture3D(inscatter_tx3D, vec3(x_coord_u, uMu, uR)) * lerp;
 	
 	//return texture3D(inscatter_tx3D, vec3((uNu + uMuS) / res_nu, uMu, uR)) * (1.0 - lerp) +
     //       texture3D(inscatter_tx3D, vec3((uNu + uMuS + 1.0) / res_nu, uMu, uR)) * lerp;

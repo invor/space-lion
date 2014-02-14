@@ -21,20 +21,46 @@ void FapraRenderHub::renderActiveScene()
 	}
 
 	/*	Create framebuffers for terrain, sky and compositing */
+
 	terrain_fbo = std::shared_ptr<FramebufferObject>(new FramebufferObject(1366,768,true,false));
-	terrain_fbo->createColorAttachment(GL_RGB8,GL_RGB,GL_BYTE);//diffuse albedo
-	terrain_fbo->createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);//specular color, roughness
-	terrain_fbo->createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);//Normal.x,Normal.y,Tanget.x,Tanget.y
-	terrain_fbo->createColorAttachment(GL_R32F,GL_RED,GL_FLOAT);//(linear) depth
+	/*	diffuse albedo */
+	if(!terrain_fbo->createColorAttachment(GL_RGB8,GL_RGB,GL_BYTE))
+	{
+		std::cout<<"Failed to create terrain diffuse albedo colour attachment"<<std::endl;
+		return;
+	}
+	/*	Normal.x,Normal.y,Tanget.x,Tanget.y */
+	if(!terrain_fbo->createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT))
+	{
+		std::cout<<"Failed to create terrain normal and tangent attachment"<<std::endl;
+		return;
+	}
+	/*	specular color, roughness */
+	if(!terrain_fbo->createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT))
+	{
+		std::cout<<"Failed to create terrain specular colour and roughness attachment"<<std::endl;
+		return;
+	}
+	/*	(linear) depth */
+	if(!terrain_fbo->createColorAttachment(GL_R32F,GL_RED,GL_FLOAT))
+	{
+		std::cout<<"Failed to create terrain depth attachment"<<std::endl;
+		return;
+	}
 
 	sky_fbo = std::shared_ptr<FramebufferObject>(new FramebufferObject(1366,768,true,false));
-	sky_fbo->createColorAttachment(GL_RGB8,GL_RGB,GL_BYTE);
+	if(!sky_fbo->createColorAttachment(GL_RGB8,GL_RGB,GL_BYTE))
+	{
+		std::cout<<"Failed to create sky colour attachment"<<std::endl;
+		return;
+	}
 
 	/*
 	/	Support for adding cameras and lights via message system will follow later on
 	*/
 
-	/*	Terrain debuggin */
+	/*	Terrain & Sky debuggin */
+	float time_of_day = 0.0;
 	std::shared_ptr<Material> terrain_mtl;
 	std::shared_ptr<Texture> terrain_heightmap;
 	if(!(resourceMngr.createTexture2D("../resources/textures/fapra/terrain_heightmap.ppm",terrain_heightmap))){
@@ -99,16 +125,28 @@ void FapraRenderHub::renderActiveScene()
 		Controls::updateCamera(activeWindow, demo_scene.getActiveCamera());
 		//Controls::updateCamera(activeWindow, activeScene->getActiveCamera());
 
+		//activeScene->drawFroward();
+
+		terrain_fbo->bind();
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0,0,terrain_fbo->getWidth(),terrain_fbo->getHeight());
+		demo_scene.renderTerrain();
+
+		sky_fbo->bind();
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0,0,sky_fbo->getWidth(),sky_fbo->getHeight());
+		time_of_day = glfwGetTime()*24.0 - 1440.0f * std::floor(time_of_day/1440.0f);
+		demo_scene.renderSky(&post_proc,time_of_day,&(*terrain_fbo));
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		int width, height;
 		glfwGetFramebufferSize(activeWindow, &width, &height);
 		glViewport(0, 0, width, height);
-
-		//activeScene->drawFroward();
-		//demo_scene.renderTerrain();
-		demo_scene.renderSky(&post_proc);
+		post_proc.FBOToFBO(&(*sky_fbo));
 
 		glfwSwapBuffers(activeWindow);
 		glfwPollEvents();

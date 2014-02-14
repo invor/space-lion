@@ -73,6 +73,8 @@ void Terrain::render()
 	/*	assume square terrain - render a quad per square meter */
 	glPatchParameteri(GL_PATCH_VERTICES, 4);
 	m_quad.draw(m_size*m_size);
+
+	glUseProgram(0);
 }
 
 void Terrain::setSize(int size)

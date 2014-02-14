@@ -101,6 +101,7 @@ void Atmosphere::precomputeInscatterSingle()
 	glActiveTexture(GL_TEXTURE2);
 	m_inscatter_single_prgm->setUniform("transmittance_tx2D",2);
 	m_transmittance_table->bindTexture();
+	glDisable(GL_TEXTURE_2D);
 
 	m_inscatter_single_prgm->setUniform("min_altitude",GLfloat(6360.0));
 	m_inscatter_single_prgm->setUniform("max_altitude",GLfloat(6420.0));
@@ -119,7 +120,7 @@ void Atmosphere::precomputeIrradianceSingle()
 	m_irradiance_single_prgm->use();
 }
 
-void Atmosphere::render(PostProcessor* post_proc, SceneCamera * const camera_ptr)
+void Atmosphere::render(PostProcessor* post_proc, SceneCamera * const camera_ptr, float time_of_day, FramebufferObject* terrain_fbo)
 {
 	//post_proc->imageToFBO(m_transmittance_table->getHandle());
 	
@@ -132,6 +133,12 @@ void Atmosphere::render(PostProcessor* post_proc, SceneCamera * const camera_ptr
 	glActiveTexture(GL_TEXTURE1);
 	m_sky_prgm->setUniform("mie_inscatter_tx3D",1);
 	m_mie_inscatter_table->bindTexture();
+	//reserve GL_TEXTURE2 for irradiance table
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE3);
+	m_sky_prgm->setUniform("test_tx2D",3);
+	terrain_fbo->bindColorbuffer(3);
+	glDisable(GL_TEXTURE_2D);
 	
 	m_sky_prgm->setUniform("view_mx", camera_ptr->computeViewMatrix());
 	m_sky_prgm->setUniform("scene_depth_tx2D", 0);
@@ -141,7 +148,11 @@ void Atmosphere::render(PostProcessor* post_proc, SceneCamera * const camera_ptr
 	m_sky_prgm->setUniform("min_altitude",GLfloat(6360.0));
 	m_sky_prgm->setUniform("max_altitude", GLfloat(6420.0));
 	m_sky_prgm->setUniform("planet_center", glm::vec3(0.0,-6362.0,0.0));
-	m_sky_prgm->setUniform("sun_direction", glm::vec3(0.0,0.1,-1.0));
+	
+	/*	crude computation of sun direction */
+	/*	sun angle relative to a (0,1,0) zenith vector */
+	float sun_angle = (time_of_day/1440.0) * 2.0 * 3.1415926535897932384626433832795 + 3.1415926535897932384626433832795;
+	m_sky_prgm->setUniform("sun_direction", glm::vec3(0.0,cos(sun_angle),-sin(sun_angle)));
 	
 	m_render_plane.draw();
 }

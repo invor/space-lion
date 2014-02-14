@@ -9,6 +9,7 @@
 
 /*	std includes */
 #include <vector>
+#include <cmath>
 
 /*	space-lion includes */
 #include "../engine/core/renderHub.h"

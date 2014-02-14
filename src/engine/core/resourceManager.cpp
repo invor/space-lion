@@ -261,6 +261,7 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 		fragSource = readShaderFile("../resources/shaders/fapra/sky_f.glsl");
 		shaderPrg->bindAttribLocation(0,"v_position");
 		shaderPrg->bindAttribLocation(1,"v_uvCoord");
+		shaderPrg->bindFragDataLocation(0, "frag_colour");
 		break; }
 	case TRANSMITTANCE_COMPUTE : {
 		computeSource = readShaderFile("../resources/shaders/fapra/transmittance_c.glsl");
@@ -277,6 +278,10 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 		tessEvalSource = readShaderFile("../resources/shaders/fapra/terrain_te.glsl");
 		fragSource = readShaderFile("../resources/shaders/fapra/terrain_f.glsl");
 		shaderPrg->bindAttribLocation(0,"v_position");
+		shaderPrg->bindFragDataLocation(0, "frag_colour");
+		shaderPrg->bindFragDataLocation(1, "normal_tangent");
+		shaderPrg->bindFragDataLocation(2, "spec_colour_roughness");
+		shaderPrg->bindFragDataLocation(3, "depth");
 		break; }
 	case SURFACE_LIGHTING : {
 		vertSource = readShaderFile("../resources/shaders/surface_lighting_v.glsl");

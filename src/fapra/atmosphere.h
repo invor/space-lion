@@ -60,7 +60,7 @@ public:
 	void precomputeInscatterSingle();
 	void precomputeIrradianceSingle();
 
-	void render(PostProcessor* post_proc, SceneCamera * const camera_ptr);
+	void render(PostProcessor* post_proc, SceneCamera * const camera_ptr, float time_of_day, FramebufferObject* terrain_fbo);
 };
 
 #endif

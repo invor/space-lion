@@ -18,7 +18,7 @@ public:
 	bool loadTerrain(int size, float range, std::shared_ptr<Material> material, std::shared_ptr<Texture> heightmap);
 
 	void renderTerrain();
-	void renderSky(PostProcessor* post_proc);
+	void renderSky(PostProcessor* post_proc, float time_of_day, FramebufferObject* terrain_fbo);
 };
 
 #endif

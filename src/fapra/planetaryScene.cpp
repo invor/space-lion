@@ -33,7 +33,7 @@ void PlanetaryScene::renderTerrain()
 	m_terrain.getMaterial()->getShaderProgram()->setUniform("num_lights", light_counter);
 
 	glm::mat4 view_mx = activeCamera->computeViewMatrix();
-	glm::mat4 projection_mx = activeCamera->computeProjectionMatrix(1.0f, 500000.0f);
+	glm::mat4 projection_mx = activeCamera->computeProjectionMatrix(0.1f, 500000.0f);
 
 	m_terrain.getMaterial()->getShaderProgram()->setUniform("model_view_matrix", view_mx);
 	m_terrain.getMaterial()->getShaderProgram()->setUniform("view_matrix", view_mx);
@@ -42,7 +42,7 @@ void PlanetaryScene::renderTerrain()
 	m_terrain.render();
 }
 
-void PlanetaryScene::renderSky(PostProcessor* post_proc)
+void PlanetaryScene::renderSky(PostProcessor* post_proc, float time_of_day, FramebufferObject* terrain_fbo)
 {
-	m_sky.render(post_proc,activeCamera);
+	m_sky.render(post_proc,activeCamera,time_of_day, terrain_fbo);
 }
