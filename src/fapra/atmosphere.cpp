@@ -106,8 +106,8 @@ void Atmosphere::precomputeInscatterSingle()
 	m_inscatter_single_prgm->setUniform("max_altitude",GLfloat(6420.0));
 	m_inscatter_single_prgm->setUniform("beta_r",glm::vec3(0.0058,0.0135,0.0331));
 	m_inscatter_single_prgm->setUniform("beta_m",glm::vec3(0.00444,0.00444,0.00444));
-	m_inscatter_single_prgm->setUniform("h_r",GLfloat(8.000));
-	m_inscatter_single_prgm->setUniform("h_m",GLfloat(1.200));
+	m_inscatter_single_prgm->setUniform("h_r",GLfloat(8.0));
+	m_inscatter_single_prgm->setUniform("h_m",GLfloat(1.2));
 
 	m_inscatter_single_prgm->dispatchCompute(32,128,32);
 
@@ -140,8 +140,8 @@ void Atmosphere::render(PostProcessor* post_proc, SceneCamera * const camera_ptr
 	m_sky_prgm->setUniform("aspect_ratio", camera_ptr->getAspectRatio());
 	m_sky_prgm->setUniform("min_altitude",GLfloat(6360.0));
 	m_sky_prgm->setUniform("max_altitude", GLfloat(6420.0));
-	m_sky_prgm->setUniform("planet_center", glm::vec3(0.0,-6420.0,0.0));
-	m_sky_prgm->setUniform("sun_direction", glm::vec3(0.0,1.0,0.0));
+	m_sky_prgm->setUniform("planet_center", glm::vec3(0.0,-6362.0,0.0));
+	m_sky_prgm->setUniform("sun_direction", glm::vec3(0.0,0.1,-1.0));
 	
 	m_render_plane.draw();
 }

@@ -20,6 +20,16 @@ void FapraRenderHub::renderActiveScene()
 			<< "\n";
 	}
 
+	/*	Create framebuffers for terrain, sky and compositing */
+	terrain_fbo = std::shared_ptr<FramebufferObject>(new FramebufferObject(1366,768,true,false));
+	terrain_fbo->createColorAttachment(GL_RGB8,GL_RGB,GL_BYTE);//diffuse albedo
+	terrain_fbo->createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);//specular color, roughness
+	terrain_fbo->createColorAttachment(GL_RGBA32F,GL_RGBA,GL_FLOAT);//Normal.x,Normal.y,Tanget.x,Tanget.y
+	terrain_fbo->createColorAttachment(GL_R32F,GL_RED,GL_FLOAT);//(linear) depth
+
+	sky_fbo = std::shared_ptr<FramebufferObject>(new FramebufferObject(1366,768,true,false));
+	sky_fbo->createColorAttachment(GL_RGB8,GL_RGB,GL_BYTE);
+
 	/*
 	/	Support for adding cameras and lights via message system will follow later on
 	*/
@@ -47,7 +57,7 @@ void FapraRenderHub::renderActiveScene()
 	terrain_mtl.reset();
 	terrain_heightmap.reset();
 	
-	if(!(demo_scene.createSceneCamera(0,glm::vec3(0.0,0.0,5.0),glm::vec3(0.0,0.0,0.0),16.0f/9.0f,(9.0f/16.0f)*60.0f)))
+	if(!(demo_scene.createSceneCamera(0,glm::vec3(0.0,0.0,1.0),glm::vec3(0.0,0.0,0.0),16.0f/9.0f,(9.0f/16.0f)*60.0f)))
 		std::cout<<"Failed to create camera"<<"\n";
 
 	if(!(demo_scene.createSceneLight(0,glm::vec3(512.0,512.0,512.0),glm::vec3(500.0))))
@@ -78,7 +88,7 @@ void FapraRenderHub::renderActiveScene()
 	//activeScene->setActiveCamera(0);
 
 	running = true;
-	glClearColor(0.2f,0.2f,0.2f,1.0f);
+	glClearColor(0.0f,0.0f,0.0f,1.0f);
 	glEnable (GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	//glEnable( GL_MULTISAMPLE );
@@ -90,7 +100,7 @@ void FapraRenderHub::renderActiveScene()
 		//Controls::updateCamera(activeWindow, activeScene->getActiveCamera());
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		int width, height;
 		glfwGetFramebufferSize(activeWindow, &width, &height);

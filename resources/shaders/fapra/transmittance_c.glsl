@@ -15,7 +15,9 @@ uniform float h_m;
 
 layout(local_size_x = 1, local_size_y = 1) in;
 
-
+/*
+*	Helper function...GLSL's pow() has some nasty behaviour with negative numbers
+*/
 float square(in float base)
 {
 	return base*base;
@@ -48,32 +50,6 @@ float intersectAtmosphere(in float altitude, in float cosZenithAngle)
 	
 	return d;
 }
-
-
-//	float computeDensity(in float scaleHeight, in float altitude, in float mu) 
-//	{
-//		// if ray below horizon return max density
-//		float cosHorizon = -sqrt(1.0f - ((min_altitude*min_altitude)/(altitude*altitude)));
-//		if(mu < cosHorizon)
-//			return 1e9;
-//		
-//		float totalDensity = 0.0f;
-//		float dx = intersectAtmosphere(altitude,mu) / float(TRANSMITTANCE_INTEGRAL_SAMPLES);
-//		
-//		float y_j = exp(-(altitude-min_altitude)/scaleHeight);
-//		
-//		for (int i = 1; i<=TRANSMITTANCE_INTEGRAL_SAMPLES; i++)
-//		{
-//			float x_i = float(i)*dx;
-//			float altitude_i = sqrt(altitude*altitude + x_i*x_i + 2.0f*x_i*altitude*mu);
-//			float y_i = exp(-(altitude_i-min_altitude)/scaleHeight);
-//			totalDensity += (y_j+y_i)/2.0f*dx;
-//			y_j = y_i;
-//		}
-//		
-//		return totalDensity;
-//	}
-
 
 float computeDensity(in float scaleHeight, in float altitude, in float cosZenithAngle) 
 {
@@ -118,17 +94,12 @@ void main()
 	float s = float(storePos.x)/float(gl_NumWorkGroups.x);
 	float t = float(storePos.y)/float(gl_NumWorkGroups.y);
 	
-	//float angle = mix(0.0f,M_PI,s);
-	//float altitude = mix(min_altitude,max_altitude,t);
 	/*	parametrization following Bruneton and Neyert */
 	float angle = -0.15 + tan(1.5 * s) / tan(1.5) * (1.0 + 0.15);
-	//angle = cos(mix(0.0,M_PI,s));
+	//angle = mix(1.0,-1.0,s);
 	float altitude = mix(min_altitude,max_altitude,t*t);
 	vec3 ext_factor = beta_r * computeDensity(h_r,altitude, angle ) +
-								beta_m * computeDensity(h_m,altitude, angle );
+								(beta_m/ 0.9) * computeDensity(h_m,altitude, angle );
 	
-	//vec3 ext_factor = beta_r * computeDensity(h_r,altitude, cos(angle) ) +
-	//							beta_m * computeDensity(h_m,altitude, cos(angle) );
-	
-	imageStore(transmittance_tx2D,storePos,vec4( exp(-ext_factor) ,1.0));
+	imageStore(transmittance_tx2D,storePos,vec4( exp(-ext_factor), 0.0));
 }

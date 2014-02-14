@@ -1,7 +1,7 @@
 #version 430
 
 #define M_PI 3.1415926535897932384626433832795
-#define INSCATTER_INTEGRAL_SAMPLES 20
+#define INSCATTER_INTEGRAL_SAMPLES 30
 #define TRANSMITTANCE_INTEGRAL_SAMPLES 20
 
 layout(RGBA32F) uniform sampler2D transmittance_tx2D;
@@ -19,6 +19,9 @@ uniform float h_m;
 
 layout(local_size_x = 8, local_size_y = 1, local_size_z = 1) in;
 
+/*
+*	Helper function...GLSL's pow() has some nasty behaviour with negative numbers
+*/
 float square(in float base)
 {
 	return base*base;
@@ -55,7 +58,7 @@ float intersectAtmosphere(in float altitude, in float cosZenithAngle)
 
 float computeDensity(in float scaleHeight, in float altitude, in float cosZenithAngle) 
 {
-	// if ray below horizon return max density
+	/* if ray below horizon return max density */
 	float cosHorizon = -sqrt(1.0f - ((min_altitude*min_altitude)/(altitude*altitude)));
 	if(cosZenithAngle < cosHorizon)
 		return 1e9;
@@ -92,12 +95,13 @@ vec3 fetchTransmittance(in float altitude, in float cosAngle)
 {
 	float altitude_param = sqrt((altitude-min_altitude)/(max_altitude-min_altitude));
 	float angle_param = atan((cosAngle + 0.15) / (1.0 + 0.15) * tan(1.5)) / 1.5;
-	//angle_param = 1.0 - ((cosAngle * 0.5)+0.5);
+	//angle_param = 1.0 - ((cosAngle*0.5)+0.5);
 	
-	//return texture(transmittance_tx2D,vec2(altitude_param,angle_param)).xyz;
+	return texture(transmittance_tx2D,vec2(angle_param,altitude_param)).xyz;
 	
-	return exp(-(beta_r * computeDensity(h_r,altitude, cosAngle) +
-								beta_m * computeDensity(h_m,altitude, cosAngle)));
+	/*	direct evaluation - computationally expansive */
+	//return exp(-(beta_r * computeDensity(h_r,altitude, cosAngle) +
+	//							beta_m * computeDensity(h_m,altitude, cosAngle)));
 }
 
 void computeSingleInscatter(in float altitude, in float viewZenith, in float sunZenith, in float viewSun, out vec3 rayleigh, out vec3 mie)
@@ -134,6 +138,7 @@ void computeSingleInscatter(in float altitude, in float viewZenith, in float sun
 		
 		//float sunZenith_i = dot(light_dir,normalize(p_i));
 		float altitude_i = length(p_i);
+		altitude_i = sqrt(square(altitude) + square(d_i) + 2.0 * altitude * viewZenith * d_i);
 		float sunZenith_i = (viewSun * d_i + sunZenith * altitude) / altitude_i;
 		altitude_i = max(min_altitude,altitude_i);
 		
@@ -147,8 +152,8 @@ void computeSingleInscatter(in float altitude, in float viewZenith, in float sun
 			vec3 t_camToSample = fetchTransmittance(altitude,viewZenith) / fetchTransmittance(altitude_i,viewZenith_i);
 			//rayleigh_integrand_u = exp(-((altitude_i-min_altitude)/h_r)) * exp(-t_sampleToSun - t_camToSample);
 			//mie_integrand_u = exp(-((altitude_i-min_altitude)/h_m)) * exp(-t_sampleToSun - t_camToSample);
-			rayleigh_integrand_u = exp(-((altitude_i-min_altitude)/h_r)) * t_sampleToSun * t_camToSample;
-			mie_integrand_u = exp(-((altitude_i-min_altitude)/h_m)) * t_sampleToSun * t_camToSample;
+			rayleigh_integrand_u = exp(-(altitude_i-min_altitude)/h_r) * t_camToSample * t_sampleToSun;
+			mie_integrand_u = exp(-(altitude_i-min_altitude)/h_m) * t_camToSample * t_sampleToSun;
 		}
 		else
 		{
@@ -159,8 +164,8 @@ void computeSingleInscatter(in float altitude, in float viewZenith, in float sun
 		rayleigh_integral += (rayleigh_integrand_l+rayleigh_integrand_u)/2.0*dx;
 		mie_integral += (mie_integrand_l+mie_integrand_u)/2.0*dx;
 		
-		mie_integrand_l = mie_integrand_u;
 		rayleigh_integrand_l = rayleigh_integrand_u;
+		mie_integrand_l = mie_integrand_u;
 	}
 	
 	rayleigh = rayleigh_integral * beta_r;
@@ -203,8 +208,13 @@ void computeNonLinearParams(out float altitude, out float cosViewZenith, out flo
         d = min(max(dmin, d * dmax), dmax * 0.999);
         cosViewZenith = (square(max_altitude) - square(altitude) - d * d) / (2.0 * altitude * d);
     }
+	/*	for now, use a simpler mapping (as proposed by Elek) */
+	cosViewZenith = 2.0*(t/(t_res-1.0))-1.0;
 	
-    cosSunZenith = tan((2.0 * s - 1.0 + 0.26) * 1.1) / tan(1.26 * 1.1);
+	// paper formula
+    cosSunZenith = -(0.6 + log(1.0 - s * (1.0 -  exp(-3.6)))) / 3.0;
+    // better formula
+    //cosSunZenith = tan((2.0 * s - 1.0 + 0.26) * 1.1) / tan(1.26 * 1.1);
 	
     cosViewSun = -1.0 + s_2 * 2.0;
 }
@@ -249,6 +259,9 @@ void main()
 	vec3 rgb_rayleigh = vec3(0.0);
 	vec3 rgb_mie = vec3(0.0);
 	computeSingleInscatter(altitude,viewZenith,sunZenith,viewSun,rgb_rayleigh,rgb_mie);
+	
+	/*	debugging */
+	//rgb_rayleigh = abs(fetchTransmittance(altitude,viewZenith));
 	
 	imageStore(rayleigh_inscatter_tx3D,store_pos,vec4(rgb_rayleigh,1.0));
 	imageStore(mie_inscatter_tx3D,store_pos,vec4(rgb_mie,1.0));

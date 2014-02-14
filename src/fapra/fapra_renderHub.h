@@ -28,9 +28,9 @@ public:
 private:
 	PlanetaryScene demo_scene;
 
-	std::vector<FramebufferObject> framebufferList;
-
-	FramebufferObject *activeFramebuffer;
+	std::shared_ptr<FramebufferObject> terrain_fbo;
+	std::shared_ptr<FramebufferObject> sky_fbo;
+	std::shared_ptr<FramebufferObject> activeFramebuffer;
 };
 
 #endif
