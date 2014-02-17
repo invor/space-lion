@@ -21,12 +21,17 @@ void FapraRenderHub::renderActiveScene()
 	}
 
 	/*	Create framebuffers for terrain, sky and compositing */
-
 	terrain_fbo = std::shared_ptr<FramebufferObject>(new FramebufferObject(1366,768,true,false));
 	/*	diffuse albedo */
 	if(!terrain_fbo->createColorAttachment(GL_RGB8,GL_RGB,GL_BYTE))
 	{
 		std::cout<<"Failed to create terrain diffuse albedo colour attachment"<<std::endl;
+		return;
+	}
+	/*	normal map normal */
+	if(!terrain_fbo->createColorAttachment(GL_RGB32F,GL_RGB,GL_FLOAT))
+	{
+		std::cout<<"Failed to create normal map colour attachment"<<std::endl;
 		return;
 	}
 	/*	Normal.x,Normal.y,Tanget.x,Tanget.y */
@@ -71,7 +76,7 @@ void FapraRenderHub::renderActiveScene()
 		std::cout << "Failed to create material." << std::endl;
 		return;
 	}
-	if(!(demo_scene.loadTerrain(32, 12, terrain_mtl, terrain_heightmap))){
+	if(!(demo_scene.loadTerrain(32, 6, terrain_mtl, terrain_heightmap))){
 		std::cout << "Failed to load terrain." << std::endl;
 		return;
 	}
@@ -123,12 +128,9 @@ void FapraRenderHub::renderActiveScene()
 	{
 		/*	For now, I avoid using a glfw callback function for this */
 		Controls::updateCamera(activeWindow, demo_scene.getActiveCamera());
-		//Controls::updateCamera(activeWindow, activeScene->getActiveCamera());
-
-		//activeScene->drawFroward();
 
 		terrain_fbo->bind();
-		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0,0,terrain_fbo->getWidth(),terrain_fbo->getHeight());
 		demo_scene.renderTerrain();

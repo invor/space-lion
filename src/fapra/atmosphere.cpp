@@ -136,8 +136,20 @@ void Atmosphere::render(PostProcessor* post_proc, SceneCamera * const camera_ptr
 	//reserve GL_TEXTURE2 for irradiance table
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE3);
-	m_sky_prgm->setUniform("test_tx2D",3);
+	m_sky_prgm->setUniform("scene_diffuse_albedo_tx2D",3);
+	terrain_fbo->bindColorbuffer(0);
+	glActiveTexture(GL_TEXTURE4);
+	m_sky_prgm->setUniform("scene_normal_tx2D",4);
+	terrain_fbo->bindColorbuffer(1);
+	glActiveTexture(GL_TEXTURE5);
+	m_sky_prgm->setUniform("scene_tangent_bitangent_tx2D",5);
+	terrain_fbo->bindColorbuffer(2);
+	glActiveTexture(GL_TEXTURE6);
+	m_sky_prgm->setUniform("scene_specular_roughness_tx2D",6);
 	terrain_fbo->bindColorbuffer(3);
+	glActiveTexture(GL_TEXTURE7);
+	m_sky_prgm->setUniform("scene_linear_depth_tx2D",7);
+	terrain_fbo->bindColorbuffer(4);
 	glDisable(GL_TEXTURE_2D);
 	
 	m_sky_prgm->setUniform("view_mx", camera_ptr->computeViewMatrix());

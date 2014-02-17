@@ -1,5 +1,7 @@
 #version 430
 
+#define TESS_LVL 16
+
 layout(quads, equal_spacing, ccw) in;
 
 uniform mat4 projection_matrix;
@@ -27,26 +29,27 @@ void main()
 	
 	/*	use normalized position to access height-map and retrieve height-value (y-coordinate) */
 	position.y = texture(heightmap_tx2D,uv_coord).x  * range;
+	position	*=0.1;
 	
 	float patch_size = 1.0/float(size);
 	
 	//	/*	Compute tangent and bitangent from heightmap */
-	vec2 x_neighbour_uv = uv_coord + vec2(patch_size/8.0,0.0);
-	vec2 z_neighbour_uv = uv_coord + vec2(0.0,patch_size/8.0);
-	float x_neighbour_height = texture(heightmap_tx2D,x_neighbour_uv).x * range;
-	float z_neighbour_height = texture(heightmap_tx2D,z_neighbour_uv).x * range;
+	vec2 x_neighbour_uv = uv_coord + vec2(patch_size/float(TESS_LVL),0.0);
+	vec2 z_neighbour_uv = uv_coord + vec2(0.0,patch_size/float(TESS_LVL));
+	float x_neighbour_height = texture(heightmap_tx2D,x_neighbour_uv).x * range *0.1;
+	float z_neighbour_height = texture(heightmap_tx2D,z_neighbour_uv).x * range *0.1;
 	
-	vec3 tangent = normalize(vec3(0.0,z_neighbour_height-position.y,1.0/8.0));
-	vec3 bitangent = normalize(vec3(1.0/8.0,x_neighbour_height-position.y,0.0));
+	vec3 tangent = normalize(vec3(0.0,z_neighbour_height-position.y,0.1 * 1.0/float(TESS_LVL)));
+	vec3 bitangent = normalize(vec3(0.1 * 1.0/float(TESS_LVL),x_neighbour_height-position.y,0.0));
 	vec3 normal = -normalize(cross(bitangent, tangent));
 	
 	/*	Construct matrices that use the model matrix*/
 	mat3 normal_matrix = transpose(inverse(mat3(model_view_matrix)));
 	
 	/*	Transform input vectors into view space */
-	normal = normalize(normal_matrix * normal);
-	tangent = normalize(normal_matrix * tangent);
-	bitangent = normalize(normal_matrix * bitangent);
+	//normal = normalize(normal_matrix * normal);
+	//tangent = normalize(normal_matrix * tangent);
+	//bitangent = normalize(normal_matrix * bitangent);
     
 	/*	Compute transformation matrix for tangent space transformation */
 	tangent_space_matrix = mat3(

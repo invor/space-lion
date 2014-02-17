@@ -279,9 +279,10 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 		fragSource = readShaderFile("../resources/shaders/fapra/terrain_f.glsl");
 		shaderPrg->bindAttribLocation(0,"v_position");
 		shaderPrg->bindFragDataLocation(0, "frag_colour");
-		shaderPrg->bindFragDataLocation(1, "normal_tangent");
-		shaderPrg->bindFragDataLocation(2, "spec_colour_roughness");
-		shaderPrg->bindFragDataLocation(3, "depth");
+		shaderPrg->bindFragDataLocation(0, "normal");
+		shaderPrg->bindFragDataLocation(2, "tangent_bitangent");
+		shaderPrg->bindFragDataLocation(3, "spec_colour_roughness");
+		shaderPrg->bindFragDataLocation(4, "depth");
 		break; }
 	case SURFACE_LIGHTING : {
 		vertSource = readShaderFile("../resources/shaders/surface_lighting_v.glsl");

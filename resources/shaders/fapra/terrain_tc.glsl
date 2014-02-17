@@ -1,6 +1,6 @@
 #version 430
 
-#define TESS_LVL 12
+#define TESS_LVL 16
 
 layout (vertices = 4) out;
 

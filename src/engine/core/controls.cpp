@@ -55,7 +55,7 @@ namespace Controls {
 			glm::vec3 right_hand_vec = camera->computeRightHandVector();
 			glm::vec3 up_vec = camera->computeUpVector();
 
-			glm::vec3 translation_vec = (right_hand_vec * cursor_movement.x) + (up_vec * -cursor_movement.y);
+			glm::vec3 translation_vec = ((right_hand_vec * cursor_movement.x) + (up_vec * -cursor_movement.y)) * 0.01f;
 
 			camera->setLookAt(look_at_point + translation_vec);
 			camera->setPosition(camera->getPosition() + translation_vec);

@@ -1,13 +1,17 @@
 #version 430
 
 #define M_PI 3.1415926535897932384626433832795
+#define INV_PI 0.318309886183
 
 uniform mat4 view_mx;
 
 uniform sampler3D rayleigh_inscatter_tx3D;
 uniform sampler3D mie_inscatter_tx3D;
-uniform sampler2D scene_depth_tx2D;
-uniform sampler2D test_tx2D;
+uniform sampler2D scene_diffuse_albedo_tx2D;
+uniform sampler2D scene_normal_tx2D;
+uniform sampler2D scene_tangent_bitangent_tx2D;
+uniform sampler2D scene_specular_roughness_tx2D;
+uniform sampler2D scene_linear_depth_tx2D;
 
 uniform vec3 camera_position;
 uniform float fov_y;
@@ -111,6 +115,61 @@ vec4 accessInscatterTexture(sampler3D inscatter_tx3D, float altitude, float view
     //       texture3D(inscatter_tx3D, vec3((uNu + uMuS + 1.0) / res_nu, uMu, uR)) * lerp;
 }
 
+vec3 computeSkyColour()
+{
+	return vec3(0.0);
+}
+
+vec3 cookTorranceShading(in vec3 surface_albedo, in vec3 surface_specular_color, in float surface_roughness,
+							in vec3 surface_normal, in vec3 light_direction, in vec3 viewer_direction, in vec3 light_colour)
+{
+	vec3 halfway = normalize(light_direction + viewer_direction);
+	float n_dot_h = dot(surface_normal,halfway);
+	float n_dot_l = dot(surface_normal,light_direction);
+	float n_dot_v = dot(surface_normal,viewer_direction);
+	/* prevent black artefacts */
+	n_dot_v = (n_dot_v < 0.0) ? 0.0 : n_dot_v;
+	float l_dot_h = dot(light_direction,halfway);
+	float roughness_squared = pow(surface_roughness,2.0);
+	
+	/*
+	/	Compute Fresnel term using the Schlick approximation.
+	/	To avoid artefacts, a small epsilon is added to 1.0-l_dot_h
+	*/
+	vec3 fresnel_term = mix(surface_specular_color,vec3(1.0), pow(1.01-l_dot_h,5.0) );
+	
+	/*	
+	/	Compute geometric attenuation / visbility term, based on Smith shadowing term and following 
+	/	"Crafting a Next-Gen Material Pipeline for The Order: 1886" Equation 8/9
+	/	from SIGGRAPH 2013 Course Notes.
+	*/
+	float v_1 = n_dot_v + sqrt( roughness_squared+pow(n_dot_v,2.0)-roughness_squared*pow(n_dot_v,2.0) );
+	float v_2 = n_dot_l + sqrt( roughness_squared+pow(n_dot_l,2.0)-roughness_squared*pow(n_dot_l,2.0) ) ; 
+	float visibility_term =  1.0/(v_1 * v_2);
+	
+	/*	Compute micro-facet normal distribution term using GGX distribution by Walter et al (2007) */
+	float distribution_term = roughness_squared/
+								(M_PI*pow(pow(n_dot_h,2.0)*roughness_squared-pow(n_dot_h,2.0)+1.0 , 2.0));
+								
+	/*	Compute Cook Torrance BRDF */
+	vec3 specular_brdf = fresnel_term*(visibility_term*distribution_term);
+	
+	/*
+	/	Compute diffuse lambertian BRDF.
+	/	The specular reflection takes away some energy from the diffuse reflection.
+	/	Only the Fresnel term is considered, as to not include specular reflected light "blocked" 
+	/	by the geometry or distribution term in the diffuse energy.
+	/	To avoid tampering of the colour, the mean of all three colour channels is considered.
+	/
+	/	dot product with vec(1/3)  implements (r+g+b)/3
+	*/
+	const vec3 third = vec3(0.333);
+	vec3 diffuse_brdf = surface_albedo * (INV_PI-dot(fresnel_term,third)*INV_PI);
+    
+	return (light_colour*diffuse_brdf + light_colour*specular_brdf) * max(0.0,n_dot_l);
+}
+
+
 void main()
 {
 	vec2 fragment_view_coords = (uvCoord * 2.0) - 1.0;
@@ -143,6 +202,8 @@ void main()
 		rgb_out *= 100.0;
 	}
 	
+	rgb_out = max(rgb_out,vec3(0.0));
+	
 	/*	dbugging */
 	vec3 rayleigh = texture(rayleigh_inscatter_tx3D,vec3(uvCoord,0.1)).xyz;
 	vec3 mie = texture(mie_inscatter_tx3D,vec3(uvCoord,0.1)).xyz;
@@ -150,6 +211,35 @@ void main()
 	
 	//if(viewZenith<0.0) rgb_out = vec3(0.2);
 	//rgb_out = vec3(sunZenith);
+	
+	float t_depth = texture(scene_linear_depth_tx2D,uvCoord).x;
+	if(t_depth > 0.0)
+	{
+		vec3 t_colour = texture(scene_diffuse_albedo_tx2D,uvCoord).xyz;
+		vec3 t_normal = (texture(scene_normal_tx2D,uvCoord).xyz*2.0)-1.0;
+		vec4 t_specular_roughness = texture(scene_specular_roughness_tx2D,uvCoord);
+		vec4 t_tangent_bitangent = texture(scene_tangent_bitangent_tx2D,uvCoord);
+		
+		mat3 normal_matrix =  transpose(inverse(mat3(view_mx)));
+		
+		vec3 tangent = normalize(vec3(t_tangent_bitangent.xy,1.0-length(t_tangent_bitangent.xy)));
+		vec3 bitangent = normalize(vec3(t_tangent_bitangent.zw,1.0-length(t_tangent_bitangent.zw)));
+		vec3 normal = normalize(cross(tangent,bitangent));
+		
+		mat3 tangent_space_matrix = mat3(
+			tangent.x, bitangent.x, normal.x,
+			tangent.y, bitangent.y, normal.y,
+			tangent.z, bitangent.z, normal.z);
+			
+		/*	compute light direction */
+		vec3 light_dir = normalize(sun_direction);
+		vec3 viewer_dir = -normalize(camera_direction);
+		
+		rgb_out = cookTorranceShading(t_colour,t_specular_roughness.xyz,t_specular_roughness.w,
+										normal,light_dir, viewer_dir, vec3(1.0));
+										
+		//rgb_out = light_dir;
+	}
 	
 	frag_colour = vec4(rgb_out,1.0);
 }

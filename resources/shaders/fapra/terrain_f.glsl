@@ -24,9 +24,10 @@ in vec3 viewer_direction;
 in mat3 tangent_space_matrix;
 
 layout (location = 0) out vec3 frag_colour;
-layout (location = 1) out vec4 normal_tangent;
-layout (location = 2) out vec4 spec_colour_roughness;
-layout (location = 3) out float depth;
+layout (location = 1) out vec3 normal;
+layout (location = 2) out vec4 tangent_bitangent;
+layout (location = 3) out vec4 spec_colour_roughness;
+layout (location = 4) out float depth;
 
 void main()
 {
@@ -37,12 +38,13 @@ void main()
 	spec_colour_roughness.xyz = texture(specular_tx2D, uv_coord).xyz;
 	
 	/*	Fetch roughness from roughness map */
-	spec_colour_roughness.w = texture(roughness_tx2D, uv_coord).w;
+	spec_colour_roughness.w = texture(roughness_tx2D, uv_coord).x;
 
 	/*	Fetch normal vector from normal map */
-	vec3 tNormal = ((texture(normal_tx2D, uv_coord).xyz)*2.0)-1.0;
-	normal_tangent.xy = tNormal.xy;
-	normal_tangent.zw = vec2(0.0);
+	normal = ((texture(normal_tx2D, uv_coord).xyz)*2.0)-1.0;
+	
+	tangent_bitangent.xy = vec2(tangent_space_matrix[0][0],tangent_space_matrix[1][0]);
+	tangent_bitangent.zw = vec2(tangent_space_matrix[0][1],tangent_space_matrix[1][1]);
 	
 	depth = length(position);
 }

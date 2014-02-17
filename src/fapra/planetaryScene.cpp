@@ -33,7 +33,7 @@ void PlanetaryScene::renderTerrain()
 	m_terrain.getMaterial()->getShaderProgram()->setUniform("num_lights", light_counter);
 
 	glm::mat4 view_mx = activeCamera->computeViewMatrix();
-	glm::mat4 projection_mx = activeCamera->computeProjectionMatrix(0.1f, 500000.0f);
+	glm::mat4 projection_mx = activeCamera->computeProjectionMatrix(0.001f, 100000.0f);
 
 	m_terrain.getMaterial()->getShaderProgram()->setUniform("model_view_matrix", view_mx);
 	m_terrain.getMaterial()->getShaderProgram()->setUniform("view_matrix", view_mx);
