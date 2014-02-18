@@ -45,22 +45,48 @@ private:
 	/**
 	* Atmosphere attributes
 	*/
-	GLfloat m_min_altitide;
+	glm::vec3 m_beta_r;
+	glm::vec3 m_beta_m;
+	GLfloat m_h_r;
+	GLfloat m_h_m;
+	GLfloat m_min_altitude;
 	GLfloat m_max_altitude;
-	GLfloat center;
+	glm::vec3 m_center;
 
 public:
 	Atmosphere();
-	Atmosphere(GLfloat min_alt, GLfloat max_alt);
+	Atmosphere(glm::vec3 beta_r, glm::vec3 beta_m, GLfloat h_r, GLfloat h_m, GLfloat min_alt, GLfloat max_alt, glm::vec3 center);
 	~Atmosphere();
 
+	/**
+	* \brief initialize resources used for rendering the atmosphere
+	* Precomutation of look up tables is performaned as part of the initialization
+	* \param resourceMngr Pointer to the ResourceManger where some of the resources will be stored and managed.
+	* \return Returns true if all resources could be created, false otherwise
+	*/
 	bool init(ResourceManager* resourceMngr);
 
+	/**
+	* \brief Precompute tables for transmittance
+	*/
 	void precomputeTransmittance();
+	/**
+	* \brief Precompute table for inscattering due to a single scattering event
+	*/
 	void precomputeInscatterSingle();
+	/**
+	* \brief Precompute table for irradiance due to a single scattering event
+	* \note Currently not in use
+	*/
 	void precomputeIrradianceSingle();
 
-	void render(PostProcessor* post_proc, SceneCamera * const camera_ptr, float time_of_day, FramebufferObject* terrain_fbo);
+	/**
+	* \brief Render the sky together with a scene, that has been rendered in a previous pass
+	* \param camera_ptr Pointer the active camera used for rendering.
+	* \param time_of_day Time of day in minutes. Values should be withing 0 to 1440.
+	* \param terrain_fbo Contains previously rendered scene. Basically a G-Buffer.
+	*/
+	void render(SceneCamera * const camera_ptr, float time_of_day, FramebufferObject* terrain_fbo);
 };
 
 #endif

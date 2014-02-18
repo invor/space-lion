@@ -4,6 +4,11 @@ Atmosphere::Atmosphere()
 {
 }
 
+Atmosphere::Atmosphere(glm::vec3 beta_r, glm::vec3 beta_m, GLfloat h_r, GLfloat h_m, GLfloat min_alt, GLfloat max_alt, glm::vec3 center)
+	: m_beta_r(beta_r), m_beta_m(beta_m), m_h_r(h_r), m_h_m(h_m), m_min_altitude(min_alt), m_max_altitude(max_alt), m_center(center)
+{
+}
+
 Atmosphere::~Atmosphere()
 {
 }
@@ -74,12 +79,12 @@ void Atmosphere::precomputeTransmittance()
 	glBindImageTexture(0,m_transmittance_table->getHandle(),0,GL_FALSE,0,GL_WRITE_ONLY,GL_RGBA32F);
 	m_transmittance_prgm->setUniform("transmittance_tx2D",0);
 
-	m_transmittance_prgm->setUniform("min_altitude",GLfloat(6360.0));
-	m_transmittance_prgm->setUniform("max_altitude",GLfloat(6420.0));
-	m_transmittance_prgm->setUniform("beta_r",glm::vec3(0.0058,0.0135,0.0331));
-	m_transmittance_prgm->setUniform("beta_m",glm::vec3(0.00444,0.00444,0.00444));
-	m_transmittance_prgm->setUniform("h_r",GLfloat(8.000));
-	m_transmittance_prgm->setUniform("h_m",GLfloat(1.200));
+	m_transmittance_prgm->setUniform("min_altitude",m_min_altitude);
+	m_transmittance_prgm->setUniform("max_altitude",m_max_altitude);
+	m_transmittance_prgm->setUniform("beta_r",m_beta_r);
+	m_transmittance_prgm->setUniform("beta_m",m_beta_m);
+	m_transmittance_prgm->setUniform("h_r",m_h_r);
+	m_transmittance_prgm->setUniform("h_m",m_h_m);
 
 	m_transmittance_prgm->dispatchCompute(256,64,1);
 
@@ -103,12 +108,12 @@ void Atmosphere::precomputeInscatterSingle()
 	m_transmittance_table->bindTexture();
 	glDisable(GL_TEXTURE_2D);
 
-	m_inscatter_single_prgm->setUniform("min_altitude",GLfloat(6360.0));
-	m_inscatter_single_prgm->setUniform("max_altitude",GLfloat(6420.0));
-	m_inscatter_single_prgm->setUniform("beta_r",glm::vec3(0.0058,0.0135,0.0331));
-	m_inscatter_single_prgm->setUniform("beta_m",glm::vec3(0.00444,0.00444,0.00444));
-	m_inscatter_single_prgm->setUniform("h_r",GLfloat(8.0));
-	m_inscatter_single_prgm->setUniform("h_m",GLfloat(1.2));
+	m_inscatter_single_prgm->setUniform("min_altitude",m_min_altitude);
+	m_inscatter_single_prgm->setUniform("max_altitude",m_max_altitude);
+	m_inscatter_single_prgm->setUniform("beta_r",m_beta_r);
+	m_inscatter_single_prgm->setUniform("beta_m",m_beta_m);
+	m_inscatter_single_prgm->setUniform("h_r",m_h_r);
+	m_inscatter_single_prgm->setUniform("h_m",m_h_m);
 
 	m_inscatter_single_prgm->dispatchCompute(32,128,32);
 
@@ -120,10 +125,8 @@ void Atmosphere::precomputeIrradianceSingle()
 	m_irradiance_single_prgm->use();
 }
 
-void Atmosphere::render(PostProcessor* post_proc, SceneCamera * const camera_ptr, float time_of_day, FramebufferObject* terrain_fbo)
+void Atmosphere::render(SceneCamera * const camera_ptr, float time_of_day, FramebufferObject* terrain_fbo)
 {
-	//post_proc->imageToFBO(m_transmittance_table->getHandle());
-	
 	m_sky_prgm->use();
 	
 	glEnable(GL_TEXTURE_3D);
@@ -157,14 +160,14 @@ void Atmosphere::render(PostProcessor* post_proc, SceneCamera * const camera_ptr
 	m_sky_prgm->setUniform("camera_position", camera_ptr->getPosition());
 	m_sky_prgm->setUniform("fov_y", camera_ptr->getFieldOfView());
 	m_sky_prgm->setUniform("aspect_ratio", camera_ptr->getAspectRatio());
-	m_sky_prgm->setUniform("min_altitude",GLfloat(6360.0));
-	m_sky_prgm->setUniform("max_altitude", GLfloat(6420.0));
-	m_sky_prgm->setUniform("planet_center", glm::vec3(0.0,-6362.0,0.0));
+	m_sky_prgm->setUniform("min_altitude",m_min_altitude);
+	m_sky_prgm->setUniform("max_altitude",m_max_altitude);
+	m_sky_prgm->setUniform("planet_center", m_center);
 	
 	/*	crude computation of sun direction */
 	/*	sun angle relative to a (0,1,0) zenith vector */
-	float sun_angle = (time_of_day/1440.0) * 2.0 * 3.1415926535897932384626433832795 + 3.1415926535897932384626433832795;
-	m_sky_prgm->setUniform("sun_direction", glm::vec3(0.0,cos(sun_angle),-sin(sun_angle)));
+	float sun_angle = (time_of_day/1440.0f) * 2.0f * 3.1415926535897932384626433832795f + 3.1415926535897932384626433832795f;
+	m_sky_prgm->setUniform("sun_direction", glm::vec3(0.0f,cos(sun_angle),-sin(sun_angle)));
 	
 	m_render_plane.draw();
 }

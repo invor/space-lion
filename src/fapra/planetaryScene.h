@@ -12,13 +12,14 @@ private:
 	Terrain m_terrain;
 public:
 	PlanetaryScene();
+	PlanetaryScene(glm::vec3 beta_r, glm::vec3 beta_m, GLfloat h_r, GLfloat h_m, GLfloat min_alt, GLfloat max_alt, glm::vec3 center);
 	~PlanetaryScene();
 
 	bool initAtmosphere(ResourceManager* resourceMngr);
 	bool loadTerrain(int size, float range, std::shared_ptr<Material> material, std::shared_ptr<Texture> heightmap);
 
 	void renderTerrain();
-	void renderSky(PostProcessor* post_proc, float time_of_day, FramebufferObject* terrain_fbo);
+	void renderSky(float time_of_day, FramebufferObject* terrain_fbo);
 };
 
 #endif

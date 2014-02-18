@@ -115,9 +115,18 @@ vec4 accessInscatterTexture(sampler3D inscatter_tx3D, float altitude, float view
     //       texture3D(inscatter_tx3D, vec3((uNu + uMuS + 1.0) / res_nu, uMu, uR)) * lerp;
 }
 
-vec3 computeSkyColour()
+vec3 computeSkyColour(float viewSun, float altitude, float viewZenith, float sunZenith)
 {
-	return vec3(0.0);
+	vec3 rgb_sky = vec3(0.0);
+	if(altitude > min_altitude+0.001)
+	{
+		rgb_sky = rayleighPhaseFunction(viewSun) * accessInscatterTexture(rayleigh_inscatter_tx3D,altitude,viewZenith,sunZenith,viewSun).xyz;
+		rgb_sky += miePhaseFunction(viewSun,0.8) * accessInscatterTexture(mie_inscatter_tx3D,altitude,viewZenith,sunZenith,viewSun).xyz;
+		rgb_sky /= 4.0*M_PI;
+		rgb_sky *= 100.0;
+	}
+	
+	return max(rgb_sky,vec3(0.0));
 }
 
 vec3 cookTorranceShading(in vec3 surface_albedo, in vec3 surface_specular_color, in float surface_roughness,
@@ -172,6 +181,7 @@ vec3 cookTorranceShading(in vec3 surface_albedo, in vec3 surface_specular_color,
 
 void main()
 {
+	/*	Generate view ray */
 	vec2 fragment_view_coords = (uvCoord * 2.0) - 1.0;
 	fragment_view_coords.y = fragment_view_coords.y * tan(fov_y*M_PI/360.0);
 	fragment_view_coords.x = fragment_view_coords.x * tan(fov_y*M_PI/360.0) * aspect_ratio;
@@ -193,24 +203,7 @@ void main()
 	float sunZenith = dot( normalize(sun_direction), normalize(view_ray.origin - planet_center) );
 	float viewSun = dot( normalize(view_ray.direction), normalize(sun_direction) );
 
-	vec3 rgb_out = vec3(0.2);
-	if(altitude > min_altitude+0.001)
-	{
-		rgb_out = rayleighPhaseFunction(viewSun) * accessInscatterTexture(rayleigh_inscatter_tx3D,altitude,viewZenith,sunZenith,viewSun).xyz;
-		rgb_out += miePhaseFunction(viewSun,0.8) * accessInscatterTexture(mie_inscatter_tx3D,altitude,viewZenith,sunZenith,viewSun).xyz;
-		rgb_out /= 4.0*M_PI;
-		rgb_out *= 100.0;
-	}
-	
-	rgb_out = max(rgb_out,vec3(0.0));
-	
-	/*	dbugging */
-	vec3 rayleigh = texture(rayleigh_inscatter_tx3D,vec3(uvCoord,0.1)).xyz;
-	vec3 mie = texture(mie_inscatter_tx3D,vec3(uvCoord,0.1)).xyz;
-	//rgb_out = rayleigh;
-	
-	//if(viewZenith<0.0) rgb_out = vec3(0.2);
-	//rgb_out = vec3(sunZenith);
+	vec3 rgb_out = computeSkyColour(viewSun,altitude,viewZenith,sunZenith);
 	
 	float t_depth = texture(scene_linear_depth_tx2D,uvCoord).x;
 	if(t_depth > 0.0)
@@ -237,8 +230,6 @@ void main()
 		
 		rgb_out = cookTorranceShading(t_colour,t_specular_roughness.xyz,t_specular_roughness.w,
 										normal,light_dir, viewer_dir, vec3(1.0));
-										
-		//rgb_out = light_dir;
 	}
 	
 	frag_colour = vec4(rgb_out,1.0);

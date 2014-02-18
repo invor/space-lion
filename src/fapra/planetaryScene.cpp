@@ -4,6 +4,11 @@ PlanetaryScene::PlanetaryScene()
 {
 }
 
+PlanetaryScene::PlanetaryScene(glm::vec3 beta_r, glm::vec3 beta_m, GLfloat h_r, GLfloat h_m, GLfloat min_alt, GLfloat max_alt, glm::vec3 center)
+	: m_sky(beta_r,beta_m,h_r,h_m,min_alt,max_alt,center)
+{
+}
+
 PlanetaryScene::~PlanetaryScene()
 {
 }
@@ -42,7 +47,7 @@ void PlanetaryScene::renderTerrain()
 	m_terrain.render();
 }
 
-void PlanetaryScene::renderSky(PostProcessor* post_proc, float time_of_day, FramebufferObject* terrain_fbo)
+void PlanetaryScene::renderSky(float time_of_day, FramebufferObject* terrain_fbo)
 {
-	m_sky.render(post_proc,activeCamera,time_of_day, terrain_fbo);
+	m_sky.render(activeCamera,time_of_day, terrain_fbo);
 }

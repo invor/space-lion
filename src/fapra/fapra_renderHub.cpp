@@ -76,7 +76,9 @@ void FapraRenderHub::renderActiveScene()
 		std::cout << "Failed to create material." << std::endl;
 		return;
 	}
-	if(!(demo_scene.loadTerrain(32, 6, terrain_mtl, terrain_heightmap))){
+	PlanetaryScene demo_scene(glm::vec3(0.0058,0.0135,0.0331),glm::vec3(0.00444,0.00444,0.00444),GLfloat(8.0),GLfloat(1.2),GLfloat(6360.0),GLfloat(6420.0),glm::vec3(0.0,-6360.1,0.0));
+
+	if(!(demo_scene.loadTerrain(32, 12, terrain_mtl, terrain_heightmap))){
 		std::cout << "Failed to load terrain." << std::endl;
 		return;
 	}
@@ -88,7 +90,7 @@ void FapraRenderHub::renderActiveScene()
 	terrain_mtl.reset();
 	terrain_heightmap.reset();
 	
-	if(!(demo_scene.createSceneCamera(0,glm::vec3(0.0,0.0,1.0),glm::vec3(0.0,0.0,0.0),16.0f/9.0f,(9.0f/16.0f)*60.0f)))
+	if(!(demo_scene.createSceneCamera(0,glm::vec3(1.5,0.5,2.5),glm::vec3(1.5,0.5,1.5),16.0f/9.0f,(9.0f/16.0f)*60.0f)))
 		std::cout<<"Failed to create camera"<<"\n";
 
 	if(!(demo_scene.createSceneLight(0,glm::vec3(512.0,512.0,512.0),glm::vec3(500.0))))
@@ -129,26 +131,40 @@ void FapraRenderHub::renderActiveScene()
 		/*	For now, I avoid using a glfw callback function for this */
 		Controls::updateCamera(activeWindow, demo_scene.getActiveCamera());
 
+		time_of_day = glfwGetTime()*24.0 - 1440.0f * std::floor(time_of_day/1440.0f);
+		/*
+		*	This is soooo hacked...
+		*	The camera is moving on a circle around the center of a terrain with width 32.
+		*	I shifted the start position by 90° (on the circle) to capture the sunrise and sunset.
+		*/
+		float pi = 3.1415926535897932384626433832795;
+		demo_scene.getActiveCamera()->setPosition(glm::vec3(sin((time_of_day/1440.0f)*2.0*pi + (pi/2.0))*1.3,
+															0.3,
+															cos((time_of_day/1440.0f)*2.0*pi + (pi/2.0))*1.3)
+													+ glm::vec3(1.6,0.3,1.6));
+		demo_scene.getActiveCamera()->setOrientation(glm::normalize(glm::rotate(glm::quat(), (time_of_day/1440.0f)*360.0f + 90.0f, glm::vec3(0.0,1.0,0.0))));
+
 		terrain_fbo->bind();
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0,0,terrain_fbo->getWidth(),terrain_fbo->getHeight());
 		demo_scene.renderTerrain();
 
-		sky_fbo->bind();
-		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glViewport(0,0,sky_fbo->getWidth(),sky_fbo->getHeight());
-		time_of_day = glfwGetTime()*24.0 - 1440.0f * std::floor(time_of_day/1440.0f);
-		demo_scene.renderSky(&post_proc,time_of_day,&(*terrain_fbo));
+		/*	Originally intended to composit terrain and sky in a thirst pass with post-processing, but ran out of time */
+		//sky_fbo->bind();
+		//glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glViewport(0,0,sky_fbo->getWidth(),sky_fbo->getHeight());
+		//demo_scene.renderSky(time_of_day,&(*terrain_fbo));
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		int width, height;
 		glfwGetFramebufferSize(activeWindow, &width, &height);
 		glViewport(0, 0, width, height);
-		post_proc.FBOToFBO(&(*sky_fbo));
+		//post_proc.FBOToFBO(&(*sky_fbo));
+		demo_scene.renderSky(time_of_day,&(*terrain_fbo));
 
 		glfwSwapBuffers(activeWindow);
 		glfwPollEvents();

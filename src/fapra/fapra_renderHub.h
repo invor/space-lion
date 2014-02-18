@@ -27,7 +27,6 @@ public:
 	void renderActiveScene();
 
 private:
-	PlanetaryScene demo_scene;
 
 	std::shared_ptr<FramebufferObject> terrain_fbo;
 	std::shared_ptr<FramebufferObject> sky_fbo;

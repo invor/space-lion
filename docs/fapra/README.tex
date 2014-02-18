@@ -1,0 +1,103 @@
+\documentclass[12pt]{article}
+
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{units}
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+% New definition of square root:
+% it renames \sqrt as \oldsqrt
+\let\oldsqrt\sqrt  
+% it defines the new \sqrt in terms of the old one
+\def\sqrt{\mathpalette\DHLhksqrt}
+\def\DHLhksqrt#1#2{%
+\setbox0=\hbox{$#1\oldsqrt{#2\,}$}\dimen0=\ht0
+\advance\dimen0-0.2\ht0
+\setbox2=\hbox{\vrule height\ht0 depth -\dimen0}%
+{\box0\lower0.4pt\box2}}
+
+\usepackage[colorlinks, linkcolor=black, citecolor=black, filecolor=black,
+urlcolor=blue]{hyperref}
+
+\usepackage{geometry}
+\usepackage{titling}
+\usepackage{blindtext}
+
+\setlength{\droptitle}{-4em}     % Eliminate the default vertical space
+\addtolength{\droptitle}{-4pt}   % Only a guess. Use this for adjustment
+
+
+\title{
+	Atmospheric Scattering \\ 
+	Practical Course Visual Computing
+}
+\author{
+	Michael Becher \\
+}
+\date{}
+
+
+\begin{document}
+\maketitle
+\section*{Manual}
+\subsection*{Compiling}
+Compiling the source code using the supplied solution file requires Visual Studio 2013 due to several C++11 features that are in use.\newline
+For a successful compilation, all external dependencies (glfw, glew and glm) have to be present inside \texttt{2013/include} and \texttt{vs2013/lib}. The \texttt{include} folder should contain the following:
+\begin{itemize}
+\item \texttt{GL/glew.h}
+\item \texttt{GL/glxew.h}
+\item \texttt{GL/wglew.h}
+\item \texttt{glm/...} \newline (there are simply to many files in my glm folder, but it's really just the standard include folder that comes with glm)
+\end{itemize}
+The \texttt{lib} folder should contain the following:
+\begin{itemize}
+\item \texttt{glew32.lib}
+\item \texttt{glew32s.lib}
+\item \texttt{glfw3.lib}
+\end{itemize}
+\textit{Note for examiners:\newline
+All files should already be present in the SVN repository. If you have downloaded or pulled a more recent revision from Github which will not contain these files, you can still look up the required files and folder structure in the SVN.}
+\vspace{1cm}\newline
+The solution file features three projects: engine, fapra and fault-tolerant-visualization. Each of those can be compiled and run on its own. However, only the fapra project ilnside the solution has to be compiled. While compiling the others should generally work, it will most likely produce a lot of additional warnings not related to the engine core or the fapra project. Known and expected warnings during compilation of the fapra project are \textit{warning C4503 : decorated name length exceeded, name was truncated} caused by the ResourceManager class and furthermore a couple of warnings caused by the fbx loader.
+\subsection*{Usage}
+Make sure to have copied the \texttt{glew32.dll} to the \texttt{bin} folder. Start the program using the \texttt{fapra.exe}. After the program has started, the screen will first be white (during shader compilation, resource creation and atmosphere precomputation) and then stay black for a short time. This is due to the simple day-night cycle, that starts at midnight and takes 60 seconds for a full rotation around the sun (note: we aren't actually moving, the sun direction is). After about 15 second the horizon should lit up.\newline
+The program features basic mouse controls for an orbital camera:
+\begin{itemize}
+\item Rotate the camera around the focus point by holding the right mouse button while moving the mouse
+\item Move closer or away from the focus point by turning the mouse wheel
+\item Translate the camera on the view plane by holding the middle mouse button while moving the mouse
+\end{itemize}
+
+\section*{Implementation}
+The major (novel) parts of the implementation are compromised of four C++ classes embedded into space-lion, two normal shader programs as well as two compute shader programs.
+\subsection*{FapraRenderHub Class}
+Derived from the RenderHub class. This class takes care of window and context creation, as well as scene and framebuffer handling. It's \textit{void run()} method loads initializes the scene and all necessary resources and implement the main/render loop.
+\subsection*{PlanetaryScene Class}
+Derived from the Scene class. A specialised scene that contains a terrain and atmosphere object and the required methods for initializing and rendering a planetary scene.
+\subsection*{Terrain Class}
+This class stores the mesh object 
+\subsection*{Atmosphere Class}
+\subsection*{Terrain Program}
+This shader program is used for rendering a heightmapped terrain to a framebuffer object with multiple render-targets (essentially a G-Buffer, but currently not very sophisticated).\newline
+Uses tessellation for increased detail. Since a single, instanced quad is used for the terrain, the position of vertices is determined and set in the tessellation evaluation stage.\newline
+Note: To match the size used for rendering the atmosphere, the terrain is currently scaled down by a factor of 10 in the shader.
+\subsection*{Atmosphere Program}
+This shader program renders a planets atmosphere using precomputed tables and directly composits it with the terrain rendered in a previous pass.
+\subsection*{Transmittance Program}
+A compute shader program for approximating the transmittance integral.
+\subsection*{Inscatter Program}
+A compute shader program that computes the inscatter integral for a single scattering event.
+
+\section*{Future Work}
+A quick selection of notable (but not required) features and aspects that couldn't be implemented in time.
+\begin{itemize}
+\item Multiple Scattering to increase realism and accuracy
+\item Irradiance table for terrain light (only direct sunlight is computed)
+\item Rendering the sun disc
+\item Generic handling of planetary bodies for arbitrary scenes (no special planetary scene)
+\item Generate high-resolution terrain heightmaps
+\item ...
+\end{itemize}
+
+\end{document}
+
