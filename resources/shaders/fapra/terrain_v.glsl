@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------------
 File: terrain_v.glsl
 Author: Michael Becher
-Date of (presumingly) last edit: 21.01.2014
+Date of (presumingly) last edit: 18.02.2014
 
 Description: Terrain vertex shader. Uses vertex displacment to heightmap the terrain
 					vertices according to a given heightmap texture.

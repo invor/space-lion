@@ -55,7 +55,9 @@ float intersectAtmosphere(in float altitude, in float cosZenithAngle)
 	return d;
 }
 
-
+/*
+*	Compute transmittance - in case the texture lookup doesn't work. Has been used for debugging.
+*/
 float computeDensity(in float scaleHeight, in float altitude, in float cosZenithAngle) 
 {
 	/* if ray below horizon return max density */
@@ -91,6 +93,9 @@ float computeDensity(in float scaleHeight, in float altitude, in float cosZenith
 	return totalDensity;
 }
 
+/*
+*	Fetch values from the transmittance table.
+*/
 vec3 fetchTransmittance(in float altitude, in float cosAngle)
 {
 	float altitude_param = sqrt((altitude-min_altitude)/(max_altitude-min_altitude));
@@ -104,6 +109,9 @@ vec3 fetchTransmittance(in float altitude, in float cosAngle)
 	//							beta_m * computeDensity(h_m,altitude, cosAngle)));
 }
 
+/*
+*	Compute the inscatter integral for a single scattering event.
+*/
 void computeSingleInscatter(in float altitude, in float viewZenith, in float sunZenith, in float viewSun, out vec3 rayleigh, out vec3 mie)
 {
 	vec3 rayleigh_integral = vec3(0.0);
@@ -175,6 +183,7 @@ void computeSingleInscatter(in float altitude, in float viewZenith, in float sun
 /*
 *	Non-linear parametrization for the inscatter table as proposed by Bruneton and Neyret (2008).
 *	Uses quite a lot of ad-hoc functions/values....
+*	Some tweaks were made to get things working.
 */
 void computeNonLinearParams(out float altitude, out float cosViewZenith, out float cosSunZenith, out float cosViewSun)
 {

@@ -61,18 +61,28 @@ bool intersectAtmosphere(in Ray ray,in out vec2 d)
 	return true;
 }
 
+/*
+*	Compute Rayleigh phase function
+*/
 float rayleighPhaseFunction(in float scattering_angle)
 {
 	return (3.0 / (16.0 * M_PI)) * (1.0 + square(scattering_angle));
 	//return 0.8*( (7.0/5.0) + 0.5*cos(scattering_angle));
 }
 
+/*
+*	Compute Mie phase function
+*/
 float miePhaseFunction(in float scattering_angle, in float mieG)
 {
 	return 1.5 * 1.0 / (4.0 * M_PI) * (1.0 - mieG*mieG) * pow(1.0 + (mieG*mieG) - 2.0*mieG*scattering_angle, -3.0/2.0) * (1.0 + square(scattering_angle)) / (2.0 + mieG*mieG);
 	//return ( (3.0*(1.0-square(g))) / (2.0*(2.0+square(g))) ) * ( (1.0 + square(cos(scattering_angle))) / pow(1.0+square(g)-2.0*g*cos(scattering_angle),1.5) );
 }
 
+/*
+*	Access the precomputed inscatter table.
+*	Parametrization is a mix between the one proposed by Bruneton and Neyret, by Elek and my own tweaks. 
+*/
 vec4 accessInscatterTexture(sampler3D inscatter_tx3D, float altitude, float viewZenith, float sunZenith, float viewSun)
 {
     float H = sqrt(square(max_altitude) - square(min_altitude));
@@ -101,7 +111,7 @@ vec4 accessInscatterTexture(sampler3D inscatter_tx3D, float altitude, float view
     //float uNu = floor(lerp);
     //lerp = lerp - uNu;
 	
-	//making my own calculation for the x access coordinate...I don't trust the orig
+	//making my own calculation for the x access coordinate...the original just won't work
 	float x_coord = max((1.0 - exp(-3.0 * sunZenith - 0.6)) / (1.0 - exp(-3.6)), 0.0) * (1.0 - 1.0 / res_mu_s);
 	float lerp = mod(x_coord,1.0 / res_mu_s);
 	x_coord += viewSun * (1.0/res_mu_s);
@@ -115,6 +125,9 @@ vec4 accessInscatterTexture(sampler3D inscatter_tx3D, float altitude, float view
     //       texture3D(inscatter_tx3D, vec3((uNu + uMuS + 1.0) / res_nu, uMu, uR)) * lerp;
 }
 
+/*
+*	Compute the color of the sky using the precomputed tables and phase functions
+*/
 vec3 computeSkyColour(float viewSun, float altitude, float viewZenith, float sunZenith)
 {
 	vec3 rgb_sky = vec3(0.0);
@@ -129,6 +142,9 @@ vec3 computeSkyColour(float viewSun, float altitude, float viewZenith, float sun
 	return max(rgb_sky,vec3(0.0));
 }
 
+/*
+*	Physically based shading using Cook Torrance Shading Model
+*/
 vec3 cookTorranceShading(in vec3 surface_albedo, in vec3 surface_specular_color, in float surface_roughness,
 							in vec3 surface_normal, in vec3 light_direction, in vec3 viewer_direction, in vec3 light_colour)
 {
@@ -205,6 +221,14 @@ void main()
 
 	vec3 rgb_out = computeSkyColour(viewSun,altitude,viewZenith,sunZenith);
 	
+	/*	fake sun disc */
+	if(abs(viewSun)>0.9994)
+	{
+		float intensity =pow((abs(viewSun)-0.9994)/(1.0-0.9994),3.0);
+		rgb_out += vec3(intensity,intensity,intensity) * 0.9;
+	}
+	
+	/*	terrain is only visible if depth is greater 0 */
 	float t_depth = texture(scene_linear_depth_tx2D,uvCoord).x;
 	if(t_depth > 0.0)
 	{
@@ -224,12 +248,24 @@ void main()
 			tangent.y, bitangent.y, normal.y,
 			tangent.z, bitangent.z, normal.z);
 			
-		/*	compute light direction */
+		/*
+		*	Compute light direction.
+		*	Usually the tangent space matrix would be used for this, but due to a bug the computation is
+		*	temporarily done in world space and the normal from the normal map is ignored...
+		*/
 		vec3 light_dir = normalize(sun_direction);
 		vec3 viewer_dir = -normalize(camera_direction);
 		
-		rgb_out = cookTorranceShading(t_colour,t_specular_roughness.xyz,t_specular_roughness.w,
+		/*	faked ambient light for the nighttime - precomputed irradiance would be nicer here */
+		rgb_out = t_colour * 0.02;
+		
+		float horizon = -sqrt(1.0f - ((min_altitude*min_altitude)/(altitude*altitude)));
+		if(sunZenith > horizon)
+		{
+			rgb_out += cookTorranceShading(t_colour,t_specular_roughness.xyz,t_specular_roughness.w,
 										normal,light_dir, viewer_dir, vec3(1.0));
+		}
+		
 	}
 	
 	frag_colour = vec4(rgb_out,1.0);

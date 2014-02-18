@@ -33,7 +33,7 @@ void main()
 	
 	float patch_size = 1.0/float(size);
 	
-	//	/*	Compute tangent and bitangent from heightmap */
+	/*	Compute tangent and bitangent from heightmap */
 	vec2 x_neighbour_uv = uv_coord + vec2(patch_size/float(TESS_LVL),0.0);
 	vec2 z_neighbour_uv = uv_coord + vec2(0.0,patch_size/float(TESS_LVL));
 	float x_neighbour_height = texture(heightmap_tx2D,x_neighbour_uv).x * range *0.1;

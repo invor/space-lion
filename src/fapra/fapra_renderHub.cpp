@@ -98,28 +98,6 @@ void FapraRenderHub::renderActiveScene()
 	
 	demo_scene.setActiveCamera(0);
 
-
-	/*	TEMPORARY SHADER TESTING */
-	//std::shared_ptr<Mesh> geomPtr;
-	//std::shared_ptr<Material> matPtr;
-	//resourceMngr.createBox(geomPtr);
-	////resourceMngr.createMesh("../resources/meshes/maya_box.fbx", geomPtr);
-	//if (!(resourceMngr.createMaterial("../resources/materials/default.slmtl", matPtr)))
-	//	std::cout << "Failed to create material." << std::endl;
-	//if (!(activeScene->createStaticSceneObject(1, glm::vec3(0.0,0.0,0.0), glm::quat(),glm::vec3(1.0), geomPtr, matPtr)))
-	//	std::cout << "Failed to create scene object." << std::endl;
-	//
-	//geomPtr.reset();
-	//matPtr.reset();
-	//
-	//if(!(activeScene->createSceneCamera(0,glm::vec3(0.0,0.0,5.0),glm::vec3(0.0,0.0,0.0),16.0f/9.0f,(9.0f/16.0f)*60.0f)))
-	//	std::cout<<"Failed to create camera"<<"\n";
-	//
-	//if(!(activeScene->createSceneLight(0,glm::vec3(5.0,2.5,1.5),glm::vec3(1.0))))
-	//	std::cout<<"Failed to create light"<<"\n";
-	//
-	//activeScene->setActiveCamera(0);
-
 	running = true;
 	glClearColor(0.0f,0.0f,0.0f,1.0f);
 	glEnable (GL_DEPTH_TEST);
@@ -131,18 +109,25 @@ void FapraRenderHub::renderActiveScene()
 		/*	For now, I avoid using a glfw callback function for this */
 		Controls::updateCamera(activeWindow, demo_scene.getActiveCamera());
 
-		time_of_day = glfwGetTime()*24.0 - 1440.0f * std::floor(time_of_day/1440.0f);
+		int width, height;
+		glfwGetFramebufferSize(activeWindow, &width, &height);
+		demo_scene.getActiveCamera()->setAspectRation(float(width)/float(height));
+
+		time_of_day = glfwGetTime()*24.0f - 1440.0f * std::floor(time_of_day/1440.0f);
+
+		#ifdef CAMERA_ANIMATION
 		/*
 		*	This is soooo hacked...
 		*	The camera is moving on a circle around the center of a terrain with width 32.
 		*	I shifted the start position by 90° (on the circle) to capture the sunrise and sunset.
 		*/
-		float pi = 3.1415926535897932384626433832795;
+		float pi = 3.1415926535897932384626433832795f;
 		demo_scene.getActiveCamera()->setPosition(glm::vec3(sin((time_of_day/1440.0f)*2.0*pi + (pi/2.0))*1.3,
 															0.3,
 															cos((time_of_day/1440.0f)*2.0*pi + (pi/2.0))*1.3)
 													+ glm::vec3(1.6,0.3,1.6));
 		demo_scene.getActiveCamera()->setOrientation(glm::normalize(glm::rotate(glm::quat(), (time_of_day/1440.0f)*360.0f + 90.0f, glm::vec3(0.0,1.0,0.0))));
+		#endif
 
 		terrain_fbo->bind();
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -160,8 +145,6 @@ void FapraRenderHub::renderActiveScene()
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		int width, height;
-		glfwGetFramebufferSize(activeWindow, &width, &height);
 		glViewport(0, 0, width, height);
 		//post_proc.FBOToFBO(&(*sky_fbo));
 		demo_scene.renderSky(time_of_day,&(*terrain_fbo));
