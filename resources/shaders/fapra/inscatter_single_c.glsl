@@ -4,7 +4,7 @@
 #define INSCATTER_INTEGRAL_SAMPLES 30
 #define TRANSMITTANCE_INTEGRAL_SAMPLES 20
 
-layout(RGBA32F) uniform sampler2D transmittance_tx2D;
+uniform sampler2D transmittance_tx2D;
 layout(RGBA32F) uniform image3D rayleigh_inscatter_tx3D;
 layout(RGBA32F) uniform image3D mie_inscatter_tx3D;
 

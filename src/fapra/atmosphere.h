@@ -60,7 +60,7 @@ public:
 
 	/**
 	* \brief initialize resources used for rendering the atmosphere
-	* Precomutation of look up tables is performaned as part of the initialization
+	* Precomutation of look up tables is performed as part of the initialization
 	* \param resourceMngr Pointer to the ResourceManger where some of the resources will be stored and managed.
 	* \return Returns true if all resources could be created, false otherwise
 	*/
@@ -83,7 +83,7 @@ public:
 	/**
 	* \brief Render the sky together with a scene, that has been rendered in a previous pass
 	* \param camera_ptr Pointer the active camera used for rendering.
-	* \param time_of_day Time of day in minutes. Values should be withing 0 to 1440.
+	* \param time_of_day Time of day in minutes. Values should be within 0 to 1440.
 	* \param terrain_fbo Contains previously rendered scene. Basically a G-Buffer.
 	*/
 	void render(SceneCamera * const camera_ptr, float time_of_day, FramebufferObject* terrain_fbo);
