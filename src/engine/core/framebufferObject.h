@@ -41,7 +41,7 @@ public:
 	FramebufferObject();
 	~FramebufferObject();
 
-	FramebufferObject(int width, int height, bool has_depth, bool has_stencil);
+	FramebufferObject(int width, int height, bool has_depth = false, bool has_stencil = false);
 
 	/**
 	* \brief Adds one color attachment to the framebuffer.
@@ -61,6 +61,17 @@ public:
 			including all available colobuffers in it.
 	*/
 	void bind();
+
+	/**
+	 * \brief Bind the framebuffer to GL_READ_FRAMEBUFFER
+	 * \param index Set glReadBuffer to color attachment #index or 0, if index > #color attachments
+	 */
+	void bindToRead(unsigned int index);
+
+	/**
+	 * \brief Bind the framebuffer to GL_DRAW_FRAMEBUFFER using all color attachments for glDrawBuffers
+	 */
+	void bindToDraw();
 
 	/**
 	* \brief Bind a color attachment as GL_TEXTURE_2D.

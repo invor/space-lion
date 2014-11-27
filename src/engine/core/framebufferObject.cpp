@@ -89,6 +89,28 @@ void FramebufferObject::bind()
 	}
 }
 
+void FramebufferObject::bindToRead(unsigned int index)
+{
+	glBindFramebuffer(GL_READ_FRAMEBUFFER,m_handle);
+	GLenum* drawBufs = new GLenum[1];
+	if(index < static_cast<unsigned int>(m_colorbuffers.size()))
+		drawBufs[index] = (GL_COLOR_ATTACHMENT0+index);
+
+	glDrawBuffers(1, drawBufs);
+}
+
+void FramebufferObject::bindToDraw()
+{
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_handle);
+	unsigned int bufsSize = static_cast<unsigned int>(m_colorbuffers.size());
+	GLenum* drawBufs = new GLenum[bufsSize];
+	for(GLuint i=0; i < bufsSize; i++)
+	{
+		drawBufs[i] = (GL_COLOR_ATTACHMENT0+i);
+	}
+	glDrawBuffers(bufsSize, drawBufs);
+}
+
 void FramebufferObject::bindColorbuffer(unsigned int index)
 {
 	if (index < m_colorbuffers.size()) m_colorbuffers[index]->bindTexture();

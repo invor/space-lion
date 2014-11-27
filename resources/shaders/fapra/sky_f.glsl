@@ -118,8 +118,8 @@ vec4 accessInscatterTexture(sampler3D inscatter_tx3D, float altitude, float view
 	float x_coord_l = x_coord - lerp;
 	float x_coord_u = x_coord + ((1.0 / res_mu_s)-lerp);
 	lerp /= (1.0/res_mu_s);
-	return texture3D(inscatter_tx3D, vec3(x_coord_l, uMu, uR)) * (1.0 - lerp) +
-					texture3D(inscatter_tx3D, vec3(x_coord_u, uMu, uR)) * lerp;
+	return texture(inscatter_tx3D, vec3(x_coord_l, uMu, uR)) * (1.0 - lerp) +
+					texture(inscatter_tx3D, vec3(x_coord_u, uMu, uR)) * lerp;
 	
 	//return texture3D(inscatter_tx3D, vec3((uNu + uMuS) / res_nu, uMu, uR)) * (1.0 - lerp) +
     //       texture3D(inscatter_tx3D, vec3((uNu + uMuS + 1.0) / res_nu, uMu, uR)) * lerp;
