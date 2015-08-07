@@ -9,7 +9,7 @@
 * 
 * \author Michael Becher
 * 
-* \date 10th September 2013
+* \date 8th August 2015
 */
 
 #ifndef resourceManager_h
@@ -73,26 +73,24 @@ public:
 
 	/**
 	 * \brief Creates a simple box object for debugging purposes
-	 * \param inOutGeomPtr A pointer set to the newly created vertex geometry via in-out parameter
-	 * \return Returns true if box was succesfully created, false otherwise
+	 * \return Returns shared pointer to the mesh
 	 */
-	bool createBox(std::shared_ptr<Mesh> &inOutGeomPtr);
+	std::shared_ptr<Mesh> createBox();
 
 	/**
 	 * \brief Creates a Mesh object from a local file.
 	 * \note Not yet implemented!
 	 * \param path Location of the mesh file
-	 * \param inOutGeomPtr A pointer set to the newly created vertex geometry via in-out parameter
-	 * \return Returns true if Mesh was succesfully created, false otherwise
+	 * \return Returns shared pointer to the mesh
 	 */
-	bool createMesh(const std::string path, std::shared_ptr<Mesh> &inOutGeomPtr);
+	std::shared_ptr<Mesh> createMesh(const std::string path);
 
 	/**
 	 * \brief Creates default material object for debugging purposes
 	 * \param inOutMtlPtr A pointer set to the newly created material via in-out parameter
 	 * \return Returns true if material was succesfully created, false otherwise
 	 */
-	bool createMaterial(std::shared_ptr<Material> &inOutMtlPtr);
+	std::shared_ptr<Material> createMaterial();
 
 	/**
 	 * \brief Creates a material object from a local file
@@ -100,7 +98,7 @@ public:
 	 * \param inOutMtlPtr A pointer set to the newly created material via in-out parameter
 	 * \return Returns true if material was succesfully created, false otherwise
 	 */
-	bool createMaterial(const char * const path, std::shared_ptr<Material> &inOutMtlPtr);
+	std::shared_ptr<Material> createMaterial(const std::string path);
 
 	/**
 	 * \brief Reload a material object from file
@@ -115,7 +113,7 @@ public:
 	 * \param inOutPrgPtr A pointer set to the newly created shader program via in-out parameter
 	 * \retrun Returns true if GLSLprogram was succesfully created, false otherwise
 	 */
-	bool createShaderProgram(shaderType type, std::shared_ptr<GLSLProgram> &inOutPrgPtr);
+	std::shared_ptr<GLSLProgram> createShaderProgram(shaderType type);
 
 	/**
 	 * \brief Creates a 2D texture from a given float array
@@ -129,7 +127,7 @@ public:
 	 * \param inOutTexPtr A pointer set to the newly created texture via in-out parameter
 	 * \return Returns true if texture was succesfully created, false otherwise
 	 */
-	bool createTexture2D(int dimX, int dimY, float* data, std::shared_ptr<Texture> &inOutTexPtr);
+	std::shared_ptr<Texture> createTexture2D(int dimX, int dimY, float* data);
 
 	/**
 	 * \brief Creates a 2D texture from a file
@@ -137,7 +135,7 @@ public:
 	 * \param inOutTexPtr A pointer set to the newly created texture via in-out parameter
 	 * \return Returns true if texture was succesfully created, false otherwise
 	 */
-	bool createTexture2D(const std::string path, std::shared_ptr<Texture> &inOutTexPtr);
+	std::shared_ptr<Texture> createTexture2D(const std::string path);
 
 	/**
 	 * \brief Reloads a texture in case a texture file is changed during runtime
@@ -192,19 +190,17 @@ protected:
 	/**
 	 * \brief Load geometry information from an fbx file
 	 * \param path Location of the fbx file
-	 * \param goemPtr Pointer to the Mesh object where the loaded geometry will be stored
-	 * \return Returns true if the geometry was succesfully loaded, false otherwise
+	 * \return Returns shared pointer to the mesh (using std::move)
 	 */
-	bool loadFbxGeometry(const std::string &path, std::shared_ptr<Mesh> &geomPtr);
+	std::shared_ptr<Mesh> loadFbxGeometry(const std::string &path);
 
 	/**
 	 * \brief Load geometry information from a binary file
 	 * \note Not yet implemented
 	 * \param path Location of the binary file
-	 * \param goemPtr Pointer to the Mesh object where the loaded geometry will be stored
-	 * \return Returns true if the geometry was succesfully loaded, false otherwise
+	 * \return Returns shared pointer to the mesh (using std::move)
 	 */
-	bool loadBinaryGeometry(const std::string &path, std::shared_ptr<Mesh> &geomPtr);
+	std::shared_ptr<Mesh> loadBinaryGeometry(const std::string &path);
 
 	/**
 	 * \brief Parses a material file
@@ -212,7 +208,7 @@ protected:
 	 * \param inOutMtlInfo Contains the material information after the method is called (in-out parameter)
 	 * \return Returns true if the material file was succesfully parsed, false otherwise
 	 */
-	bool parseMaterial(const char* const materialPath, MaterialInfo& inOutMtlInfo);
+	MaterialInfo parseMaterial(const std::string materialPath);
 
 	/**
 	 * \brief Read a shader source file

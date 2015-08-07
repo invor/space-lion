@@ -1,0 +1,6 @@
+3
+5
+td ../resources/textures/templates/silver_diffuse_albedo.ppm
+ts ../resources/textures/templates/silver_specular_colour.ppm
+tr ../resources/textures/templates/silver_roughness.ppm
+tn ../resources/textures/templates/silver_normal.ppm

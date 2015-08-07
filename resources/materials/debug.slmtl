@@ -1,0 +1,6 @@
+4
+5
+td ../resources/textures/templates/gold_diffuse_albedo.ppm
+ts ../resources/textures/templates/gold_specular_colour.ppm
+tr ../resources/textures/templates/gold_roughness.ppm
+tn ../resources/textures/struct_surface_normal.ppm

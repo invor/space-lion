@@ -19,12 +19,12 @@ bool PostProcessor::init(ResourceManager* resourceMngr)
 	renderPlane.setVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(Vertex_pu),(GLvoid*) sizeof(Vertex_p));
 
 	/*	Load all post processing shaders. */
-	if( !resourceMngr->createShaderProgram(FXAA,fxaaShaderPrg) ) return false;
-	if( !resourceMngr->createShaderProgram(IDLE,idleShaderPrg) ) return false;
-	if( !resourceMngr->createShaderProgram(GAUSSIAN,gaussianShaderPrg) ) return false;
-	if( !resourceMngr->createShaderProgram(GRADIENT,gradientShaderPrg) ) return false;
-	if( !resourceMngr->createShaderProgram(HESSE,hesseShaderPrg) ) return false;
-	if( !resourceMngr->createShaderProgram(STRUCTURE_TENSOR,structureTensorShaderPrg) ) return false;
+	fxaaShaderPrg = resourceMngr->createShaderProgram(FXAA);
+	idleShaderPrg = resourceMngr->createShaderProgram(IDLE);
+	gaussianShaderPrg = resourceMngr->createShaderProgram(GAUSSIAN);
+	gradientShaderPrg = resourceMngr->createShaderProgram(GRADIENT);
+	hesseShaderPrg = resourceMngr->createShaderProgram(HESSE);
+	structureTensorShaderPrg = resourceMngr->createShaderProgram(STRUCTURE_TENSOR);
 
 
 	/*	Prepare the intermediate framebuffers for rendering */

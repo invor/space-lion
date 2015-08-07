@@ -124,7 +124,7 @@ void Scene::drawFroward()
 		
 		/*	Set "per program" uniforms */
 		viewMx = activeCamera->computeViewMatrix();
-		projectionMx = activeCamera->computeProjectionMatrix(1.0f,500000.0f);
+		projectionMx = activeCamera->computeProjectionMatrix(0.1f,50000.0f);
 		shader_itr->first->setUniform("view_matrix", viewMx);
 		shader_itr->first->setUniform("projection_matrix", projectionMx);
 	
