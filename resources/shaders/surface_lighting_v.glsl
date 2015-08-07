@@ -8,7 +8,7 @@ Description: Standard vertex shader for lighting calculations of opaque surfaces
 #version 330
 
 /*	Support handling for up to 256 instances, and reserve a fixed amount of uniforms for it */
-uniform mat4 model_view_matrix[256];
+uniform mat4 model_view_matrix[128];
 uniform mat4 projection_matrix;
 
 in vec3 v_position;

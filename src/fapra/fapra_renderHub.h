@@ -7,7 +7,7 @@
 /	is handled here.
 */
 
-#define CAMERA_ANIMATION
+//#define CAMERA_ANIMATION
 
 /*	std includes */
 #include <vector>

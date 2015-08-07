@@ -152,6 +152,12 @@ void Scene::drawFroward()
 					shader_itr->first->setUniform(uniform_name.c_str(), modelViewMx);
 
 					instance_counter++;
+
+					if(instance_counter == 128)
+					{
+						mesh_itr->first->draw(instance_counter);
+						instance_counter = 0;
+					}
 				}
 
 				mesh_itr->first->draw(instance_counter);
