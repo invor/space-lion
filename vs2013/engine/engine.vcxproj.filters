@@ -13,183 +13,195 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\core">
+    <Filter Include="Header Files\gfx">
       <UniqueIdentifier>{9b3ed609-654c-41a9-a69d-61ee290446c1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\fbx">
-      <UniqueIdentifier>{6aff5a89-0ea2-4395-b6eb-f9ceefeab263}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\core">
+    <Filter Include="Source Files\gfx">
       <UniqueIdentifier>{14b6dcbd-0cbf-445d-b734-f06ea2746d5a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\fbx">
+    <Filter Include="Header Files\gfx\glowl">
+      <UniqueIdentifier>{f8d0547f-ce92-49ef-9342-ccc049ce1d2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gfx\gowl">
+      <UniqueIdentifier>{bf8b19f3-353e-4206-9359-42854311eb1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gfx\fbx">
+      <UniqueIdentifier>{6aff5a89-0ea2-4395-b6eb-f9ceefeab263}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gfx\fbx">
       <UniqueIdentifier>{27ab7e09-4ca6-4bdc-9ccf-d3847bd1c012}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\fbx\fbx_exceptions.hpp">
-      <Filter>Header Files\fbx</Filter>
+      <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\fbx\fbx_generic_parser.hpp">
-      <Filter>Header Files\fbx</Filter>
+      <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\fbx\fbx_geometry.hpp">
-      <Filter>Header Files\fbx</Filter>
+      <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\fbx\fbx_node_name.hpp">
-      <Filter>Header Files\fbx</Filter>
+      <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\fbx\fbx_node_property.hpp">
-      <Filter>Header Files\fbx</Filter>
+      <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\fbx\fbx_opengl_geometry.hpp">
-      <Filter>Header Files\fbx</Filter>
+      <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\fbx\fbx_parser.hpp">
-      <Filter>Header Files\fbx</Filter>
+      <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\fbx\fbx_print.hpp">
-      <Filter>Header Files\fbx</Filter>
+      <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\fbx\fbx_property.hpp">
-      <Filter>Header Files\fbx</Filter>
+      <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\fbx\fbx_reader.hpp">
-      <Filter>Header Files\fbx</Filter>
+      <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\fbx\fbx_types.hpp">
-      <Filter>Header Files\fbx</Filter>
+      <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\fbx\fbx_unzip.hpp">
-      <Filter>Header Files\fbx</Filter>
+      <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\fbx\fbx_value.hpp">
-      <Filter>Header Files\fbx</Filter>
+      <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\controls.h">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\framebufferObject.h">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\GLSLProgram.h">
-      <Filter>Header Files\core</Filter>
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\material.h">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\mesh.h">
-      <Filter>Header Files\core</Filter>
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\postProcessor.h">
-      <Filter>Header Files\core</Filter>
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\renderHub.h">
-      <Filter>Header Files\core</Filter>
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\resourceManager.h">
-      <Filter>Header Files\core</Filter>
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\scene.h">
-      <Filter>Header Files\core</Filter>
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\sceneCamera.h">
-      <Filter>Header Files\core</Filter>
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\sceneEntity.h">
-      <Filter>Header Files\core</Filter>
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\sceneLightSource.h">
-      <Filter>Header Files\core</Filter>
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\staticSceneObject.h">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\texture.h">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\texture2D.h">
-      <Filter>Header Files\core</Filter>
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\texture3D.h">
-      <Filter>Header Files\core</Filter>
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\vertexStructs.h">
-      <Filter>Header Files\core</Filter>
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\volumetricSceneObject.h">
-      <Filter>Header Files\core</Filter>
+      <Filter>Header Files\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\framebufferObject.h">
+      <Filter>Header Files\gfx\glowl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\GLSLProgram.h">
+      <Filter>Header Files\gfx\glowl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\mesh.h">
+      <Filter>Header Files\gfx\glowl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\shaderStorageBufferObject.h">
+      <Filter>Header Files\gfx\glowl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\texture.h">
+      <Filter>Header Files\gfx\glowl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\texture2D.h">
+      <Filter>Header Files\gfx\glowl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp">
-      <Filter>Source Files\fbx</Filter>
+      <Filter>Source Files\gfx\fbx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\fbx\fbx_node_name.cpp">
-      <Filter>Source Files\fbx</Filter>
+      <Filter>Source Files\gfx\fbx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\fbx\fbx_opengl_geometry.cpp">
-      <Filter>Source Files\fbx</Filter>
+      <Filter>Source Files\gfx\fbx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\fbx\fbx_parser.cpp">
-      <Filter>Source Files\fbx</Filter>
+      <Filter>Source Files\gfx\fbx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\fbx\fbx_print.cpp">
-      <Filter>Source Files\fbx</Filter>
+      <Filter>Source Files\gfx\fbx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\fbx\fbx_property.cpp">
-      <Filter>Source Files\fbx</Filter>
+      <Filter>Source Files\gfx\fbx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\fbx\fbx_reader.cpp">
-      <Filter>Source Files\fbx</Filter>
+      <Filter>Source Files\gfx\fbx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\fbx\fbx_unzip.cpp">
-      <Filter>Source Files\fbx</Filter>
+      <Filter>Source Files\gfx\fbx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\fbx\fbx_value.cpp">
-      <Filter>Source Files\fbx</Filter>
+      <Filter>Source Files\gfx\fbx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\core\controls.cpp">
-      <Filter>Source Files\core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\engine\core\framebufferObject.cpp">
-      <Filter>Source Files\core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\engine\core\GLSLProgram.cpp">
-      <Filter>Source Files\core</Filter>
+      <Filter>Source Files\gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\core\material.cpp">
-      <Filter>Source Files\core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\engine\core\mesh.cpp">
-      <Filter>Source Files\core</Filter>
+      <Filter>Source Files\gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\core\renderHub.cpp">
-      <Filter>Source Files\core</Filter>
+      <Filter>Source Files\gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\core\postProcessor.cpp">
-      <Filter>Source Files\core</Filter>
+      <Filter>Source Files\gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\core\resourceManager.cpp">
-      <Filter>Source Files\core</Filter>
+      <Filter>Source Files\gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\core\scene.cpp">
-      <Filter>Source Files\core</Filter>
+      <Filter>Source Files\gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\core\sceneCamera.cpp">
-      <Filter>Source Files\core</Filter>
+      <Filter>Source Files\gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\core\sceneLightSource.cpp">
-      <Filter>Source Files\core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\engine\core\texture2D.cpp">
-      <Filter>Source Files\core</Filter>
+      <Filter>Source Files\gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\core\texture3D.cpp">
-      <Filter>Source Files\core</Filter>
+      <Filter>Source Files\gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\glowl\src\texture2D.cpp">
+      <Filter>Source Files\gfx\gowl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\glowl\src\framebufferObject.cpp">
+      <Filter>Source Files\gfx\gowl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\glowl\src\GLSLProgram.cpp">
+      <Filter>Source Files\gfx\gowl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\glowl\src\mesh.cpp">
+      <Filter>Source Files\gfx\gowl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\glowl\src\shaderStorageBufferObject.cpp">
+      <Filter>Source Files\gfx\gowl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

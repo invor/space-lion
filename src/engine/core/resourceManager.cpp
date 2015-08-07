@@ -10,7 +10,7 @@ void ResourceManager::clearLists()
 	geometry_list.clear();
 	material_list.clear();
 	texture_list.clear();
-	volume_list.clear();
+//	volume_list.clear();
 	shader_program_list.clear();
 }
 
@@ -42,7 +42,7 @@ bool ResourceManager::createBox(std::shared_ptr<Mesh> &inOutGeomPtr)
 	/*	Check list of vertexBufferObjects for default box object(filename="0") */
 	for(std::list<std::shared_ptr<Mesh>>::iterator i = geometry_list.begin(); i != geometry_list.end(); ++i)
 	{
-		if((*i)->getFilename() == "0"){
+		if((*i)->getName() == "0"){
 			inOutGeomPtr = (*i);
 			return true;
 		}
@@ -114,7 +114,7 @@ bool ResourceManager::createMesh(const std::string path, std::shared_ptr<Mesh> &
 	/*	Check list of vertexBufferObjects for filename */
 	for(std::list<std::shared_ptr<Mesh>>::iterator i = geometry_list.begin(); i != geometry_list.end(); ++i)
 	{
-		if((*i)->getFilename() == path){
+		if((*i)->getName() == path){
 			inOutGeomPtr = (*i);
 			return true;
 		}
@@ -238,15 +238,15 @@ bool ResourceManager::createMaterial(const char * const path, std::shared_ptr<Ma
 bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLProgram> &inOutPrgPtr)
 {
 	/*	Check list of shader programs for the shader type */
-	for(std::list<std::shared_ptr<GLSLProgram>>::iterator i = shader_program_list.begin(); i != shader_program_list.end(); ++i)
-	{
-		if(((*i)->getType())==type){
-			inOutPrgPtr = (*i);
-			return true;
-		}
-	}
+	//	for(std::list<std::shared_ptr<GLSLProgram>>::iterator i = shader_program_list.begin(); i != shader_program_list.end(); ++i)
+	//	{
+	//		if(((*i)->getType())==type){
+	//			inOutPrgPtr = (*i);
+	//			return true;
+	//		}
+	//	}
 
-	std::shared_ptr<GLSLProgram> shaderPrg(new GLSLProgram(type));
+	std::shared_ptr<GLSLProgram> shaderPrg(new GLSLProgram());
 	shaderPrg->init();
 	std::string vertSource;
 	std::string tessContSource;
@@ -381,8 +381,8 @@ bool ResourceManager::createShaderProgram(shaderType type, std::shared_ptr<GLSLP
 
 bool ResourceManager::createTexture2D(int dimX, int dimY, float* data, std::shared_ptr<Texture> &inOutTexPtr)
 {
-	std::shared_ptr<Texture2D> texture(new Texture2D());
-	if(!(texture->load(GL_RGB,dimX, dimY,GL_RGB,GL_FLOAT,data))) return false;
+	std::shared_ptr<Texture2D> texture(new Texture2D("",GL_RGB,dimX, dimY,GL_RGB,GL_FLOAT,data));
+
 	inOutTexPtr = texture;
 	texture_list.push_back(std::move(texture));
 
@@ -393,7 +393,7 @@ bool ResourceManager::createTexture2D(const std::string path, std::shared_ptr<Te
 {
 	for(std::list<std::shared_ptr<Texture2D>>::iterator i = texture_list.begin(); i != texture_list.end(); ++i)
 	{
-		if(((*i)->getFilename())==path)
+		if(((*i)->getName())==path)
 		{
 			inOutTexPtr = (*i);
 			return true;
@@ -409,8 +409,8 @@ bool ResourceManager::createTexture2D(const std::string path, std::shared_ptr<Te
 	imageData = new char[3*imgDimX*imgDimY];
 	if(!readPpmData(path.c_str(),imageData,dataBegin,imgDimX,imgDimY)) return false;
 
-	std::shared_ptr<Texture2D> texture(new Texture2D(path));
-	if (!(texture->load(GL_RGB, imgDimX, imgDimY, GL_RGB, GL_UNSIGNED_BYTE, imageData))) return false;
+	std::shared_ptr<Texture2D> texture(new Texture2D(path,GL_RGB, imgDimX, imgDimY, GL_RGB, GL_UNSIGNED_BYTE, imageData));
+
 	inOutTexPtr = texture;
 	texture_list.push_back(std::move(texture));
 
@@ -418,34 +418,34 @@ bool ResourceManager::createTexture2D(const std::string path, std::shared_ptr<Te
 	return true;
 }
 
-bool ResourceManager::createTexture3D(const std::string path, glm::ivec3 textureRes, std::shared_ptr<Texture3D> &inOutTexPtr)
-{
-	for(std::list<std::shared_ptr<Texture3D>>::iterator i = volume_list.begin(); i != volume_list.end(); ++i)
-	{
-		if(((*i)->getFilename())==path)
-		{
-			inOutTexPtr = (*i);
-			return true;
-		}
-	}
-
-	std::shared_ptr<Texture3D> volume(new Texture3D(path));
-	if(!(volume->loadTextureFile(path,textureRes))) return false;
-	inOutTexPtr = volume;
-	volume_list.push_back(std::move(volume));
-
-	return true;
-}
-
-bool ResourceManager::createTexture3D(GLenum internalFormat, glm::ivec3 textureRes, GLenum format, GLenum type, GLvoid* volumeData, std::shared_ptr<Texture3D> &inOutTexPtr)
-{
-	std::shared_ptr<Texture3D> volume(new Texture3D());
-	if (!(volume->load(internalFormat, textureRes.x, textureRes.y, textureRes.z, format, type, volumeData))) return false;
-	inOutTexPtr = volume;
-	volume_list.push_back(std::move(volume));
-
-	return true;
-}
+//	bool ResourceManager::createTexture3D(const std::string path, glm::ivec3 textureRes, std::shared_ptr<Texture3D> &inOutTexPtr)
+//	{
+//		for(std::list<std::shared_ptr<Texture3D>>::iterator i = volume_list.begin(); i != volume_list.end(); ++i)
+//		{
+//			if(((*i)->getName())==path)
+//			{
+//				inOutTexPtr = (*i);
+//				return true;
+//			}
+//		}
+//	
+//		std::shared_ptr<Texture3D> volume(new Texture3D(path));
+//		if(!(volume->loadTextureFile(path,textureRes))) return false;
+//		inOutTexPtr = volume;
+//		volume_list.push_back(std::move(volume));
+//	
+//		return true;
+//	}
+//	
+//	bool ResourceManager::createTexture3D(GLenum internalFormat, glm::ivec3 textureRes, GLenum format, GLenum type, GLvoid* volumeData, std::shared_ptr<Texture3D> &inOutTexPtr)
+//	{
+//		std::shared_ptr<Texture3D> volume(new Texture3D());
+//		if (!(volume->load(internalFormat, textureRes.x, textureRes.y, textureRes.z, format, type, volumeData))) return false;
+//		inOutTexPtr = volume;
+//		volume_list.push_back(std::move(volume));
+//	
+//		return true;
+//	}
 
 bool ResourceManager::loadFbxGeometry(const std::string &path, std::shared_ptr<Mesh> &geomPtr)
 {

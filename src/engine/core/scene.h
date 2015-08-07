@@ -20,7 +20,7 @@ protected:
 	std::list<SceneLightSource> lightSourceList;
 	std::list<SceneCamera> cameraList;
 	std::list<StaticSceneObject> static_entity_list;
-	std::list<VolumetricSceneObject> volumetricObjectList;
+//	std::list<VolumetricSceneObject> volumetricObjectList;
 
 	/*	Static scene entities (objects) sorted for optimzed drawing in a tree-like structure*/
 	typedef std::map< std::shared_ptr<Mesh>, std::list<StaticSceneObject> > MeshMap;
@@ -38,9 +38,9 @@ public:
 	bool createStaticSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling,
 									std::shared_ptr<Mesh> geomPtr, std::shared_ptr<Material> mtlPtr);
 	
-	/* create a volumetric scene entity */
-	bool createVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling,
-										std::shared_ptr<Mesh> geomPtr, std::shared_ptr<Texture3D> volPtr, std::shared_ptr<GLSLProgram> prgmPtr);
+//	/* create a volumetric scene entity */
+//	bool createVolumetricSceneObject(const int id, const glm::vec3 position, const glm::quat orientation, const glm::vec3 scaling,
+//										std::shared_ptr<Mesh> geomPtr, std::shared_ptr<Texture3D> volPtr, std::shared_ptr<GLSLProgram> prgmPtr);
 	
 	//	create a scene light source
 	bool createSceneLight(const int id, const glm::vec3 position, glm::vec3 lightColour);

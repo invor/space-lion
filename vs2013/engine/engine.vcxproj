@@ -82,7 +82,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\include;$(SolutionDir)\..\..\glowl\include\glowl</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -95,7 +95,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\include;$(SolutionDir)\..\..\glowl\include\glowl</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -110,7 +110,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\include;$(SolutionDir)\..\..\glowl\include\glowl</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -127,7 +127,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\include;$(SolutionDir)\..\..\glowl\include\glowl</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -138,11 +138,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\glowl\include\glowl\framebufferObject.h" />
+    <ClInclude Include="..\..\..\glowl\include\glowl\GLSLProgram.h" />
+    <ClInclude Include="..\..\..\glowl\include\glowl\mesh.h" />
+    <ClInclude Include="..\..\..\glowl\include\glowl\shaderStorageBufferObject.h" />
+    <ClInclude Include="..\..\..\glowl\include\glowl\texture.h" />
+    <ClInclude Include="..\..\..\glowl\include\glowl\texture2D.h" />
     <ClInclude Include="..\..\src\engine\core\controls.h" />
-    <ClInclude Include="..\..\src\engine\core\framebufferObject.h" />
-    <ClInclude Include="..\..\src\engine\core\GLSLProgram.h" />
     <ClInclude Include="..\..\src\engine\core\material.h" />
-    <ClInclude Include="..\..\src\engine\core\mesh.h" />
     <ClInclude Include="..\..\src\engine\core\postProcessor.h" />
     <ClInclude Include="..\..\src\engine\core\renderHub.h" />
     <ClInclude Include="..\..\src\engine\core\resourceManager.h" />
@@ -151,8 +154,6 @@
     <ClInclude Include="..\..\src\engine\core\sceneEntity.h" />
     <ClInclude Include="..\..\src\engine\core\sceneLightSource.h" />
     <ClInclude Include="..\..\src\engine\core\staticSceneObject.h" />
-    <ClInclude Include="..\..\src\engine\core\texture.h" />
-    <ClInclude Include="..\..\src\engine\core\texture2D.h" />
     <ClInclude Include="..\..\src\engine\core\texture3D.h" />
     <ClInclude Include="..\..\src\engine\core\vertexStructs.h" />
     <ClInclude Include="..\..\src\engine\core\volumetricSceneObject.h" />
@@ -171,18 +172,19 @@
     <ClInclude Include="..\..\src\engine\fbx\fbx_value.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\glowl\src\framebufferObject.cpp" />
+    <ClCompile Include="..\..\..\glowl\src\GLSLProgram.cpp" />
+    <ClCompile Include="..\..\..\glowl\src\mesh.cpp" />
+    <ClCompile Include="..\..\..\glowl\src\shaderStorageBufferObject.cpp" />
+    <ClCompile Include="..\..\..\glowl\src\texture2D.cpp" />
     <ClCompile Include="..\..\src\engine\core\controls.cpp" />
-    <ClCompile Include="..\..\src\engine\core\framebufferObject.cpp" />
-    <ClCompile Include="..\..\src\engine\core\GLSLProgram.cpp" />
     <ClCompile Include="..\..\src\engine\core\material.cpp" />
-    <ClCompile Include="..\..\src\engine\core\mesh.cpp" />
     <ClCompile Include="..\..\src\engine\core\postProcessor.cpp" />
     <ClCompile Include="..\..\src\engine\core\renderHub.cpp" />
     <ClCompile Include="..\..\src\engine\core\resourceManager.cpp" />
     <ClCompile Include="..\..\src\engine\core\scene.cpp" />
     <ClCompile Include="..\..\src\engine\core\sceneCamera.cpp" />
     <ClCompile Include="..\..\src\engine\core\sceneLightSource.cpp" />
-    <ClCompile Include="..\..\src\engine\core\texture2D.cpp" />
     <ClCompile Include="..\..\src\engine\core\texture3D.cpp" />
     <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp" />
     <ClCompile Include="..\..\src\engine\fbx\fbx_node_name.cpp" />

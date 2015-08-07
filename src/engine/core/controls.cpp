@@ -34,8 +34,8 @@ namespace Controls {
 			/*	To that end, translate look-at-point to origin */
 			glm::vec4 new_position = cam_position - glm::vec4(look_at_point, 0.0);
 			/*	Calculate new oribtal position */
-			new_position = glm::rotate(glm::mat4(1.0), cursor_movement.x, y_axis)
-				* glm::rotate(glm::mat4(1.0), cursor_movement.y, camera->computeRightHandVector())
+			new_position = glm::rotate(glm::mat4(1.0), cursor_movement.x/100.0f, y_axis)
+				* glm::rotate(glm::mat4(1.0), cursor_movement.y/100.0f, camera->computeRightHandVector())
 				* new_position;
 			/*	Reverse translation */
 			new_position += glm::vec4(look_at_point, 0.0);
@@ -44,10 +44,10 @@ namespace Controls {
 			/*	Update camera oritentation */
 			glm::quat cam_orientation = camera->getOrientation();
 			/*	First, global rotation around y-axis */
-			glm::quat new_orientation = glm::normalize(glm::rotate(glm::quat(), cursor_movement.x, y_axis)) * cam_orientation;
+			glm::quat new_orientation = glm::normalize(glm::rotate(glm::quat(), cursor_movement.x/100.0f, y_axis)) * cam_orientation;
 			camera->setOrientation(new_orientation);
 			/*	Followed by a local rotation around x-axis*/
-			camera->rotate(cursor_movement.y, x_axis);
+			camera->rotate(cursor_movement.y/100.0f, x_axis);
 		}
 		else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_3) == GLFW_PRESS)
 		{

@@ -151,7 +151,7 @@ void RenderHub::run()
 	std::shared_ptr<Mesh> geomPtr;
 	std::shared_ptr<Material> matPtr;
 	//resourceMngr.createBox(geomPtr);
-	resourceMngr.createMesh("../resources/meshes/demo_hangar.fbx",geomPtr);
+	resourceMngr.createMesh("../resources/meshes/outflyer.fbx",geomPtr);
 	if(!(resourceMngr.createMaterial("../resources/materials/demo_hangar.slmtl",matPtr)))
 		std::cout<<"Failed to create material."<<std::endl;
 	if(!(activeScene->createStaticSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0),geomPtr,matPtr)))
@@ -169,7 +169,7 @@ void RenderHub::run()
 	//geomPtr.reset();
 	//matPtr.reset();
 
-	if(!(activeScene->createSceneCamera(0,glm::vec3(0.0,0.0,5.0),glm::vec3(0.0,0.0,0.0),16.0f/9.0f,(9.0f/16.0f)*60.0f)))
+	if(!(activeScene->createSceneCamera(0,glm::vec3(0.0,0.0,5.0),glm::vec3(0.0,0.0,0.0),16.0f/9.0f,(9.0f/16.0f)*60.0f*(3.14f/180.0f))))
 		std::cout<<"Failed to create camera"<<"\n";
 
 	if(!(activeScene->createSceneLight(0,glm::vec3(2500.0,2500.0,1500.0),glm::vec3(150000.0))))
@@ -222,6 +222,7 @@ void RenderHub::run()
 	glfwDestroyWindow(activeWindow);
 }
 
+/*
 void RenderHub::runVolumeTest()
 {
 	std::shared_ptr<Mesh> geomPtr;
@@ -291,6 +292,7 @@ void RenderHub::runVolumeTest()
 		glfwPollEvents();
 	}
 }
+*/
 
 void RenderHub::windowSizeCallback(GLFWwindow *window, int width, int height)
 {
