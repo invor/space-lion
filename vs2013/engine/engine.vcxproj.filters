@@ -129,6 +129,24 @@
     <ClInclude Include="..\..\..\glowl\include\glowl\texture2D.h">
       <Filter>Header Files\gfx\glowl</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\engine\EntityManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\TransformComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\CameraComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\LightComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\types.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\RenderJobs.hpp">
+      <Filter>Header Files\gfx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp">
@@ -202,6 +220,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\glowl\src\shaderStorageBufferObject.cpp">
       <Filter>Source Files\gfx\gowl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\EntityManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\TransformComponent.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

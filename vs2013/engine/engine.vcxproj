@@ -144,6 +144,7 @@
     <ClInclude Include="..\..\..\glowl\include\glowl\shaderStorageBufferObject.h" />
     <ClInclude Include="..\..\..\glowl\include\glowl\texture.h" />
     <ClInclude Include="..\..\..\glowl\include\glowl\texture2D.h" />
+    <ClInclude Include="..\..\src\engine\CameraComponent.h" />
     <ClInclude Include="..\..\src\engine\core\controls.h" />
     <ClInclude Include="..\..\src\engine\core\material.h" />
     <ClInclude Include="..\..\src\engine\core\postProcessor.h" />
@@ -157,6 +158,7 @@
     <ClInclude Include="..\..\src\engine\core\texture3D.h" />
     <ClInclude Include="..\..\src\engine\core\vertexStructs.h" />
     <ClInclude Include="..\..\src\engine\core\volumetricSceneObject.h" />
+    <ClInclude Include="..\..\src\engine\EntityManager.h" />
     <ClInclude Include="..\..\src\engine\fbx\fbx_exceptions.hpp" />
     <ClInclude Include="..\..\src\engine\fbx\fbx_generic_parser.hpp" />
     <ClInclude Include="..\..\src\engine\fbx\fbx_geometry.hpp" />
@@ -170,6 +172,10 @@
     <ClInclude Include="..\..\src\engine\fbx\fbx_types.hpp" />
     <ClInclude Include="..\..\src\engine\fbx\fbx_unzip.hpp" />
     <ClInclude Include="..\..\src\engine\fbx\fbx_value.hpp" />
+    <ClInclude Include="..\..\src\engine\LightComponent.h" />
+    <ClInclude Include="..\..\src\engine\RenderJobs.hpp" />
+    <ClInclude Include="..\..\src\engine\TransformComponent.h" />
+    <ClInclude Include="..\..\src\engine\types.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\glowl\src\framebufferObject.cpp" />
@@ -186,6 +192,7 @@
     <ClCompile Include="..\..\src\engine\core\sceneCamera.cpp" />
     <ClCompile Include="..\..\src\engine\core\sceneLightSource.cpp" />
     <ClCompile Include="..\..\src\engine\core\texture3D.cpp" />
+    <ClCompile Include="..\..\src\engine\EntityManager.cpp" />
     <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp" />
     <ClCompile Include="..\..\src\engine\fbx\fbx_node_name.cpp" />
     <ClCompile Include="..\..\src\engine\fbx\fbx_opengl_geometry.cpp" />
@@ -196,6 +203,7 @@
     <ClCompile Include="..\..\src\engine\fbx\fbx_unzip.cpp" />
     <ClCompile Include="..\..\src\engine\fbx\fbx_value.cpp" />
     <ClCompile Include="..\..\src\engine\main.cpp" />
+    <ClCompile Include="..\..\src\engine\TransformComponent.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
