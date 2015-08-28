@@ -147,6 +147,9 @@
     <ClInclude Include="..\..\src\engine\RenderJobs.hpp">
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\engine\MTQueue.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp">

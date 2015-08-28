@@ -69,6 +69,22 @@ void TransformComponentManager::reallocate(uint size)
 
 void TransformComponentManager::addComponent(Entity entity)
 {
+	assert(m_data.used < m_data.allocated);
+
+	uint index = m_data.used;
+
+	m_data.entity[index] = entity;
+	m_data.position[index] = Vec3();
+	m_data.orientation[index] = Quat();
+	m_data.scale[index] = Vec3();
+
+	m_data.parent[index] = index;
+	m_data.first_child[index] = index;
+	m_data.next_sibling[index] = index;
+
+	m_data.used++;
+
+	transform(index);
 }
 
 void TransformComponentManager::deleteComonent(Entity entity)

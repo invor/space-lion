@@ -9,6 +9,19 @@
 #include "GLSLProgram.h"
 #include "core\material.h"
 #include "mesh.h"
+#include "MTQueue.hpp"
+#include "TransformComponent.h"
+#include "CameraComponent.h"
+
+struct RenderJob
+{
+	RenderJob(Entity e, std::string material_path, std::string mesh_path)
+		: entity(e), material_path(material_path), mesh_path(mesh_path) {}
+
+	Entity entity;
+	std::string material_path;
+	std::string mesh_path;
+};
 
 /**
  * Manages all render jobs within a tree datastructure optimized for rendering.
@@ -56,24 +69,24 @@ private:
 
 	RootNode m_root;
 
+	MTQueue<RenderJob> m_job_queue;
+
+	/**
+	 * Pointer to active TransformComonentManger. Transforms information is essential to rendering
+	 */
+	TransformComponentManager* transform_components;
+	CameraComponentManager*  camera_components;
+
 public:
 	RenderJobManager();
 	~RenderJobManager();
 
-	void addRenderJob(Entity e, std::string material, std::string mesh);
+	void addRenderJob(Entity entity, std::string material, std::string mesh);
 
 	/**
 	 * 
 	 */
 	void processRenderJobs();
 };
-
-RenderJobManager::RenderJobManager()
-{
-}
-
-RenderJobManager::~RenderJobManager()
-{
-}
 
 #endif

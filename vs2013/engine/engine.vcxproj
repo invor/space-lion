@@ -173,6 +173,7 @@
     <ClInclude Include="..\..\src\engine\fbx\fbx_unzip.hpp" />
     <ClInclude Include="..\..\src\engine\fbx\fbx_value.hpp" />
     <ClInclude Include="..\..\src\engine\LightComponent.h" />
+    <ClInclude Include="..\..\src\engine\MTQueue.hpp" />
     <ClInclude Include="..\..\src\engine\RenderJobs.hpp" />
     <ClInclude Include="..\..\src\engine\TransformComponent.h" />
     <ClInclude Include="..\..\src\engine\types.hpp" />

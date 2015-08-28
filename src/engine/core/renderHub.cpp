@@ -150,8 +150,8 @@ void RenderHub::run()
 	/*	TEMPORARY SHADER TESTING */
 	std::shared_ptr<Mesh> geomPtr;
 	std::shared_ptr<Material> matPtr;
-	geomPtr = resourceMngr.createBox();
-	//geomPtr = resourceMngr.createMesh("../resources/meshes/outflyer.fbx");
+	//geomPtr = resourceMngr.createBox();
+	geomPtr = resourceMngr.createMesh("../resources/meshes/outflyer.fbx");
 	matPtr = resourceMngr.createMaterial("../resources/materials/debug.slmtl");
 	if(!(activeScene->createStaticSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0),geomPtr,matPtr)))
 		std::cout<<"Failed to create scene object."<<std::endl;

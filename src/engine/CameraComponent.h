@@ -17,13 +17,13 @@ private:
 		uint allocated;	///< number of components that the allocated memery can hold
 		void* buffer;	///< raw data pointer
 
-		Entity* entity;				///< entity owning that owns the component
-		float* near;
-		float* far;
-		float* fovy;
-		float* aspect_ratio;
-		Mat4x4* view_matrix;
-		Mat4x4* projection_matrix;
+		Entity* entity;				///< entity owning the component
+		float* near;				///< near clipping plane
+		float* far;					///< far clipping plane
+		float* fovy;				///< camera vertical field of view in radian
+		float* aspect_ratio;		///< camera aspect ratio
+		Mat4x4* view_matrix;		///< camera view matrix
+		Mat4x4* projection_matrix;	///< camera projection matrix
 
 	};
 
@@ -35,6 +35,8 @@ public:
 	CameraComponentManager();
 	CameraComponentManager(uint size);
 	~CameraComponentManager();
+
+	void reallocate(uint size);
 
 	void addComponent(Entity entity);
 
