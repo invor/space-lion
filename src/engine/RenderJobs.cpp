@@ -1,7 +1,7 @@
 #include "RenderJobs.hpp"
 
-RenderJobManager::RenderJobManager(EntityManager* entity_mngr, TransformComponentManager* transform_mngr, CameraComponentManager* camera_mngr, ResourceManager* resource_mngr)
-	: m_entities(entity_mngr), m_transform_components(transform_mngr), m_camera_components(camera_mngr)
+RenderJobManager::RenderJobManager(EntityManager* entity_mngr, TransformComponentManager* transform_mngr, CameraComponentManager* camera_mngr, LightComponentManager* light_mngr)
+	: m_entities(entity_mngr), m_transform_components(transform_mngr), m_camera_components(camera_mngr), m_light_components(light_mngr)
 {
 }
 
@@ -76,7 +76,7 @@ void RenderJobManager::addRenderJob(RenderJob new_job)
 	m_root.num_render_jobs++;
 }
 
-void RenderJobManager::processRenderJobs(Entity active_camera)
+void RenderJobManager::processRenderJobs(Entity active_camera, std::vector<Entity>& active_lightsources)
 {
 	/* Get information on active camera */
 	Mat4x4 view_matrix = glm::inverse(m_transform_components->getWorldTransformation( m_transform_components->getIndex(active_camera) ));
@@ -87,6 +87,20 @@ void RenderJobManager::processRenderJobs(Entity active_camera)
 		/* Bind shader program and set per program uniforms */
 		shader.shader_prgm->use();
 		shader.shader_prgm->setUniform("projection_matrix", proj_matrix);
+		shader.shader_prgm->setUniform("view_matrix", view_matrix);
+
+		int light_counter = 0;
+
+		Vec3 light_position = m_transform_components->getPosition( m_transform_components->getIndex( active_lightsources.front() ) );
+		Vec3 light_intensity = m_light_components->getColour( m_light_components->getIndex( active_lightsources.front() ))
+								 *m_light_components->getIntensity( m_light_components->getIndex( active_lightsources.front() ));
+
+		shader.shader_prgm->setUniform("lights.position", light_position);
+		shader.shader_prgm->setUniform("lights.intensity", light_intensity);
+
+		//shader.shader_prgm->setUniform("lights.position", glm::vec3(2500.0,2500.0,1500.0));
+		//shader.shader_prgm->setUniform("lights.intensity", glm::vec3(50000.0));
+		shader.shader_prgm->setUniform("num_lights", light_counter);
 
 		for(auto& material : shader.materials)
 		{
@@ -100,8 +114,6 @@ void RenderJobManager::processRenderJobs(Entity active_camera)
 
 				for(auto& entity : mesh.enities)
 				{
-					std::cout<<"Rendering entity: "<<entity.id()<<std::endl;
-
 					uint transform_index = m_transform_components->getIndex(entity);
 					Mat4x4 model_matrix = m_transform_components->getWorldTransformation(transform_index);
 

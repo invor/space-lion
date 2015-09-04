@@ -33,7 +33,9 @@ int main(){
 	EntityManager entity_mngr;
 	TransformComponentManager scene_transformations_mngr(1000000);
 	CameraComponentManager camera_mngr(1000000);
-	RenderingPipeline rendering_pipeline(&entity_mngr, &scene_transformations_mngr, &camera_mngr);
+	LightComponentManager light_mngr(1000000);
+
+	RenderingPipeline rendering_pipeline(&entity_mngr, &scene_transformations_mngr, &camera_mngr,&light_mngr);
 	
 	std::thread renderThread(&(RenderingPipeline::run),&rendering_pipeline);
 
@@ -44,9 +46,13 @@ int main(){
 	
 	scene_transformations_mngr.addComponent(camera_entity);
 	scene_transformations_mngr.addComponent(aircraft_entity);
-	scene_transformations_mngr.addComponent(light_entity);
+	scene_transformations_mngr.addComponent(light_entity,Vec3(250.0,250.0,150.0),Quat(),Vec3(1.0));
 	
 	camera_mngr.addComponent(camera_entity);
+
+	light_mngr.addComponent(light_entity);
+
+	rendering_pipeline.addLightsource(light_entity);
 
 	//	rendering_pipeline.requestRenderJob(aircraft_entity,"../resources/materials/debug.slmtl","../resources/meshes/outflyer.fbx");
 

@@ -56,7 +56,7 @@ void LightComponentManager::addComponent(Entity entity)
 
 	m_data.entity[index] = entity;
 	m_data.light_colour[index] = Vec3(1.0);
-	m_data.light_intensity[index] = 1000.0f;
+	m_data.light_intensity[index] = 10000.0f;
 
 	m_data.used++;
 }
@@ -73,4 +73,14 @@ uint LightComponentManager::getIndex(Entity entity)
 	assert( (search != m_index_map.end()) );
 
 	return search->second;
+}
+
+const Vec3 LightComponentManager::getColour(uint index)
+{
+	return m_data.light_colour[index];
+}
+
+const float LightComponentManager::getIntensity(uint index)
+{
+	return m_data.light_intensity[index];
 }

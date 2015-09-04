@@ -36,6 +36,10 @@ public:
 
 	uint getIndex(Entity entity);
 
+	const Vec3 getColour(uint index);
+
+	const float getIntensity(uint index);
+
 };
 
 #endif

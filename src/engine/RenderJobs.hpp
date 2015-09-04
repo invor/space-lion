@@ -11,6 +11,7 @@
 #include "mesh.h"
 #include "TransformComponent.hpp"
 #include "CameraComponent.hpp"
+#include "LightComponent.hpp"
 #include "types.hpp"
 #include "ResourceManager.h"
 
@@ -96,9 +97,13 @@ private:
 	EntityManager* m_entities;
 	TransformComponentManager* m_transform_components;
 	CameraComponentManager*  m_camera_components;
+	LightComponentManager* m_light_components;
 
 public:
-	RenderJobManager(EntityManager* entity_mngr, TransformComponentManager* transform_mngr, CameraComponentManager* camera_mngr, ResourceManager* resource_mngr);
+	RenderJobManager(EntityManager* entity_mngr,
+						TransformComponentManager* transform_mngr,
+						CameraComponentManager* camera_mngr,
+						LightComponentManager* light_mngr);
 	~RenderJobManager();
 
 	void addRenderJob(RenderJob new_job);
@@ -106,7 +111,7 @@ public:
 	/**
 	 * 
 	 */
-	void processRenderJobs(Entity active_camera);
+	void processRenderJobs(Entity active_camera, std::vector<Entity>& active_lightsources);
 };
 
 #endif

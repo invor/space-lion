@@ -1,8 +1,12 @@
 #include "RenderingPipeline.hpp"
 
-RenderingPipeline::RenderingPipeline(EntityManager* entity_mngr, TransformComponentManager* transform_mngr, CameraComponentManager* camera_mngr)
-	: m_forward_render_pass(entity_mngr,transform_mngr,camera_mngr,&m_resource_mngr), m_shadow_map_pass(entity_mngr,transform_mngr,camera_mngr,&m_resource_mngr),
-	m_active_camera(entity_mngr->create()), m_entity_mngr(entity_mngr), m_transform_mngr(transform_mngr)
+RenderingPipeline::RenderingPipeline(EntityManager* entity_mngr,
+										TransformComponentManager* transform_mngr,
+										CameraComponentManager* camera_mngr,
+										LightComponentManager* light_mngr)
+	: m_forward_render_pass(entity_mngr,transform_mngr,camera_mngr,light_mngr),
+		m_shadow_map_pass(entity_mngr,transform_mngr,camera_mngr,light_mngr),
+		m_active_camera(entity_mngr->create()), m_entity_mngr(entity_mngr), m_transform_mngr(transform_mngr)
 {
 	transform_mngr->addComponent(m_active_camera,Vec3(0.0,0.0,5.0),Quat(),Vec3(1.0));
 	camera_mngr->addComponent(m_active_camera);
@@ -89,7 +93,7 @@ void RenderingPipeline::run()
 		glfwGetFramebufferSize(m_active_window, &width, &height);
 		glViewport(0, 0, width, height);
 
-		m_forward_render_pass.processRenderJobs(m_active_camera);
+		m_forward_render_pass.processRenderJobs(m_active_camera,m_active_lightsources);
 
 		glfwSwapBuffers(m_active_window);
 		glfwPollEvents();
@@ -104,6 +108,11 @@ void RenderingPipeline::run()
 void RenderingPipeline::requestRenderJob(Entity entity, std::string material_path, std::string mesh_path, bool cast_shadow)
 {
 	m_jobRequest_queue.push(RenderJobRequest(entity,material_path,mesh_path));
+}
+
+void RenderingPipeline::addLightsource(Entity entity)
+{
+	m_active_lightsources.push_back(entity);
 }
 
 void RenderingPipeline::processRenderJobRequest()

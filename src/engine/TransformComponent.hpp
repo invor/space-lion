@@ -55,6 +55,8 @@ public:
 
 	void scale(uint index, Vec3 scale_factors);
 
+	const Vec3 getPosition(uint index);
+
 	const Mat4x4 getWorldTransformation(uint index);
 
 	//const Mat4x4* getWorldTransformations();

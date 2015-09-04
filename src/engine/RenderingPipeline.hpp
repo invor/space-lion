@@ -22,6 +22,7 @@ private:
 	GLFWwindow* m_active_window;
 
 	Entity m_active_camera;
+	std::vector<Entity> m_active_lightsources;
 
 	MTQueue<RenderJobRequest> m_jobRequest_queue;
 
@@ -34,10 +35,12 @@ private:
 	static void windowCloseCallback(GLFWwindow* window);
 
 public:
-	RenderingPipeline(EntityManager* entity_mngr, TransformComponentManager* transform_mngr, CameraComponentManager* camera_mngr);
+	RenderingPipeline(EntityManager* entity_mngr, TransformComponentManager* transform_mngr, CameraComponentManager* camera_mngr, LightComponentManager* light_mngr);
 	~RenderingPipeline();
 
 	void requestRenderJob(Entity entity, std::string material_path, std::string mesh_path, bool cast_shadow = false);
+
+	void addLightsource(Entity entity);
 
 	void run();
 };

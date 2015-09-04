@@ -156,6 +156,11 @@ void TransformComponentManager::transform(uint index)
 	m_data.world_transform[index] = local_translation * local_orientation * local_scaling;
 }
 
+const Vec3 TransformComponentManager::getPosition(uint index)
+{
+	return m_data.position[index];
+}
+
 const Mat4x4 TransformComponentManager::getWorldTransformation(uint index)
 {
 	return m_data.world_transform[index];
