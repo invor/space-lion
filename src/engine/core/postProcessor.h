@@ -4,7 +4,7 @@
 #include "mesh.h"
 #include "GLSLProgram.h"
 #include "framebufferObject.h"
-#include "resourceManager.h"
+#include "../ResourceManager.h"
 
 class PostProcessor
 {

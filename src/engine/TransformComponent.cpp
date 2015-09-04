@@ -1,4 +1,4 @@
-#include "TransformComponent.h"
+#include "TransformComponent.hpp"
 
 TransformComponentManager::TransformComponentManager() {}
 
@@ -41,7 +41,7 @@ void TransformComponentManager::reallocate(uint size)
 								+ 3*sizeof(uint));
 	new_data.buffer = new char[bytes];
 	
-	new_data.used = 0;
+	new_data.used = m_data.used;
 	new_data.allocated = size;
 
 	new_data.entity = (Entity*)(new_data.buffer);
@@ -73,10 +73,34 @@ void TransformComponentManager::addComponent(Entity entity)
 
 	uint index = m_data.used;
 
+	m_index_map.insert({entity.id(),index});
+
 	m_data.entity[index] = entity;
 	m_data.position[index] = Vec3();
 	m_data.orientation[index] = Quat();
-	m_data.scale[index] = Vec3();
+	m_data.scale[index] = Vec3(1.0);
+
+	m_data.parent[index] = index;
+	m_data.first_child[index] = index;
+	m_data.next_sibling[index] = index;
+
+	m_data.used++;
+
+	transform(index);
+}
+
+void TransformComponentManager::addComponent(Entity entity, Vec3 position, Quat orientation, Vec3 scale)
+{
+	assert(m_data.used < m_data.allocated);
+
+	uint index = m_data.used;
+
+	m_index_map.insert({entity.id(),index});
+
+	m_data.entity[index] = entity;
+	m_data.position[index] = position;
+	m_data.orientation[index] = orientation;
+	m_data.scale[index] = scale;
 
 	m_data.parent[index] = index;
 	m_data.first_child[index] = index;
@@ -95,7 +119,7 @@ uint TransformComponentManager::getIndex(Entity entity)
 {
 	auto search = m_index_map.find(entity.id());
 
-	assert( (search == m_index_map.end()) );
+	assert( (search != m_index_map.end()) );
 
 	return search->second;
 }
@@ -123,13 +147,13 @@ void TransformComponentManager::scale(uint index, Vec3 scale_factors)
 
 void TransformComponentManager::transform(uint index)
 {
-	Mat4x4 parent_transform = m_data.world_transform[m_data.parent[index]];
+	//Mat4x4 parent_transform = m_data.world_transform[m_data.parent[index]];
 
 	Mat4x4 local_translation = glm::translate(Mat4x4(),m_data.position[index]);
 	Mat4x4 local_orientation = glm::toMat4(m_data.orientation[index]);
 	Mat4x4 local_scaling = glm::scale(Mat4x4(),m_data.scale[index]);
 
-	m_data.world_transform[index] = parent_transform * local_translation;
+	m_data.world_transform[index] = local_translation * local_orientation * local_scaling;
 }
 
 const Mat4x4 TransformComponentManager::getWorldTransformation(uint index)

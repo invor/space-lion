@@ -43,6 +43,21 @@ public:
 		val = std::move(m_queue.front());
 		m_queue.pop();
 	}
+
+	/**
+	 * Variant of pop method using return value. For handling objects without default constructor.
+	 * NEEDS A SECOND LOOK AND APPROVAL
+	 */
+	T pop()
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		m_cvar.wait(lock, [this]{return !m_queue.empty();});
+
+		T val = std::move(m_queue.front());
+		m_queue.pop();
+
+		return val;
+	}
 	
 	/**
 	 * Try to pop an element from the queue. Non-blocking but can wait for

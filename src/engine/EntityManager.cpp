@@ -1,11 +1,11 @@
-#include "EntityManager.h"
+#include "EntityManager.hpp"
 
 
 Entity EntityManager::create()
 {
 	Entity new_entity;
 
-	if( (m_is_alive.size()-1) < MAX_UINT)
+	if( (m_is_alive.size()) < MAX_UINT)
 	{
 		m_is_alive.push_back(true);
 		new_entity.m_id = m_is_alive.size()-1;

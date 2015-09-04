@@ -2,9 +2,11 @@
 #define CameraComponent_h
 
 #include <unordered_map>
+#include <iostream>
 
-#include "EntityManager.h"
+#include "EntityManager.hpp"
 #include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
 
 typedef glm::mat4 Mat4x4;
 
@@ -24,7 +26,6 @@ private:
 		float* aspect_ratio;		///< camera aspect ratio
 		Mat4x4* view_matrix;		///< camera view matrix
 		Mat4x4* projection_matrix;	///< camera projection matrix
-
 	};
 
 	Data m_data;
@@ -32,25 +33,26 @@ private:
 	std::unordered_map<uint,uint> m_index_map;
 
 public:
-	CameraComponentManager();
 	CameraComponentManager(uint size);
 	~CameraComponentManager();
 
 	void reallocate(uint size);
 
-	void addComponent(Entity entity);
-
-	void addComponent(Entity entity, float near, float far, float fovy, float aspect_ratio);
+	void addComponent(Entity entity,
+						float near = 0.01,
+						float far = 1000.0,
+						float fovy = 0.5236,
+						float aspect_ratio = 16.0/9.0);
 
 	void deleteComponent(Entity entity);
 
-	void getIndex(Entity entity);
+	const uint getIndex(Entity entity);
 
 	void setCameraAttributes(uint index, float near, float far, float fovy, float aspect_ratio);
 
-	void updateViewMatrix(uint index);
-
 	void updateProjectionMatrix(uint index);
+
+	const Mat4x4 getProjectionMatrix(uint index);
 };
 
 #endif

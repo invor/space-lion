@@ -75,16 +75,10 @@
     <ClInclude Include="..\..\src\engine\core\controls.h">
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\material.h">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\engine\core\postProcessor.h">
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\renderHub.h">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\resourceManager.h">
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\core\scene.h">
@@ -129,18 +123,6 @@
     <ClInclude Include="..\..\..\glowl\include\glowl\texture2D.h">
       <Filter>Header Files\gfx\glowl</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\engine\EntityManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\TransformComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\CameraComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\LightComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\engine\types.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -149,6 +131,27 @@
     </ClInclude>
     <ClInclude Include="..\..\src\engine\MTQueue.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\TransformComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\LightComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\EntityManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\CameraComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\RenderingPipeline.hpp">
+      <Filter>Header Files\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Material.h">
+      <Filter>Header Files\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ResourceManager.h">
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -182,16 +185,10 @@
     <ClCompile Include="..\..\src\engine\core\controls.cpp">
       <Filter>Source Files\gfx</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\core\material.cpp">
-      <Filter>Source Files\gfx</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\engine\core\renderHub.cpp">
       <Filter>Source Files\gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\core\postProcessor.cpp">
-      <Filter>Source Files\gfx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\engine\core\resourceManager.cpp">
       <Filter>Source Files\gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\core\scene.cpp">
@@ -228,6 +225,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\TransformComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\RenderJobs.cpp">
+      <Filter>Source Files\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\CameraComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\RenderingPipeline.cpp">
+      <Filter>Source Files\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Material.cpp">
+      <Filter>Source Files\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ResourceManager.cpp">
+      <Filter>Source Files\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\LightComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

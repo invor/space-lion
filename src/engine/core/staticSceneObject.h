@@ -3,7 +3,7 @@
 
 #include "sceneEntity.h"
 #include "mesh.h"
-#include "material.h"
+#include "../Material.h"
 #include <memory>
 
 class StaticSceneObject : public SceneEntity

@@ -1,7 +1,9 @@
 #ifndef LightComponent_h
 #define LightComponent_h
 
-#include "EntityManager.h"
+#include <unordered_map>
+
+#include "EntityManager.hpp"
 #include "types.hpp"
 
 class LightComponentManager
@@ -14,10 +16,17 @@ private:
 		void* buffer;	///< raw data pointer
 
 		Entity* entity;				///< entity owning that owns the component
-		Vec3* lightColour;
+		Vec3* light_colour;			///< color of the light in rgb values
+		float* light_intensity;		///< light intensity...should move towards physically based lighting
 	};
 
+	Data m_data;
+
+	std::unordered_map<uint,uint> m_index_map;
+
 public:
+	LightComponentManager(uint size);
+	~LightComponentManager();
 
 	void reallocate(uint size);
 

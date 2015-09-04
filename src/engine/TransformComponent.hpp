@@ -2,8 +2,9 @@
 #define TransformComponent_h
 
 #include <unordered_map>
+#include <iostream>
 
-#include "EntityManager.h"
+#include "EntityManager.hpp"
 #include "types.hpp"
 
 
@@ -41,6 +42,8 @@ public:
 	void reallocate(uint size);
 
 	void addComponent(Entity entity);
+
+	void addComponent(Entity entity, Vec3 position, Quat orientation, Vec3 scale);
 
 	void deleteComonent(Entity entity);
 

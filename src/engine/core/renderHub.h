@@ -12,7 +12,7 @@
 #include <vector>
 #include "scene.h"
 #include "postProcessor.h"
-#include "resourceManager.h"
+#include "../ResourceManager.h"
 #include "controls.h"
 #include "framebufferObject.h"
 #include <GLFW/glfw3.h>

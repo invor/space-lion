@@ -129,9 +129,9 @@ void Scene::drawFroward()
 		shader_itr->first->setUniform("projection_matrix", projectionMx);
 	
 		int light_counter = 0;
-		shader_itr->first->setUniform("lights.position", lightSourceList.begin()->getPosition());
-		shader_itr->first->setUniform("lights.intensity", lightSourceList.begin()->getColour());
-		shader_itr->first->setUniform("num_lights", light_counter);
+		//shader_itr->first->setUniform("lights.position", lightSourceList.begin()->getPosition());
+		//shader_itr->first->setUniform("lights.intensity", lightSourceList.begin()->getColour());
+		//shader_itr->first->setUniform("num_lights", light_counter);
 	
 		for (MaterialMap::iterator material_itr = shader_itr->second.begin(); material_itr != shader_itr->second.end(); ++material_itr)
 		{

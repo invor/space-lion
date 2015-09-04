@@ -5,17 +5,24 @@
 #include <vector>
 #include <string>
 
-#include "EntityManager.h"
+#include "EntityManager.hpp"
 #include "GLSLProgram.h"
-#include "core\material.h"
+#include "Material.h"
 #include "mesh.h"
-#include "MTQueue.hpp"
-#include "TransformComponent.h"
-#include "CameraComponent.h"
+#include "TransformComponent.hpp"
+#include "CameraComponent.hpp"
+#include "types.hpp"
+#include "ResourceManager.h"
 
-struct RenderJob
+/**
+ * A request for a render job is compromised of an entity and the paths to
+ * the graphic resources. Typically used in the RenderingPipeline class
+ * to create necessary resources and pass these on to a RenderJobManager using
+ * a RenderJob.
+ */
+struct RenderJobRequest
 {
-	RenderJob(Entity e, std::string material_path, std::string mesh_path)
+	RenderJobRequest(Entity e, std::string material_path, std::string mesh_path)
 		: entity(e), material_path(material_path), mesh_path(mesh_path) {}
 
 	Entity entity;
@@ -24,7 +31,21 @@ struct RenderJob
 };
 
 /**
- * Manages all render jobs within a tree datastructure optimized for rendering.
+ * Compact representation of a render job. Contains an entity and pointers
+ * to the graphic resources (that are already created and managed in the ResourceManager).
+ */
+struct RenderJob
+{
+	RenderJob(Entity e, std::shared_ptr<Material> material, std::shared_ptr<Mesh> mesh)
+		: entity(e), material(material), mesh(mesh) {}
+
+	Entity entity;
+	std::shared_ptr<Material> material;
+	std::shared_ptr<Mesh> mesh;
+};
+
+/**
+ * Manages a set of render jobs within a tree datastructure optimized for rendering.
  * Theoretically a render job is a per-frame task issued to the renderer by each
  * entity that has a visual representation. It primarily contains information 
  * about the graphics resources that are used during rendering.
@@ -69,24 +90,23 @@ private:
 
 	RootNode m_root;
 
-	MTQueue<RenderJob> m_job_queue;
-
 	/**
-	 * Pointer to active TransformComonentManger. Transforms information is essential to rendering
+	 * Pointer to active TransformComponentManger. Transform information is essential to rendering, as is the camera.
 	 */
-	TransformComponentManager* transform_components;
-	CameraComponentManager*  camera_components;
+	EntityManager* m_entities;
+	TransformComponentManager* m_transform_components;
+	CameraComponentManager*  m_camera_components;
 
 public:
-	RenderJobManager();
+	RenderJobManager(EntityManager* entity_mngr, TransformComponentManager* transform_mngr, CameraComponentManager* camera_mngr, ResourceManager* resource_mngr);
 	~RenderJobManager();
 
-	void addRenderJob(Entity entity, std::string material, std::string mesh);
+	void addRenderJob(RenderJob new_job);
 
 	/**
 	 * 
 	 */
-	void processRenderJobs();
+	void processRenderJobs(Entity active_camera);
 };
 
 #endif
