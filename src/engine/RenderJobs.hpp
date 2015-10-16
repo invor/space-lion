@@ -112,6 +112,8 @@ public:
 	 * 
 	 */
 	void processRenderJobs(Entity active_camera, std::vector<Entity>& active_lightsources);
+
+	void clearRenderJobs();
 };
 
 #endif

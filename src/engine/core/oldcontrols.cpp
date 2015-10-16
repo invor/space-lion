@@ -1,6 +1,6 @@
-#include "controls.h"
+#include "oldcontrols.h"
 
-namespace Controls {
+namespace OldControls {
 
 	namespace
 	{
@@ -14,21 +14,21 @@ namespace Controls {
 			latest_scroll_input += 0.5f * (float) y_offset;
 		}
 	}
-
+	
 	void updateCamera(GLFWwindow *window, SceneCamera *camera)
 	{
 		/*	Get current cursor position on the screen */
 		double pos_x, pos_y;
 		glfwGetCursorPos(window, &pos_x, &pos_y);
 		glm::vec2 currentCursorPosition(pos_x, pos_y);
-
+	
 		/*	Get pointer to active camera */
 		glm::vec3 look_at_point = camera->getLookAt();
-
+	
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)
 		{
 			glm::vec2 cursor_movement = (latest_cursor_position - currentCursorPosition)*0.1f;
-
+	
 			/*	Update camera position */
 			glm::vec4 cam_position = glm::vec4(camera->getPosition(), 1.0);
 			/*	To that end, translate look-at-point to origin */
@@ -40,7 +40,7 @@ namespace Controls {
 			/*	Reverse translation */
 			new_position += glm::vec4(look_at_point, 0.0);
 			camera->setPosition(glm::vec3(new_position));
-
+	
 			/*	Update camera oritentation */
 			glm::quat cam_orientation = camera->getOrientation();
 			/*	First, global rotation around y-axis */
@@ -54,18 +54,18 @@ namespace Controls {
 			glm::vec2 cursor_movement = (latest_cursor_position - currentCursorPosition)*0.1f;
 			glm::vec3 right_hand_vec = camera->computeRightHandVector();
 			glm::vec3 up_vec = camera->computeUpVector();
-
+	
 			glm::vec3 translation_vec = ((right_hand_vec * cursor_movement.x) + (up_vec * -cursor_movement.y)) * 0.01f;
-
+	
 			camera->setLookAt(look_at_point + translation_vec);
 			camera->setPosition(camera->getPosition() + translation_vec);
 		}
-
+	
 		/*	Implement "zoom" function */
 		float distance_from_center = glm::length(camera->getPosition() - camera->getLookAt());
 		camera->translate(latest_scroll_input * (distance_from_center / 8.0f) * camera->computeFrontVector());
 		latest_scroll_input = 0.0;
-
+	
 		/*	Update latest cursor position */
 		latest_cursor_position = currentCursorPosition;
 	}

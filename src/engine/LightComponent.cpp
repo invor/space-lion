@@ -56,7 +56,7 @@ void LightComponentManager::addComponent(Entity entity)
 
 	m_data.entity[index] = entity;
 	m_data.light_colour[index] = Vec3(1.0);
-	m_data.light_intensity[index] = 10000.0f;
+	m_data.light_intensity[index] = 1000.0f;
 
 	m_data.used++;
 }

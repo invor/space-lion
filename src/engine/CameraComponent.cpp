@@ -107,7 +107,7 @@ void CameraComponentManager::updateProjectionMatrix(uint index)
 
 	Mat4x4 projection_matrix = m_data.projection_matrix[index];
 
-	m_data.projection_matrix[index] = glm::perspective((9.0f/16.0f)*60.0f*(3.14f/180.0f),16.0f/9.0f,0.01f,10.0f);
+	m_data.projection_matrix[index] = glm::perspective(fovy,aspect_ratio,near,far);
 
 	//	float f = 1.0f / std::tan(fovy / 2.0f);
 	//	float nf = 1.0f / (near - far);

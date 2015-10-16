@@ -49,13 +49,15 @@ public:
 
 	uint getIndex(Entity entity);
 
-	void move(uint index, Vec3 translation);
+	void translate(uint index, Vec3 translation);
 
 	void rotate(uint index, Quat rotation);
 
 	void scale(uint index, Vec3 scale_factors);
 
 	const Vec3 getPosition(uint index);
+
+	const Quat getOrientation(uint index);
 
 	const Mat4x4 getWorldTransformation(uint index);
 

@@ -13,7 +13,7 @@
 #include "scene.h"
 #include "postProcessor.h"
 #include "../ResourceManager.h"
-#include "controls.h"
+#include "oldcontrols.h"
 #include "framebufferObject.h"
 #include <GLFW/glfw3.h>
 

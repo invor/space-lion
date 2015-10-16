@@ -144,3 +144,9 @@ void RenderJobManager::processRenderJobs(Entity active_camera, std::vector<Entit
 	}
 
 }
+
+void RenderJobManager::clearRenderJobs()
+{
+	m_root.shaders.clear();
+	m_root.num_render_jobs = 0;
+}

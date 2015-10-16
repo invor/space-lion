@@ -56,7 +56,7 @@ bool RenderHub::init()
 	setActiveInstance(this);
 	glfwSetWindowSizeCallback(activeWindow,windowSizeCallback);
 	glfwSetWindowCloseCallback(activeWindow,windowCloseCallback);
-	Controls::setControlCallbacks(activeWindow);
+	OldControls::setControlCallbacks(activeWindow);
 
 	/*	Initialize glew */
 	//glewExperimental = GL_TRUE;
@@ -150,11 +150,21 @@ void RenderHub::run()
 	/*	TEMPORARY SHADER TESTING */
 	std::shared_ptr<Mesh> geomPtr;
 	std::shared_ptr<Material> matPtr;
-	geomPtr = resourceMngr.createBox();
-	//geomPtr = resourceMngr.createMesh("../resources/meshes/outflyer.fbx");
+	//geomPtr = resourceMngr.createBox();
+	geomPtr = resourceMngr.createMesh("../resources/meshes/sponza_cust.fbx");
 	matPtr = resourceMngr.createMaterial("../resources/materials/debug.slmtl");
 	if(!(activeScene->createStaticSceneObject(0,glm::vec3(0.0,0.0,0.0),glm::quat(),glm::vec3(1.0),geomPtr,matPtr)))
 		std::cout<<"Failed to create scene object."<<std::endl;
+
+	//	for(int j=-100; j < 100; j = j+4)
+	//	{
+	//		for(int i=-100; i < 100; i = i+10)
+	//		{
+	//			if(!(activeScene->createStaticSceneObject(0,glm::vec3(i,j,0.0),glm::quat(),glm::vec3(1.0),geomPtr,matPtr)))
+	//			std::cout<<"Failed to create scene object."<<std::endl;
+	//		}
+	//	}
+	
 
 	geomPtr.reset();
 	matPtr.reset();
@@ -168,7 +178,7 @@ void RenderHub::run()
 	//geomPtr.reset();
 	//matPtr.reset();
 
-	if(!(activeScene->createSceneCamera(0,glm::vec3(0.0,0.0,5.0),glm::vec3(0.0,0.0,0.0),16.0f/9.0f,(9.0f/16.0f)*60.0f*(3.14f/180.0f))))
+	if(!(activeScene->createSceneCamera(0,glm::vec3(0.0,0.0,50.0),glm::vec3(0.0,0.0,0.0),16.0f/9.0f,(9.0f/16.0f)*60.0f*(3.14f/180.0f))))
 		std::cout<<"Failed to create camera"<<"\n";
 
 	if(!(activeScene->createSceneLight(0,glm::vec3(2500.0,2500.0,1500.0),glm::vec3(50000.0))))
@@ -189,7 +199,7 @@ void RenderHub::run()
 	//while(running)
 	{
 		/*	For now, I avoid using a glfw callback function for this */
-		Controls::updateCamera(activeWindow, activeScene->getActiveCamera());
+		OldControls::updateCamera(activeWindow, activeScene->getActiveCamera());
 
 		/*  Test picking pass */
 		//picking_fbo.bind();

@@ -4,6 +4,7 @@
 #include "RenderJobs.hpp"
 #include "ResourceManager.h"
 #include "MTQueue.hpp"
+#include "Controls.hpp"
 
 #include <GLFW\glfw3.h>
 
@@ -15,6 +16,13 @@ private:
 	 */
 	ResourceManager m_resource_mngr;
 
+	/*
+	 * Render jobs for a light prepass, i.e. determining all relevant lights per (screen)tile.
+	 * All (point) light sources are organized as render jobs, rendering a simple bounding sphere
+	 * per light.
+	 */
+	RenderJobManager m_lights_prepass;
+
 	RenderJobManager m_shadow_map_pass;
 
 	RenderJobManager m_forward_render_pass;
@@ -24,8 +32,14 @@ private:
 	Entity m_active_camera;
 	std::vector<Entity> m_active_lightsources;
 
+	/*
+	 * Thread-safe queue used to request new render jobs
+	 */
 	MTQueue<RenderJobRequest> m_jobRequest_queue;
 
+	/*
+	 * Pointers to relevant modules of the engine, e.g. the EntityManager and TransformManager
+	 */
 	EntityManager* m_entity_mngr;
 	TransformComponentManager* m_transform_mngr;
 

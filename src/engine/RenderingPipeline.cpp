@@ -4,12 +4,13 @@ RenderingPipeline::RenderingPipeline(EntityManager* entity_mngr,
 										TransformComponentManager* transform_mngr,
 										CameraComponentManager* camera_mngr,
 										LightComponentManager* light_mngr)
-	: m_forward_render_pass(entity_mngr,transform_mngr,camera_mngr,light_mngr),
+	: m_lights_prepass(entity_mngr,transform_mngr,camera_mngr,light_mngr),
+		m_forward_render_pass(entity_mngr,transform_mngr,camera_mngr,light_mngr),
 		m_shadow_map_pass(entity_mngr,transform_mngr,camera_mngr,light_mngr),
 		m_active_camera(entity_mngr->create()), m_entity_mngr(entity_mngr), m_transform_mngr(transform_mngr)
 {
-	transform_mngr->addComponent(m_active_camera,Vec3(0.0,0.0,5.0),Quat(),Vec3(1.0));
-	camera_mngr->addComponent(m_active_camera);
+	transform_mngr->addComponent(m_active_camera,Vec3(0.0,0.0,50.0),Quat(),Vec3(1.0));
+	camera_mngr->addComponent(m_active_camera,0.01,10000.0);
 }
 
 RenderingPipeline::~RenderingPipeline()
@@ -31,7 +32,7 @@ void RenderingPipeline::run()
 				<<"Error: Couldn't initialize glfw.";
 	}
 
-	m_active_window = glfwCreateWindow(800,450,"Space-Lion",NULL,NULL);
+	m_active_window = glfwCreateWindow(1600,900,"Space-Lion",NULL,NULL);
 
 	if(!m_active_window)
 	{
@@ -49,6 +50,9 @@ void RenderingPipeline::run()
 	/* Register callback functions */
 	glfwSetWindowSizeCallback(m_active_window,windowSizeCallback);
 	glfwSetWindowCloseCallback(m_active_window,windowCloseCallback);
+
+	Controls::init(m_transform_mngr,&m_active_camera);
+	Controls::setControlCallbacks(m_active_window);
 
 	/*	Initialize glew */
 	//glewExperimental = GL_TRUE;
@@ -71,19 +75,29 @@ void RenderingPipeline::run()
 
 
 	/* Hardcoded tests */
-	Entity debug_cube = m_entity_mngr->create();
-	m_transform_mngr->addComponent(debug_cube,Vec3(0.0),Quat(),Vec3(1.0));
-	std::shared_ptr<Mesh> geomPtr;
-	std::shared_ptr<Material> matPtr;
-	geomPtr = m_resource_mngr.createBox();
-	matPtr = m_resource_mngr.createMaterial("../resources/materials/debug.slmtl");
-	m_forward_render_pass.addRenderJob(RenderJob(debug_cube,matPtr,geomPtr));
+	//	Entity debug_cube = m_entity_mngr->create();
+	//	m_transform_mngr->addComponent(debug_cube,Vec3(0.0),Quat(),Vec3(1.0));
+	//	std::shared_ptr<Mesh> geomPtr;
+	//	std::shared_ptr<Material> matPtr;
+	//	geomPtr = m_resource_mngr.createBox();
+	//	matPtr = m_resource_mngr.createMaterial("../resources/materials/debug.slmtl");
+	//	m_forward_render_pass.addRenderJob(RenderJob(debug_cube,matPtr,geomPtr));
 
-	std::cout<<"Camera id: "<<m_active_camera.id()<<std::endl;
-	std::cout<<"Debug cube id: "<<debug_cube.id()<<std::endl;
+	//	std::cout<<"Camera id: "<<m_active_camera.id()<<std::endl;
+	//	std::cout<<"Debug cube id: "<<debug_cube.id()<<std::endl;
+
+	double t0,t1 = 0.0;
 
 	while (!glfwWindowShouldClose(m_active_window))
 	{
+		t0 = t1;
+		t1 = glfwGetTime();
+		double dt = t1 - t0;
+
+		//std::cout<<"Timestep: "<<dt<<std::endl;
+
+		Controls::checkKeyStatus(m_active_window,dt);
+
 		/* Process new RenderJobRequest */
 		processRenderJobRequest();
 
@@ -100,6 +114,7 @@ void RenderingPipeline::run()
 	}
 
 	/* Clear resources while context is still alive */
+	m_forward_render_pass.clearRenderJobs();
 	m_resource_mngr.clearLists();
 
 	glfwMakeContextCurrent(NULL);

@@ -136,6 +136,9 @@ std::shared_ptr<Mesh> ResourceManager::createMesh(const std::string path)
 	else
 	{
 		// do something kid!
+
+		// create default object (i.e. Box)
+
 		//return
 	}
 

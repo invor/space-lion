@@ -145,7 +145,8 @@
     <ClInclude Include="..\..\..\glowl\include\glowl\texture.h" />
     <ClInclude Include="..\..\..\glowl\include\glowl\texture2D.h" />
     <ClInclude Include="..\..\src\engine\CameraComponent.hpp" />
-    <ClInclude Include="..\..\src\engine\core\controls.h" />
+    <ClInclude Include="..\..\src\engine\Controls.hpp" />
+    <ClInclude Include="..\..\src\engine\core\oldcontrols.h" />
     <ClInclude Include="..\..\src\engine\core\postProcessor.h" />
     <ClInclude Include="..\..\src\engine\core\renderHub.h" />
     <ClInclude Include="..\..\src\engine\core\scene.h" />
@@ -186,7 +187,8 @@
     <ClCompile Include="..\..\..\glowl\src\shaderStorageBufferObject.cpp" />
     <ClCompile Include="..\..\..\glowl\src\texture2D.cpp" />
     <ClCompile Include="..\..\src\engine\CameraComponent.cpp" />
-    <ClCompile Include="..\..\src\engine\core\controls.cpp" />
+    <ClCompile Include="..\..\src\engine\Controls.cpp" />
+    <ClCompile Include="..\..\src\engine\core\oldcontrols.cpp" />
     <ClCompile Include="..\..\src\engine\core\postProcessor.cpp" />
     <ClCompile Include="..\..\src\engine\core\renderHub.cpp" />
     <ClCompile Include="..\..\src\engine\core\scene.cpp" />

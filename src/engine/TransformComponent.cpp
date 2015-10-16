@@ -124,7 +124,7 @@ uint TransformComponentManager::getIndex(Entity entity)
 	return search->second;
 }
 
-void TransformComponentManager::move(uint index, Vec3 translation)
+void TransformComponentManager::translate(uint index, Vec3 translation)
 {
 	m_data.position[index] += translation;
 
@@ -159,6 +159,11 @@ void TransformComponentManager::transform(uint index)
 const Vec3 TransformComponentManager::getPosition(uint index)
 {
 	return m_data.position[index];
+}
+
+const Quat TransformComponentManager::getOrientation(uint index)
+{
+	return m_data.orientation[index];
 }
 
 const Mat4x4 TransformComponentManager::getWorldTransformation(uint index)

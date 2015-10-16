@@ -72,9 +72,6 @@
     <ClInclude Include="..\..\src\engine\fbx\fbx_value.hpp">
       <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\controls.h">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\engine\core\postProcessor.h">
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
@@ -153,6 +150,12 @@
     <ClInclude Include="..\..\src\engine\ResourceManager.h">
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\engine\Controls.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\core\oldcontrols.h">
+      <Filter>Header Files\gfx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp">
@@ -181,9 +184,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\engine\fbx\fbx_value.cpp">
       <Filter>Source Files\gfx\fbx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\engine\core\controls.cpp">
-      <Filter>Source Files\gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\core\renderHub.cpp">
       <Filter>Source Files\gfx</Filter>
@@ -244,6 +244,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\engine\LightComponent.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Controls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\core\oldcontrols.cpp">
+      <Filter>Source Files\gfx</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
