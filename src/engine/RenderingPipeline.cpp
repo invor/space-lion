@@ -9,8 +9,8 @@ RenderingPipeline::RenderingPipeline(EntityManager* entity_mngr,
 		m_shadow_map_pass(entity_mngr,transform_mngr,camera_mngr,light_mngr),
 		m_active_camera(entity_mngr->create()), m_entity_mngr(entity_mngr), m_transform_mngr(transform_mngr)
 {
-	transform_mngr->addComponent(m_active_camera,Vec3(0.0,0.0,50.0),Quat(),Vec3(1.0));
-	camera_mngr->addComponent(m_active_camera,0.01,10000.0);
+	transform_mngr->addComponent(m_active_camera,Vec3(0.0f,0.0f,50.0f),Quat(),Vec3(1.0f));
+	camera_mngr->addComponent(m_active_camera,0.01f,10000.0f);
 }
 
 RenderingPipeline::~RenderingPipeline()

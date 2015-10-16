@@ -27,9 +27,9 @@
 /*	Include space-lion headers */
 #include "material.h"
 #include "texture2D.h"
-#include "core/texture3D.h"
+//#include "core/texture3D.h"
 #include "mesh.h"
-#include "core/vertexStructs.h"
+#include "vertexStructs.h"
 #include "GLSLProgram.h"
 #include "fbx/fbx_exceptions.hpp"
 #include "fbx/fbx_generic_parser.hpp"

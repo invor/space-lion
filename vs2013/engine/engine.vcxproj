@@ -146,17 +146,6 @@
     <ClInclude Include="..\..\..\glowl\include\glowl\texture2D.h" />
     <ClInclude Include="..\..\src\engine\CameraComponent.hpp" />
     <ClInclude Include="..\..\src\engine\Controls.hpp" />
-    <ClInclude Include="..\..\src\engine\core\oldcontrols.h" />
-    <ClInclude Include="..\..\src\engine\core\postProcessor.h" />
-    <ClInclude Include="..\..\src\engine\core\renderHub.h" />
-    <ClInclude Include="..\..\src\engine\core\scene.h" />
-    <ClInclude Include="..\..\src\engine\core\sceneCamera.h" />
-    <ClInclude Include="..\..\src\engine\core\sceneEntity.h" />
-    <ClInclude Include="..\..\src\engine\core\sceneLightSource.h" />
-    <ClInclude Include="..\..\src\engine\core\staticSceneObject.h" />
-    <ClInclude Include="..\..\src\engine\core\texture3D.h" />
-    <ClInclude Include="..\..\src\engine\core\vertexStructs.h" />
-    <ClInclude Include="..\..\src\engine\core\volumetricSceneObject.h" />
     <ClInclude Include="..\..\src\engine\EntityManager.hpp" />
     <ClInclude Include="..\..\src\engine\fbx\fbx_exceptions.hpp" />
     <ClInclude Include="..\..\src\engine\fbx\fbx_generic_parser.hpp" />
@@ -179,6 +168,7 @@
     <ClInclude Include="..\..\src\engine\ResourceManager.h" />
     <ClInclude Include="..\..\src\engine\TransformComponent.hpp" />
     <ClInclude Include="..\..\src\engine\types.hpp" />
+    <ClInclude Include="..\..\src\engine\vertexStructs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\glowl\src\framebufferObject.cpp" />
@@ -188,13 +178,6 @@
     <ClCompile Include="..\..\..\glowl\src\texture2D.cpp" />
     <ClCompile Include="..\..\src\engine\CameraComponent.cpp" />
     <ClCompile Include="..\..\src\engine\Controls.cpp" />
-    <ClCompile Include="..\..\src\engine\core\oldcontrols.cpp" />
-    <ClCompile Include="..\..\src\engine\core\postProcessor.cpp" />
-    <ClCompile Include="..\..\src\engine\core\renderHub.cpp" />
-    <ClCompile Include="..\..\src\engine\core\scene.cpp" />
-    <ClCompile Include="..\..\src\engine\core\sceneCamera.cpp" />
-    <ClCompile Include="..\..\src\engine\core\sceneLightSource.cpp" />
-    <ClCompile Include="..\..\src\engine\core\texture3D.cpp" />
     <ClCompile Include="..\..\src\engine\EntityManager.cpp" />
     <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp" />
     <ClCompile Include="..\..\src\engine\fbx\fbx_node_name.cpp" />

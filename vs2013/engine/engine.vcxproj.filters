@@ -72,36 +72,6 @@
     <ClInclude Include="..\..\src\engine\fbx\fbx_value.hpp">
       <Filter>Header Files\gfx\fbx</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\postProcessor.h">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\renderHub.h">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\scene.h">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\sceneCamera.h">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\sceneEntity.h">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\sceneLightSource.h">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\staticSceneObject.h">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\texture3D.h">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\vertexStructs.h">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\volumetricSceneObject.h">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\glowl\include\glowl\framebufferObject.h">
       <Filter>Header Files\gfx\glowl</Filter>
     </ClInclude>
@@ -153,7 +123,7 @@
     <ClInclude Include="..\..\src\engine\Controls.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\engine\core\oldcontrols.h">
+    <ClInclude Include="..\..\src\engine\vertexStructs.h">
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
   </ItemGroup>
@@ -184,24 +154,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\engine\fbx\fbx_value.cpp">
       <Filter>Source Files\gfx\fbx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\engine\core\renderHub.cpp">
-      <Filter>Source Files\gfx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\engine\core\postProcessor.cpp">
-      <Filter>Source Files\gfx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\engine\core\scene.cpp">
-      <Filter>Source Files\gfx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\engine\core\sceneCamera.cpp">
-      <Filter>Source Files\gfx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\engine\core\sceneLightSource.cpp">
-      <Filter>Source Files\gfx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\engine\core\texture3D.cpp">
-      <Filter>Source Files\gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\main.cpp">
       <Filter>Source Files</Filter>
@@ -247,9 +199,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\engine\Controls.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\engine\core\oldcontrols.cpp">
-      <Filter>Source Files\gfx</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

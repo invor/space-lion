@@ -3,7 +3,7 @@
 #include <thread>
 #include <future>
 
-#include "core/renderHub.h"
+//#include "core/renderHub.h"
 
 #include "EntityManager.hpp"
 #include "TransformComponent.hpp"
@@ -14,23 +14,6 @@ using namespace std;
 
 int main(){
 
-	
-	RenderHub testRenderer;
-	//if(testRenderer.init())
-	//{
-	//	testRenderer.addScene();
-	//	testRenderer.setActiveScene(0);
-	//	//testReceiver->pushLoadSceneMessages();
-	//	std::thread renderThread(&RenderHub::run,&testRenderer);
-	//	renderThread.join();
-	//}
-	testRenderer.init();
-	testRenderer.run();
-	//std::thread renderThread(&RenderHub::run,&testRenderer);
-	//
-	//renderThread.join();
-
-	/*
 	EntityManager entity_mngr;
 	TransformComponentManager scene_transformations_mngr(1000000);
 	CameraComponentManager camera_mngr(1000000);
@@ -67,10 +50,10 @@ int main(){
 
 	Entity sponza = entity_mngr.create();
 	scene_transformations_mngr.addComponent(sponza,Vec3(0.0),Quat(),Vec3(1.0));
-	rendering_pipeline.requestRenderJob(sponza,"../resources/materials/debug.slmtl","../resources/meshes/sponza_cust.fbx");
+	rendering_pipeline.requestRenderJob(sponza,"../resources/materials/templates/silver.slmtl","../resources/meshes/sponza_cust.fbx");
 	
 	renderThread.join();
-	*/
+	
 
 	return 0;
 }
