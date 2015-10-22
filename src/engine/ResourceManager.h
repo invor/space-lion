@@ -69,7 +69,7 @@ public:
 	 * \param inOutGeomPtr A pointer set to the newly created vertex geometry via in-out parameter
 	 * \return Returns true if the triangle was succesfully created, false otherwise
 	 */
-	bool createTriangle(std::shared_ptr<Mesh> &inOutGeomPtr);
+	std::shared_ptr<Mesh> createTriangle();
 
 	/**
 	 * \brief Creates a simple box object for debugging purposes
@@ -79,41 +79,80 @@ public:
 
 	/**
 	 * \brief Creates a Mesh object from a local file.
-	 * \note Not yet implemented!
 	 * \param path Location of the mesh file
 	 * \return Returns shared pointer to the mesh
 	 */
 	std::shared_ptr<Mesh> createMesh(const std::string path);
 
+	template<typename VertexContainer, typename IndexContainer>
+	std::shared_ptr<Mesh> createMesh(const std::string name, VertexContainer& vertices, const IndexContainer& indices, GLenum mesh_type)
+	{
+		/*	Check list of vertexBufferObjects for default box object(Name="Box") */
+		for(auto& mesh : geometry_list)
+		{
+			if(mesh->getName() == name)
+				return mesh;
+		}
+
+		std::shared_ptr<Mesh> mesh(new Mesh(name));
+
+		mesh->bufferDataFromArray(vertices,indices,GL_TRIANGLES);
+
+		//TODO Improve, i.e. make more automatic
+
+		if( std::is_same<VertexContainer::value_type,Vertex_pu>::value )
+		{
+			mesh->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pu),0);
+			mesh->setVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(Vertex_pu),(GLvoid*) sizeof(Vertex_p));
+		}
+		else if( std::is_same<VertexContainer::value_type,Vertex_pntcub>::value )
+		{
+			mesh->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),0);
+			mesh->setVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_p));
+			mesh->setVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_pn));
+			mesh->setVertexAttribPointer(3,4,GL_UNSIGNED_BYTE,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_pnt));
+			mesh->setVertexAttribPointer(4,2,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_pntc));
+			mesh->setVertexAttribPointer(5,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pntcub),(GLvoid*) sizeof(Vertex_pntcu));
+		}
+
+		geometry_list.push_back(std::move(mesh));
+
+		return geometry_list.back();
+	}
+
 	/**
 	 * \brief Creates default material object for debugging purposes
-	 * \param inOutMtlPtr A pointer set to the newly created material via in-out parameter
-	 * \return Returns true if material was succesfully created, false otherwise
+	 * \return 
 	 */
 	std::shared_ptr<Material> createMaterial();
 
 	/**
 	 * \brief Creates a material object from a local file
 	 * \param path Location of the material file
-	 * \param inOutMtlPtr A pointer set to the newly created material via in-out parameter
-	 * \return Returns true if material was succesfully created, false otherwise
+	 * \return 
 	 */
 	std::shared_ptr<Material> createMaterial(const std::string path);
 
 	/**
 	 * \brief Reload a material object from file
 	 * \note Not yet implemented. For later use, when some kind of editor allows to change material properties at runtime
-	 * \return Returns true if material was succesfully reloaded, false otherwise
+	 * \return 
 	 */
 	bool reloadMaterial();
 
 	/**
 	 * Creates a GLSLprogram object
 	 * \param type Specifies which shader program should be created
-	 * \param inOutPrgPtr A pointer set to the newly created shader program via in-out parameter
-	 * \retrun Returns true if GLSLprogram was succesfully created, false otherwise
+	 * \retrun 
 	 */
 	std::shared_ptr<GLSLProgram> createShaderProgram(shaderType type);
+
+	/**
+	 * Creates a GLSLprogram object
+	 * \param paths Gives the paths to all shader files.
+	 * \retrun 
+	 */
+	std::shared_ptr<GLSLProgram> createShaderProgram(std::vector<std::string> paths);
 
 	/**
 	 * \brief Creates a 2D texture from a given float array

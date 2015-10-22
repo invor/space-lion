@@ -1,5 +1,5 @@
-vs ../resources/shaders/surface_lighting_v.glsl
-fs ../resources/shaders/surface_lighting_f.glsl
+vs ../resources/shaders/dfr_solidSurface_v.glsl
+fs ../resources/shaders/dfr_solidSurface_f.glsl
 td ../resources/textures/templates/gold_diffuse_albedo.ppm
 ts ../resources/textures/templates/gold_specular_colour.ppm
 tr ../resources/textures/templates/gold_roughness.ppm

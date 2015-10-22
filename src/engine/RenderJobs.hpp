@@ -91,27 +91,16 @@ private:
 
 	RootNode m_root;
 
-	/**
-	 * Pointer to active TransformComponentManger. Transform information is essential to rendering, as is the camera.
-	 */
-	EntityManager* m_entities;
-	TransformComponentManager* m_transform_components;
-	CameraComponentManager*  m_camera_components;
-	LightComponentManager* m_light_components;
+	friend class RenderingPipeline;
+	friend class DeferredRenderingPipeline;
 
 public:
-	RenderJobManager(EntityManager* entity_mngr,
-						TransformComponentManager* transform_mngr,
-						CameraComponentManager* camera_mngr,
-						LightComponentManager* light_mngr);
+	RenderJobManager();
 	~RenderJobManager();
 
 	void addRenderJob(RenderJob new_job);
 
-	/**
-	 * 
-	 */
-	void processRenderJobs(Entity active_camera, std::vector<Entity>& active_lightsources);
+	RootNode getRoot();
 
 	void clearRenderJobs();
 };

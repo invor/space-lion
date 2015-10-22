@@ -20,7 +20,7 @@ namespace Controls
 			double dx = xpos - last_xpos;
 			double dy = ypos - last_ypos;
 
-			std::cout<<"Mouse dx: "<<dx<<" dy: "<<dy<<std::endl;
+			//std::cout<<"Mouse dx: "<<dx<<" dy: "<<dy<<std::endl;
 
 			last_xpos = xpos;
 			last_ypos = ypos;
@@ -34,12 +34,15 @@ namespace Controls
 
 		void cameraMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 		{
-
 		}
 
 		void cameraKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
 
+			if(key == GLFW_KEY_ESCAPE)
+			{
+				glfwSetWindowShouldClose(window,true);
+			}
 		}
 	}
 

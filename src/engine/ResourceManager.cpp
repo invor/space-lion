@@ -14,7 +14,7 @@ void ResourceManager::clearLists()
 	shader_program_list.clear();
 }
 
-bool ResourceManager::createTriangle(std::shared_ptr<Mesh> &inOutGeomPtr)
+std::shared_ptr<Mesh> ResourceManager::createTriangle()
 {
 	Vertex_pn *vertexArray = new Vertex_pn[3];
 	GLuint *indexArray = new GLuint[3];
@@ -31,10 +31,9 @@ bool ResourceManager::createTriangle(std::shared_ptr<Mesh> &inOutGeomPtr)
 	triangle_mesh->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pn),0);
 	triangle_mesh->setVertexAttribPointer(3,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pn),(GLvoid*) sizeof(Vertex_p));
 
-	inOutGeomPtr = triangle_mesh;
 	geometry_list.push_back(std::move(triangle_mesh));
 
-	return true;
+	return geometry_list.back();
 }
 
 std::shared_ptr<Mesh> ResourceManager::createBox()
@@ -203,17 +202,29 @@ std::shared_ptr<Material> ResourceManager::createMaterial(const std::string path
 			return material;
 	}
 
-	std::shared_ptr<GLSLProgram> prgPtr;
-	std::shared_ptr<Texture> texPtr1;
-	std::shared_ptr<Texture> texPtr2;
-	std::shared_ptr<Texture> texPtr3;
-	std::shared_ptr<Texture> texPtr4;
-	//if(!createShaderProgram(SURFACE_LIGHTING,prgPtr)) return false;
-	prgPtr = createShaderProgram(static_cast<shaderType>(inOutMtlInfo.shader_type));
-	texPtr1 = createTexture2D(inOutMtlInfo.diff_path);
-	texPtr2 = createTexture2D(inOutMtlInfo.spec_path);
-	texPtr3 = createTexture2D(inOutMtlInfo.roughness_path);
-	texPtr4 = createTexture2D(inOutMtlInfo.normal_path);
+	std::vector<std::string> shader_paths;
+
+	if(inOutMtlInfo.vs_path.empty() || inOutMtlInfo.fs_path.empty())
+	{
+		//Error
+	}
+	shader_paths.push_back(inOutMtlInfo.vs_path);
+	shader_paths.push_back(inOutMtlInfo.fs_path);
+
+	if( !inOutMtlInfo.tessCtrl_path.empty() && inOutMtlInfo.tessEval_path.empty() )
+	{
+		shader_paths.push_back(inOutMtlInfo.tessCtrl_path);
+		shader_paths.push_back(inOutMtlInfo.tessEval_path);
+	}
+
+
+	std::shared_ptr<GLSLProgram> prgPtr = createShaderProgram(shader_paths);
+
+	std::shared_ptr<Texture> texPtr1 = createTexture2D(inOutMtlInfo.diff_path);
+	std::shared_ptr<Texture> texPtr2 = createTexture2D(inOutMtlInfo.spec_path);
+	std::shared_ptr<Texture> texPtr3 = createTexture2D(inOutMtlInfo.roughness_path);
+	std::shared_ptr<Texture> texPtr4 = createTexture2D(inOutMtlInfo.normal_path);
+
 
 	std::shared_ptr<Material> material(new Material(path,prgPtr,texPtr1,texPtr2,texPtr3,texPtr4));
 	material_list.push_back(std::move(material));
@@ -363,6 +374,143 @@ std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(shaderType typ
 	*/
 	if(!computeSource.empty())
 		if(!shaderPrg->compileShaderFromString(&computeSource,GL_COMPUTE_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
+
+	if(!shaderPrg->link()){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
+
+	shader_program_list.push_back(std::move(shaderPrg));
+
+	return shader_program_list.back();
+}
+
+std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(std::vector<std::string> paths)
+{
+	std::shared_ptr<GLSLProgram> shaderPrg(new GLSLProgram());
+	shaderPrg->init();
+
+	std::string vertex_src;
+	std::string tessellationControl_src;
+	std::string tessellationEvaluation_src;
+	std::string fragment_src;
+	std::string compute_src;
+
+	switch (paths.size())
+	{
+	case 1: // compute shader
+		compute_src = readShaderFile(paths[0].c_str());
+		break;
+	case 2: // vertex+fragement shader
+		vertex_src = readShaderFile(paths[0].c_str());
+		fragment_src = readShaderFile(paths[1].c_str());
+		break;
+	case 3: // vertex+geom+fragement shader (currently not supported!)
+		break;
+	case 4: // vertex+tessControl+tessEval+fragment shader
+		vertex_src = readShaderFile(paths[0].c_str());
+		fragment_src = readShaderFile(paths[1].c_str());
+
+		tessellationControl_src = readShaderFile(paths[2].c_str());
+		tessellationEvaluation_src = readShaderFile(paths[3].c_str());
+		break;
+	case 5: // vert+tessCont+tessEval+geom+frag ?
+		break;
+	default:
+		break;
+	}
+
+	// Scan vertex shader for input parameters
+	unsigned int param_idx = 0;
+	std::string line;
+	std::ifstream file;
+	
+	if(!vertex_src.empty())
+	{
+		file.open(paths[0], std::ios::in);
+
+		if( file.is_open())
+		{
+			file.seekg(0, std::ios::beg);
+
+			while(!file.eof())
+			{
+				getline(file,line,'\n');
+
+				std::stringstream ss(line);
+				std::string buffer;
+
+				ss >> buffer;
+
+				if(std::strcmp("in",buffer.c_str()) == 0)
+				{
+					ss >> buffer; // this should be the data type
+					ss >> buffer; // this should be the variable name
+					
+					buffer.erase(buffer.end()-1);
+					shaderPrg->bindAttribLocation(param_idx++,buffer.c_str());
+
+					std::cout<<"Input parameter name: "<<buffer<<std::endl;
+				}
+			}
+
+			file.close();
+		}
+	}
+
+	param_idx = 0;
+
+	// And scan fragment shader for output parameters
+	if(!fragment_src.empty())
+	{
+		file.open(paths[1], std::ios::in);
+
+		if( file.is_open())
+		{
+			file.seekg(0, std::ios::beg);
+
+			while(!file.eof())
+			{
+				getline(file,line,'\n');
+
+				std::stringstream ss(line);
+				std::string buffer;
+
+				ss >> buffer;
+
+				if(std::strcmp("layout",buffer.c_str()) == 0)
+				{
+					while(std::strcmp("out",buffer.c_str()) != 0 && !ss.eof())
+					{
+						ss >> buffer;
+					}
+					ss >> buffer; // this should be the data type
+					ss >> buffer; // this should be the variable name
+					
+					buffer.erase(buffer.end()-1);
+					shaderPrg->bindFragDataLocation(param_idx++,buffer.c_str());
+
+					std::cout<<"Output parameter name: "<<buffer<<std::endl;
+				}
+			}
+
+			file.close();
+		}
+	}
+
+
+	if(!vertex_src.empty())
+		if(!shaderPrg->compileShaderFromString(&vertex_src,GL_VERTEX_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
+	if(!fragment_src.empty())
+		if(!shaderPrg->compileShaderFromString(&fragment_src,GL_FRAGMENT_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
+	if(!tessellationControl_src.empty())
+		if(!shaderPrg->compileShaderFromString(&tessellationControl_src,GL_TESS_CONTROL_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
+	if(!tessellationEvaluation_src.empty())
+		if(!shaderPrg->compileShaderFromString(&tessellationEvaluation_src,GL_TESS_EVALUATION_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
+	/*
+	*	THIS SEEM TO BE OUTDATED IF IT WAS EVER TRUE
+	*	A non-empty compute source string should only happen if all other sources are empty strings.
+	*	I won't check for this though, assuming that nobody - i.e. me - fucked up a compute shader case above.
+	*/
+	if(!compute_src.empty())
+		if(!shaderPrg->compileShaderFromString(&compute_src,GL_COMPUTE_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
 
 	if(!shaderPrg->link()){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
 
@@ -573,11 +721,6 @@ std::shared_ptr<Mesh> ResourceManager::loadBinaryGeometry(const std::string &pat
 
 MaterialInfo ResourceManager::parseMaterial(const std::string materialPath)
 {
-	std::string buffer;
-	std::string tempStr;
-	std::string::iterator iter1;
-	std::string::iterator iter2;
-
 	std::ifstream file;
 	file.open(materialPath, std::ifstream::in);
 
@@ -587,54 +730,35 @@ MaterialInfo ResourceManager::parseMaterial(const std::string materialPath)
 	{
 		file.seekg(0, std::ifstream::beg);
 
-		std::getline(file,buffer,'\n');
-		mat_info.id = atoi(buffer.c_str());
-
-		std::getline(file,buffer,'\n');
-		mat_info.shader_type = atoi(buffer.c_str());
+		std::string line;
 
 		while(!file.eof())
 		{
-			std::getline(file,buffer,'\n');
-			
-			iter2 = buffer.begin();
-			iter1 = buffer.begin();
-			iter1++;iter1++;
-			tempStr.assign(iter2,iter1);
+			getline(file,line,'\n');
 
-			if(tempStr == "td")
-			{
-				iter2 = (iter1 + 1);
-				iter1 = buffer.end();
-				tempStr.assign(iter2,iter1);
-				mat_info.diff_path = new char[tempStr.length()+1];
-				strcpy((mat_info.diff_path),tempStr.c_str());
-			}
-			else if(tempStr == "ts")
-			{
-				iter2 = (iter1 + 1);
-				iter1 = buffer.end();
-				tempStr.assign(iter2,iter1);
-				mat_info.spec_path = new char[tempStr.length()+1];
-				strcpy((mat_info.spec_path),tempStr.c_str());
-			}
-			else if(tempStr == "tr")
-			{
-				iter2 = (iter1 + 1);
-				iter1 = buffer.end();
-				tempStr.assign(iter2,iter1);
-				mat_info.roughness_path = new char[tempStr.length()+1];
-				strcpy((mat_info.roughness_path),tempStr.c_str());
-			}
-			else if(tempStr == "tn")
-			{
-				iter2 = (iter1 + 1);
-				iter1 = buffer.end();
-				tempStr.assign(iter2,iter1);
-				mat_info.normal_path = new char[tempStr.length()+1];
-				strcpy((mat_info.normal_path),tempStr.c_str());
-			}
+			std::stringstream ss(line);
+			std::string buffer;
+
+			ss >> buffer;
+
+			if(std::strcmp("vs",buffer.c_str()) == 0)
+				ss >> mat_info.vs_path;
+			else if(std::strcmp("fs",buffer.c_str()) == 0)
+				ss >> mat_info.fs_path;
+			else if(std::strcmp("tc",buffer.c_str()) == 0)
+				ss >> mat_info.tessCtrl_path;
+			else if(std::strcmp("te",buffer.c_str()) == 0)
+				ss >> mat_info.tessEval_path;
+			else if(std::strcmp("td",buffer.c_str()) == 0)
+				ss >> mat_info.diff_path;
+			else if(std::strcmp("ts",buffer.c_str()) == 0)
+				ss >> mat_info.spec_path;
+			else if(std::strcmp("tr",buffer.c_str()) == 0)
+				ss >> mat_info.roughness_path;
+			else if(std::strcmp("tn",buffer.c_str()) == 0)
+				ss >> mat_info.normal_path;
 		}
+
 	}
 
 	return mat_info;

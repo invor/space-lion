@@ -9,6 +9,7 @@
 #include "TransformComponent.hpp"
 #include "CameraComponent.hpp"
 #include "RenderingPipeline.hpp"
+#include "DeferredRenderingPipeline.hpp"
 
 using namespace std;
 
@@ -19,9 +20,9 @@ int main(){
 	CameraComponentManager camera_mngr(1000000);
 	LightComponentManager light_mngr(1000000);
 	
-	RenderingPipeline rendering_pipeline(&entity_mngr, &scene_transformations_mngr, &camera_mngr,&light_mngr);
+	DeferredRenderingPipeline rendering_pipeline(&entity_mngr, &scene_transformations_mngr, &camera_mngr,&light_mngr);
 	
-	std::thread renderThread(&(RenderingPipeline::run),&rendering_pipeline);
+	std::thread renderThread(&(DeferredRenderingPipeline::run),&rendering_pipeline);
 	
 	// Create test scene hard coded
 	Entity camera_entity = entity_mngr.create();
@@ -50,7 +51,7 @@ int main(){
 
 	Entity sponza = entity_mngr.create();
 	scene_transformations_mngr.addComponent(sponza,Vec3(0.0),Quat(),Vec3(1.0));
-	rendering_pipeline.requestRenderJob(sponza,"../resources/materials/templates/silver.slmtl","../resources/meshes/sponza_cust.fbx");
+	rendering_pipeline.requestRenderJob(sponza,"../resources/materials/dfr_debug.slmtl","../resources/meshes/sponza_cust.fbx");
 	
 	renderThread.join();
 	

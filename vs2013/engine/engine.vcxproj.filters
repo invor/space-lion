@@ -126,6 +126,9 @@
     <ClInclude Include="..\..\src\engine\vertexStructs.h">
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\engine\DeferredRenderingPipeline.hpp">
+      <Filter>Header Files\gfx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp">
@@ -199,6 +202,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\engine\Controls.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\DeferredRenderingPipeline.cpp">
+      <Filter>Source Files\gfx</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,12 +1,12 @@
 /*---------------------------------------------------------------------------------------------------
-File: surface_lighting_f.glsl
+File: dfr_lighting_f.glsl
 Author: Michael Becher
-Date of (presumingly) last edit: 11.09.2013
+Date of (presumingly) last edit: 16.10.2015
 
-Description: Standard fragment shader for lighting calculations of opaque surfaces.
-			 Based on the Cook-Torrance BRDF.
+Description: Fragment shader for deferred rendering lighting pass.
 ---------------------------------------------------------------------------------------------------*/
-#version 330
+
+#version 430
 
 #define PI 3.1415926535
 #define INV_PI 0.318309886183
@@ -17,36 +17,28 @@ struct LightProperties
 	vec3 intensity;
 };
 
-uniform sampler2D diffuse_tx2D;
-uniform sampler2D specular_tx2D;
-uniform sampler2D roughness_tx2D;
+uniform sampler2D position_depth_tx2D;
 uniform sampler2D normal_tx2D;
+uniform sampler2D albedoRGB_tx2D;
+uniform sampler2D specularRGB_roughness_tx2D;
 
 uniform LightProperties lights;
 uniform int num_lights;
 
 uniform mat4 view_matrix;
 
-in vec3 position;
-//in vec4 colour;
-in vec2 uv_coord;
-in vec3 viewer_direction;
-in mat3 tangent_space_matrix;
+in vec2 uvCoord;
 
-out vec4 fragColour;
+layout (location = 0) out vec4 frag_colour;
 
-vec3 phongShading(in float specFactor ,in vec3 sColour , in vec3 sNormal, in vec3 lightDir, in vec4 light_colour)
-{
-	vec3 n = normalize(sNormal);
-	vec3 reflection = reflect(-normalize(lightDir), n);
 
-	return light_colour.w *
-		( sColour*max( dot(normalize(lightDir), n), 0.0)) +
-			(specFactor*light_colour.xyz*pow(max(dot(reflection,normalize(viewer_direction)),0.0),55.0) );
-}
-
-vec3 cookTorranceShading(in vec3 surface_albedo, in vec3 surface_specular_color, in float surface_roughness,
-							in vec3 surface_normal, in vec3 light_direction, in vec3 viewer_direction, in vec3 light_colour)
+vec3 cookTorranceShading(in vec3 surface_albedo,
+						in vec3 surface_specular_color,
+						in float surface_roughness,
+						in vec3 surface_normal,
+						in vec3 light_direction,
+						in vec3 viewer_direction,
+						in vec3 light_colour)
 {
 	vec3 halfway = normalize(light_direction + viewer_direction);
 	float n_dot_h = dot(surface_normal,halfway);
@@ -94,45 +86,37 @@ vec3 cookTorranceShading(in vec3 surface_albedo, in vec3 surface_specular_color,
 	return (light_colour*diffuse_brdf + light_colour*specular_brdf) * max(0.0,n_dot_l);
 }
 
-
 void main()
 {
-	fragColour = vec4(1.0);
-	vec3 tLightDirection;
-
-	/*	Fetch colour from diffuse map and blend it with vertex colour */
-	vec3 tColour = texture(diffuse_tx2D, uv_coord).xyz;
-	//tColour = mix(tColour,colour.xyz,colour.w);
-
-	/*	Fetch specular color from specular map */
-	vec3 tSpecColour = texture(specular_tx2D, uv_coord).xyz;
+	vec3 position = texture(position_depth_tx2D,uvCoord).rgb;
+	vec3 normal = vec3(texture(normal_tx2D,uvCoord).xyz);
+	vec3 albedoRGB = texture(albedoRGB_tx2D,uvCoord).rgb;
 	
-	/*	Fetch roughness from roughness map */
-	float tRoughness = texture(roughness_tx2D, uv_coord).x;
-
-	/*	Fetch normal vector from normal map */
-	vec3 tNormal = ((texture(normal_tx2D, uv_coord).xyz)*2.0)-1.0;
-	//vec3 tNormal = texture2D(normal_tx2D, uv_coord).xyz;
-
+	vec4 specularRGB_roughness = texture(specularRGB_roughness_tx2D,uvCoord);
+	vec3 specularRGB = specularRGB_roughness.rgb;
+	float roughness = specularRGB_roughness.a;
+	
+	
 	/*	Calculate Cook Torrance shading for each light source */
 	vec3 rgb_linear = vec3(0.0);
 
 	/*	CAUTION: arbitrary values in use */
-	LightProperties lights_tangent_space;
-	lights_tangent_space.intensity = lights.intensity;
-	lights_tangent_space.position = normalize(tangent_space_matrix * normalize((view_matrix * vec4(lights.position,1.0)).xyz - position));
+	vec3 viewer_direction = normalize(-position);
+	LightProperties lights_view_space;
+	lights_view_space.intensity = lights.intensity;
+	lights_view_space.position = normalize( (view_matrix * vec4(lights.position,1.0)).xyz - position);
 	
 	/*	Quick&Dirty light attenuation */
-	vec3 light_intensity = 100.0 * lights_tangent_space.intensity / pow(length(position-(view_matrix*vec4(lights.position,1.0)).xyz),2.0);
+	vec3 light_intensity = 100.0 * lights_view_space.intensity / pow(length(position-(view_matrix*vec4(lights.position,1.0)).xyz),2.0);
 	
-	rgb_linear += cookTorranceShading(tColour,tSpecColour,tRoughness,
-											tNormal, lights_tangent_space.position, viewer_direction, light_intensity);
-												
-											
+	rgb_linear += cookTorranceShading(albedoRGB,
+										specularRGB,
+										roughness,
+										normal,
+										lights_view_space.position,
+										viewer_direction,
+										light_intensity);
 	
 	/*	Temporary gamma correction */
-	fragColour = vec4( pow( rgb_linear, vec3(1.0/2.2) ), 1.0);
-	
-	/*	Let's do some debugging */
-	//fragColour = vec4( transpose(tangent_space_matrix) * tNormal ,1.0);
+	frag_colour = vec4( pow( rgb_linear, vec3(1.0/2.2) ), 1.0);
 }

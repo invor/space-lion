@@ -1,14 +1,15 @@
-#ifndef RenderingPipeline_h
-#define RenderingPipeline_h
+#ifndef DeferredRenderingPipeline_h
+#define DeferredRenderingPipeline_h
 
 #include "RenderJobs.hpp"
 #include "ResourceManager.h"
 #include "MTQueue.hpp"
 #include "Controls.hpp"
+#include "framebufferObject.h"
 
 #include <GLFW\glfw3.h>
 
-class RenderingPipeline
+class DeferredRenderingPipeline
 {
 private:
 	/**
@@ -25,7 +26,13 @@ private:
 
 	RenderJobManager m_shadow_map_pass;
 
-	RenderJobManager m_forward_render_pass;
+	RenderJobManager m_geometry_pass;
+
+	/*
+	 * Resources for deferred rendering lighting pass 
+	 */
+	std::shared_ptr<Mesh> m_dfr_fullscreenQuad;
+	std::shared_ptr<GLSLProgram> m_dfr_lighting_prgm;
 
 	GLFWwindow* m_active_window;
 
@@ -47,14 +54,15 @@ private:
 
 	void processRenderJobRequest();
 
-	void forwardPass();
+	void geometryPass();
+	void lightingPass();
 
 	static void windowSizeCallback(GLFWwindow* window, int width, int height);
 	static void windowCloseCallback(GLFWwindow* window);
 
 public:
-	RenderingPipeline(EntityManager* entity_mngr, TransformComponentManager* transform_mngr, CameraComponentManager* camera_mngr, LightComponentManager* light_mngr);
-	~RenderingPipeline();
+	DeferredRenderingPipeline(EntityManager* entity_mngr, TransformComponentManager* transform_mngr, CameraComponentManager* camera_mngr, LightComponentManager* light_mngr);
+	~DeferredRenderingPipeline();
 
 	void requestRenderJob(Entity entity, std::string material_path, std::string mesh_path, bool cast_shadow = false);
 

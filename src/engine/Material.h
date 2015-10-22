@@ -7,14 +7,18 @@
 
 struct MaterialInfo
 {
-	MaterialInfo() : id(0) {}
-	int id;
+	MaterialInfo() {}
 	/*	shader type should be the index of a ShaderType enum */
-	int shader_type;
-	char* diff_path;
-	char* spec_path;
-	char* roughness_path;
-	char* normal_path;
+	std::string vs_path;
+	std::string fs_path;
+	std::string geo_path;
+	std::string tessCtrl_path;
+	std::string tessEval_path;
+
+	std::string diff_path;
+	std::string spec_path;
+	std::string roughness_path;
+	std::string normal_path;
 };
 
 class Material
