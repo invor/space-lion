@@ -481,13 +481,17 @@ std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(std::vector<st
 					{
 						ss >> buffer;
 					}
-					ss >> buffer; // this should be the data type
-					ss >> buffer; // this should be the variable name
-					
-					buffer.erase(buffer.end()-1);
-					shaderPrg->bindFragDataLocation(param_idx++,buffer.c_str());
 
-					std::cout<<"Output parameter name: "<<buffer<<std::endl;
+					if(!ss.eof())
+					{
+						ss >> buffer; // this should be the data type
+						ss >> buffer; // this should be the variable name
+						
+						buffer.erase(buffer.end()-1);
+						shaderPrg->bindFragDataLocation(param_idx++,buffer.c_str());
+
+						std::cout<<"Output parameter name: "<<buffer<<std::endl;
+					}
 				}
 			}
 
@@ -599,20 +603,20 @@ std::shared_ptr<Texture> ResourceManager::createTexture2D(const std::string path
 		serialize.serialize(memory, memory_size, geometry->vertices);
 
 		if (sizeof(unsigned int) == sizeof(GLuint)) {
-			mesh->bufferDataFromArray(reinterpret_cast<Vertex_p*>(memory),
+			mesh->bufferDataFromArray(reinterpret_cast<Vertex_pntcub*>(memory),
 				reinterpret_cast<const GLuint*>(geometry->triangle_indices.data()),
 				static_cast<GLsizei>(memory_size),
 				static_cast<GLsizei>(geometry->triangle_indices.size()) * sizeof(GLuint), GL_TRIANGLES);
 		}
 		else {
 			std::vector<GLuint> gluint_indices(geometry->triangle_indices.begin(), geometry->triangle_indices.end());
-			mesh->bufferDataFromArray(reinterpret_cast<Vertex_p*>(memory), gluint_indices.data(), static_cast<GLsizei>(memory_size), static_cast<GLsizei>(geometry->triangle_indices.size()) * sizeof(GLuint), GL_TRIANGLES);
+			mesh->bufferDataFromArray(reinterpret_cast<Vertex_pntcub*>(memory), gluint_indices.data(), static_cast<GLsizei>(memory_size), static_cast<GLsizei>(geometry->triangle_indices.size()) * sizeof(GLuint), GL_TRIANGLES);
 		}
 
 		delete [] memory;
 
 		const FBX::OpenGL::GeometrySerialize::Settings &s(serialize.settings());
-
+		/*
 		if (locations.ndx_position >= 0) {
 			mesh->setVertexAttribPointer(locations.ndx_position, 3, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(s.stride), (void*) s.offset_position);
 		}
@@ -636,6 +640,32 @@ std::shared_ptr<Texture> ResourceManager::createTexture2D(const std::string path
 		}
 		if (s.features & FBX::Geometry::BINORMAL && locations.ndx_binormal >= 0) {
 			mesh->setVertexAttribPointer(locations.ndx_binormal, 3, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(s.stride), (void*) s.offset_binormal);
+		}
+		*/
+
+		if (locations.ndx_position >= 0) {
+			mesh->setVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(s.stride), (void*) s.offset_position);
+		}
+		if (s.features & FBX::Geometry::NORMAL && locations.ndx_normal >= 0) {
+			mesh->setVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(s.stride), (void*) s.offset_normal);
+		}
+		if (s.features & FBX::Geometry::TANGENT && locations.ndx_tangent >= 0) {
+			mesh->setVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(s.stride), (void*) s.offset_tangent);
+		}
+		if (s.features & FBX::Geometry::COLOR && locations.ndx_color >= 0) {
+			mesh->setVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, static_cast<GLsizei>(s.stride), (void*) s.offset_color);
+			// no static color support in Mesh
+			// ndx_static_color = -1;
+		}
+		else {
+			// no static color support in Mesh
+			// ndx_static_color = locations.ndx_color;
+		}
+		if (s.features & FBX::Geometry::UVCOORD && locations.ndx_uvcoord >= 0) {
+			mesh->setVertexAttribPointer(5, 2, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(s.stride), (void*) s.offset_uvcoord);
+		}
+		if (s.features & FBX::Geometry::BINORMAL && locations.ndx_binormal >= 0) {
+			mesh->setVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(s.stride), (void*) s.offset_binormal);
 		}
 
 		return std::move(mesh);

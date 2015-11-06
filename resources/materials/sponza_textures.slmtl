@@ -1,0 +1,6 @@
+vs ../resources/shaders/surface_lighting_v.glsl
+fs ../resources/shaders/surface_lighting_f.glsl
+td ../resources/textures/sponza/Sponza_Ceiling_diffuse.ppm
+ts ../resources/textures/sponza/Sponza_Ceiling_diffuse.ppm
+tr ../resources/textures/sponza/Sponza_Ceiling_roughness.ppm
+tn ../resources/textures/sponza/Sponza_Ceiling_normal.ppm

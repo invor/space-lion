@@ -39,7 +39,7 @@ public:
 	void reallocate(uint size);
 
 	void addComponent(Entity entity,
-						float near = 0.01f,
+						float near = 0.001f,
 						float far = 1000.0f,
 						float fovy = 0.5236f,
 						float aspect_ratio = 16.0/9.0f);
@@ -53,6 +53,10 @@ public:
 	void updateProjectionMatrix(uint index);
 
 	const Mat4x4 getProjectionMatrix(uint index);
+
+	const float getFovy(uint index);
+
+	const float getAspectRatio(uint index);
 };
 
 #endif

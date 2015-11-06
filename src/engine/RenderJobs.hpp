@@ -93,6 +93,7 @@ private:
 
 	friend class RenderingPipeline;
 	friend class DeferredRenderingPipeline;
+	friend class AdvancedDeferredRenderingPipeline;
 
 public:
 	RenderJobManager();

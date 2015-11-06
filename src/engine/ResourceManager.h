@@ -84,6 +84,16 @@ public:
 	 */
 	std::shared_ptr<Mesh> createMesh(const std::string path);
 
+	/**
+	 * \brief Create a mesh object from supplied vertex and primitve index data
+	 * \param name Name/id of the new mesh
+	 * \param vertices Array containing vertex data
+	 * \param indices Array containing indices
+	 * \param mesh_type Primitive type of the mesh (e.g. GL_TRIANGLE)
+	 * \return Returns shared pointer the mesh.
+	 *	Note: If the name already exits, the shared pointer of the existing mesh is returned,
+	 *	instead of creating a new mesh from the given data.
+	 */
 	template<typename VertexContainer, typename IndexContainer>
 	std::shared_ptr<Mesh> createMesh(const std::string name, VertexContainer& vertices, const IndexContainer& indices, GLenum mesh_type)
 	{

@@ -1,0 +1,17 @@
+{
+	"AirplanePhysicsComponent" : {
+		"velocity" : [ 0.0,0.0,0.0 ],
+		"acceleration" : [ 0.0,0.0,0.0 ],
+		"engine thrust" : 1000.0,
+		"mass" : 3000.0,
+		"wing surface" : 22.0 },
+		
+	"TransformComponent" : {
+		"position" : [ "0.0","0.0","0.0" ],
+		"orientation" : [ "0.0","0.0","0.0","0.0" ],
+		"scale" : [ "1.0","1.0","1.0" ] },
+		
+	"RenderJob" : {
+		"Material" : "materials/dfr_debug.slmtl",
+		"Mesh" : "meshes/outflyer.fbx" }
+}

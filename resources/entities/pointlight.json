@@ -1,0 +1,10 @@
+{
+	"Light" : {
+		"light colour" : [{"r":"0"},{"g":"0"},{"b":0}],
+		"light intensity" : "100.0" },
+		
+	"TransformComponent" : {
+		"position" : [ "0.0","0.0","0.0" ],
+		"orientation" : [ "0.0","0.0","0.0","0.0" ],
+		"scale" : [ "1.0","1.0","1.0" ] }
+}

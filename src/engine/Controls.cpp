@@ -54,10 +54,10 @@ namespace Controls
 
 	void checkKeyStatus(GLFWwindow* active_window, double dt)
 	{
-		float boost = 10.0f;
+		float boost = 5.0f;
 
 		if (glfwGetKey(active_window,GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-			boost = 30.0f;
+			boost = 50.0f;
 
 		uint idx = _transform_mngr->getIndex(*_active_camera);
 		Quat orientation = _transform_mngr->getOrientation(idx);

@@ -8,6 +8,7 @@
 
 typedef glm::mat4 Mat4x4;
 typedef glm::vec3 Vec3;
+typedef glm::vec2 Vec2;
 typedef glm::quat Quat;
 
 #endif

@@ -111,7 +111,7 @@ void main()
 	float tRoughness = texture(roughness_tx2D, uv_coord).x;
 
 	/*	Fetch normal vector from normal map */
-	vec3 tNormal = ((texture(normal_tx2D, uv_coord).xyz)*2.0)-1.0;
+	vec3 tNormal = normalize(transpose(tangent_space_matrix) * (((texture(normal_tx2D, uv_coord).xyz)*2.0)-1.0));
 	//vec3 tNormal = texture2D(normal_tx2D, uv_coord).xyz;
 
 	/*	Calculate Cook Torrance shading for each light source */
@@ -120,13 +120,21 @@ void main()
 	/*	CAUTION: arbitrary values in use */
 	LightProperties lights_tangent_space;
 	lights_tangent_space.intensity = lights.intensity;
-	lights_tangent_space.position = normalize(tangent_space_matrix * normalize((view_matrix * vec4(lights.position,1.0)).xyz - position));
+	//lights_tangent_space.position = normalize(tangent_space_matrix * normalize((view_matrix * vec4(lights.position,1.0)).xyz - position));
+	lights_tangent_space.position = normalize((view_matrix * vec4(lights.position,1.0)).xyz - position);
 	
 	/*	Quick&Dirty light attenuation */
 	vec3 light_intensity = 100.0 * lights_tangent_space.intensity / pow(length(position-(view_matrix*vec4(lights.position,1.0)).xyz),2.0);
 	
-	rgb_linear += cookTorranceShading(tColour,tSpecColour,tRoughness,
-											tNormal, lights_tangent_space.position, viewer_direction, light_intensity);
+	//vec3 light_intensity = lights_tangent_space.intensity;
+	
+	rgb_linear += cookTorranceShading(tColour,
+										tSpecColour,
+										tRoughness,
+										tNormal,
+										lights_tangent_space.position,
+										viewer_direction,
+										light_intensity);
 												
 											
 	
@@ -134,5 +142,5 @@ void main()
 	fragColour = vec4( pow( rgb_linear, vec3(1.0/2.2) ), 1.0);
 	
 	/*	Let's do some debugging */
-	//fragColour = vec4( transpose(tangent_space_matrix) * tNormal ,1.0);
+	fragColour = vec4( 0.0,0.0, tNormal.z ,1.0);
 }

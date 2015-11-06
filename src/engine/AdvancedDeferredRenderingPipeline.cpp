@@ -1,29 +1,23 @@
-#include "DeferredRenderingPipeline.hpp"
+#include "AdvancedDeferredRenderingPipeline.hpp"
 
-DeferredRenderingPipeline::DeferredRenderingPipeline(EntityManager* entity_mngr,
+AdvancedDeferredRenderingPipeline::AdvancedDeferredRenderingPipeline(EntityManager* entity_mngr,
 										TransformComponentManager* transform_mngr,
 										CameraComponentManager* camera_mngr,
 										LightComponentManager* light_mngr)
 	: m_lights_prepass(),
 		m_geometry_pass(),
 		m_shadow_map_pass(),
-		m_active_camera(entity_mngr->create()),
-		m_entity_mngr(entity_mngr), m_transform_mngr(transform_mngr), m_camera_mngr(camera_mngr), m_light_mngr(light_mngr)
+		m_active_camera(entity_mngr->create()), m_entity_mngr(entity_mngr), m_transform_mngr(transform_mngr), m_camera_mngr(camera_mngr), m_light_mngr(light_mngr)
 {
 	transform_mngr->addComponent(m_active_camera,Vec3(0.0f,0.0f,50.0f),Quat(),Vec3(1.0f));
-	camera_mngr->addComponent(m_active_camera,1.0001f,10000.0f);
+	camera_mngr->addComponent(m_active_camera,0.01f,10000.0f);
 }
 
-DeferredRenderingPipeline::~DeferredRenderingPipeline()
+AdvancedDeferredRenderingPipeline::~AdvancedDeferredRenderingPipeline()
 {
 }
 
-void DeferredRenderingPipeline::orderIndependentTransparencyPass()
-{
-
-}
-
-void DeferredRenderingPipeline::geometryPass()
+void AdvancedDeferredRenderingPipeline::geometryPass()
 {
 	RenderJobManager::RootNode m_root = m_geometry_pass.getRoot();
 
@@ -37,6 +31,12 @@ void DeferredRenderingPipeline::geometryPass()
 		shader.shader_prgm->use();
 		shader.shader_prgm->setUniform("projection_matrix", proj_matrix);
 		shader.shader_prgm->setUniform("view_matrix", view_matrix);
+
+		//m_gBuffer->bind(0);
+
+		int window_width, window_height;
+		glfwGetFramebufferSize(m_active_window, &window_width, &window_height);
+		shader.shader_prgm->setUniform("viewport_resolution",Vec2(window_width,window_height));
 
 		for(auto& material : shader.materials)
 		{
@@ -80,25 +80,24 @@ void DeferredRenderingPipeline::geometryPass()
 	}
 }
 
-void DeferredRenderingPipeline::lightingPass()
+void AdvancedDeferredRenderingPipeline::lightingPass()
 {
 	m_dfr_lighting_prgm->use();
 
-	// Bind textures from framebuffer
-	m_dfr_lighting_prgm->setUniform("normal_depth_tx2D",0);
-	m_dfr_lighting_prgm->setUniform("albedoRGB_tx2D",1);
-	m_dfr_lighting_prgm->setUniform("specularRGB_roughness_tx2D",2);
+	//m_gBuffer->bind(0);
 
-
-	// Get information on active camera
+	/* Get information on active camera */
 	Mat4x4 view_matrix = glm::inverse(m_transform_mngr->getWorldTransformation( m_transform_mngr->getIndex(m_active_camera) ));
 	float fovy = m_camera_mngr->getFovy(m_camera_mngr->getIndex(m_active_camera));
-	float aspect_ratio = m_camera_mngr->getAspectRatio(m_camera_mngr->getIndex(m_active_camera));
-	Vec2 aspect_fovy(aspect_ratio,fovy);
+	float aspect_ratio = m_camera_mngr->getFovy(m_camera_mngr->getIndex(m_active_camera));
+	Vec2 fov(fovy*aspect_ratio,fovy);
 	m_dfr_lighting_prgm->setUniform("view_matrix", view_matrix);
-	m_dfr_lighting_prgm->setUniform("aspect_fovy", aspect_fovy);
+	m_dfr_lighting_prgm->setUniform("fov", fov);
 
-	// Get information on scene light...this is basically a placeholder version
+	int window_width, window_height;
+	glfwGetFramebufferSize(m_active_window, &window_width, &window_height);
+	m_dfr_lighting_prgm->setUniform("viewport_resolution",Vec2(window_width,window_height));
+
 	int light_counter = 0;
 	Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( m_active_lightsources.front() ) );
 	Vec3 light_intensity = m_light_mngr->getColour( m_light_mngr->getIndex( m_active_lightsources.front() ))
@@ -106,18 +105,16 @@ void DeferredRenderingPipeline::lightingPass()
 
 	m_dfr_lighting_prgm->setUniform("lights.position", light_position);
 	m_dfr_lighting_prgm->setUniform("lights.intensity", light_intensity);
-
 	m_dfr_lighting_prgm->setUniform("num_lights", light_counter);
 
 	m_dfr_fullscreenQuad->draw();
 }
 
-void DeferredRenderingPipeline::run()
+void AdvancedDeferredRenderingPipeline::run()
 {
 	std::cout<<"----------------------------\n"
 			<<"SPACE LION - Early Prototype\n"
 			<<"----------------------------\n";
-
 	// Initialize GLFW
 	if(!glfwInit())
 	{
@@ -174,21 +171,25 @@ void DeferredRenderingPipeline::run()
 	m_dfr_fullscreenQuad = m_resource_mngr.createMesh("fullscreen_quad",vertex_array,index_array,GL_TRIANGLES);
 
 	// Load lighting shader program for deferred rendering
-	m_dfr_lighting_prgm = m_resource_mngr.createShaderProgram({"../resources/shaders/genericPostProc_v.glsl","../resources/shaders/dfr_lighting_f.glsl"});
+	m_dfr_lighting_prgm = m_resource_mngr.createShaderProgram({"../resources/shaders/genericPostProc_v.glsl","../resources/shaders/adfr_lighting_f.glsl"});
 
+	std::cout<<m_dfr_lighting_prgm->getLog()<<std::endl;
 
-	// Create G-Buffer
-	FramebufferObject gBuffer(1600,900,true);
-	gBuffer.createColorAttachment(GL_RGBA16F,GL_RGBA,GL_HALF_FLOAT);
-	gBuffer.createColorAttachment(GL_RGBA8,GL_RGBA,GL_UNSIGNED_BYTE);
-	gBuffer.createColorAttachment(GL_RGBA8,GL_RGBA,GL_UNSIGNED_BYTE);
-	std::cout<<gBuffer.getLog()<<std::endl;
-
-	// Set some OpenGL states
-	glClearColor(0.0f,0.0f,0.0f,0.0f);
+	// TODO: Implement actual rendering pipeline here
+	glClearColor(0.2f,0.2f,0.2f,1.0f);
 	glEnable (GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
+
+	int window_width, window_height;
+	glfwGetFramebufferSize(m_active_window, &window_width, &window_height);
+	std::vector<float>blank_data(10 * 6 * window_width*window_height,-1);
+	m_gBuffer = std::make_shared<ShaderStorageBufferObject>(blank_data);
+	std::vector<uint>blank_head_data(2 * window_width*window_height,0);
+	m_headBuffer = std::make_shared<ShaderStorageBufferObject>(blank_head_data);
+
+	// Create atomic counter
+	glGenBuffers(1, &m_counter_buffer);
 
 	double t0,t1 = 0.0;
 
@@ -205,30 +206,26 @@ void DeferredRenderingPipeline::run()
 		/* Process new RenderJobRequest */
 		processRenderJobRequest();
 
-		// Geometry pass
-		gBuffer.bind();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		int width, height;
-		height = gBuffer.getHeight();
-		width = gBuffer.getWidth();
-		glViewport(0, 0, width, height);
-
-		geometryPass();
-	
-		// Lighting pass
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glfwGetFramebufferSize(m_active_window, &width, &height);
-		glViewport(0, 0, width, height);
-		
-		glActiveTexture(GL_TEXTURE0);
-		gBuffer.bindColorbuffer(0);
-		glActiveTexture(GL_TEXTURE1);
-		gBuffer.bindColorbuffer(1);
-		glActiveTexture(GL_TEXTURE2);
-		gBuffer.bindColorbuffer(2);
-		
+		glfwGetFramebufferSize(m_active_window, &window_width, &window_height);
+		glViewport(0, 0, window_width, window_height);
+
+		m_gBuffer->bind(0);
+		m_headBuffer->bind(1);
+		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 7, m_counter_buffer);
+
+		geometryPass();
+
 		lightingPass();
+
+
+		/*	Reset the atomic counter */
+		GLuint zero = 0;
+		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 7, m_counter_buffer);
+		glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), NULL, GL_DYNAMIC_DRAW);
+		glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), &zero);
+		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 7, 0);
 
 		//TODO post processing
 
@@ -241,26 +238,22 @@ void DeferredRenderingPipeline::run()
 	m_resource_mngr.clearLists();
 	m_dfr_fullscreenQuad.reset();
 	m_dfr_lighting_prgm.reset();
+	m_gBuffer.reset();
 
 	glfwMakeContextCurrent(NULL);
 }
 
-void DeferredRenderingPipeline::requestRenderJob(Entity entity, std::string material_path, std::string mesh_path, bool cast_shadow)
+void AdvancedDeferredRenderingPipeline::requestRenderJob(Entity entity, std::string material_path, std::string mesh_path, bool cast_shadow)
 {
 	m_jobRequest_queue.push(RenderJobRequest(entity,material_path,mesh_path));
 }
 
-void DeferredRenderingPipeline::addLightsource(Entity entity)
+void AdvancedDeferredRenderingPipeline::addLightsource(Entity entity)
 {
 	m_active_lightsources.push_back(entity);
 }
 
-void DeferredRenderingPipeline::setActiveCamera(Entity entity)
-{
-	m_active_camera = entity;
-}
-
-void DeferredRenderingPipeline::processRenderJobRequest()
+void AdvancedDeferredRenderingPipeline::processRenderJobRequest()
 {
 	while(!m_jobRequest_queue.empty())
 	{
@@ -273,12 +266,12 @@ void DeferredRenderingPipeline::processRenderJobRequest()
 	}
 }
 
-void DeferredRenderingPipeline::windowSizeCallback(GLFWwindow* window, int width, int height)
+void AdvancedDeferredRenderingPipeline::windowSizeCallback(GLFWwindow* window, int width, int height)
 {
 
 }
 
-void DeferredRenderingPipeline::windowCloseCallback(GLFWwindow* window)
+void AdvancedDeferredRenderingPipeline::windowCloseCallback(GLFWwindow* window)
 {
 
 }

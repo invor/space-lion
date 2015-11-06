@@ -96,6 +96,8 @@ void CameraComponentManager::setCameraAttributes(uint index, float near, float f
 	m_data.far[index] = far;
 	m_data.fovy[index] = fovy;
 	m_data.aspect_ratio[index] = aspect_ratio;
+
+	updateProjectionMatrix(index);
 }
 
 void CameraComponentManager::updateProjectionMatrix(uint index)
@@ -105,7 +107,7 @@ void CameraComponentManager::updateProjectionMatrix(uint index)
 	float fovy = m_data.fovy[index];
 	float aspect_ratio = m_data.aspect_ratio[index];
 
-	Mat4x4 projection_matrix = m_data.projection_matrix[index];
+	//Mat4x4 projection_matrix = m_data.projection_matrix[index];
 
 	m_data.projection_matrix[index] = glm::perspective(fovy,aspect_ratio,near,far);
 
@@ -132,4 +134,14 @@ void CameraComponentManager::updateProjectionMatrix(uint index)
 const Mat4x4 CameraComponentManager::getProjectionMatrix(uint index)
 {
 	return m_data.projection_matrix[index];
+}
+
+const float CameraComponentManager::getFovy(uint index)
+{
+	return m_data.fovy[index];
+}
+
+const float CameraComponentManager::getAspectRatio(uint index)
+{
+	return m_data.aspect_ratio[index];
 }

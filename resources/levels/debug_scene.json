@@ -1,0 +1,16 @@
+{
+	"entities" : [
+		{
+			"type" : "outflyer.json",
+			"Transform" : { "position" : [ "0.0","0.0","0.0" ] }
+		},
+		{
+			"type" : "pointlight.json",
+			"Transform" : { "position" : [ "0.0","0.0","0.0" ] }
+		},
+		{
+			"type" : "camera.json",
+			"Transform" : { "position" : [ "0.0","0.0","0.0" ] }
+		}
+	]
+}

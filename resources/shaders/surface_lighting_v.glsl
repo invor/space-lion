@@ -49,7 +49,8 @@ void main()
 	position = (model_view_matrix[gl_InstanceID] * vec4(v_position,1.0)).xyz;
 	
 	/*	Compute direction to the viewer/camer and light source into tangent space */
-	viewer_direction = normalize(tangent_space_matrix * normalize( -position ));
+	//viewer_direction = normalize(tangent_space_matrix * normalize( -position ));
+	viewer_direction = normalize( -position );
 	
 	//colour = v_colour;
 	uv_coord = v_uv_coord;

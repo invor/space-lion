@@ -1,0 +1,12 @@
+{
+	"CameraComponent" : {
+		"near" : 0.1,
+		"far" : 100.0,
+		"fovy" : 0.5236,
+		"aspect ratio" : 1.7777 },
+		
+	"TransformComponent" : {
+		"position" : [ "0.0","0.0","0.0" ],
+		"orientation" : [ "0.0","0.0","0.0","0.0" ],
+		"scale" : [ "1.0","1.0","1.0" ] }
+}
