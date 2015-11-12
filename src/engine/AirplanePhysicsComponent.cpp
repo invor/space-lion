@@ -144,17 +144,31 @@ void AirplanePhysicsComponentManager::update(float timestep)
 
 const uint AirplanePhysicsComponentManager::getIndex(Entity entity)
 {
+	auto search = m_index_map.find(entity.id());
+
+	assert( (search != m_index_map.end()) );
+
+	return search->second;
 }
 
 void AirplanePhysicsComponentManager::setEngineThrust(uint index, float engine_thrust)
 {
+	assert(index < m_data.used);
+
+	m_data.engine_thrust[index];
 }
 
 const Vec3 AirplanePhysicsComponentManager::getVelocity(uint index)
 {
+	assert(index < m_data.used);
+
+	return m_data.velocity[index];
 }
 
 const Vec3 AirplanePhysicsComponentManager::getAcceleration(uint index)
 {
+	assert(index < m_data.used);
+
+	return m_data.acceleration[index];
 }
 

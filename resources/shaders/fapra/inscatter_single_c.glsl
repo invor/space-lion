@@ -10,7 +10,7 @@ layout(RGBA32F) uniform image3D mie_inscatter_tx3D;
 
 uniform float min_altitude;
 uniform float max_altitude;
-/*	extinction coefficient for Rayleight scattering */
+/*	extinction coefficient for Rayleigh scattering */
 uniform vec3 beta_r;
 /*	extinction coefficient for Mie scattering */
 uniform vec3 beta_m;

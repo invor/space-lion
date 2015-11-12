@@ -245,9 +245,31 @@ void DeferredRenderingPipeline::run()
 	glfwMakeContextCurrent(NULL);
 }
 
-void DeferredRenderingPipeline::requestRenderJob(Entity entity, std::string material_path, std::string mesh_path, bool cast_shadow)
+void DeferredRenderingPipeline::requestRenderJob(Entity entity,
+											std::string material_path,
+											std::string mesh_path,
+											bool cast_shadow)
 {
-	m_jobRequest_queue.push(RenderJobRequest(entity,material_path,mesh_path));
+	m_renderJobRequest_queue.push(RenderJobRequest(entity,material_path,mesh_path));
+}
+
+void DeferredRenderingPipeline::requestComputeJob(Entity entity,
+											GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z,
+											std::string compute_prgm,
+											std::vector<std::string> textures_ids,
+											std::vector<std::string> volume_ids,
+											std::vector<std::string> ssbo_ids,
+											bool oneshot_job)
+{
+	ComputeJobRequest new_request(entity,num_groups_x,num_groups_y,num_groups_z);
+
+	new_request.compute_prgm = std::move(compute_prgm);
+	new_request.textures_ids = std::move(textures_ids);
+	new_request.volume_ids = std::move(volume_ids);
+	new_request.ssbo_ids = std::move(ssbo_ids);
+	new_request.oneshot = oneshot_job;
+
+	m_computeJobRequest_queue.push(new_request);
 }
 
 void DeferredRenderingPipeline::addLightsource(Entity entity)
@@ -262,14 +284,31 @@ void DeferredRenderingPipeline::setActiveCamera(Entity entity)
 
 void DeferredRenderingPipeline::processRenderJobRequest()
 {
-	while(!m_jobRequest_queue.empty())
+	while(!m_renderJobRequest_queue.empty())
 	{
-		RenderJobRequest new_jobRequest = m_jobRequest_queue.pop();
+		RenderJobRequest new_jobRequest = m_renderJobRequest_queue.pop();
 
 		std::shared_ptr<Material> material = m_resource_mngr.createMaterial(new_jobRequest.material_path);
 		std::shared_ptr<Mesh> mesh = m_resource_mngr.createMesh(new_jobRequest.mesh_path);
 
 		m_geometry_pass.addRenderJob(RenderJob(new_jobRequest.entity,material,mesh));
+	}
+}
+
+void DeferredRenderingPipeline::processComputeJobRequest()
+{
+	while(!m_computeJobRequest_queue.empty())
+	{
+		ComputeJobRequest new_jobRequest = m_computeJobRequest_queue.pop();
+
+		std::shared_ptr<GLSLProgram> compute_prgm = m_resource_mngr.createShaderProgram({new_jobRequest.compute_prgm});
+
+		//TODO add resources
+		for(auto& s : new_jobRequest.textures_ids)
+		{
+			//std::shared_ptr<Texture2D> = m_resource_mngr.createTexture2D()
+		}
+
 	}
 }
 

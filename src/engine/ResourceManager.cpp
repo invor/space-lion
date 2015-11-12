@@ -144,53 +144,6 @@ std::shared_ptr<Mesh> ResourceManager::createMesh(const std::string path)
 	return geometry_list.back();
 }
 
-std::shared_ptr<Material> ResourceManager::createMaterial()
-{
-	/*	Check list of materials for default material*/
-	for(auto& material : material_list)
-	{
-		if(material->getName() == "default")
-			return material;
-	}
-
-	/*	If default material is not already in list, create it and add it to list */
-
-	float* diffuseData = new float[4];
-	float* specularData = new float[4];
-	float* roughnessData = new float[4];
-	float* normalData = new float[4];
-	/*	white diffuse texture */
-	diffuseData[0]=1.0f; diffuseData[1]=1.0f; diffuseData[2]=1.0f; diffuseData[3]=1.0f;
-	/*	dark grey specular texture */
-	specularData[0]=0.3f; specularData[1]=0.3f; specularData[2]=0.3f; specularData[3]=1.0f;
-	/*	dark grey roughness texture */
-	roughnessData[0]=0.3f; roughnessData[1]=0.3f; roughnessData[2]=0.3f; roughnessData[3]=1.0f;
-	/*	normal pointing upwards */
-	normalData[0]=0.5f; normalData[1]=0.5f; normalData[2]=1.0f; normalData[3]=0.0f;
-	
-	std::shared_ptr<GLSLProgram> prgPtr;
-	std::shared_ptr<Texture> texPtr1;
-	std::shared_ptr<Texture> texPtr2;
-	std::shared_ptr<Texture> texPtr3;
-	std::shared_ptr<Texture> texPtr4;
-	prgPtr = createShaderProgram(SURFACE_LIGHTING);
-	texPtr1 = createTexture2D(1,1,diffuseData);
-	texPtr2 = createTexture2D(1,1,specularData);
-	texPtr3 = createTexture2D(1,1,roughnessData);
-	texPtr4 = createTexture2D(1,1,normalData);
-
-	std::shared_ptr<Material> material(new Material("default",prgPtr,texPtr1,texPtr2,texPtr3,texPtr4));
-	material_list.push_back(std::move(material));
-
-	prgPtr.reset();
-	texPtr1.reset();
-	texPtr2.reset();
-	texPtr3.reset();
-	texPtr4.reset();
-
-	return material_list.back();
-}
-
 std::shared_ptr<Material> ResourceManager::createMaterial(const std::string path)
 {
 	// copys a struct around by values, but hell it's easer to read for now
@@ -238,151 +191,7 @@ std::shared_ptr<Material> ResourceManager::createMaterial(const std::string path
 	return material_list.back();
 }
 
-std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(shaderType type)
-{
-	/*	Check list of shader programs for the shader type */
-	//	for(std::list<std::shared_ptr<GLSLProgram>>::iterator i = shader_program_list.begin(); i != shader_program_list.end(); ++i)
-	//	{
-	//		if(((*i)->getType())==type){
-	//			inOutPrgPtr = (*i);
-	//			return true;
-	//		}
-	//	}
-
-	std::shared_ptr<GLSLProgram> shaderPrg(new GLSLProgram());
-	shaderPrg->init();
-	std::string vertSource;
-	std::string tessContSource;
-	std::string tessEvalSource;
-	std::string fragSource;
-	std::string computeSource;
-
-	switch(type)
-	{
-	case SKY : {
-		vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
-		fragSource = readShaderFile("../resources/shaders/fapra/sky_f.glsl");
-		shaderPrg->bindAttribLocation(0,"v_position");
-		shaderPrg->bindAttribLocation(1,"v_uvCoord");
-		shaderPrg->bindFragDataLocation(0, "frag_colour");
-		break; }
-	case TRANSMITTANCE_COMPUTE : {
-		computeSource = readShaderFile("../resources/shaders/fapra/transmittance_c.glsl");
-		break; }
-	case INSCATTER_SINGLE : {
-		computeSource = readShaderFile("../resources/shaders/fapra/inscatter_single_c.glsl");
-		break; }
-	case IRRADIANCE_SINGLE : {
-		computeSource = readShaderFile("../resources/shaders/fapra/irradiance_single_c.glsl");
-		break; }
-	case TERRAIN : {
-		vertSource = readShaderFile("../resources/shaders/fapra/terrain_v.glsl");
-		tessContSource = readShaderFile("../resources/shaders/fapra/terrain_tc.glsl");
-		tessEvalSource = readShaderFile("../resources/shaders/fapra/terrain_te.glsl");
-		fragSource = readShaderFile("../resources/shaders/fapra/terrain_f.glsl");
-		shaderPrg->bindAttribLocation(0,"v_position");
-		shaderPrg->bindFragDataLocation(0, "frag_colour");
-		shaderPrg->bindFragDataLocation(1, "normal");
-		shaderPrg->bindFragDataLocation(2, "tangent_bitangent");
-		shaderPrg->bindFragDataLocation(3, "spec_colour_roughness");
-		shaderPrg->bindFragDataLocation(4, "depth");
-		break; }
-	case SURFACE_LIGHTING : {
-		vertSource = readShaderFile("../resources/shaders/surface_lighting_v.glsl");
-		fragSource = readShaderFile("../resources/shaders/surface_lighting_f.glsl");
-		shaderPrg->bindAttribLocation(0,"v_position");
-		shaderPrg->bindAttribLocation(1,"v_normal");
-		shaderPrg->bindAttribLocation(2,"v_tangent");
-		shaderPrg->bindAttribLocation(3,"v_colour");
-		shaderPrg->bindAttribLocation(4,"v_uv_coord");
-		shaderPrg->bindAttribLocation(5,"v_bitangent");
-		break; }
-	case PICKING: {
-		vertSource = readShaderFile("../resources/shaders/picking_v.glsl");
-		fragSource = readShaderFile("../resources/shaders/picking_f.glsl");
-		shaderPrg->bindAttribLocation(0, "v_position");
-		shaderPrg->bindFragDataLocation(0, "frag_colour");
-		break; }
-	case FLAT : {
-		vertSource = readShaderFile("../resources/shaders/flat_v.glsl");
-		fragSource = readShaderFile("../resources/shaders/flat_f.glsl");
-		shaderPrg->bindAttribLocation(0,"vPosition");
-		shaderPrg->bindAttribLocation(1,"vNormal");
-		shaderPrg->bindAttribLocation(2,"vTangent");
-		shaderPrg->bindAttribLocation(3,"vColour");
-		shaderPrg->bindAttribLocation(4,"vUVCoord");
-		break; }
-	case FXAA : {
-		vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
-		fragSource = readShaderFile("../resources/shaders/fxaa_f.glsl");
-		shaderPrg->bindAttribLocation(0,"v_position");
-		shaderPrg->bindAttribLocation(1,"v_uvCoord");
-		break; }
-	case IDLE : {
-		vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
-		fragSource = readShaderFile("../resources/shaders/idle_f.glsl");
-		shaderPrg->bindAttribLocation(0,"v_position");
-		shaderPrg->bindAttribLocation(1,"v_uvCoord");
-		break; }
-	case VOLUME_RAYCASTING : {
-		vertSource = readShaderFile("../resources/shaders/volRen_v.glsl");
-		fragSource = readShaderFile("../resources/shaders/volRen_f.glsl");
-		shaderPrg->bindAttribLocation(0,"vPosition");
-		shaderPrg->bindAttribLocation(3,"vColour");
-		break; }
-	case GAUSSIAN : {
-		vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
-		fragSource = readShaderFile("../resources/shaders/seperatedGaussian_f.glsl");
-		shaderPrg->bindAttribLocation(0,"v_position");
-		shaderPrg->bindAttribLocation(1,"v_uvCoord");
-		break; }
-	case GRADIENT : {
-		vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
-		fragSource = readShaderFile("../resources/shaders/gradient_f.glsl");
-		shaderPrg->bindAttribLocation(0,"v_position");
-		shaderPrg->bindAttribLocation(1,"v_uvCoord");;
-		break; }
-	case STRUCTURE_TENSOR : {
-		vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
-		fragSource = readShaderFile("../resources/shaders/structureTensor_f.glsl");
-		shaderPrg->bindAttribLocation(0,"v_position");
-		shaderPrg->bindAttribLocation(1,"v_uvCoord");
-		break; }
-	case HESSE : {
-		vertSource = readShaderFile("../resources/shaders/genericPostProc_v.glsl");
-		fragSource = readShaderFile("../resources/shaders/hesse_f.glsl");
-		shaderPrg->bindAttribLocation(0,"v_position");
-		shaderPrg->bindAttribLocation(1,"v_uvCoord");
-		break; }
-	default : {
-		return false;
-		break; }
-	}
-
-	if(!vertSource.empty())
-		if(!shaderPrg->compileShaderFromString(&vertSource,GL_VERTEX_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
-	if(!fragSource.empty())
-		if(!shaderPrg->compileShaderFromString(&fragSource,GL_FRAGMENT_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
-	if(!tessContSource.empty())
-		if(!shaderPrg->compileShaderFromString(&tessContSource,GL_TESS_CONTROL_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
-	if(!tessEvalSource.empty())
-		if(!shaderPrg->compileShaderFromString(&tessEvalSource,GL_TESS_EVALUATION_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
-	/*
-	*	THIS SEEM TO BE OUTDATED IF IT WAS EVER TRUE
-	*	A non-empty compute source string should only happen if all other sources are empty strings.
-	*	I won't check for this though, assuming that nobody - i.e. me - fucked up a compute shader case above.
-	*/
-	if(!computeSource.empty())
-		if(!shaderPrg->compileShaderFromString(&computeSource,GL_COMPUTE_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
-
-	if(!shaderPrg->link()){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
-
-	shader_program_list.push_back(std::move(shaderPrg));
-
-	return shader_program_list.back();
-}
-
-std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(std::vector<std::string> paths)
+std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(const std::vector<std::string>& paths)
 {
 	std::shared_ptr<GLSLProgram> shaderPrg(new GLSLProgram());
 	shaderPrg->init();
@@ -523,9 +332,15 @@ std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(std::vector<st
 	return shader_program_list.back();
 }
 
-std::shared_ptr<Texture> ResourceManager::createTexture2D(int dimX, int dimY, float* data)
+std::shared_ptr<Texture> ResourceManager::createTexture2D(const std::string name, GLint internal_format, unsigned int width, unsigned int height, GLenum format, GLenum type, GLvoid * data)
 {
-	std::shared_ptr<Texture2D> texture(new Texture2D("",GL_RGB,dimX, dimY,GL_RGB,GL_FLOAT,data));
+	for(auto& texture : texture_list)
+	{
+		if(texture->getName() == name)
+			return texture;
+	}
+
+	std::shared_ptr<Texture2D> texture(new Texture2D(name,internal_format,width,height,format,type,data));
 
 	texture_list.push_back(std::move(texture));
 

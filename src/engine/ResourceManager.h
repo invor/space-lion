@@ -131,12 +131,6 @@ public:
 	}
 
 	/**
-	 * \brief Creates default material object for debugging purposes
-	 * \return 
-	 */
-	std::shared_ptr<Material> createMaterial();
-
-	/**
 	 * \brief Creates a material object from a local file
 	 * \param path Location of the material file
 	 * \return 
@@ -152,37 +146,27 @@ public:
 
 	/**
 	 * Creates a GLSLprogram object
-	 * \param type Specifies which shader program should be created
-	 * \retrun 
-	 */
-	std::shared_ptr<GLSLProgram> createShaderProgram(shaderType type);
-
-	/**
-	 * Creates a GLSLprogram object
 	 * \param paths Gives the paths to all shader files.
-	 * \retrun 
+	 * \return Returns shared pointer to GLSL shader program.
 	 */
-	std::shared_ptr<GLSLProgram> createShaderProgram(std::vector<std::string> paths);
+	std::shared_ptr<GLSLProgram> createShaderProgram(const std::vector<std::string>& paths);
 
 	/**
-	 * \brief Creates a 2D texture from a given float array
-	 *
-	 * Exercise some caution when using this function. It will always create a new texture object,
-	 * since for now there is no reasonable way to check if an identical texture already exsists.
-	 *
-	 * \param dimX Texture resolution in texels in x-direction
-	 * \param dimY Texture resolution in texels in y-direction
-	 * \param data Float array containing the texel information
-	 * \param inOutTexPtr A pointer set to the newly created texture via in-out parameter
-	 * \return Returns true if texture was succesfully created, false otherwise
+	 * \brief Creates a 2D texture from a given data array
+	 * \param internal_format Specifies the internal format of the texture (e.g. GL_RGBA32F)
+	 * \param dim_x Specifies the width of the texture in pixels.
+	 * \param dim_y Specifies the height of the texture in pixels.
+	 * \param format Specifies the format of the texture (e.g. GL_RGBA)
+	 * \param type Specifies the type of the texture (e.g. GL_FLOAT)
+	 * \param data Pointer to the actual texture data.
+	 * \return Returns shared pointer to new texture or existing texture if given name already exits
 	 */
-	std::shared_ptr<Texture> createTexture2D(int dimX, int dimY, float* data);
+	std::shared_ptr<Texture> createTexture2D(const std::string name, GLint internal_format, unsigned int width, unsigned int height, GLenum format, GLenum type, GLvoid * data);
 
 	/**
 	 * \brief Creates a 2D texture from a file
 	 * \param path Location of the texture file
-	 * \param inOutTexPtr A pointer set to the newly created texture via in-out parameter
-	 * \return Returns true if texture was succesfully created, false otherwise
+	 * \return Returns shared pointer to new texture or existing texture if given path already exits
 	 */
 	std::shared_ptr<Texture> createTexture2D(const std::string path);
 

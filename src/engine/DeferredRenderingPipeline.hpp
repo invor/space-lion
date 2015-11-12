@@ -2,6 +2,7 @@
 #define DeferredRenderingPipeline_h
 
 #include "RenderJobs.hpp"
+#include "ComputeJobs.hpp"
 #include "ResourceManager.h"
 #include "MTQueue.hpp"
 #include "Controls.hpp"
@@ -64,7 +65,9 @@ private:
 	/**
 	 * Thread-safe queue used to request new render jobs
 	 */
-	MTQueue<RenderJobRequest> m_jobRequest_queue;
+	MTQueue<RenderJobRequest> m_renderJobRequest_queue;
+
+	MTQueue<ComputeJobRequest> m_computeJobRequest_queue;
 
 	/*
 	 * Pointers to relevant modules of the engine, e.g. the EntityManager and TransformManager
@@ -74,7 +77,10 @@ private:
 	CameraComponentManager* m_camera_mngr;
 	LightComponentManager* m_light_mngr;
 
+	/** Gather necessary resources and add actual RenderJobs from requests */
 	void processRenderJobRequest();
+	/**Gather necessary resources and add actual ComputeJobs from requests */
+	void processComputeJobRequest();
 
 	/**
 	 * Render objects with transparency
@@ -98,7 +104,18 @@ public:
 	DeferredRenderingPipeline(EntityManager* entity_mngr, TransformComponentManager* transform_mngr, CameraComponentManager* camera_mngr, LightComponentManager* light_mngr);
 	~DeferredRenderingPipeline();
 
-	void requestRenderJob(Entity entity, std::string material_path, std::string mesh_path, bool cast_shadow = false);
+	void requestRenderJob(Entity entity,
+							std::string material_path,
+							std::string mesh_path,
+							bool cast_shadow = false);
+
+	void requestComputeJob(Entity entity,
+							GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z,
+							std::string compute_prgm,
+							std::vector<std::string> textures_ids,
+							std::vector<std::string> volume_ids,
+							std::vector<std::string> ssbo_ids,
+							bool oneshot_job);
 
 	void addLightsource(Entity entity);
 

@@ -138,6 +138,12 @@
     <ClInclude Include="..\..\src\engine\ComputeJobs.hpp">
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\texture3D.h">
+      <Filter>Header Files\gfx\glowl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\AtmosphereComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp">
@@ -223,6 +229,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\engine\ComputeJobs.cpp">
       <Filter>Source Files\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\glowl\src\texture3D.cpp">
+      <Filter>Source Files\gfx\gowl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\AtmosphereComponent.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
