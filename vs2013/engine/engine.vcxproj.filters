@@ -114,9 +114,6 @@
     <ClInclude Include="..\..\src\engine\RenderingPipeline.hpp">
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\engine\Material.h">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\engine\ResourceManager.h">
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
@@ -135,14 +132,20 @@
     <ClInclude Include="..\..\src\engine\AirplanePhysicsComponent.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\engine\ComputeJobs.hpp">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\glowl\include\glowl\texture3D.h">
       <Filter>Header Files\gfx\glowl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\AtmosphereComponent.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\AtmosphereMaterial.hpp">
+      <Filter>Header Files\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\SurfaceMaterial.hpp">
+      <Filter>Header Files\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Material.hpp">
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -206,9 +209,6 @@
     <ClCompile Include="..\..\src\engine\RenderingPipeline.cpp">
       <Filter>Source Files\gfx</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\Material.cpp">
-      <Filter>Source Files\gfx</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\engine\ResourceManager.cpp">
       <Filter>Source Files\gfx</Filter>
     </ClCompile>
@@ -227,14 +227,17 @@
     <ClCompile Include="..\..\src\engine\AirplanePhysicsComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\ComputeJobs.cpp">
-      <Filter>Source Files\gfx</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\glowl\src\texture3D.cpp">
       <Filter>Source Files\gfx\gowl</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\AtmosphereComponent.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\SurfaceMaterial.cpp">
+      <Filter>Source Files\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\AtmosphereMaterial.cpp">
+      <Filter>Source Files\gfx</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

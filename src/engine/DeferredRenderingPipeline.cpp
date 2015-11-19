@@ -1,17 +1,19 @@
 #include "DeferredRenderingPipeline.hpp"
 
 DeferredRenderingPipeline::DeferredRenderingPipeline(EntityManager* entity_mngr,
+										ResourceManager* resource_mngr,
 										TransformComponentManager* transform_mngr,
 										CameraComponentManager* camera_mngr,
-										LightComponentManager* light_mngr)
+										LightComponentManager* light_mngr,
+										AtmosphereComponentManager* atmosphere_mngr)
 	: m_lights_prepass(),
 		m_geometry_pass(),
 		m_shadow_map_pass(),
 		m_active_camera(entity_mngr->create()),
-		m_entity_mngr(entity_mngr), m_transform_mngr(transform_mngr), m_camera_mngr(camera_mngr), m_light_mngr(light_mngr)
+		m_entity_mngr(entity_mngr), m_resource_mngr(resource_mngr), m_transform_mngr(transform_mngr), m_camera_mngr(camera_mngr), m_light_mngr(light_mngr), m_atmosphere_mngr(atmosphere_mngr)
 {
-	transform_mngr->addComponent(m_active_camera,Vec3(0.0f,0.0f,50.0f),Quat(),Vec3(1.0f));
-	camera_mngr->addComponent(m_active_camera,1.0001f,10000.0f);
+	transform_mngr->addComponent(m_active_camera,Vec3(0.0f,0.0f,10.0f),Quat(),Vec3(1.0f));
+	camera_mngr->addComponent(m_active_camera, 0.1f, 15000.0f);
 }
 
 DeferredRenderingPipeline::~DeferredRenderingPipeline()
@@ -78,6 +80,72 @@ void DeferredRenderingPipeline::geometryPass()
 			}
 		}
 	}
+}
+
+void DeferredRenderingPipeline::atmospherePass()
+{
+	AtmosphereComponentManager::Data const * const atmosphere_data = m_atmosphere_mngr->getData();
+	uint num_entities = atmosphere_data->used;
+
+	if( num_entities == 0 ) return;
+
+	glDisable(GL_CULL_FACE);
+
+	// TODO: Try to remove redundancy of getting this information twice during rendering a single frame
+	/* Get information on active camera */
+	Mat4x4 view_matrix = glm::inverse(m_transform_mngr->getWorldTransformation( m_transform_mngr->getIndex(m_active_camera) ));
+	Mat4x4 proj_matrix = m_camera_mngr->getProjectionMatrix( m_camera_mngr->getIndex(m_active_camera) );
+
+	auto shader_prgm = atmosphere_data->material[0]->getShaderProgram();
+
+	shader_prgm->use();
+	shader_prgm->setUniform("projection_matrix", proj_matrix);
+	shader_prgm->setUniform("view_matrix", view_matrix);
+	shader_prgm->setUniform("camera_position", m_transform_mngr->getPosition( m_transform_mngr->getIndex(m_active_camera) ));
+	shader_prgm->setUniform("sun_direction", Vec3(0.0,1.0,0.0) );
+
+	/*	Draw all entities instanced */
+	int instance_counter = 0;
+	std::string atmosphere_center_uniform;
+	std::string max_altitude_uniform;
+	std::string min_altitude_uniform;
+	std::string model_uniform;
+
+	for(uint i=0; i<num_entities; i++)
+	{
+		uint transform_index = m_transform_mngr->getIndex(atmosphere_data->entity[i]);
+		Mat4x4 model_matrix = m_transform_mngr->getWorldTransformation(transform_index);
+		model_uniform = ("model_matrix[" + std::to_string(instance_counter) + "]");
+		shader_prgm->setUniform(model_uniform.c_str(), model_matrix);
+
+		max_altitude_uniform = ("max_altitude[" + std::to_string(instance_counter) + "]");
+		shader_prgm->setUniform( max_altitude_uniform.c_str() , atmosphere_data->max_altitude[i] );
+
+		min_altitude_uniform = ("min_altitude[" + std::to_string(instance_counter) + "]");
+		shader_prgm->setUniform( min_altitude_uniform.c_str() , atmosphere_data->min_altitude[i] );
+
+		atmosphere_center_uniform = ("atmosphere_center[" + std::to_string(instance_counter) + "]");
+		shader_prgm->setUniform(atmosphere_center_uniform.c_str(),m_transform_mngr->getPosition(transform_index));
+		
+		glEnable(GL_TEXTURE_3D);
+		glActiveTexture(GL_TEXTURE0);
+		shader_prgm->setUniform("rayleigh_inscatter_tx3D",0);
+		atmosphere_data->material[i]->getRayleighInscatterTable()->bindTexture();
+
+		glActiveTexture(GL_TEXTURE1);
+		shader_prgm->setUniform("mie_inscatter_tx3D",1);
+		atmosphere_data->material[i]->getMieInscatterTable()->bindTexture();
+
+		instance_counter++;
+
+		if(instance_counter == 128)
+		{
+			m_atmosphere_boundingBox->draw(instance_counter);
+			instance_counter = 0;
+		}
+	}
+
+	m_atmosphere_boundingBox->draw(instance_counter);
 }
 
 void DeferredRenderingPipeline::lightingPass()
@@ -164,18 +232,20 @@ void DeferredRenderingPipeline::run()
 	// Apparently glweInit() causes a GL ERROR 1280, so let's just catch that...
 	glGetError();
 
-	// Create dumy geometry for deferred rendering
+	// Create dummy geometry for deferred rendering
 	std::vector<Vertex_pu> vertex_array = {{ Vertex_pu(-1.0,-1.0f,-1.0f,0.0f,0.0f),
 											Vertex_pu(-1.0,1.0f,-1.0f,0.0f,1.0f),
 											Vertex_pu(1.0,1.0f,-1.0f,1.0f,1.0f),
 											Vertex_pu(1.0,-1.0f,-1.0f,1.0f,0.0f) }};
 	std::vector<GLuint> index_array = {{ 0,2,1,2,0,3 }};
 
-	m_dfr_fullscreenQuad = m_resource_mngr.createMesh("fullscreen_quad",vertex_array,index_array,GL_TRIANGLES);
+	m_dfr_fullscreenQuad = m_resource_mngr->createMesh("fullscreen_quad",vertex_array,index_array,GL_TRIANGLES);
 
 	// Load lighting shader program for deferred rendering
-	m_dfr_lighting_prgm = m_resource_mngr.createShaderProgram({"../resources/shaders/genericPostProc_v.glsl","../resources/shaders/dfr_lighting_f.glsl"});
+	m_dfr_lighting_prgm = m_resource_mngr->createShaderProgram({"../resources/shaders/genericPostProc_v.glsl","../resources/shaders/dfr_lighting_f.glsl"});
 
+	// Create basic boundingbox for atmosphere rendering
+	m_atmosphere_boundingBox = m_resource_mngr->createBox();
 
 	// Create G-Buffer
 	FramebufferObject gBuffer(1600,900,true);
@@ -202,8 +272,11 @@ void DeferredRenderingPipeline::run()
 
 		Controls::checkKeyStatus(m_active_window,dt);
 
-		/* Process new RenderJobRequest */
+		// Process new RenderJobRequest
 		processRenderJobRequest();
+
+		// Process new atmoshpere entities
+		m_atmosphere_mngr->processNewComponents();
 
 		// Geometry pass
 		gBuffer.bind();
@@ -221,14 +294,16 @@ void DeferredRenderingPipeline::run()
 		glfwGetFramebufferSize(m_active_window, &width, &height);
 		glViewport(0, 0, width, height);
 		
-		glActiveTexture(GL_TEXTURE0);
-		gBuffer.bindColorbuffer(0);
-		glActiveTexture(GL_TEXTURE1);
-		gBuffer.bindColorbuffer(1);
-		glActiveTexture(GL_TEXTURE2);
-		gBuffer.bindColorbuffer(2);
+		//glActiveTexture(GL_TEXTURE0);
+		//gBuffer.bindColorbuffer(0);
+		//glActiveTexture(GL_TEXTURE1);
+		//gBuffer.bindColorbuffer(1);
+		//glActiveTexture(GL_TEXTURE2);
+		//gBuffer.bindColorbuffer(2);
 		
-		lightingPass();
+		//lightingPass();
+
+		atmospherePass();
 
 		//TODO post processing
 
@@ -238,38 +313,17 @@ void DeferredRenderingPipeline::run()
 
 	/* Clear resources while context is still alive */
 	m_geometry_pass.clearRenderJobs();
-	m_resource_mngr.clearLists();
+	m_resource_mngr->clearLists();
 	m_dfr_fullscreenQuad.reset();
 	m_dfr_lighting_prgm.reset();
+	m_atmosphere_boundingBox.reset();
 
 	glfwMakeContextCurrent(NULL);
 }
 
-void DeferredRenderingPipeline::requestRenderJob(Entity entity,
-											std::string material_path,
-											std::string mesh_path,
-											bool cast_shadow)
+void DeferredRenderingPipeline::requestRenderJob(const RenderJobRequest& new_request)
 {
-	m_renderJobRequest_queue.push(RenderJobRequest(entity,material_path,mesh_path));
-}
-
-void DeferredRenderingPipeline::requestComputeJob(Entity entity,
-											GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z,
-											std::string compute_prgm,
-											std::vector<std::string> textures_ids,
-											std::vector<std::string> volume_ids,
-											std::vector<std::string> ssbo_ids,
-											bool oneshot_job)
-{
-	ComputeJobRequest new_request(entity,num_groups_x,num_groups_y,num_groups_z);
-
-	new_request.compute_prgm = std::move(compute_prgm);
-	new_request.textures_ids = std::move(textures_ids);
-	new_request.volume_ids = std::move(volume_ids);
-	new_request.ssbo_ids = std::move(ssbo_ids);
-	new_request.oneshot = oneshot_job;
-
-	m_computeJobRequest_queue.push(new_request);
+	m_renderJobRequest_queue.push(new_request);
 }
 
 void DeferredRenderingPipeline::addLightsource(Entity entity)
@@ -288,27 +342,10 @@ void DeferredRenderingPipeline::processRenderJobRequest()
 	{
 		RenderJobRequest new_jobRequest = m_renderJobRequest_queue.pop();
 
-		std::shared_ptr<Material> material = m_resource_mngr.createMaterial(new_jobRequest.material_path);
-		std::shared_ptr<Mesh> mesh = m_resource_mngr.createMesh(new_jobRequest.mesh_path);
+		std::shared_ptr<Material> material = m_resource_mngr->createMaterial(new_jobRequest.material_path);
+		std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(new_jobRequest.mesh_path);
 
 		m_geometry_pass.addRenderJob(RenderJob(new_jobRequest.entity,material,mesh));
-	}
-}
-
-void DeferredRenderingPipeline::processComputeJobRequest()
-{
-	while(!m_computeJobRequest_queue.empty())
-	{
-		ComputeJobRequest new_jobRequest = m_computeJobRequest_queue.pop();
-
-		std::shared_ptr<GLSLProgram> compute_prgm = m_resource_mngr.createShaderProgram({new_jobRequest.compute_prgm});
-
-		//TODO add resources
-		for(auto& s : new_jobRequest.textures_ids)
-		{
-			//std::shared_ptr<Texture2D> = m_resource_mngr.createTexture2D()
-		}
-
 	}
 }
 

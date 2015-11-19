@@ -147,7 +147,7 @@ std::shared_ptr<Mesh> ResourceManager::createMesh(const std::string path)
 std::shared_ptr<Material> ResourceManager::createMaterial(const std::string path)
 {
 	// copys a struct around by values, but hell it's easer to read for now
-	MaterialInfo inOutMtlInfo = parseMaterial(path);
+	SurfaceMaterialInfo inOutMtlInfo = parseMaterial(path);
 
 	for(auto& material : material_list)
 	{
@@ -179,7 +179,7 @@ std::shared_ptr<Material> ResourceManager::createMaterial(const std::string path
 	std::shared_ptr<Texture> texPtr4 = createTexture2D(inOutMtlInfo.normal_path);
 
 
-	std::shared_ptr<Material> material(new Material(path,prgPtr,texPtr1,texPtr2,texPtr3,texPtr4));
+	std::shared_ptr<Material> material(new SurfaceMaterial(path,prgPtr,texPtr1,texPtr2,texPtr3,texPtr4));
 	material_list.push_back(std::move(material));
 
 	prgPtr.reset();
@@ -189,6 +189,11 @@ std::shared_ptr<Material> ResourceManager::createMaterial(const std::string path
 	texPtr4.reset();
 
 	return material_list.back();
+}
+
+void ResourceManager::addMaterial(const std::shared_ptr<Material> material)
+{
+	material_list.push_back(material);
 }
 
 std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(const std::vector<std::string>& paths)
@@ -332,7 +337,13 @@ std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(const std::vec
 	return shader_program_list.back();
 }
 
-std::shared_ptr<Texture> ResourceManager::createTexture2D(const std::string name, GLint internal_format, unsigned int width, unsigned int height, GLenum format, GLenum type, GLvoid * data)
+std::shared_ptr<Texture> ResourceManager::createTexture2D(const std::string name,
+												GLint internal_format,
+												unsigned int width,
+												unsigned int height,
+												GLenum format,
+												GLenum type,
+												GLvoid * data)
 {
 	for(auto& texture : texture_list)
 	{
@@ -373,34 +384,27 @@ std::shared_ptr<Texture> ResourceManager::createTexture2D(const std::string path
 	return texture_list.back();
 }
 
-//	bool ResourceManager::createTexture3D(const std::string path, glm::ivec3 textureRes, std::shared_ptr<Texture3D> &inOutTexPtr)
-//	{
-//		for(std::list<std::shared_ptr<Texture3D>>::iterator i = volume_list.begin(); i != volume_list.end(); ++i)
-//		{
-//			if(((*i)->getName())==path)
-//			{
-//				inOutTexPtr = (*i);
-//				return true;
-//			}
-//		}
-//	
-//		std::shared_ptr<Texture3D> volume(new Texture3D(path));
-//		if(!(volume->loadTextureFile(path,textureRes))) return false;
-//		inOutTexPtr = volume;
-//		volume_list.push_back(std::move(volume));
-//	
-//		return true;
-//	}
-//	
-//	bool ResourceManager::createTexture3D(GLenum internalFormat, glm::ivec3 textureRes, GLenum format, GLenum type, GLvoid* volumeData, std::shared_ptr<Texture3D> &inOutTexPtr)
-//	{
-//		std::shared_ptr<Texture3D> volume(new Texture3D());
-//		if (!(volume->load(internalFormat, textureRes.x, textureRes.y, textureRes.z, format, type, volumeData))) return false;
-//		inOutTexPtr = volume;
-//		volume_list.push_back(std::move(volume));
-//	
-//		return true;
-//	}
+std::shared_ptr<Texture> ResourceManager::createTexture3D(const std::string name,
+												GLint internal_format,
+												unsigned int width,
+												unsigned int height,
+												unsigned int depth,
+												GLenum format,
+												GLenum type,
+												GLvoid* data)
+{
+	for(auto& texture : texture_list)
+	{
+		if(texture->getName() == name)
+			return texture;
+	}
+
+	std::shared_ptr<Texture3D> texture(new Texture3D(name,internal_format,width,height,depth,format,type,data));
+
+	volume_list.push_back(std::move(texture));
+
+	return volume_list.back();
+}
 
  std::shared_ptr<Mesh> ResourceManager::loadFbxGeometry(const std::string &path)
 {
@@ -564,12 +568,12 @@ std::shared_ptr<Mesh> ResourceManager::loadBinaryGeometry(const std::string &pat
 	return std::move(mesh);
 }
 
-MaterialInfo ResourceManager::parseMaterial(const std::string materialPath)
+SurfaceMaterialInfo ResourceManager::parseMaterial(const std::string materialPath)
 {
 	std::ifstream file;
 	file.open(materialPath, std::ifstream::in);
 
-	MaterialInfo mat_info;
+	SurfaceMaterialInfo mat_info;
 
 	if( file.is_open() )
 	{

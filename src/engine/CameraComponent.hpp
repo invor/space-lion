@@ -39,10 +39,10 @@ public:
 	void reallocate(uint size);
 
 	void addComponent(Entity entity,
-						float near = 0.001f,
-						float far = 1000.0f,
-						float fovy = 0.5236f,
-						float aspect_ratio = 16.0/9.0f);
+					float near = 0.001f,
+					float far = 1000.0f,
+					float fovy = 0.5236f,
+					float aspect_ratio = 16.0/9.0f);
 
 	void deleteComponent(Entity entity);
 

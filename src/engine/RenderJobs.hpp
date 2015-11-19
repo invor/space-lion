@@ -7,7 +7,7 @@
 
 #include "EntityManager.hpp"
 #include "GLSLProgram.h"
-#include "Material.h"
+#include "Material.hpp"
 #include "mesh.h"
 #include "TransformComponent.hpp"
 #include "CameraComponent.hpp"

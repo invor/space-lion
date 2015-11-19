@@ -9,7 +9,7 @@
 * 
 * \author Michael Becher
 * 
-* \date 8th August 2015
+* \date 13th November 2015
 */
 
 #ifndef resourceManager_h
@@ -24,13 +24,14 @@
 #include <memory>
 #include <iostream>
 
+#include "glowl.h"
+
 /*	Include space-lion headers */
-#include "material.h"
-#include "texture2D.h"
-//#include "core/texture3D.h"
-#include "mesh.h"
+#include "Material.hpp"
+#include "SurfaceMaterial.hpp"
+#include "AtmosphereMaterial.hpp"
 #include "vertexStructs.h"
-#include "GLSLProgram.h"
+
 #include "fbx/fbx_exceptions.hpp"
 #include "fbx/fbx_generic_parser.hpp"
 #include "fbx/fbx_geometry.hpp"
@@ -47,8 +48,6 @@
 
 
 #define DEBUG_OUTPUT 0
-
-enum shaderType	{ SKY,IRRADIANCE_SINGLE,INSCATTER_SINGLE,TRANSMITTANCE_COMPUTE,TERRAIN,SURFACE_LIGHTING,PICKING,FLAT, FXAA, IDLE, VOLUME_RAYCASTING, GAUSSIAN, GRADIENT, STRUCTURE_TENSOR, HESSE };
 
 class ResourceManager
 {
@@ -137,6 +136,8 @@ public:
 	 */
 	std::shared_ptr<Material> createMaterial(const std::string path);
 
+	void addMaterial(const std::shared_ptr<Material> material);
+
 	/**
 	 * \brief Reload a material object from file
 	 * \note Not yet implemented. For later use, when some kind of editor allows to change material properties at runtime
@@ -154,8 +155,8 @@ public:
 	/**
 	 * \brief Creates a 2D texture from a given data array
 	 * \param internal_format Specifies the internal format of the texture (e.g. GL_RGBA32F)
-	 * \param dim_x Specifies the width of the texture in pixels.
-	 * \param dim_y Specifies the height of the texture in pixels.
+	 * \param width Specifies the width of the texture in pixels.
+	 * \param height Specifies the height of the texture in pixels.
 	 * \param format Specifies the format of the texture (e.g. GL_RGBA)
 	 * \param type Specifies the type of the texture (e.g. GL_FLOAT)
 	 * \param data Pointer to the actual texture data.
@@ -177,26 +178,24 @@ public:
 	 */
 	bool reloadTexture();
 
-//	/**
-//	 * \brief Creates a 3D texture for volume rendering from a file
-//	 * \param path Location of the volume texture file
-//	 * \param textureRes Resolution of the volume
-//	 * \param inOutTexPtr A pointer set to the newly created
-//	 * \return Returns true if volume texture was succesfully created, false otherwise
-//	 */
-//	bool createTexture3D(const std::string path, glm::ivec3 textureRes, std::shared_ptr<Texture3D> &inOutTexPtr);
-//
-//	/**
-//	 * \brief Creates a 3D texture for volume rendering from a given float array
-//	 * \param internalFormat Internal format of the volume data
-//	 * \param textureRes Resolution of the volume
-//	 * \param format Format of the volume data
-//	 * \param type Specifies the type of data (e.g. GL_FLOAT)
-//	 * \param volumeData Array containing the voxel information
-//	 * \param inOutTexPtr A pointer set to the newly created
-//	 * \return Returns true if volume texture was succesfully created, false otherwise
-//	 */
-//	bool createTexture3D(GLenum internalFormat, glm::ivec3 textureRes, GLenum format, GLenum type, GLvoid* volumeData, std::shared_ptr<Texture3D> &inOutTexPtr);
+	/**
+	 * \brief Create a 3D texture from a given data array
+	 * \param internal_format Specifies the internal format of the texture (e.g. GL_RGBA32F)
+	 * \param width Specifies the width of the texture in voxels.
+	 * \param height Specifies the height of the texture in voxels.
+	 * \param depth Specified the dpeht of the texture in voxels.
+	 * \param format Specifies the format of the texture (e.g. GL_RGBA)
+	 * \param type Specifies the type of the texture (e.g. GL_FLOAT)
+	 * \param data Pointer to the actual texture data.
+	 */
+	std::shared_ptr<Texture> createTexture3D(const std::string name,
+											GLint internal_format,
+											unsigned int width,
+											unsigned int height,
+											unsigned int depth,
+											GLenum format,
+											GLenum type,
+											GLvoid* data);
 
 protected:
 	/** Log string */
@@ -205,7 +204,7 @@ protected:
 	/*
 	/	The following lists contain all resources that are managed by an instance of this class.
 	/	There is only a single "instance" of any (uniquely identifiable) resouce kept/referenced in these lists.
-	/	Different scene entities making use of the same resource, will both be refering to the single
+	/	Different entities making use of the same resource, will both be refering to the single
 	/	instance kept/referenced within one of these lists.
 	*/
 
@@ -216,7 +215,7 @@ protected:
 	/** List containing all 2D textures */
 	std::list<std::shared_ptr<Texture2D>> texture_list;
 	/** List containing all 3D textures */
-//	std::list<std::shared_ptr<Texture3D>> volume_list;
+	std::list<std::shared_ptr<Texture3D>> volume_list;
 	/** List containing all shader programs */
 	std::list<std::shared_ptr<GLSLProgram>> shader_program_list;
 
@@ -241,7 +240,7 @@ protected:
 	 * \param inOutMtlInfo Contains the material information after the method is called (in-out parameter)
 	 * \return Returns true if the material file was succesfully parsed, false otherwise
 	 */
-	MaterialInfo parseMaterial(const std::string materialPath);
+	SurfaceMaterialInfo parseMaterial(const std::string materialPath);
 
 	/**
 	 * \brief Read a shader source file
