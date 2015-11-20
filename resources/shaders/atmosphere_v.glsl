@@ -10,6 +10,7 @@ in vec3 v_position;
 
 out vec3 position;
 flat out int instanceID;
+out vec4 deviceCoords;
 
 void main()
 {	
@@ -17,4 +18,6 @@ void main()
 	instanceID = gl_InstanceID;
 
 	gl_Position = projection_matrix * view_matrix * model_matrix[gl_InstanceID] * vec4(v_position, 1.0);
+	
+	deviceCoords = gl_Position;
 }

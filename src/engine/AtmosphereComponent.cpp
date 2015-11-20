@@ -107,15 +107,18 @@ void AtmosphereComponentManager::processNewComponents()
 
 		std::shared_ptr<GLSLProgram> prgm = m_resource_mngr->createShaderProgram({"../resources/shaders/atmosphere_v.glsl","../resources/shaders/atmosphere_f.glsl"});
 
-		std::shared_ptr<Texture> transmittance_table = m_resource_mngr->createTexture2D("transmittance_table_" + m_data.entity[addedComponent_idx].id(),
+		std::shared_ptr<Texture2D> transmittance_table = m_resource_mngr->createTexture2D("transmittance_table_" + m_data.entity[addedComponent_idx].id(),
 																						GL_RGBA32F,
 																						256,
 																						64,
 																						GL_RGBA,
 																						GL_FLOAT,
 																						0 );
+		transmittance_table->texParameteri<std::vector<std::pair<GLenum,GLenum>>>(
+			{ std::pair<GLenum,GLenum>(GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE),
+				std::pair<GLenum,GLenum>(GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE) } );
 
-		std::shared_ptr<Texture> mie_inscatter_table = m_resource_mngr->createTexture3D("mie_inscatter_table_" + m_data.entity[addedComponent_idx].id(),
+		std::shared_ptr<Texture3D> mie_inscatter_table = m_resource_mngr->createTexture3D("mie_inscatter_table_" + m_data.entity[addedComponent_idx].id(),
 																						GL_RGBA32F,
 																						256,
 																						128,
@@ -123,8 +126,12 @@ void AtmosphereComponentManager::processNewComponents()
 																						GL_RGBA,
 																						GL_FLOAT,
 																						0);
+		mie_inscatter_table->texParameteri<std::vector<std::pair<GLenum,GLenum>>>(
+			{ std::pair<GLenum,GLenum>(GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE),
+				std::pair<GLenum,GLenum>(GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE),
+				std::pair<GLenum,GLenum>(GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE) } );
 
-		std::shared_ptr<Texture> rayleigh_inscatter_table  = m_resource_mngr->createTexture3D("rayleigh_inscatter_table_" + m_data.entity[addedComponent_idx].id(),
+		std::shared_ptr<Texture3D> rayleigh_inscatter_table  = m_resource_mngr->createTexture3D("rayleigh_inscatter_table_" + m_data.entity[addedComponent_idx].id(),
 																						GL_RGBA32F,
 																						256,
 																						128,
@@ -132,14 +139,21 @@ void AtmosphereComponentManager::processNewComponents()
 																						GL_RGBA,
 																						GL_FLOAT,
 																						0);
+		rayleigh_inscatter_table->texParameteri<std::vector<std::pair<GLenum,GLenum>>>(
+			{ std::pair<GLenum,GLenum>(GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE),
+				std::pair<GLenum,GLenum>(GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE),
+				std::pair<GLenum,GLenum>(GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE) } );
 
-		std::shared_ptr<Texture> irradiance_table = m_resource_mngr->createTexture2D("irradience_table_" + m_data.entity[addedComponent_idx].id(),
+		std::shared_ptr<Texture2D> irradiance_table = m_resource_mngr->createTexture2D("irradience_table_" + m_data.entity[addedComponent_idx].id(),
 																						GL_RGBA32F,
 																						256,
 																						64,
 																						GL_RGBA,
 																						GL_FLOAT,
 																						0 );
+		irradiance_table->texParameteri<std::vector<std::pair<GLenum,GLenum>>>(
+			{ std::pair<GLenum,GLenum>(GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE),
+				std::pair<GLenum,GLenum>(GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE) } );
 
 		//TODO let the resource_mngr handle the creation!
 		std::shared_ptr<Material> new_material = std::make_shared<AtmosphereMaterial>("atmosphere_" + m_data.entity[addedComponent_idx].id(),prgm,transmittance_table,rayleigh_inscatter_table,mie_inscatter_table,irradiance_table);

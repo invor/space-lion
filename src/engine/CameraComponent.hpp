@@ -48,7 +48,7 @@ public:
 
 	const uint getIndex(Entity entity);
 
-	void setCameraAttributes(uint index, float near, float far, float fovy, float aspect_ratio);
+	void setCameraAttributes(uint index, float near, float far, float fovy = 0.5236f, float aspect_ratio = 16.0/9.0f);
 
 	void updateProjectionMatrix(uint index);
 

@@ -109,8 +109,6 @@ void CameraComponentManager::updateProjectionMatrix(uint index)
 
 	//Mat4x4 projection_matrix;// = m_data.projection_matrix[index];
 
-	std::cout<<"far clipping plane: "<<far<<std::endl;
-
 	m_data.projection_matrix[index] = glm::perspective(fovy,aspect_ratio,near,far);
 
 	//	float f = 1.0f / std::tan(fovy / 2.0f);

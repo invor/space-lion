@@ -99,10 +99,11 @@ void DeferredRenderingPipeline::atmospherePass()
 	auto shader_prgm = atmosphere_data->material[0]->getShaderProgram();
 
 	shader_prgm->use();
+	shader_prgm->setUniform("normal_depth_tx2D",0);
 	shader_prgm->setUniform("projection_matrix", proj_matrix);
 	shader_prgm->setUniform("view_matrix", view_matrix);
 	shader_prgm->setUniform("camera_position", m_transform_mngr->getPosition( m_transform_mngr->getIndex(m_active_camera) ));
-	shader_prgm->setUniform("sun_direction", Vec3(0.0,1.0,0.0) );
+	shader_prgm->setUniform("sun_direction", Vec3(0.0,0.3,-1.0) );
 
 	/*	Draw all entities instanced */
 	int instance_counter = 0;
@@ -128,12 +129,12 @@ void DeferredRenderingPipeline::atmospherePass()
 		shader_prgm->setUniform(atmosphere_center_uniform.c_str(),m_transform_mngr->getPosition(transform_index));
 		
 		glEnable(GL_TEXTURE_3D);
-		glActiveTexture(GL_TEXTURE0);
-		shader_prgm->setUniform("rayleigh_inscatter_tx3D",0);
+		glActiveTexture(GL_TEXTURE1);
+		shader_prgm->setUniform("rayleigh_inscatter_tx3D",1);
 		atmosphere_data->material[i]->getRayleighInscatterTable()->bindTexture();
 
-		glActiveTexture(GL_TEXTURE1);
-		shader_prgm->setUniform("mie_inscatter_tx3D",1);
+		glActiveTexture(GL_TEXTURE2);
+		shader_prgm->setUniform("mie_inscatter_tx3D",2);
 		atmosphere_data->material[i]->getMieInscatterTable()->bindTexture();
 
 		instance_counter++;
@@ -156,6 +157,8 @@ void DeferredRenderingPipeline::lightingPass()
 	m_dfr_lighting_prgm->setUniform("normal_depth_tx2D",0);
 	m_dfr_lighting_prgm->setUniform("albedoRGB_tx2D",1);
 	m_dfr_lighting_prgm->setUniform("specularRGB_roughness_tx2D",2);
+
+	m_dfr_lighting_prgm->setUniform("atmosphereRGBA_tx2D",3);
 
 
 	// Get information on active camera
@@ -254,6 +257,9 @@ void DeferredRenderingPipeline::run()
 	gBuffer.createColorAttachment(GL_RGBA8,GL_RGBA,GL_UNSIGNED_BYTE);
 	std::cout<<gBuffer.getLog()<<std::endl;
 
+	FramebufferObject atmosphere_fbo(1600,900,true);
+	atmosphere_fbo.createColorAttachment(GL_RGBA16F,GL_RGBA,GL_HALF_FLOAT);
+
 	// Set some OpenGL states
 	glClearColor(0.0f,0.0f,0.0f,0.0f);
 	glEnable (GL_DEPTH_TEST);
@@ -279,6 +285,7 @@ void DeferredRenderingPipeline::run()
 		m_atmosphere_mngr->processNewComponents();
 
 		// Geometry pass
+		m_camera_mngr->setCameraAttributes(m_camera_mngr->getIndex(m_active_camera),0.01,10000.0);
 		gBuffer.bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		int width, height;
@@ -287,6 +294,18 @@ void DeferredRenderingPipeline::run()
 		glViewport(0, 0, width, height);
 
 		geometryPass();
+
+		m_camera_mngr->setCameraAttributes(m_camera_mngr->getIndex(m_active_camera),100.0,100000000.0);
+
+		atmosphere_fbo.bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		height = atmosphere_fbo.getHeight();
+		width = atmosphere_fbo.getWidth();
+		glViewport(0, 0, width, height);
+
+		glActiveTexture(GL_TEXTURE0);
+		gBuffer.bindColorbuffer(0);
+		atmospherePass();
 	
 		// Lighting pass
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -294,16 +313,17 @@ void DeferredRenderingPipeline::run()
 		glfwGetFramebufferSize(m_active_window, &width, &height);
 		glViewport(0, 0, width, height);
 		
-		//glActiveTexture(GL_TEXTURE0);
-		//gBuffer.bindColorbuffer(0);
-		//glActiveTexture(GL_TEXTURE1);
-		//gBuffer.bindColorbuffer(1);
-		//glActiveTexture(GL_TEXTURE2);
-		//gBuffer.bindColorbuffer(2);
-		
-		//lightingPass();
+		glActiveTexture(GL_TEXTURE0);
+		gBuffer.bindColorbuffer(0);
+		glActiveTexture(GL_TEXTURE1);
+		gBuffer.bindColorbuffer(1);
+		glActiveTexture(GL_TEXTURE2);
+		gBuffer.bindColorbuffer(2);
 
-		atmospherePass();
+		glActiveTexture(GL_TEXTURE3);
+		atmosphere_fbo.bindColorbuffer(0);
+		
+		lightingPass();
 
 		//TODO post processing
 

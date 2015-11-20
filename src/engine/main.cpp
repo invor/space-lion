@@ -45,14 +45,16 @@ int main(){
 	rendering_pipeline.addLightsource(light_entity);
 	
 	Entity atmoshphere_entity = entity_mngr.create();
-	scene_transformations_mngr.addComponent(atmoshphere_entity,Vec3(0.0,-6361.0,0.0),Quat(),Vec3(6420.0*2.0));
+	scene_transformations_mngr.addComponent(atmoshphere_entity,Vec3(0.0,-6361000.0,0.0),Quat(),Vec3(6420000.0*2.0));
 	atmosphere_mngr.addComponent(atmoshphere_entity,
-									Vec3(0.0058,0.0135,0.0331),
-									Vec3(0.00444,0.00444,0.00444),
-									8.0,
-									1.2,
-									6360.0,
-									6420.0);
+									//Vec3(0.0058,0.0135,0.0331),
+									//Vec3(0.00444,0.00444,0.00444),
+									Vec3(0.0000058,0.0000135,0.0000331),
+									Vec3(0.00000444,0.00000444,0.00000444),
+									8000.0,
+									1200.0,
+									6360000.0,
+									6420000.0);
 	
 	// Stress-testing
 	//	for(int j=-10; j < 10; j = j+4)

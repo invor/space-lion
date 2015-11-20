@@ -20,6 +20,7 @@ struct LightProperties
 uniform sampler2D normal_depth_tx2D;
 uniform sampler2D albedoRGB_tx2D;
 uniform sampler2D specularRGB_roughness_tx2D;
+uniform sampler2D atmosphereRGBA_tx2D;
 
 uniform LightProperties lights;
 uniform int num_lights;
@@ -116,7 +117,7 @@ void main()
 
 	//vec3 light_intensity = lights_view_space.intensity;
 	
-	if(depth > 1.0)
+	if(depth > 0.0)
 	{
 		rgb_linear += cookTorranceShading(albedo,
 											specular,
@@ -126,11 +127,8 @@ void main()
 											viewer_direction,
 											light_intensity);
 	}
-	else
-	{
-		// Background colour
-		rgb_linear = vec3(0.2);
-	}
+	
+	rgb_linear += texture(atmosphereRGBA_tx2D,uvCoord).xyz;
 	
 	/*	Temporary gamma correction */
 	frag_colour = vec4( pow( rgb_linear, vec3(1.0/2.2) ), 1.0);

@@ -162,14 +162,14 @@ public:
 	 * \param data Pointer to the actual texture data.
 	 * \return Returns shared pointer to new texture or existing texture if given name already exits
 	 */
-	std::shared_ptr<Texture> createTexture2D(const std::string name, GLint internal_format, unsigned int width, unsigned int height, GLenum format, GLenum type, GLvoid * data);
+	std::shared_ptr<Texture2D> createTexture2D(const std::string name, GLint internal_format, unsigned int width, unsigned int height, GLenum format, GLenum type, GLvoid * data);
 
 	/**
 	 * \brief Creates a 2D texture from a file
 	 * \param path Location of the texture file
 	 * \return Returns shared pointer to new texture or existing texture if given path already exits
 	 */
-	std::shared_ptr<Texture> createTexture2D(const std::string path);
+	std::shared_ptr<Texture2D> createTexture2D(const std::string path);
 
 	/**
 	 * \brief Reloads a texture in case a texture file is changed during runtime
@@ -188,7 +188,7 @@ public:
 	 * \param type Specifies the type of the texture (e.g. GL_FLOAT)
 	 * \param data Pointer to the actual texture data.
 	 */
-	std::shared_ptr<Texture> createTexture3D(const std::string name,
+	std::shared_ptr<Texture3D> createTexture3D(const std::string name,
 											GLint internal_format,
 											unsigned int width,
 											unsigned int height,

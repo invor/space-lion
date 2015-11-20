@@ -15,6 +15,7 @@ uniform vec3 atmosphere_center[128];
 
 in vec3 position;
 flat in int instanceID;
+in vec4 deviceCoords;
 
 layout (location = 0) out vec4 frag_colour;
 
@@ -37,7 +38,7 @@ bool intersectAtmosphere(in Ray ray,in out vec2 d)
 	vec3 dir = ray.direction;
 	
 	/* now solve linear equation for line circle intersection */
-	float e = 0.0001f; //epsilon value
+	float e = 0.001f; //epsilon value
 	float a = dot(dir,dir);
 	float b = dot(pos,dir);
 	float c = dot(pos,pos) - square(max_altitude[instanceID]+e);
@@ -128,16 +129,14 @@ vec3 computeSkyColour(float viewSun, float altitude, float viewZenith, float sun
 		rgb_sky = rayleighPhaseFunction(viewSun) * accessInscatterTexture(rayleigh_inscatter_tx3D,altitude,viewZenith,sunZenith,viewSun).xyz;
 		rgb_sky += miePhaseFunction(viewSun,0.8) * accessInscatterTexture(mie_inscatter_tx3D,altitude,viewZenith,sunZenith,viewSun).xyz;
 		rgb_sky /= 4.0*PI;
-		rgb_sky *= 100.0;
+		rgb_sky *= 50.0;
 	}
 	
 	return max(rgb_sky,vec3(0.0));
 }
 
 void main()
-{
-	//TODO two cases: inside and outside of atmosphere
-	
+{	
 	Ray view_ray;
 	view_ray.origin = camera_position;
 	view_ray.direction = normalize(position-camera_position);
@@ -159,15 +158,32 @@ void main()
 	float sunZenith = dot( normalize(sun_direction), normalize(view_ray.origin - atmosphere_center[instanceID]) );
 	float viewSun = dot( normalize(view_ray.direction), normalize(sun_direction) );
 	
-	rgb_linear = computeSkyColour(viewSun,altitude,viewZenith,sunZenith);
+	rgb_linear += computeSkyColour(viewSun,altitude,viewZenith,sunZenith);
 	
 	/*	fake sun disc */
 	if(abs(viewSun)>0.9994)
 	{
-		float intensity =pow((abs(viewSun)-0.9994)/(1.0-0.9994),3.0);
+		float intensity = pow((abs(viewSun)-0.9994)/(1.0-0.9994),3.0);
 		rgb_linear += vec3(intensity,intensity,intensity) * 0.9;
 	}
 	
-	/*	Temporary gamma correction */
-	frag_colour = vec4( pow( rgb_linear, vec3(1.0/2.2) ), 1.0);
+	
+	/* */
+	vec2 uvCoords = ((deviceCoords.xy / deviceCoords.w) + 1.0) * 0.5;
+	vec4 normal_depth = texture(normal_depth_tx2D,uvCoords);
+	float depth = (normal_depth.z + normal_depth.w)/1024.0;
+	
+	if( depth > 0.0)
+	{
+		vec3 geometry_position = view_ray.origin + depth * view_ray.direction;
+	
+		altitude = length(geometry_position - atmosphere_center[instanceID]);
+		viewZenith = dot( normalize(view_ray.direction), normalize(geometry_position - atmosphere_center[instanceID]) );
+		sunZenith = dot( normalize(sun_direction), normalize(geometry_position - atmosphere_center[instanceID]) );
+	
+		rgb_linear -= computeSkyColour(viewSun,altitude,viewZenith,sunZenith);
+	}
+	
+	frag_colour = vec4(rgb_linear,1.0);
+	
 }

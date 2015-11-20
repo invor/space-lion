@@ -337,7 +337,7 @@ std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(const std::vec
 	return shader_program_list.back();
 }
 
-std::shared_ptr<Texture> ResourceManager::createTexture2D(const std::string name,
+std::shared_ptr<Texture2D> ResourceManager::createTexture2D(const std::string name,
 												GLint internal_format,
 												unsigned int width,
 												unsigned int height,
@@ -358,7 +358,7 @@ std::shared_ptr<Texture> ResourceManager::createTexture2D(const std::string name
 	return texture_list.back();
 }
 
-std::shared_ptr<Texture> ResourceManager::createTexture2D(const std::string path)
+std::shared_ptr<Texture2D> ResourceManager::createTexture2D(const std::string path)
 {
 	for(auto& texture : texture_list)
 	{
@@ -384,7 +384,7 @@ std::shared_ptr<Texture> ResourceManager::createTexture2D(const std::string path
 	return texture_list.back();
 }
 
-std::shared_ptr<Texture> ResourceManager::createTexture3D(const std::string name,
+std::shared_ptr<Texture3D> ResourceManager::createTexture3D(const std::string name,
 												GLint internal_format,
 												unsigned int width,
 												unsigned int height,
@@ -393,7 +393,7 @@ std::shared_ptr<Texture> ResourceManager::createTexture3D(const std::string name
 												GLenum type,
 												GLvoid* data)
 {
-	for(auto& texture : texture_list)
+	for(auto& texture : volume_list)
 	{
 		if(texture->getName() == name)
 			return texture;
