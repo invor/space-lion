@@ -160,14 +160,6 @@ void main()
 	
 	rgb_linear += computeSkyColour(viewSun,altitude,viewZenith,sunZenith);
 	
-	/*	fake sun disc */
-	if(abs(viewSun)>0.9994)
-	{
-		float intensity = pow((abs(viewSun)-0.9994)/(1.0-0.9994),3.0);
-		rgb_linear += vec3(intensity,intensity,intensity) * 0.9;
-	}
-	
-	
 	/* */
 	vec2 uvCoords = ((deviceCoords.xy / deviceCoords.w) + 1.0) * 0.5;
 	vec4 normal_depth = texture(normal_depth_tx2D,uvCoords);
@@ -182,6 +174,15 @@ void main()
 		sunZenith = dot( normalize(sun_direction), normalize(geometry_position - atmosphere_center[instanceID]) );
 	
 		rgb_linear -= computeSkyColour(viewSun,altitude,viewZenith,sunZenith);
+	}
+	else
+	{
+		/*	fake sun disc */
+		if(abs(viewSun)>0.999)
+		{
+			float intensity = pow((abs(viewSun)-0.999)/(1.0-0.999),3.0);
+			rgb_linear += vec3(intensity,intensity,intensity) * 0.9;
+		}
 	}
 	
 	frag_colour = vec4(rgb_linear,1.0);

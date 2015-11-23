@@ -36,11 +36,11 @@ int main(){
 	Entity light_entity = entity_mngr.create();
 	
 	scene_transformations_mngr.addComponent(camera_entity,Vec3(0.0,0.0,20.0),Quat(),Vec3(1.0));
-	scene_transformations_mngr.addComponent(light_entity,Vec3(250.0,250.0,250.0),Quat(),Vec3(1.0));
+	scene_transformations_mngr.addComponent(light_entity,Vec3(250000000.0,25000000.0,250000000.0),Quat(),Vec3(1.0));
 	
 	camera_mngr.addComponent(camera_entity);// THIS IS NOT THE ACTIVE CAMERA ATM
 	
-	light_mngr.addComponent(light_entity);
+	light_mngr.addComponent(light_entity,Vec3(1.0),999999999.0);
 	
 	rendering_pipeline.addLightsource(light_entity);
 	
@@ -71,20 +71,25 @@ int main(){
 	//scene_transformations_mngr.addComponent(boat,Vec3(0.0),Quat(),Vec3(1.0));
 	//rendering_pipeline.requestRenderJob(boat,"../resources/materials/boat.slmtl","../resources/meshes/boat.fbx");
 	
-	Entity m4 = entity_mngr.create();
-	scene_transformations_mngr.addComponent(m4,Vec3(0.0),Quat(),Vec3(2.0));
-	rendering_pipeline.requestRenderJob(RenderJobRequest(m4,"../resources/materials/m4.slmtl","../resources/meshes/m4.fbx"));
-
-	//Entity sponza = entity_mngr.create();
-	//scene_transformations_mngr.addComponent(sponza,Vec3(0.0),Quat(),Vec3(1.0));
-	//rendering_pipeline.requestRenderJob(sponza,"../resources/materials/dfr_debug.slmtl","../resources/meshes/sponza_cust.fbx");
-
-	Entity airplane = entity_mngr.create();
-	scene_transformations_mngr.addComponent(airplane,Vec3(0.0,0.0,40.0),Quat(),Vec3(1.0));
-	airplanePhysics_mngr.addComponent(airplane,Vec3(0.0,0.0,80.0),Vec3(0.0),0.0,3000.0,22.0);
-	rendering_pipeline.requestRenderJob(RenderJobRequest(airplane,"../resources/materials/dfr_debug.slmtl","../resources/meshes/outflyer.fbx"));
+	//	Entity m4 = entity_mngr.create();
+	//	scene_transformations_mngr.addComponent(m4,Vec3(0.0),Quat(),Vec3(2.0));
+	//	rendering_pipeline.requestRenderJob(RenderJobRequest(m4,"../resources/materials/m4.slmtl","../resources/meshes/m4.fbx"));
+	//	
+	//	Entity sponza = entity_mngr.create();
+	//	scene_transformations_mngr.addComponent(sponza,Vec3(0.0),Quat(),Vec3(1.0));
+	//	rendering_pipeline.requestRenderJob(RenderJobRequest(sponza,"../resources/materials/dfr_debug.slmtl","../resources/meshes/sponza_cust.fbx"));
+	//	
+	//	Entity airplane = entity_mngr.create();
+	//	scene_transformations_mngr.addComponent(airplane,Vec3(0.0,0.0,40.0),Quat(),Vec3(1.0));
+	//	airplanePhysics_mngr.addComponent(airplane,Vec3(0.0,0.0,80.0),Vec3(0.0),0.0,3000.0,22.0);
+	//	rendering_pipeline.requestRenderJob(RenderJobRequest(airplane,"../resources/materials/dfr_debug.slmtl","../resources/meshes/outflyer.fbx"));
 	
+	Entity toad = entity_mngr.create();
+	scene_transformations_mngr.addComponent(toad,Vec3(0.0,0.0,40.0),Quat(),Vec3(1.0));
+	airplanePhysics_mngr.addComponent(toad,Vec3(0.0,0.0,80.0),Vec3(0.0),0.0,3000.0,22.0);
+	rendering_pipeline.requestRenderJob(RenderJobRequest(toad,"../resources/materials/toad.slmtl","../resources/meshes/toad.fbx"));
 	
+
 	//	while(true)
 	//	{
 	//		auto t_0 = std::chrono::high_resolution_clock::now();

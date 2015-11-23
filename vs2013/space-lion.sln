@@ -5,8 +5,6 @@ VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "engine", "engine\engine.vcxproj", "{99AE58AF-93C8-4AD8-8811-60D9223C709C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fapra", "fapra\fapra.vcxproj", "{67C70BD9-7CD4-4F5F-85CD-F57176D31944}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -29,18 +27,6 @@ Global
 		{99AE58AF-93C8-4AD8-8811-60D9223C709C}.Release|Win32.Build.0 = Release|Win32
 		{99AE58AF-93C8-4AD8-8811-60D9223C709C}.Release|x64.ActiveCfg = Release|x64
 		{99AE58AF-93C8-4AD8-8811-60D9223C709C}.Release|x64.Build.0 = Release|x64
-		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
-		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Debug|Mixed Platforms.Build.0 = Debug|Win32
-		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Debug|Win32.ActiveCfg = Debug|Win32
-		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Debug|Win32.Build.0 = Debug|Win32
-		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Debug|x64.ActiveCfg = Debug|x64
-		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Debug|x64.Build.0 = Debug|x64
-		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Release|Mixed Platforms.Build.0 = Release|Win32
-		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Release|Win32.ActiveCfg = Release|Win32
-		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Release|Win32.Build.0 = Release|Win32
-		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Release|x64.ActiveCfg = Release|x64
-		{67C70BD9-7CD4-4F5F-85CD-F57176D31944}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

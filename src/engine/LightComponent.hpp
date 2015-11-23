@@ -30,7 +30,7 @@ public:
 
 	void reallocate(uint size);
 
-	void addComponent(Entity entity);
+	void addComponent(Entity entity, Vec3 light_colour, float light_intensity);
 
 	void deleteComonent(Entity entity);
 

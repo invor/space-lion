@@ -46,7 +46,7 @@ void LightComponentManager::reallocate(uint size)
 	m_data = new_data;
 }
 
-void LightComponentManager::addComponent(Entity entity)
+void LightComponentManager::addComponent(Entity entity, Vec3 light_colour, float light_intensity)
 {
 	assert(m_data.used < m_data.allocated);
 
@@ -55,8 +55,8 @@ void LightComponentManager::addComponent(Entity entity)
 	m_index_map.insert({entity.id(),index});
 
 	m_data.entity[index] = entity;
-	m_data.light_colour[index] = Vec3(1.0);
-	m_data.light_intensity[index] = 500.0f;
+	m_data.light_colour[index] = light_colour;
+	m_data.light_intensity[index] = light_intensity;
 
 	m_data.used++;
 }

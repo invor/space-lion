@@ -103,7 +103,11 @@ void DeferredRenderingPipeline::atmospherePass()
 	shader_prgm->setUniform("projection_matrix", proj_matrix);
 	shader_prgm->setUniform("view_matrix", view_matrix);
 	shader_prgm->setUniform("camera_position", m_transform_mngr->getPosition( m_transform_mngr->getIndex(m_active_camera) ));
-	shader_prgm->setUniform("sun_direction", Vec3(0.0,0.3,-1.0) );
+
+	Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( m_active_lightsources.front() ) );
+	Vec3 camera_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex(m_active_camera));
+
+	shader_prgm->setUniform("sun_direction", (light_position-camera_position) );
 
 	/*	Draw all entities instanced */
 	int instance_counter = 0;

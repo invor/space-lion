@@ -112,8 +112,8 @@ void main()
 	lights_view_space.intensity = lights.intensity;
 	lights_view_space.position = normalize( (view_matrix * vec4(lights.position,1.0)).xyz - position);
 	
-	/*	Quick&Dirty light attenuation */
-	vec3 light_intensity = 100.0 * lights_view_space.intensity / pow(length(position-(view_matrix*vec4(lights.position,1.0)).xyz),2.0);
+	/*	Quick&Dirty light attenuation - note: no attenuation in outer-space */
+	vec3 light_intensity = lights_view_space.intensity / pow(  min( 6420000.0-6360000.0 , length(position-(view_matrix*vec4(lights.position,1.0)).xyz) ) ,2.0);
 
 	//vec3 light_intensity = lights_view_space.intensity;
 	
