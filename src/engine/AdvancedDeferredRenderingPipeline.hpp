@@ -54,7 +54,7 @@ private:
 	EntityManager* m_entity_mngr;
 	TransformComponentManager* m_transform_mngr;
 	CameraComponentManager* m_camera_mngr;
-	LightComponentManager* m_light_mngr;
+	PointlightComponentManager* m_light_mngr;
 
 	void processRenderJobRequest();
 
@@ -65,7 +65,7 @@ private:
 	static void windowCloseCallback(GLFWwindow* window);
 
 public:
-	AdvancedDeferredRenderingPipeline(EntityManager* entity_mngr, TransformComponentManager* transform_mngr, CameraComponentManager* camera_mngr, LightComponentManager* light_mngr);
+	AdvancedDeferredRenderingPipeline(EntityManager* entity_mngr, TransformComponentManager* transform_mngr, CameraComponentManager* camera_mngr, PointlightComponentManager* light_mngr);
 	~AdvancedDeferredRenderingPipeline();
 
 	void requestRenderJob(Entity entity, std::string material_path, std::string mesh_path, bool cast_shadow = false);

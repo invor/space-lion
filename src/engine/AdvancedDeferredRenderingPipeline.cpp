@@ -3,7 +3,7 @@
 AdvancedDeferredRenderingPipeline::AdvancedDeferredRenderingPipeline(EntityManager* entity_mngr,
 										TransformComponentManager* transform_mngr,
 										CameraComponentManager* camera_mngr,
-										LightComponentManager* light_mngr)
+										PointlightComponentManager* light_mngr)
 	: m_lights_prepass(),
 		m_geometry_pass(),
 		m_shadow_map_pass(),
@@ -101,7 +101,7 @@ void AdvancedDeferredRenderingPipeline::lightingPass()
 	int light_counter = 0;
 	Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( m_active_lightsources.front() ) );
 	Vec3 light_intensity = m_light_mngr->getColour( m_light_mngr->getIndex( m_active_lightsources.front() ))
-							 *m_light_mngr->getIntensity( m_light_mngr->getIndex( m_active_lightsources.front() ));
+							 *m_light_mngr->getLumen( m_light_mngr->getIndex( m_active_lightsources.front() ));
 
 	m_dfr_lighting_prgm->setUniform("lights.position", light_position);
 	m_dfr_lighting_prgm->setUniform("lights.intensity", light_intensity);

@@ -56,7 +56,7 @@ public:
 		T val = std::move(m_queue.front());
 		m_queue.pop();
 
-		return std::move(val);
+		return val;
 	}
 	
 	/**

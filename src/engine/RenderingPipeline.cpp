@@ -3,7 +3,7 @@
 RenderingPipeline::RenderingPipeline(EntityManager* entity_mngr,
 										TransformComponentManager* transform_mngr,
 										CameraComponentManager* camera_mngr,
-										LightComponentManager* light_mngr)
+										PointlightComponentManager* light_mngr)
 	: m_lights_prepass(),
 		m_forward_render_pass(),
 		m_shadow_map_pass(),
@@ -36,7 +36,7 @@ void RenderingPipeline::forwardPass()
 
 		Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( m_active_lightsources.front() ) );
 		Vec3 light_intensity = m_light_mngr->getColour( m_light_mngr->getIndex( m_active_lightsources.front() ))
-								 *m_light_mngr->getIntensity( m_light_mngr->getIndex( m_active_lightsources.front() ));
+								 *m_light_mngr->getLumen( m_light_mngr->getIndex( m_active_lightsources.front() ));
 
 		shader.shader_prgm->setUniform("lights.position", light_position);
 		shader.shader_prgm->setUniform("lights.intensity", light_intensity);

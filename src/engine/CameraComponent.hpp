@@ -24,7 +24,7 @@ private:
 		float* far;					///< far clipping plane
 		float* fovy;				///< camera vertical field of view in radian
 		float* aspect_ratio;		///< camera aspect ratio
-		Mat4x4* view_matrix;		///< camera view matrix
+		float* exposure;			///< camera exposure, a simplification of iso-value, aperature number and exposure time
 		Mat4x4* projection_matrix;	///< camera projection matrix
 	};
 
@@ -42,13 +42,14 @@ public:
 					float near = 0.001f,
 					float far = 1000.0f,
 					float fovy = 0.5236f,
-					float aspect_ratio = 16.0/9.0f);
+					float aspect_ratio = 16.0/9.0f,
+					float exposure = 0.000045f); // default value for mapping avg luminance of ~4000cd/m^2 to 0.18 intensity
 
 	void deleteComponent(Entity entity);
 
 	const uint getIndex(Entity entity);
 
-	void setCameraAttributes(uint index, float near, float far, float fovy = 0.5236f, float aspect_ratio = 16.0/9.0f);
+	void setCameraAttributes(uint index, float near, float far, float fovy = 0.5236f, float aspect_ratio = 16.0/9.0f, float exposure = 0.000045f);
 
 	void updateProjectionMatrix(uint index);
 
@@ -57,6 +58,8 @@ public:
 	const float getFovy(uint index);
 
 	const float getAspectRatio(uint index);
+	
+	const float getExposure(uint index);
 };
 
 #endif

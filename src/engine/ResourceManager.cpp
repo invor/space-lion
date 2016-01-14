@@ -108,6 +108,35 @@ std::shared_ptr<Mesh> ResourceManager::createBox()
 	return geometry_list.back();
 }
 
+std::shared_ptr<Mesh> ResourceManager::createIcoSphere(unsigned int subdivions)
+{
+	// Create intial icosahedron
+	GLfloat x = 0.525731112119133606f;
+	GLfloat z = 0.850650808352039932f;
+
+	std::vector<Vertex_pn> vertices({	Vertex_pn(-x,0.0f,z,0.0f,0.0f,0.0f),
+										Vertex_pn(x,0.0f,z,0.0f,0.0f,0.0f),
+										Vertex_pn(-x,0.0f,-z,0.0f,0.0f,0.0f),
+										Vertex_pn(x,0.0f,-z,0.0f,0.0f,0.0f),
+										Vertex_pn(0.0f,z,x,0.0f,0.0f,0.0f),
+										Vertex_pn(0.0f,z,-x,0.0f,0.0f,0.0f),
+										Vertex_pn(0.0f,-z,x,0.0f,0.0f,0.0f),
+										Vertex_pn(0.0f,-z,-x,0.0f,0.0f,0.0f),
+										Vertex_pn(z,x,0.0f,0.0f,0.0f,0.0f),
+										Vertex_pn(-z,x,0.0f,0.0f,0.0f,0.0f),
+										Vertex_pn(z,-x,0.0f,0.0f,0.0f,0.0f),
+										Vertex_pn(-z,-x,0.0f,0.0f,0.0f,0.0f) });
+	std::vector<unsigned int> indices({	0,4,1,	0,9,4,	9,5,4,	4,5,8,	4,8,1,
+										8,10,1,	8,3,19,	5,3,8,	5,2,3,	2,7,3,
+										7,10,3,	7,6,10,	7,11,6,	11,0,6,	0,1,6,
+										6,1,10,	9,0,11,	9,11,2,	9,2,5,	7,2,11 });
+
+	// Subdivide icosahedron
+
+	// Create Mesh from vertex and index data
+	return createMesh("icosphere_sub"+subdivions,vertices,indices,GL_TRIANGLES);
+}
+
 std::shared_ptr<Mesh> ResourceManager::createMesh(const std::string path)
 {
 	/*	Check list of vertexBufferObjects for filename */

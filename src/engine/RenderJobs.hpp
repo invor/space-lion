@@ -11,7 +11,7 @@
 #include "mesh.h"
 #include "TransformComponent.hpp"
 #include "CameraComponent.hpp"
-#include "LightComponent.hpp"
+#include "PointlightComponent.hpp"
 #include "types.hpp"
 #include "ResourceManager.h"
 

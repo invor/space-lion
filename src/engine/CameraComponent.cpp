@@ -3,8 +3,8 @@
 CameraComponentManager::CameraComponentManager(uint size)
 {
 	const uint bytes = size * (sizeof(Entity)
-								+ 4*sizeof(float)
-								+ 2*sizeof(Mat4x4));
+								+ 5*sizeof(float)
+								+ 1*sizeof(Mat4x4));
 	m_data.buffer = new char[bytes];
 
 	m_data.used = 0;
@@ -15,8 +15,8 @@ CameraComponentManager::CameraComponentManager(uint size)
 	m_data.far = (float*)(m_data.near + size);
 	m_data.fovy = (float*)(m_data.far + size);
 	m_data.aspect_ratio = (float*)(m_data.fovy + size);
-	m_data.view_matrix = (Mat4x4*)(m_data.aspect_ratio + size);
-	m_data.projection_matrix = (Mat4x4*)(m_data.view_matrix + size);
+	m_data.exposure = (float*)(m_data.aspect_ratio + size);
+	m_data.projection_matrix = (Mat4x4*)(m_data.exposure + size);
 }
 
 CameraComponentManager::~CameraComponentManager()
@@ -28,8 +28,8 @@ void CameraComponentManager::reallocate(uint size)
 {
 	Data new_data;
 	const uint bytes = size * (sizeof(Entity)
-								+ 4*sizeof(float)
-								+ 2*sizeof(Mat4x4));
+								+ 5*sizeof(float)
+								+ 1*sizeof(Mat4x4));
 	new_data.buffer = new char[bytes];
 
 	new_data.used = m_data.used;
@@ -40,15 +40,15 @@ void CameraComponentManager::reallocate(uint size)
 	new_data.far = (float*)(new_data.near + size);
 	new_data.fovy = (float*)(new_data.far + size);
 	new_data.aspect_ratio = (float*)(new_data.fovy + size);
-	new_data.view_matrix = (Mat4x4*)(new_data.aspect_ratio + size);
-	new_data.projection_matrix = (Mat4x4*)(new_data.view_matrix + size);
+	new_data.exposure = (float*)(new_data.aspect_ratio + size);
+	new_data.projection_matrix = (Mat4x4*)(new_data.exposure + size);
 
 	std::memcpy(new_data.entity, m_data.entity, m_data.used * sizeof(Entity));
 	std::memcpy(new_data.near, m_data.near, m_data.used * sizeof(float));
 	std::memcpy(new_data.far, m_data.far, m_data.used * sizeof(float));
 	std::memcpy(new_data.fovy, m_data.fovy, m_data.used * sizeof(float));
 	std::memcpy(new_data.aspect_ratio, m_data.aspect_ratio, m_data.used * sizeof(float));
-	std::memcpy(new_data.view_matrix, m_data.view_matrix, m_data.used * sizeof(Mat4x4));
+	std::memcpy(new_data.exposure, m_data.exposure, m_data.used * sizeof(Mat4x4));
 	std::memcpy(new_data.projection_matrix, m_data.projection_matrix, m_data.used * sizeof(Mat4x4));
 
 	delete m_data.buffer;
@@ -56,7 +56,7 @@ void CameraComponentManager::reallocate(uint size)
 	m_data = new_data;
 }
 
-void CameraComponentManager::addComponent(Entity entity, float near, float far, float fovy, float aspect_ratio)
+void CameraComponentManager::addComponent(Entity entity, float near, float far, float fovy, float aspect_ratio, float exposure)
 {
 	assert(m_data.used < m_data.allocated);
 
@@ -69,6 +69,7 @@ void CameraComponentManager::addComponent(Entity entity, float near, float far, 
 	m_data.far[index] = far;
 	m_data.fovy[index] = fovy;
 	m_data.aspect_ratio[index] = aspect_ratio;
+	m_data.exposure[index] = exposure;
 
 	m_data.used++;
 
@@ -88,7 +89,7 @@ const uint CameraComponentManager::getIndex(Entity entity)
 	return search->second;
 }
 
-void CameraComponentManager::setCameraAttributes(uint index, float near, float far, float fovy, float aspect_ratio)
+void CameraComponentManager::setCameraAttributes(uint index, float near, float far, float fovy, float aspect_ratio, float exposure)
 {
 	assert(index < m_data.used);
 
@@ -96,6 +97,7 @@ void CameraComponentManager::setCameraAttributes(uint index, float near, float f
 	m_data.far[index] = far;
 	m_data.fovy[index] = fovy;
 	m_data.aspect_ratio[index] = aspect_ratio;
+	m_data.exposure[index] = exposure;
 
 	updateProjectionMatrix(index);
 }
@@ -146,4 +148,9 @@ const float CameraComponentManager::getFovy(uint index)
 const float CameraComponentManager::getAspectRatio(uint index)
 {
 	return m_data.aspect_ratio[index];
+}
+
+const float CameraComponentManager::getExposure(uint index)
+{
+	return m_data.exposure[index];
 }

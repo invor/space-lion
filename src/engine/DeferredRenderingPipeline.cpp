@@ -4,15 +4,22 @@ DeferredRenderingPipeline::DeferredRenderingPipeline(EntityManager* entity_mngr,
 										ResourceManager* resource_mngr,
 										TransformComponentManager* transform_mngr,
 										CameraComponentManager* camera_mngr,
-										LightComponentManager* light_mngr,
-										AtmosphereComponentManager* atmosphere_mngr)
+										PointlightComponentManager* light_mngr,
+										AtmosphereComponentManager* atmosphere_mngr,
+										StaticMeshComponentManager* staticMesh_mngr)
 	: m_lights_prepass(),
-		m_geometry_pass(),
+		m_staticMeshes_pass(),
 		m_shadow_map_pass(),
 		m_active_camera(entity_mngr->create()),
-		m_entity_mngr(entity_mngr), m_resource_mngr(resource_mngr), m_transform_mngr(transform_mngr), m_camera_mngr(camera_mngr), m_light_mngr(light_mngr), m_atmosphere_mngr(atmosphere_mngr)
+		m_entity_mngr(entity_mngr),
+		m_resource_mngr(resource_mngr),
+		m_transform_mngr(transform_mngr),
+		m_camera_mngr(camera_mngr),
+		m_light_mngr(light_mngr),
+		m_atmosphere_mngr(atmosphere_mngr),
+		m_staticMesh_mngr(staticMesh_mngr)
 {
-	transform_mngr->addComponent(m_active_camera,Vec3(0.0f,0.0f,10.0f),Quat(),Vec3(1.0f));
+	transform_mngr->addComponent(m_active_camera,Vec3(0.0f,10.0f,20.0f),Quat(),Vec3(1.0f));
 	camera_mngr->addComponent(m_active_camera, 0.1f, 15000.0f);
 }
 
@@ -22,12 +29,11 @@ DeferredRenderingPipeline::~DeferredRenderingPipeline()
 
 void DeferredRenderingPipeline::orderIndependentTransparencyPass()
 {
-
 }
 
 void DeferredRenderingPipeline::geometryPass()
 {
-	RenderJobManager::RootNode m_root = m_geometry_pass.getRoot();
+	RenderJobManager::RootNode m_root = m_staticMeshes_pass.getRoot();
 
 	/* Get information on active camera */
 	Mat4x4 view_matrix = glm::inverse(m_transform_mngr->getWorldTransformation( m_transform_mngr->getIndex(m_active_camera) ));
@@ -106,8 +112,21 @@ void DeferredRenderingPipeline::atmospherePass()
 
 	Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( m_active_lightsources.front() ) );
 	Vec3 camera_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex(m_active_camera));
+	Vec3 atmosphere_center_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex(atmosphere_data->entity[0]));
 
 	shader_prgm->setUniform("sun_direction", (light_position-camera_position) );
+
+	// Compute luminance of sun (simplified to a pointlight) just before it hits the atmosphere
+	float sun_luminance = m_light_mngr->getLumen( m_light_mngr->getIndex( m_active_lightsources.front() ) );
+	float distance = std::sqrt( 
+		(light_position-atmosphere_center_position).x*(light_position-atmosphere_center_position).x +
+		(light_position-atmosphere_center_position).y*(light_position-atmosphere_center_position).y +
+		(light_position-atmosphere_center_position).z*(light_position-atmosphere_center_position).z ) - atmosphere_data->max_altitude[0];
+	sun_luminance = sun_luminance/(4.0f * 3.14f * std::pow( distance ,2.0f) );
+
+	shader_prgm->setUniform("sun_luminance", sun_luminance);
+	std::cout<<"Luminance: "<<sun_luminance<<std::endl;
+	std::cout<<"Distance: "<< distance <<std::endl;
 
 	/*	Draw all entities instanced */
 	int instance_counter = 0;
@@ -145,24 +164,24 @@ void DeferredRenderingPipeline::atmospherePass()
 
 		if(instance_counter == 128)
 		{
-			m_atmosphere_boundingBox->draw(instance_counter);
+			m_atmosphere_boundingSphere->draw(instance_counter);
 			instance_counter = 0;
 		}
 	}
 
-	m_atmosphere_boundingBox->draw(instance_counter);
+	m_atmosphere_boundingSphere->draw(instance_counter);
 }
 
 void DeferredRenderingPipeline::lightingPass()
 {
-	m_dfr_lighting_prgm->use();
+	m_lighting_prgm->use();
 
 	// Bind textures from framebuffer
-	m_dfr_lighting_prgm->setUniform("normal_depth_tx2D",0);
-	m_dfr_lighting_prgm->setUniform("albedoRGB_tx2D",1);
-	m_dfr_lighting_prgm->setUniform("specularRGB_roughness_tx2D",2);
+	m_lighting_prgm->setUniform("normal_depth_tx2D",0);
+	m_lighting_prgm->setUniform("albedoRGB_tx2D",1);
+	m_lighting_prgm->setUniform("specularRGB_roughness_tx2D",2);
 
-	m_dfr_lighting_prgm->setUniform("atmosphereRGBA_tx2D",3);
+	m_lighting_prgm->setUniform("atmosphereRGBA_tx2D",3);
 
 
 	// Get information on active camera
@@ -170,21 +189,24 @@ void DeferredRenderingPipeline::lightingPass()
 	float fovy = m_camera_mngr->getFovy(m_camera_mngr->getIndex(m_active_camera));
 	float aspect_ratio = m_camera_mngr->getAspectRatio(m_camera_mngr->getIndex(m_active_camera));
 	Vec2 aspect_fovy(aspect_ratio,fovy);
-	m_dfr_lighting_prgm->setUniform("view_matrix", view_matrix);
-	m_dfr_lighting_prgm->setUniform("aspect_fovy", aspect_fovy);
+	float exposure = m_camera_mngr->getExposure(m_camera_mngr->getIndex(m_active_camera));
+	m_lighting_prgm->setUniform("view_matrix", view_matrix);
+	m_lighting_prgm->setUniform("aspect_fovy", aspect_fovy);
+	m_lighting_prgm->setUniform("exposure", exposure);
 
 	// Get information on scene light...this is basically a placeholder version
 	int light_counter = 0;
-	Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( m_active_lightsources.front() ) );
-	Vec3 light_intensity = m_light_mngr->getColour( m_light_mngr->getIndex( m_active_lightsources.front() ))
-							 *m_light_mngr->getIntensity( m_light_mngr->getIndex( m_active_lightsources.front() ));
+	Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( m_active_lightsources.back() ) );
+	// TODO check how to correctly mix light color and lumens
+	Vec3 light_intensity = m_light_mngr->getColour( m_light_mngr->getIndex( m_active_lightsources.back() ))
+							 *m_light_mngr->getLumen( m_light_mngr->getIndex( m_active_lightsources.back() ));
 
-	m_dfr_lighting_prgm->setUniform("lights.position", light_position);
-	m_dfr_lighting_prgm->setUniform("lights.intensity", light_intensity);
+	m_lighting_prgm->setUniform("lights.position", light_position);
+	m_lighting_prgm->setUniform("lights.intensity", light_intensity);
 
-	m_dfr_lighting_prgm->setUniform("num_lights", light_counter);
+	m_lighting_prgm->setUniform("num_lights", light_counter);
 
-	m_dfr_fullscreenQuad->draw();
+	m_fullscreenQuad->draw();
 }
 
 void DeferredRenderingPipeline::run()
@@ -246,13 +268,13 @@ void DeferredRenderingPipeline::run()
 											Vertex_pu(1.0,-1.0f,-1.0f,1.0f,0.0f) }};
 	std::vector<GLuint> index_array = {{ 0,2,1,2,0,3 }};
 
-	m_dfr_fullscreenQuad = m_resource_mngr->createMesh("fullscreen_quad",vertex_array,index_array,GL_TRIANGLES);
+	m_fullscreenQuad = m_resource_mngr->createMesh("fullscreen_quad",vertex_array,index_array,GL_TRIANGLES);
 
 	// Load lighting shader program for deferred rendering
-	m_dfr_lighting_prgm = m_resource_mngr->createShaderProgram({"../resources/shaders/genericPostProc_v.glsl","../resources/shaders/dfr_lighting_f.glsl"});
+	m_lighting_prgm = m_resource_mngr->createShaderProgram({"../resources/shaders/genericPostProc_v.glsl","../resources/shaders/dfr_lighting_f.glsl"});
 
 	// Create basic boundingbox for atmosphere rendering
-	m_atmosphere_boundingBox = m_resource_mngr->createBox();
+	m_atmosphere_boundingSphere = m_resource_mngr->createIcoSphere(1);
 
 	// Create G-Buffer
 	FramebufferObject gBuffer(1600,900,true);
@@ -283,7 +305,9 @@ void DeferredRenderingPipeline::run()
 		Controls::checkKeyStatus(m_active_window,dt);
 
 		// Process new RenderJobRequest
-		processRenderJobRequest();
+		//processRenderJobRequest();
+
+		registerStaticMeshComponents();
 
 		// Process new atmoshpere entities
 		m_atmosphere_mngr->processNewComponents();
@@ -299,6 +323,7 @@ void DeferredRenderingPipeline::run()
 
 		geometryPass();
 
+		// Atmosphere pass
 		m_camera_mngr->setCameraAttributes(m_camera_mngr->getIndex(m_active_camera),100.0,100000000.0);
 
 		atmosphere_fbo.bind();
@@ -336,11 +361,11 @@ void DeferredRenderingPipeline::run()
 	}
 
 	/* Clear resources while context is still alive */
-	m_geometry_pass.clearRenderJobs();
+	m_staticMeshes_pass.clearRenderJobs();
 	m_resource_mngr->clearLists();
-	m_dfr_fullscreenQuad.reset();
-	m_dfr_lighting_prgm.reset();
-	m_atmosphere_boundingBox.reset();
+	m_fullscreenQuad.reset();
+	m_lighting_prgm.reset();
+	m_atmosphere_boundingSphere.reset();
 
 	glfwMakeContextCurrent(NULL);
 }
@@ -369,7 +394,27 @@ void DeferredRenderingPipeline::processRenderJobRequest()
 		std::shared_ptr<Material> material = m_resource_mngr->createMaterial(new_jobRequest.material_path);
 		std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(new_jobRequest.mesh_path);
 
-		m_geometry_pass.addRenderJob(RenderJob(new_jobRequest.entity,material,mesh));
+		m_staticMeshes_pass.addRenderJob(RenderJob(new_jobRequest.entity,material,mesh));
+	}
+}
+
+void DeferredRenderingPipeline::registerStaticMeshComponents()
+{
+	// Access static mesh components
+	auto& staticMesh_data = m_staticMesh_mngr->getData();
+	auto& staticMesh_queue = m_staticMesh_mngr->getComponentsQueue();
+
+	// Check for newly added components
+	while ( !staticMesh_queue.empty() )
+	{
+		auto idx = staticMesh_queue.pop();
+
+		StaticMeshComponentManager::Data& component_data = staticMesh_data[idx];
+
+		std::shared_ptr<Material> material = m_resource_mngr->createMaterial(component_data.material_path);
+		std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data.mesh_path);
+
+		m_staticMeshes_pass.addRenderJob(RenderJob(component_data.entity,material,mesh));
 	}
 }
 

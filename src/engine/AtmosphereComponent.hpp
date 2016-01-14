@@ -35,12 +35,16 @@ private:
 
 	std::unordered_map<uint,uint> m_index_map;
 
+	/** Queue to store request for new components until the GPU thread picks them up (see processNewComponents()). */
 	MTQueue<uint> m_addedComponents_queue;
 
+	/** Pointer to gfx resource manager */
 	ResourceManager* m_resource_mngr;
 
+	/** Add new components, create neceassary resources, compute data. To be called from a thread with OpenGL context! */
 	void processNewComponents();
 
+	/** Access raw data. */
 	Data const * const getData() const;
 
 	/******************************************************

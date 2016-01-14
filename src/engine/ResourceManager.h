@@ -77,6 +77,13 @@ public:
 	std::shared_ptr<Mesh> createBox();
 
 	/**
+	 * \brief Create an ico sphere mesh
+	 * \param subdivisions Control the subdivions of the sphere
+	 * \return Returns shared pointer to the mesh
+	 */
+	std::shared_ptr<Mesh> createIcoSphere(unsigned int subdivions);
+
+	/**
 	 * \brief Creates a Mesh object from a local file.
 	 * \param path Location of the mesh file
 	 * \return Returns shared pointer to the mesh
@@ -105,11 +112,20 @@ public:
 
 		std::shared_ptr<Mesh> mesh(new Mesh(name));
 
-		mesh->bufferDataFromArray(vertices,indices,GL_TRIANGLES);
+		mesh->bufferDataFromArray(vertices,indices,mesh_type);
 
 		//TODO Improve, i.e. make more automatic
 
-		if( std::is_same<VertexContainer::value_type,Vertex_pu>::value )
+		if( std::is_same<VertexContainer::value_type,Vertex_p>::value )
+		{
+			mesh->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_p),0);
+		}
+		else if( std::is_same<VertexContainer::value_type,Vertex_pn>::value )
+		{
+			mesh->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pn),0);
+			mesh->setVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pn),(GLvoid*) sizeof(Vertex_p));
+		}
+		else if( std::is_same<VertexContainer::value_type,Vertex_pu>::value )
 		{
 			mesh->setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex_pu),0);
 			mesh->setVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,sizeof(Vertex_pu),(GLvoid*) sizeof(Vertex_p));

@@ -5,6 +5,7 @@
 uniform sampler2D normal_depth_tx2D;
 uniform vec3 camera_position;
 uniform vec3 sun_direction;
+uniform float sun_luminance;    // luminance of the sun just before it hits the atmosphere
 
 uniform sampler3D rayleigh_inscatter_tx3D;
 uniform sampler3D mie_inscatter_tx3D;
@@ -129,7 +130,8 @@ vec3 computeSkyColour(float viewSun, float altitude, float viewZenith, float sun
 		rgb_sky = rayleighPhaseFunction(viewSun) * accessInscatterTexture(rayleigh_inscatter_tx3D,altitude,viewZenith,sunZenith,viewSun).xyz;
 		rgb_sky += miePhaseFunction(viewSun,0.8) * accessInscatterTexture(mie_inscatter_tx3D,altitude,viewZenith,sunZenith,viewSun).xyz;
 		rgb_sky /= 4.0*PI;
-		rgb_sky *= 50.0;
+        
+        rgb_sky *= sun_luminance;
 	}
 	
 	return max(rgb_sky,vec3(0.0));
@@ -178,11 +180,11 @@ void main()
 	else
 	{
 		/*	fake sun disc */
-		if(abs(viewSun)>0.999)
-		{
-			float intensity = pow((abs(viewSun)-0.999)/(1.0-0.999),3.0);
-			rgb_linear += vec3(intensity,intensity,intensity) * 0.9;
-		}
+		//    if(abs(viewSun)>0.999)
+		//    {
+		//    	float intensity = pow((abs(viewSun)-0.999)/(1.0-0.999),3.0);
+		//    	rgb_linear += vec3(intensity,intensity,intensity) * 0.9;
+		//    }
 	}
 	
 	frag_colour = vec4(rgb_linear,1.0);

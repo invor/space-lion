@@ -1,12 +1,13 @@
-#ifndef LightComponent_h
-#define LightComponent_h
+#ifndef PointlightComponent_h
+#define PointlightComponent_h
 
 #include <unordered_map>
 
 #include "EntityManager.hpp"
 #include "types.hpp"
+#include "MTQueue.hpp"
 
-class LightComponentManager
+class PointlightComponentManager
 {
 private:
 	struct Data
@@ -17,20 +18,23 @@ private:
 
 		Entity* entity;				///< entity owning that owns the component
 		Vec3* light_colour;			///< color of the light in rgb values
-		float* light_intensity;		///< light intensity...should move towards physically based lighting
+		float* lumen;				///< Luminous power of the light source given in Lumen (lm)
+		float* radius;				///< Maximum radius
 	};
 
 	Data m_data;
 
 	std::unordered_map<uint,uint> m_index_map;
 
+	MTQueue<uint> m_addedComponents_queue;
+
 public:
-	LightComponentManager(uint size);
-	~LightComponentManager();
+	PointlightComponentManager(uint size);
+	~PointlightComponentManager();
 
 	void reallocate(uint size);
 
-	void addComponent(Entity entity, Vec3 light_colour, float light_intensity);
+	void addComponent(Entity entity, Vec3 light_colour, float lumen, float radius);
 
 	void deleteComonent(Entity entity);
 
@@ -38,7 +42,9 @@ public:
 
 	const Vec3 getColour(uint index);
 
-	const float getIntensity(uint index);
+	const float getLumen(uint index);
+
+	const float getRadius(uint index);
 
 };
 

@@ -102,9 +102,6 @@
     <ClInclude Include="..\..\src\engine\TransformComponent.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\engine\LightComponent.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\engine\EntityManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -145,6 +142,21 @@
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\Material.hpp">
+      <Filter>Header Files\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\SelectComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Terrain.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\PointlightComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\StarComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\StaticMeshComponent.hpp">
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
   </ItemGroup>
@@ -212,9 +224,6 @@
     <ClCompile Include="..\..\src\engine\ResourceManager.cpp">
       <Filter>Source Files\gfx</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\LightComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\engine\Controls.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -237,6 +246,15 @@
       <Filter>Source Files\gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\AtmosphereMaterial.cpp">
+      <Filter>Source Files\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\PointlightComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\StarComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\StaticMeshComponent.cpp">
       <Filter>Source Files\gfx</Filter>
     </ClCompile>
   </ItemGroup>

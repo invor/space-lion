@@ -27,6 +27,7 @@ uniform int num_lights;
 
 uniform mat4 view_matrix;
 uniform vec2 aspect_fovy;
+uniform float exposure;
 
 in vec2 uvCoord;
 
@@ -112,8 +113,11 @@ void main()
 	lights_view_space.intensity = lights.intensity;
 	lights_view_space.position = normalize( (view_matrix * vec4(lights.position,1.0)).xyz - position);
 	
-	/*	Quick&Dirty light attenuation - note: no attenuation in outer-space */
-	vec3 light_intensity = lights_view_space.intensity / pow(  min( 6420000.0-6360000.0 , length(position-(view_matrix*vec4(lights.position,1.0)).xyz) ) ,2.0);
+	/* Calculate incident light intensity in Luminance (cd/m^2) for point lights.
+     * Base light intensity is given in Lumen (lm).
+     */
+    float attenuation = pow(length(position-(view_matrix*vec4(lights.position,1.0)).xyz),2.0);
+	vec3 light_intensity = lights_view_space.intensity / (4.0 * PI * attenuation);
 
 	//vec3 light_intensity = lights_view_space.intensity;
 	
@@ -128,8 +132,12 @@ void main()
 											light_intensity);
 	}
 	
-	rgb_linear += texture(atmosphereRGBA_tx2D,uvCoord).xyz;
-	
+	rgb_linear += texture(atmosphereRGBA_tx2D,uvCoord).xyz; 
+    
+    /* Adjust exposure */
+    rgb_linear *= exposure;
+    //rgb_linear *= 0.18/4000.0; // default value for mapping avg luminance of ~4000cd/m^2 to 0.18 intensity
+    
 	/*	Temporary gamma correction */
 	frag_colour = vec4( pow( rgb_linear, vec3(1.0/2.2) ), 1.0);
 }

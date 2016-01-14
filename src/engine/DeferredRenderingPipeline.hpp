@@ -2,6 +2,7 @@
 #define DeferredRenderingPipeline_h
 
 #include "AtmosphereComponent.hpp"
+#include "StaticMeshComponent.hpp"
 #include "RenderJobs.hpp"
 #include "ResourceManager.h"
 #include "MTQueue.hpp"
@@ -20,6 +21,12 @@ private:
 	 * per light.
 	 */
 	RenderJobManager m_lights_prepass;
+	
+	/**
+	 * SSBO to store a per screen tile array of relevant light sources.
+	 * Number of screen tiles and number of maximum light sources per tile is fixed.
+	 */
+	std::shared_ptr<ShaderStorageBufferObject> m_lights_ssbo;
 
 	/**
 	 * Render jobs for shadow mapping render passes.
@@ -29,7 +36,7 @@ private:
 	RenderJobManager m_shadow_map_pass;
 
 	/** Render jobs for all visible objects in the scene with opaque surface. */
-	RenderJobManager m_geometry_pass;
+	RenderJobManager m_staticMeshes_pass;
 
 	/** Render jobs for all visible planetary atmospheres */
 	RenderJobManager m_atmosphere_pass;
@@ -37,13 +44,12 @@ private:
 	/** Render jobs for all translucent objects in the scene. */
 	RenderJobManager m_orderIndependentTransparency_pass;
 
-	/*
-	 * Resources for deferred rendering lighting pass 
-	 */
-	std::shared_ptr<Mesh> m_dfr_fullscreenQuad;
-	std::shared_ptr<GLSLProgram> m_dfr_lighting_prgm; // TODO remove dfr naming...this already is within a Deferred Rendering class
+	/** Fullscreen quad mesh for deferred rendering passes */
+	std::shared_ptr<Mesh> m_fullscreenQuad;
+	/** Deferred rendering lighting pass program */
+	std::shared_ptr<GLSLProgram> m_lighting_prgm;
 
-	std::shared_ptr<Mesh> m_atmosphere_boundingBox;
+	std::shared_ptr<Mesh> m_atmosphere_boundingSphere;
 
 	/*
 	 * Resources for order independent transparency rendering
@@ -69,11 +75,15 @@ private:
 	ResourceManager* m_resource_mngr;
 	TransformComponentManager* m_transform_mngr;
 	CameraComponentManager* m_camera_mngr;
-	LightComponentManager* m_light_mngr;
+	PointlightComponentManager* m_light_mngr;
 	AtmosphereComponentManager* m_atmosphere_mngr;
+	StaticMeshComponentManager* m_staticMesh_mngr;
 
-	/** Gather necessary resources and add actual RenderJobs from requests */
+	/** Gather necessary resources and add actual RenderJobs from requests. DEPRECATED */
 	void processRenderJobRequest();
+
+	/** Check StaticMeshComponentsManager for newly added components and add actual render jobs. */
+	void registerStaticMeshComponents();
 
 	/**
 	 * Render objects with transparency
@@ -108,13 +118,15 @@ public:
 							ResourceManager* resource_mngr,
 							TransformComponentManager* transform_mngr,
 							CameraComponentManager* camera_mngr, 
-							LightComponentManager* light_mngr,
-							AtmosphereComponentManager* atmosphere_mngr);
+							PointlightComponentManager* light_mngr,
+							AtmosphereComponentManager* atmosphere_mngr,
+							StaticMeshComponentManager* staticMesh_mngr);
 
 	~DeferredRenderingPipeline();
 
+	/* Deprecated */
 	void requestRenderJob(const RenderJobRequest& new_request);
-
+	/* Deprecated */
 	void addLightsource(Entity entity);
 
 	void setActiveCamera(Entity entity);
