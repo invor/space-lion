@@ -14,7 +14,7 @@ Description: Fragment shader for deferred rendering lighting pass.
 struct LightProperties 
 {
 	vec3 position;
-	vec3 intensity;
+	vec3 lumen;
 };
 
 uniform sampler2D normal_depth_tx2D;
@@ -22,7 +22,7 @@ uniform sampler2D albedoRGB_tx2D;
 uniform sampler2D specularRGB_roughness_tx2D;
 uniform sampler2D atmosphereRGBA_tx2D;
 
-uniform LightProperties lights;
+uniform LightProperties lights[256];
 uniform int num_lights;
 
 uniform mat4 view_matrix;
@@ -107,29 +107,34 @@ void main()
 	/*	Calculate Cook Torrance shading for each light source */
 	vec3 rgb_linear = vec3(0.0);
 
-	/*	CAUTION: arbitrary values in use */
-	vec3 viewer_direction = normalize(-position);
-	LightProperties lights_view_space;
-	lights_view_space.intensity = lights.intensity;
-	lights_view_space.position = normalize( (view_matrix * vec4(lights.position,1.0)).xyz - position);
 	
-	/* Calculate incident light intensity in Luminance (cd/m^2) for point lights.
-     * Base light intensity is given in Lumen (lm).
-     */
-    float attenuation = pow(length(position-(view_matrix*vec4(lights.position,1.0)).xyz),2.0);
-	vec3 light_intensity = lights_view_space.intensity / (4.0 * PI * attenuation);
-
 	//vec3 light_intensity = lights_view_space.intensity;
 	
 	if(depth > 0.0)
 	{
-		rgb_linear += cookTorranceShading(albedo,
-											specular,
-											roughness,
-											normal,
-											lights_view_space.position,
-											viewer_direction,
-											light_intensity);
+        vec3 viewer_direction = normalize(-position);
+        LightProperties lights_view_space;
+            
+        for(int i=0; i<num_lights; i++)
+        {
+            lights_view_space.lumen = lights[i].lumen;
+            lights_view_space.position = normalize( (view_matrix * vec4(lights[i].position,1.0)).xyz - position);
+            
+            /* Calculate incident light intensity in Luminance (cd/m^2) for point lights.
+             * Base light intensity is given in Lumen (lm).
+             */
+            float attenuation = pow(length(position-(view_matrix*vec4(lights[i].position,1.0)).xyz),2.0);
+            vec3 light_intensity = lights_view_space.lumen / (4.0 * PI * attenuation);
+            
+            
+		    rgb_linear += cookTorranceShading(albedo,
+		    									specular,
+		    									roughness,
+		    									normal,
+		    									lights_view_space.position,
+		    									viewer_direction,
+		    									light_intensity);
+        }
 	}
 	
 	rgb_linear += texture(atmosphereRGBA_tx2D,uvCoord).xyz; 

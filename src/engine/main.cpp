@@ -45,12 +45,13 @@ int main(){
 	Entity sun_entity = entity_mngr.create();
 	scene_transformations_mngr.addComponent(sun_entity,Vec3(0.0,149600000000.0,0.0),Quat(),Vec3(1.0));
 	light_mngr.addComponent(sun_entity,Vec3(1.0), 3.75f *std::pow(10.0,28.0), 150000000000.0 );
-	rendering_pipeline.addLightsource(sun_entity);
 
-	//	Entity light_entity = entity_mngr.create();
-	//	scene_transformations_mngr.addComponent(light_entity,Vec3(10.0,10.0,10.0),Quat(),Vec3(1.0));
-	//	light_mngr.addComponent(light_entity,Vec3(1.0),1200.0);
-	//	rendering_pipeline.addLightsource(light_entity);
+	//	for(int j=-10; j < 10; j = j+1)
+	//	{
+	//		Entity light_entity = entity_mngr.create();
+	//		scene_transformations_mngr.addComponent(light_entity,Vec3(0.0,(float)j, (float)j ),Quat(),Vec3(1.0));
+	//		light_mngr.addComponent(light_entity,Vec3(1.0),1200.0,1000.0);
+	//	}
 
 
 	Entity atmoshphere_entity = entity_mngr.create();

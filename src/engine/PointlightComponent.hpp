@@ -26,7 +26,13 @@ private:
 
 	std::unordered_map<uint,uint> m_index_map;
 
-	MTQueue<uint> m_addedComponents_queue;
+	MTQueue<Entity> m_added_components_queue;
+
+	/** Access raw data. */
+	Data const * const getData() const;
+	MTQueue<Entity>& getComponentsQueue()  { return m_added_components_queue; }
+
+	friend class DeferredRenderingPipeline;
 
 public:
 	PointlightComponentManager(uint size);
@@ -37,6 +43,8 @@ public:
 	void addComponent(Entity entity, Vec3 light_colour, float lumen, float radius);
 
 	void deleteComonent(Entity entity);
+
+
 
 	uint getIndex(Entity entity);
 

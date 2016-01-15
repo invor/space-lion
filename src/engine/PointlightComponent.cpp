@@ -63,6 +63,8 @@ void PointlightComponentManager::addComponent(Entity entity, Vec3 light_colour, 
 	m_data.radius[index] = radius;
 
 	m_data.used++;
+
+	m_added_components_queue.push(entity);
 }
 
 void PointlightComponentManager::deleteComonent(Entity entity)

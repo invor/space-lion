@@ -125,8 +125,8 @@ void DeferredRenderingPipeline::atmospherePass()
 	sun_luminance = sun_luminance/(4.0f * 3.14f * std::pow( distance ,2.0f) );
 
 	shader_prgm->setUniform("sun_luminance", sun_luminance);
-	std::cout<<"Luminance: "<<sun_luminance<<std::endl;
-	std::cout<<"Distance: "<< distance <<std::endl;
+	//std::cout<<"Luminance: "<<sun_luminance<<std::endl;
+	//std::cout<<"Distance: "<< distance <<std::endl;
 
 	/*	Draw all entities instanced */
 	int instance_counter = 0;
@@ -195,16 +195,24 @@ void DeferredRenderingPipeline::lightingPass()
 	m_lighting_prgm->setUniform("exposure", exposure);
 
 	// Get information on scene light...this is basically a placeholder version
-	int light_counter = 0;
-	Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( m_active_lightsources.back() ) );
-	// TODO check how to correctly mix light color and lumens
-	Vec3 light_intensity = m_light_mngr->getColour( m_light_mngr->getIndex( m_active_lightsources.back() ))
-							 *m_light_mngr->getLumen( m_light_mngr->getIndex( m_active_lightsources.back() ));
+	uint light_counter = 0;
+	for(auto light_entity : m_active_lightsources )
+	{
+		Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( light_entity ) );
+		// TODO check how to correctly mix light color and lumens
+		Vec3 light_intensity = m_light_mngr->getColour( m_light_mngr->getIndex( light_entity ))
+								 *m_light_mngr->getLumen( m_light_mngr->getIndex( light_entity ));
 
-	m_lighting_prgm->setUniform("lights.position", light_position);
-	m_lighting_prgm->setUniform("lights.intensity", light_intensity);
+		std::string light_position_uniform_name("lights[" + std::to_string(light_counter) + "].position");
+		std::string light_intensity_uniform_name("lights[" + std::to_string(light_counter) + "].lumen");
 
-	m_lighting_prgm->setUniform("num_lights", light_counter);
+		m_lighting_prgm->setUniform(light_position_uniform_name.c_str(), light_position);
+		m_lighting_prgm->setUniform(light_intensity_uniform_name.c_str(), light_intensity);
+
+		light_counter++;
+	}
+
+	m_lighting_prgm->setUniform("num_lights", (int) m_active_lightsources.size() );
 
 	m_fullscreenQuad->draw();
 }
@@ -308,6 +316,8 @@ void DeferredRenderingPipeline::run()
 		//processRenderJobRequest();
 
 		registerStaticMeshComponents();
+
+		registerLightComponents();
 
 		// Process new atmoshpere entities
 		m_atmosphere_mngr->processNewComponents();
@@ -415,6 +425,17 @@ void DeferredRenderingPipeline::registerStaticMeshComponents()
 		std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data.mesh_path);
 
 		m_staticMeshes_pass.addRenderJob(RenderJob(component_data.entity,material,mesh));
+	}
+}
+
+void DeferredRenderingPipeline::registerLightComponents()
+{
+	// Access point light components
+	auto& pointlight_queue = m_light_mngr->getComponentsQueue();
+
+	while( !pointlight_queue.empty() )
+	{
+		m_active_lightsources.push_back( pointlight_queue.pop() );
 	}
 }
 

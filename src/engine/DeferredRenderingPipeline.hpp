@@ -19,12 +19,14 @@ private:
 	 * Render jobs for a light prepass, i.e. determining all relevant lights per (screen)tile.
 	 * All (point) light sources are organized as render jobs, rendering a simple bounding sphere
 	 * per light.
+	 * Not used yet.
 	 */
 	RenderJobManager m_lights_prepass;
 	
 	/**
 	 * SSBO to store a per screen tile array of relevant light sources.
 	 * Number of screen tiles and number of maximum light sources per tile is fixed.
+	 * Not used yet.
 	 */
 	std::shared_ptr<ShaderStorageBufferObject> m_lights_ssbo;
 
@@ -84,6 +86,9 @@ private:
 
 	/** Check StaticMeshComponentsManager for newly added components and add actual render jobs. */
 	void registerStaticMeshComponents();
+
+	/** Check PointLightComponentManager for newly added components and add to active light source list */
+	void registerLightComponents();
 
 	/**
 	 * Render objects with transparency
