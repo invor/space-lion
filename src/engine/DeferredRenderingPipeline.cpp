@@ -282,7 +282,7 @@ void DeferredRenderingPipeline::run()
 	m_lighting_prgm = m_resource_mngr->createShaderProgram({"../resources/shaders/genericPostProc_v.glsl","../resources/shaders/dfr_lighting_f.glsl"});
 
 	// Create basic boundingbox for atmosphere rendering
-	m_atmosphere_boundingSphere = m_resource_mngr->createIcoSphere(1);
+	m_atmosphere_boundingSphere = m_resource_mngr->createIcoSphere(0);
 
 	// Create G-Buffer
 	FramebufferObject gBuffer(1600,900,true);

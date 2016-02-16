@@ -31,6 +31,7 @@
 #include "SurfaceMaterial.hpp"
 #include "AtmosphereMaterial.hpp"
 #include "vertexStructs.h"
+#include "types.hpp"
 
 #include "fbx/fbx_exceptions.hpp"
 #include "fbx/fbx_generic_parser.hpp"

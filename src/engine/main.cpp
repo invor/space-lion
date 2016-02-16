@@ -68,40 +68,11 @@ int main(){
 									6360000.0,
 									6420000.0);
 	
-	// Stress-testing
-	//	for(int j=-10; j < 10; j = j+4)
-	//	{
-	//		for(int i=-10; i < 10; i = i+10)
-	//		{
-	//			Entity aircraft_entity = entity_mngr.create();
-	//			scene_transformations_mngr.addComponent(aircraft_entity,Vec3((float)i,(float)j,0.0),Quat(),Vec3(1.0));
-	//			rendering_pipeline.requestRenderJob(aircraft_entity,"../resources/materials/debug.slmtl","../resources/meshes/outflyer.fbx");
-	//		}
-	//	}
+	Entity monkey = entity_mngr.create();
+	scene_transformations_mngr.addComponent(monkey,Vec3(0.0,0.0,0.0),Quat(),Vec3(1.0));
+	airplanePhysics_mngr.addComponent(monkey,Vec3(0.0,0.0,80.0),Vec3(0.0),0.0,3000.0,22.0);
+	staticMesh_mngr.addComponent(monkey,"../resources/materials/dfr_debug.slmtl","../resources/meshes/monkey.fbx",false);
 
-	//Entity boat = entity_mngr.create();
-	//scene_transformations_mngr.addComponent(boat,Vec3(0.0),Quat(),Vec3(1.0));
-	//rendering_pipeline.requestRenderJob(boat,"../resources/materials/boat.slmtl","../resources/meshes/boat.fbx");
-	
-	//	Entity m4 = entity_mngr.create();
-	//	scene_transformations_mngr.addComponent(m4,Vec3(0.0,0.0,-20.0),Quat(),Vec3(2.0));
-	//	rendering_pipeline.requestRenderJob(RenderJobRequest(m4,"../resources/materials/m4.slmtl","../resources/meshes/m4.fbx"));
-	//	
-	//	Entity sponza = entity_mngr.create();
-	//	scene_transformations_mngr.addComponent(sponza,Vec3(0.0),Quat(),Vec3(1.0));
-	//	rendering_pipeline.requestRenderJob(RenderJobRequest(sponza,"../resources/materials/dfr_debug.slmtl","../resources/meshes/sponza_cust.fbx"));
-	//	
-	Entity airplane = entity_mngr.create();
-	scene_transformations_mngr.addComponent(airplane,Vec3(0.0,0.0,0.0),Quat(),Vec3(1.0));
-	airplanePhysics_mngr.addComponent(airplane,Vec3(0.0,0.0,80.0),Vec3(0.0),0.0,3000.0,22.0);
-	staticMesh_mngr.addComponent(airplane,"../resources/materials/dfr_debug.slmtl","../resources/meshes/outflyer.fbx",false);
-
-	//rendering_pipeline.requestRenderJob(RenderJobRequest(airplane,"../resources/materials/dfr_debug.slmtl","../resources/meshes/outflyer.fbx"));
-	
-	//	Entity toad = entity_mngr.create();
-	//	scene_transformations_mngr.addComponent(toad,Vec3(0.0,0.0,0.0),Quat(),Vec3(1.1));
-	//	rendering_pipeline.requestRenderJob(RenderJobRequest(toad,"../resources/materials/toad.slmtl","../resources/meshes/toad.fbx"));
-	
 
 	//	while(true)
 	//	{

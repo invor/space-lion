@@ -127,11 +127,67 @@ std::shared_ptr<Mesh> ResourceManager::createIcoSphere(unsigned int subdivions)
 										Vertex_pn(z,-x,0.0f,0.0f,0.0f,0.0f),
 										Vertex_pn(-z,-x,0.0f,0.0f,0.0f,0.0f) });
 	std::vector<unsigned int> indices({	0,4,1,	0,9,4,	9,5,4,	4,5,8,	4,8,1,
-										8,10,1,	8,3,19,	5,3,8,	5,2,3,	2,7,3,
+										8,10,1,	8,3,10,	5,3,8,	5,2,3,	2,7,3,
 										7,10,3,	7,6,10,	7,11,6,	11,0,6,	0,1,6,
 										6,1,10,	9,0,11,	9,11,2,	9,2,5,	7,2,11 });
 
 	// Subdivide icosahedron
+	for(int subdivs=0; subdivs<subdivions; subdivs++)
+	{
+		std::vector<unsigned int> refined_indices;
+		refined_indices.reserve( indices.size() * 3);
+
+		for(int i=0; i<indices.size(); i=i+3)
+		{
+			unsigned int idx1 = indices[i];
+			unsigned int idx2 = indices[i+1];
+			unsigned int idx3 = indices[i+2];
+
+			Vec3 newVtx1( (vertices[idx1].x + vertices[idx2].x),
+							(vertices[idx1].y + vertices[idx2].y),
+							(vertices[idx1].z + vertices[idx2].z));
+			newVtx1 = glm::normalize(newVtx1);
+
+			Vec3 newVtx2( (vertices[idx2].x + vertices[idx3].x),
+							(vertices[idx2].y + vertices[idx3].y),
+							(vertices[idx2].z + vertices[idx3].z));
+			newVtx2 = glm::normalize(newVtx2);
+
+			Vec3 newVtx3( (vertices[idx3].x + vertices[idx1].x),
+							(vertices[idx3].y + vertices[idx1].y),
+							(vertices[idx3].z + vertices[idx1].z));
+			newVtx3 = glm::normalize(newVtx3);
+
+			unsigned int newIdx1 = vertices.size();
+			vertices.push_back( Vertex_pn(newVtx1.x,newVtx1.y,newVtx1.z,0.0,0.0,0.0) );
+
+			unsigned int newIdx2 = newIdx1 +1;
+			vertices.push_back( Vertex_pn(newVtx2.x,newVtx2.y,newVtx2.z,0.0,0.0,0.0) );
+
+			unsigned int newIdx3 = newIdx2 +1;
+			vertices.push_back( Vertex_pn(newVtx3.x,newVtx3.y,newVtx3.z,0.0,0.0,0.0) );
+
+			refined_indices.push_back(idx1);
+			refined_indices.push_back(newIdx1);
+			refined_indices.push_back(newIdx3);
+			
+			refined_indices.push_back(newIdx1);
+			refined_indices.push_back(idx2);
+			refined_indices.push_back(newIdx2);
+
+			refined_indices.push_back(newIdx3);
+			refined_indices.push_back(newIdx1);
+			refined_indices.push_back(newIdx2);
+
+			refined_indices.push_back(newIdx3);
+			refined_indices.push_back(newIdx2);
+			refined_indices.push_back(idx3);
+		}
+
+		indices.clear();
+
+		indices = refined_indices;
+	}
 
 	// Create Mesh from vertex and index data
 	return createMesh("icosphere_sub"+subdivions,vertices,indices,GL_TRIANGLES);

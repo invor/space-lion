@@ -44,8 +44,6 @@ public:
 
 	void deleteComonent(Entity entity);
 
-
-
 	uint getIndex(Entity entity);
 
 	const Vec3 getColour(uint index);

@@ -13,9 +13,9 @@ class TransformComponentManager
 private:
 	struct Data
 	{
-		uint used;		///< number of components currently in use
-		uint allocated;	///< number of components that the allocated memery can hold
-		void* buffer;	///< raw data pointer
+		uint used;					///< number of components currently in use
+		uint allocated;				///< number of components that the allocated memery can hold
+		void* buffer;				///< raw data pointer
 
 		Entity* entity;				///< entity owning that owns the component
 		Mat4x4* world_transform;	///< the actual transformation (aka model matrix)
