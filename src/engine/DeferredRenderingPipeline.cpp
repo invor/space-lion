@@ -5,6 +5,7 @@ DeferredRenderingPipeline::DeferredRenderingPipeline(EntityManager* entity_mngr,
 										TransformComponentManager* transform_mngr,
 										CameraComponentManager* camera_mngr,
 										PointlightComponentManager* light_mngr,
+										SunlightComponentManager* sunligh_mngr,
 										AtmosphereComponentManager* atmosphere_mngr,
 										StaticMeshComponentManager* staticMesh_mngr)
 	: m_lights_prepass(),
@@ -16,6 +17,7 @@ DeferredRenderingPipeline::DeferredRenderingPipeline(EntityManager* entity_mngr,
 		m_transform_mngr(transform_mngr),
 		m_camera_mngr(camera_mngr),
 		m_light_mngr(light_mngr),
+		m_sunlight_mngr(sunligh_mngr),
 		m_atmosphere_mngr(atmosphere_mngr),
 		m_staticMesh_mngr(staticMesh_mngr)
 {
@@ -110,23 +112,31 @@ void DeferredRenderingPipeline::atmospherePass()
 	shader_prgm->setUniform("view_matrix", view_matrix);
 	shader_prgm->setUniform("camera_position", m_transform_mngr->getPosition( m_transform_mngr->getIndex(m_active_camera) ));
 
-	Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( m_active_lightsources.front() ) );
 	Vec3 camera_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex(m_active_camera));
 	Vec3 atmosphere_center_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex(atmosphere_data->entity[0]));
 
-	shader_prgm->setUniform("sun_direction", (light_position-camera_position) );
+	int sun_count = m_sunlight_mngr->getData()->used;
+	for(int i=0; i<sun_count; i++)
+	{
+		std::string sun_direction_uniform("suns[" + std::to_string(i) + "].sun_direction");
+		std::string sun_luminance_uniform("suns[" + std::to_string(i) + "].sun_luminance");
 
-	// Compute luminance of sun (simplified to a pointlight) just before it hits the atmosphere
-	float sun_luminance = m_light_mngr->getLumen( m_light_mngr->getIndex( m_active_lightsources.front() ) );
-	float distance = std::sqrt( 
-		(light_position-atmosphere_center_position).x*(light_position-atmosphere_center_position).x +
-		(light_position-atmosphere_center_position).y*(light_position-atmosphere_center_position).y +
-		(light_position-atmosphere_center_position).z*(light_position-atmosphere_center_position).z ) - atmosphere_data->max_altitude[0];
-	sun_luminance = sun_luminance/(4.0f * 3.14f * std::pow( distance ,2.0f) );
+		Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( m_sunlight_mngr->getData()->entity[i] ) );
+		shader_prgm->setUniform(sun_direction_uniform.c_str(), (light_position-camera_position) );
 
-	shader_prgm->setUniform("sun_luminance", sun_luminance);
-	//std::cout<<"Luminance: "<<sun_luminance<<std::endl;
-	//std::cout<<"Distance: "<< distance <<std::endl;
+		// Compute luminance of sun (simplified to a pointlight) just before it hits the atmosphere
+		float sun_luminance = m_sunlight_mngr->getLumen(i);
+		float distance = std::sqrt( 
+			(light_position-atmosphere_center_position).x*(light_position-atmosphere_center_position).x +
+			(light_position-atmosphere_center_position).y*(light_position-atmosphere_center_position).y +
+			(light_position-atmosphere_center_position).z*(light_position-atmosphere_center_position).z ) - atmosphere_data->max_altitude[0];
+		sun_luminance = sun_luminance/(4.0f * 3.14f * std::pow( distance ,2.0f) );
+
+		shader_prgm->setUniform(sun_luminance_uniform.c_str(), sun_luminance);
+		//std::cout<<"Luminance: "<<sun_luminance<<std::endl;
+		//std::cout<<"Distance: "<< distance <<std::endl;
+	}
+	shader_prgm->setUniform("sun_count", sun_count);
 
 	/*	Draw all entities instanced */
 	int instance_counter = 0;
@@ -213,6 +223,8 @@ void DeferredRenderingPipeline::lightingPass()
 	}
 
 	m_lighting_prgm->setUniform("num_lights", (int) m_active_lightsources.size() );
+
+	//TODO add sunlight
 
 	m_fullscreenQuad->draw();
 }

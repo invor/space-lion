@@ -14,14 +14,16 @@
 #include "DeferredRenderingPipeline.hpp"
 #include "AdvancedDeferredRenderingPipeline.hpp"
 #include "StaticMeshComponent.hpp"
+#include "SunlightComponent.hpp"
 
 int main(){
 
 	EntityManager						entity_mngr;
 	ResourceManager						gfx_resource_mngr;
 	TransformComponentManager			scene_transformations_mngr(1000000);
-	CameraComponentManager				camera_mngr(1000000);
-	PointlightComponentManager			light_mngr(1000000);
+	CameraComponentManager				camera_mngr(10);
+	PointlightComponentManager			light_mngr(10000);
+	SunlightComponentManager			sunlight_mngr(10);
 	AirplanePhysicsComponentManager		airplanePhysics_mngr(10000);
 	airplanePhysics_mngr.connectToTransformComponents(&scene_transformations_mngr);
 	AtmosphereComponentManager			atmosphere_mngr(100,&gfx_resource_mngr);
@@ -30,7 +32,9 @@ int main(){
 	DeferredRenderingPipeline			rendering_pipeline(&entity_mngr,
 															&gfx_resource_mngr,
 															&scene_transformations_mngr,
-															&camera_mngr,&light_mngr,
+															&camera_mngr,
+															&light_mngr,
+															&sunlight_mngr,
 															&atmosphere_mngr,
 															&staticMesh_mngr);
 	
@@ -44,7 +48,12 @@ int main(){
 
 	Entity sun_entity = entity_mngr.create();
 	scene_transformations_mngr.addComponent(sun_entity,Vec3(0.0,149600000000.0,0.0),Quat(),Vec3(1.0));
-	light_mngr.addComponent(sun_entity,Vec3(1.0), 3.75f *std::pow(10.0,28.0), 150000000000.0 );
+	sunlight_mngr.addComponent(sun_entity,Vec3(1.0), 3.75f *std::pow(10.0,28.0), 150000000000.0 );
+
+	Entity sun_entity_2 = entity_mngr.create();
+	scene_transformations_mngr.addComponent(sun_entity_2,Vec3(149600000000.0,149600000.0,0.0),Quat(),Vec3(1.0));
+	sunlight_mngr.addComponent(sun_entity_2,Vec3(1.0), 3.75f *std::pow(10.0,28.0), 150000000000.0 );
+
 
 	//	for(int j=-10; j < 10; j = j+1)
 	//	{

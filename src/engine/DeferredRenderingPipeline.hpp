@@ -9,6 +9,7 @@
 #include "Controls.hpp"
 #include "framebufferObject.h"
 #include "shaderStorageBufferObject.h"
+#include "SunlightComponent.hpp"
 
 #include <GLFW\glfw3.h>
 
@@ -78,6 +79,7 @@ private:
 	TransformComponentManager* m_transform_mngr;
 	CameraComponentManager* m_camera_mngr;
 	PointlightComponentManager* m_light_mngr;
+	SunlightComponentManager* m_sunlight_mngr;
 	AtmosphereComponentManager* m_atmosphere_mngr;
 	StaticMeshComponentManager* m_staticMesh_mngr;
 
@@ -124,6 +126,7 @@ public:
 							TransformComponentManager* transform_mngr,
 							CameraComponentManager* camera_mngr, 
 							PointlightComponentManager* light_mngr,
+							SunlightComponentManager* sunlight_mngr,
 							AtmosphereComponentManager* atmosphere_mngr,
 							StaticMeshComponentManager* staticMesh_mngr);
 

@@ -2,10 +2,18 @@
 
 #define PI 3.141592653589
 
+struct SunlightProperties
+{
+    vec3 sun_direction;
+    float sun_luminance;    // luminance of the sun just before it hits the atmosphere
+};
+
+
 uniform sampler2D normal_depth_tx2D;
 uniform vec3 camera_position;
-uniform vec3 sun_direction;
-uniform float sun_luminance;    // luminance of the sun just before it hits the atmosphere
+
+uniform SunlightProperties suns[10];
+uniform int sun_count;
 
 uniform sampler3D rayleigh_inscatter_tx3D;
 uniform sampler3D mie_inscatter_tx3D;
@@ -122,7 +130,7 @@ vec4 accessInscatterTexture(sampler3D inscatter_tx3D, float altitude, float view
 /*
 *	Compute the color of the sky using the precomputed tables and phase functions
 */
-vec3 computeSkyColour(float viewSun, float altitude, float viewZenith, float sunZenith)
+vec3 computeSkyColour(float viewSun, float altitude, float viewZenith, float sunZenith, float sun_luminance)
 {
 	vec3 rgb_sky = vec3(0.0);
 	if(altitude > min_altitude[instanceID]+0.001)
@@ -132,6 +140,11 @@ vec3 computeSkyColour(float viewSun, float altitude, float viewZenith, float sun
 		rgb_sky /= 4.0*PI;
         
         rgb_sky *= sun_luminance;
+        
+        // There seems to be an error somewhere in the atmosphere computation as the sky is too dark
+        // when using physical units and realistic values for the sun luminance.
+        // Therefore an additional factor is multiplied until the error is found
+        rgb_sky *= 20.0;
 	}
 	
 	return max(rgb_sky,vec3(0.0));
@@ -139,6 +152,11 @@ vec3 computeSkyColour(float viewSun, float altitude, float viewZenith, float sun
 
 void main()
 {	
+    /* get depth value from g-buffer */
+	vec2 uvCoords = ((deviceCoords.xy / deviceCoords.w) + 1.0) * 0.5;
+	vec4 normal_depth = texture(normal_depth_tx2D,uvCoords);
+	float depth = (normal_depth.z + normal_depth.w)/1024.0;
+	
 	Ray view_ray;
 	view_ray.origin = camera_position;
 	view_ray.direction = normalize(position-camera_position);
@@ -157,34 +175,32 @@ void main()
 		
 	float altitude = length(view_ray.origin - atmosphere_center[instanceID]);
 	float viewZenith = dot( normalize(view_ray.direction), normalize(view_ray.origin - atmosphere_center[instanceID]) );
-	float sunZenith = dot( normalize(sun_direction), normalize(view_ray.origin - atmosphere_center[instanceID]) );
-	float viewSun = dot( normalize(view_ray.direction), normalize(sun_direction) );
-	
-	rgb_linear += computeSkyColour(viewSun,altitude,viewZenith,sunZenith);
-	
-	/* */
-	vec2 uvCoords = ((deviceCoords.xy / deviceCoords.w) + 1.0) * 0.5;
-	vec4 normal_depth = texture(normal_depth_tx2D,uvCoords);
-	float depth = (normal_depth.z + normal_depth.w)/1024.0;
-	
+    
+    for(int i=0; i<sun_count; i++)
+    {
+	   float sunZenith = dot( normalize(suns[i].sun_direction), normalize(view_ray.origin - atmosphere_center[instanceID]) );
+	   float viewSun = dot( normalize(view_ray.direction), normalize(suns[i].sun_direction) );
+	   
+	   rgb_linear += computeSkyColour(viewSun,altitude,viewZenith,sunZenith,suns[i].sun_luminance);
+       
+       /*	fake sun disc */
+		if( (abs(viewSun)>0.999) && !(depth > 0.0) )
+		{
+			float intensity = pow((abs(viewSun)-0.999)/(1.0-0.999),3.0) * suns[i].sun_luminance;
+			rgb_linear += vec3(intensity,intensity,intensity) * 0.9;
+		}
+    }
+    
+    
 	if( depth > 0.0)
 	{
-		vec3 geometry_position = view_ray.origin + depth * view_ray.direction;
-	
-		altitude = length(geometry_position - atmosphere_center[instanceID]);
-		viewZenith = dot( normalize(view_ray.direction), normalize(geometry_position - atmosphere_center[instanceID]) );
-		sunZenith = dot( normalize(sun_direction), normalize(geometry_position - atmosphere_center[instanceID]) );
-	
-		rgb_linear -= computeSkyColour(viewSun,altitude,viewZenith,sunZenith);
-	}
-	else
-	{
-		/*	fake sun disc */
-		//    if(abs(viewSun)>0.999)
-		//    {
-		//    	float intensity = pow((abs(viewSun)-0.999)/(1.0-0.999),3.0);
-		//    	rgb_linear += vec3(intensity,intensity,intensity) * 0.9;
-		//    }
+	//	vec3 geometry_position = view_ray.origin + depth * view_ray.direction;
+	//
+	//	altitude = length(geometry_position - atmosphere_center[instanceID]);
+	//	viewZenith = dot( normalize(view_ray.direction), normalize(geometry_position - atmosphere_center[instanceID]) );
+	//	sunZenith = dot( normalize(sun_direction), normalize(geometry_position - atmosphere_center[instanceID]) );
+	//
+	//	rgb_linear -= computeSkyColour(viewSun,altitude,viewZenith,sunZenith);
 	}
 	
 	frag_colour = vec4(rgb_linear,1.0);

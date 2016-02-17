@@ -126,6 +126,8 @@ void main()
             float attenuation = pow(length(position-(view_matrix*vec4(lights[i].position,1.0)).xyz),2.0);
             vec3 light_intensity = lights_view_space.lumen / (4.0 * PI * attenuation);
             
+            light_intensity = vec3(100000);
+            
             
 		    rgb_linear += cookTorranceShading(albedo,
 		    									specular,

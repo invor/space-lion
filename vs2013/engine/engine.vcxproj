@@ -169,7 +169,7 @@
     <ClInclude Include="..\..\src\engine\PointlightComponent.hpp" />
     <ClInclude Include="..\..\src\engine\Material.hpp" />
     <ClInclude Include="..\..\src\engine\SelectComponent.hpp" />
-    <ClInclude Include="..\..\src\engine\StarComponent.h" />
+    <ClInclude Include="..\..\src\engine\SunlightComponent.hpp" />
     <ClInclude Include="..\..\src\engine\StaticMeshComponent.hpp" />
     <ClInclude Include="..\..\src\engine\SurfaceMaterial.hpp" />
     <ClInclude Include="..\..\src\engine\MTQueue.hpp" />
@@ -207,7 +207,7 @@
     <ClCompile Include="..\..\src\engine\fbx\fbx_value.cpp" />
     <ClCompile Include="..\..\src\engine\PointlightComponent.cpp" />
     <ClCompile Include="..\..\src\engine\main.cpp" />
-    <ClCompile Include="..\..\src\engine\StarComponent.cpp" />
+    <ClCompile Include="..\..\src\engine\SunlightComponent.cpp" />
     <ClCompile Include="..\..\src\engine\StaticMeshComponent.cpp" />
     <ClCompile Include="..\..\src\engine\SurfaceMaterial.cpp" />
     <ClCompile Include="..\..\src\engine\RenderingPipeline.cpp" />
