@@ -17,6 +17,12 @@ struct LightProperties
 	vec3 lumen;
 };
 
+struct SunlightProperties
+{
+    vec3 position;
+    float illuminance; //(lux)
+};
+
 uniform sampler2D normal_depth_tx2D;
 uniform sampler2D albedoRGB_tx2D;
 uniform sampler2D specularRGB_roughness_tx2D;
@@ -24,6 +30,9 @@ uniform sampler2D atmosphereRGBA_tx2D;
 
 uniform LightProperties lights[256];
 uniform int num_lights;
+
+uniform SunlightProperties suns[10];
+uniform int num_suns;
 
 uniform mat4 view_matrix;
 uniform vec2 aspect_fovy;
@@ -118,6 +127,7 @@ void main()
         for(int i=0; i<num_lights; i++)
         {
             lights_view_space.lumen = lights[i].lumen;
+            // after this calculation, position contains a direction
             lights_view_space.position = normalize( (view_matrix * vec4(lights[i].position,1.0)).xyz - position);
             
             /* Calculate incident light intensity in Luminance (cd/m^2) for point lights.
@@ -136,6 +146,20 @@ void main()
 		    									lights_view_space.position,
 		    									viewer_direction,
 		    									light_intensity);
+        }
+        
+        for(int i=0; i<num_suns; i++)
+        {
+            vec3 sunlight_intensity = vec3(suns[i].illuminance);
+            vec3 sun_view_direction = normalize( (view_matrix * vec4(suns[i].position,1.0)).xyz - position);
+            
+            rgb_linear += cookTorranceShading(albedo,
+		  					specular,
+		  					roughness,
+		  					normal,
+		  					sun_view_direction,
+		  					viewer_direction,
+		  					sunlight_intensity);
         }
 	}
 	

@@ -44,6 +44,8 @@ public:
 
 	void deleteComonent(Entity entity);
 
+	uint getComponentCount() { return m_data.used; }
+
 	uint getIndex(Entity entity);
 
 	const Vec3 getColour(uint index);

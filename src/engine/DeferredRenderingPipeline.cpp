@@ -225,6 +225,24 @@ void DeferredRenderingPipeline::lightingPass()
 	m_lighting_prgm->setUniform("num_lights", (int) m_active_lightsources.size() );
 
 	//TODO add sunlight
+	int sun_count = m_sunlight_mngr->getComponentCount();
+	for(int i=0; i < sun_count; i++)
+	{
+		std::string sun_position_uniform("suns[" + std::to_string(i) + "].position");
+		std::string sun_illuminance_uniform("suns[" + std::to_string(i) + "].illuminance");
+
+		Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( m_sunlight_mngr->getData()->entity[i] ) );
+		m_lighting_prgm->setUniform(sun_position_uniform.c_str(), light_position );
+
+		// Compute luminance of sun (simplified to a pointlight) just before it hits the atmosphere
+		float sun_luminous_power = m_sunlight_mngr->getLumen(i);
+		
+		//TODO compute actual illuminance
+
+		m_lighting_prgm->setUniform(sun_illuminance_uniform.c_str(), 100000.0f );
+	}
+
+	m_lighting_prgm->setUniform("num_suns", sun_count);
 
 	m_fullscreenQuad->draw();
 }

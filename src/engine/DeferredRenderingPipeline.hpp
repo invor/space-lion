@@ -41,9 +41,6 @@ private:
 	/** Render jobs for all visible objects in the scene with opaque surface. */
 	RenderJobManager m_staticMeshes_pass;
 
-	/** Render jobs for all visible planetary atmospheres */
-	RenderJobManager m_atmosphere_pass;
-
 	/** Render jobs for all translucent objects in the scene. */
 	RenderJobManager m_orderIndependentTransparency_pass;
 
@@ -111,6 +108,12 @@ private:
 	 * Compute scene lighting
 	 */
 	void lightingPass();
+
+	/**
+	 * TODO
+	 * Compute new exposure from previous frame
+	 */
+	void computeExposure();
 
 
 	/**************************************************************************
