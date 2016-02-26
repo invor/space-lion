@@ -229,6 +229,35 @@ std::shared_ptr<Mesh> ResourceManager::createMesh(const std::string path)
 	return geometry_list.back();
 }
 
+std::shared_ptr<Mesh> ResourceManager::createMesh(const std::string& name,
+										const std::vector<uint8_t>& vertex_data,
+										const std::vector<uint32_t>& index_data,
+										VertexDescriptor& vertex_description,
+										GLenum mesh_type )
+{
+	/*	Check list of vertexBufferObjects for default box object(Name="Box") */
+	for(auto& mesh : geometry_list)
+	{
+		if(mesh->getName() == name)
+			return mesh;
+	}
+
+	std::shared_ptr<Mesh> mesh(new Mesh(name));
+
+	mesh->bufferDataFromArray(vertex_data,index_data,mesh_type);
+
+	for(GLuint i=0; i<vertex_description.attributes.size(); i++)
+	{
+		VertexDescriptor::Attribute attrib = vertex_description.attributes[i];
+		std::cout<<i<<","<<attrib.size<<","<<attrib.type<<","<<attrib.normalized<<","<<vertex_description.byte_size<<","<<(GLvoid*)attrib.offset<<std::endl;
+		mesh->setVertexAttribPointer(i,attrib.size,attrib.type,attrib.normalized,vertex_description.byte_size,(GLvoid*)attrib.offset);
+	}
+
+	geometry_list.push_back(std::move(mesh));
+
+	return geometry_list.back();
+}
+
 std::shared_ptr<Material> ResourceManager::createMaterial(const std::string path)
 {
 	// copys a struct around by values, but hell it's easer to read for now
@@ -491,7 +520,7 @@ std::shared_ptr<Texture3D> ResourceManager::createTexture3D(const std::string na
 	return volume_list.back();
 }
 
- std::shared_ptr<Mesh> ResourceManager::loadFbxGeometry(const std::string &path)
+std::shared_ptr<Mesh> ResourceManager::loadFbxGeometry(const std::string &path)
 {
 	try
 	{
@@ -573,6 +602,68 @@ std::shared_ptr<Texture3D> ResourceManager::createTexture3D(const std::string na
 		}
 
 		return std::move(mesh);
+	}
+	catch (FBX::BaseException e)
+	{
+		std::cerr << "Couldn't load " << path << ": " << e.what() << "\n";
+	}
+}
+
+void ResourceManager::loadFbxGeometry(const std::string &path,
+										std::vector<uint8_t>& vertex_data,
+										std::vector<uint32_t>& index_data,
+										VertexDescriptor& vertex_description)
+{
+	try
+	{
+		FBX::OpenGL::BindAttribLocations locations;
+
+		std::shared_ptr<FBX::Geometry> geometry = FBX::Geometry::fbxLoadFirstGeometry(path);
+		FBX::OpenGL::GeometrySerialize serialize(geometry->features);
+
+		// TODO optimize!
+		uint8_t* memory;;
+		size_t memory_size;
+
+		serialize.serialize( memory, memory_size, geometry->vertices);
+
+		vertex_data.assign(memory, memory+memory_size);
+
+		//index_data = geometry->triangle_indices;
+
+		index_data.assign(geometry->triangle_indices.begin(), geometry->triangle_indices.end());
+
+		delete [] memory;
+
+
+		const FBX::OpenGL::GeometrySerialize::Settings &s(serialize.settings());
+
+		vertex_description.byte_size = s.stride;
+
+		if (locations.ndx_position >= 0) {
+			vertex_description.attributes.push_back(VertexDescriptor::Attribute(GL_FLOAT,3,GL_FALSE,s.offset_position));
+		}
+		if (s.features & FBX::Geometry::NORMAL && locations.ndx_normal >= 0) {
+			vertex_description.attributes.push_back(VertexDescriptor::Attribute(GL_FLOAT,3,GL_FALSE,s.offset_normal));
+		}
+		if (s.features & FBX::Geometry::TANGENT && locations.ndx_tangent >= 0) {
+			vertex_description.attributes.push_back(VertexDescriptor::Attribute(GL_FLOAT,3,GL_FALSE,s.offset_tangent));
+		}
+		if (s.features & FBX::Geometry::COLOR && locations.ndx_color >= 0) {
+			vertex_description.attributes.push_back(VertexDescriptor::Attribute(GL_UNSIGNED_BYTE,4,GL_TRUE,s.offset_color));
+			// no static color support in Mesh
+			// ndx_static_color = -1;
+		}
+		else {
+			// no static color support in Mesh
+			// ndx_static_color = locations.ndx_color;
+		}
+		if (s.features & FBX::Geometry::UVCOORD && locations.ndx_uvcoord >= 0) {
+			vertex_description.attributes.push_back(VertexDescriptor::Attribute(GL_FLOAT,2,GL_FALSE,s.offset_uvcoord));
+		}
+		if (s.features & FBX::Geometry::BINORMAL && locations.ndx_binormal >= 0) {
+			vertex_description.attributes.push_back(VertexDescriptor::Attribute(GL_FLOAT,3,GL_FALSE,s.offset_binormal));
+		}
 	}
 	catch (FBX::BaseException e)
 	{

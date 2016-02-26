@@ -21,7 +21,7 @@ DeferredRenderingPipeline::DeferredRenderingPipeline(EntityManager* entity_mngr,
 		m_atmosphere_mngr(atmosphere_mngr),
 		m_staticMesh_mngr(staticMesh_mngr)
 {
-	transform_mngr->addComponent(m_active_camera,Vec3(0.0f,10.0f,20.0f),Quat(),Vec3(1.0f));
+	transform_mngr->addComponent(m_active_camera,Vec3(0.0f,0.0f,20.0f),Quat(),Vec3(1.0f));
 	camera_mngr->addComponent(m_active_camera, 0.1f, 15000.0f);
 }
 
@@ -449,12 +449,18 @@ void DeferredRenderingPipeline::registerStaticMeshComponents()
 	{
 		auto idx = staticMesh_queue.pop();
 
-		StaticMeshComponentManager::Data& component_data = staticMesh_data[idx];
+		StaticMeshComponentManager::Data* component_data = &staticMesh_data[idx];
 
-		std::shared_ptr<Material> material = m_resource_mngr->createMaterial(component_data.material_path);
-		std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data.mesh_path);
+		std::shared_ptr<Material> material = m_resource_mngr->createMaterial(component_data->material_path);
+		//std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path);
+		std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path,
+										component_data->vertex_data,
+										component_data->index_data,
+										component_data->vertex_description,
+										component_data->mesh_type );
 
-		m_staticMeshes_pass.addRenderJob(RenderJob(component_data.entity,material,mesh));
+
+		m_staticMeshes_pass.addRenderJob(RenderJob(component_data->entity,material,mesh));
 	}
 }
 

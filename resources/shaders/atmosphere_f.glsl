@@ -18,9 +18,9 @@ uniform int sun_count;
 uniform sampler3D rayleigh_inscatter_tx3D;
 uniform sampler3D mie_inscatter_tx3D;
 
-uniform float max_altitude[128];
-uniform float min_altitude[128];
-uniform vec3 atmosphere_center[128];
+uniform float max_altitude[32];
+uniform float min_altitude[32];
+uniform vec3 atmosphere_center[32];
 
 in vec3 position;
 flat in int instanceID;
@@ -77,7 +77,10 @@ float rayleighPhaseFunction(in float scattering_angle)
 */
 float miePhaseFunction(in float scattering_angle, in float mieG)
 {
-	return 1.5 * 1.0 / (4.0 * PI) * (1.0 - mieG*mieG) * pow(1.0 + (mieG*mieG) - 2.0*mieG*scattering_angle, -3.0/2.0) * (1.0 + square(scattering_angle)) / (2.0 + mieG*mieG);
+    float mieG_squared = mieG*mieG;
+    return 1.5 * 1.0 / (4.0 * PI) * (1.0 - mieG_squared) * pow(1.0 + (mieG_squared) - 2.0*mieG*scattering_angle, -3.0/2.0) * (1.0 + square(scattering_angle)) / (2.0 + mieG_squared);
+	//return 1.5 * 1.0 / (4.0 * PI) * (1.0 - mieG*mieG) * pow(1.0 + (mieG*mieG) - 2.0*mieG*scattering_angle, -3.0/2.0) * (1.0 + square(scattering_angle)) / (2.0 + mieG*mieG);
+    
 	//return ( (3.0*(1.0-square(g))) / (2.0*(2.0+square(g))) ) * ( (1.0 + square(cos(scattering_angle))) / pow(1.0+square(g)-2.0*g*cos(scattering_angle),1.5) );
 }
 
@@ -153,56 +156,56 @@ vec3 computeSkyColour(float viewSun, float altitude, float viewZenith, float sun
 void main()
 {	
     /* get depth value from g-buffer */
-	vec2 uvCoords = ((deviceCoords.xy / deviceCoords.w) + 1.0) * 0.5;
-	vec4 normal_depth = texture(normal_depth_tx2D,uvCoords);
-	float depth = (normal_depth.z + normal_depth.w)/1024.0;
-	
-	Ray view_ray;
-	view_ray.origin = camera_position;
-	view_ray.direction = normalize(position-camera_position);
-	
-	vec3 rgb_linear = vec3(0.0);
-	
-	vec2 intersections;
-	if(!intersectAtmosphere(view_ray,intersections))
-	{
-		discard;
-	}
-	
-	/*	check for two positive intersections -> camera outside atmosphere */
-	if( intersections.x>0.0 && intersections.y>0.0)
-		view_ray.origin = view_ray.origin + view_ray.direction * min(intersections.x,intersections.y);
-		
-	float altitude = length(view_ray.origin - atmosphere_center[instanceID]);
-	float viewZenith = dot( normalize(view_ray.direction), normalize(view_ray.origin - atmosphere_center[instanceID]) );
+    vec2 uvCoords = ((deviceCoords.xy / deviceCoords.w) + 1.0) * 0.5;
+    vec4 normal_depth = texture(normal_depth_tx2D,uvCoords);
+    float depth = (normal_depth.z + normal_depth.w)/1024.0;
+    
+    Ray view_ray;
+    view_ray.origin = camera_position;
+    view_ray.direction = normalize(position-camera_position);
+    
+    vec3 rgb_linear = vec3(0.0);
+    
+    vec2 intersections;
+    if(!intersectAtmosphere(view_ray,intersections))
+    {
+    	discard;
+    }
+    
+    /*	check for two positive intersections -> camera outside atmosphere */
+    if( intersections.x>0.0 && intersections.y>0.0)
+    	view_ray.origin = view_ray.origin + view_ray.direction * min(intersections.x,intersections.y);
+    	
+    float altitude = length(view_ray.origin - atmosphere_center[instanceID]);
+    float viewZenith = dot( normalize(view_ray.direction), normalize(view_ray.origin - atmosphere_center[instanceID]) );
     
     for(int i=0; i<sun_count; i++)
     {
-	   float sunZenith = dot( normalize(suns[i].sun_direction), normalize(view_ray.origin - atmosphere_center[instanceID]) );
-	   float viewSun = dot( normalize(view_ray.direction), normalize(suns[i].sun_direction) );
-	   
-	   rgb_linear += computeSkyColour(viewSun,altitude,viewZenith,sunZenith,suns[i].sun_luminance);
-       
-       /*	fake sun disc */
-		if( (abs(viewSun)>0.999) && !(depth > 0.0) )
-		{
-			float intensity = pow((abs(viewSun)-0.999)/(1.0-0.999),3.0) * suns[i].sun_luminance;
-			rgb_linear += vec3(intensity,intensity,intensity) * 0.9;
-		}
+        float sunZenith = dot( normalize(suns[i].sun_direction), normalize(view_ray.origin - atmosphere_center[instanceID]) );
+        float viewSun = dot( normalize(view_ray.direction), normalize(suns[i].sun_direction) );
+        
+        rgb_linear += computeSkyColour(viewSun,altitude,viewZenith,sunZenith,suns[i].sun_luminance);
+        
+        if( depth > 0.0)
+        {
+            vec3 geometry_position = view_ray.origin + depth * view_ray.direction;
+        
+            altitude = length(geometry_position - atmosphere_center[instanceID]);
+            viewZenith = dot( normalize(view_ray.direction), normalize(geometry_position - atmosphere_center[instanceID]) );
+            sunZenith = dot( normalize(suns[i].sun_direction), normalize(geometry_position - atmosphere_center[instanceID]) );
+        
+            rgb_linear -= computeSkyColour(viewSun,altitude,viewZenith,sunZenith,suns[i].sun_luminance);
+        }
+        else
+        {
+            /* fake sun disc */
+            if( (abs(viewSun)>0.999) )
+            {
+                float intensity = pow((abs(viewSun)-0.999)/(1.0-0.999),3.0) * suns[i].sun_luminance;
+                rgb_linear += vec3(intensity,intensity,intensity) * 0.9;
+            }
+        }
     }
-    
-    
-	if( depth > 0.0)
-	{
-	//	vec3 geometry_position = view_ray.origin + depth * view_ray.direction;
-	//
-	//	altitude = length(geometry_position - atmosphere_center[instanceID]);
-	//	viewZenith = dot( normalize(view_ray.direction), normalize(geometry_position - atmosphere_center[instanceID]) );
-	//	sunZenith = dot( normalize(sun_direction), normalize(geometry_position - atmosphere_center[instanceID]) );
-	//
-	//	rgb_linear -= computeSkyColour(viewSun,altitude,viewZenith,sunZenith);
-	}
-	
-	frag_colour = vec4(rgb_linear,1.0);
-	
+   
+    frag_colour = vec4(rgb_linear,1.0);
 }

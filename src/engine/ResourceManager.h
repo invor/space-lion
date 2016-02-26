@@ -50,6 +50,30 @@
 
 #define DEBUG_OUTPUT 0
 
+
+struct VertexDescriptor
+{
+	struct Attribute
+	{
+		Attribute() = delete;
+		Attribute(GLenum type, GLint size, GLboolean normalized, GLsizei offset)
+			: size(size), type(type), normalized(normalized), offset(offset) {}
+
+		GLint size;
+		GLenum type;
+		GLboolean normalized;
+		GLsizei offset;
+	};
+
+	VertexDescriptor() = delete;
+	VertexDescriptor(size_t byte_size, std::vector<Attribute> attributes)
+		: byte_size(byte_size), attributes(attributes) {}
+
+	size_t byte_size;
+	std::vector<Attribute> attributes;
+};
+
+
 class ResourceManager
 {
 public:
@@ -102,7 +126,7 @@ public:
 	 *	instead of creating a new mesh from the given data.
 	 */
 	template<typename VertexContainer, typename IndexContainer>
-	std::shared_ptr<Mesh> createMesh(const std::string name, VertexContainer& vertices, const IndexContainer& indices, GLenum mesh_type)
+	std::shared_ptr<Mesh> createMesh(const std::string name, const VertexContainer& vertices, const IndexContainer& indices, GLenum mesh_type)
 	{
 		/*	Check list of vertexBufferObjects for default box object(Name="Box") */
 		for(auto& mesh : geometry_list)
@@ -145,6 +169,12 @@ public:
 
 		return geometry_list.back();
 	}
+
+	std::shared_ptr<Mesh> createMesh(const std::string& name,
+										const std::vector<uint8_t>& vertex_data,
+										const std::vector<uint32_t>& index_data,
+										VertexDescriptor& vertex_description,
+										GLenum mesh_type );
 
 	/**
 	 * \brief Creates a material object from a local file
@@ -213,6 +243,16 @@ public:
 											GLenum format,
 											GLenum type,
 											GLvoid* data);
+
+	/**
+	 * Offer method that simply loads geometry data into arrays to make it possible to decouple
+	 * file IO from rendering thread.
+	 * \brief Load geometry data from an fbx file
+	 * \param path Location of the fbx file
+	 * \param vertex_data Vector for storing the loaded vertex data
+	 * \param index_data Vector for storing the loaded index data
+	 */
+	void loadFbxGeometry(const std::string &path, std::vector<uint8_t>& vertex_data, std::vector<uint32_t>& index_data, VertexDescriptor& vertex_description);
 
 protected:
 	/** Log string */

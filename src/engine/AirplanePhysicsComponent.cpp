@@ -1,6 +1,7 @@
 #include "AirplanePhysicsComponent.hpp"
 
-AirplanePhysicsComponentManager::AirplanePhysicsComponentManager(uint size)
+AirplanePhysicsComponentManager::AirplanePhysicsComponentManager(uint size,TransformComponentManager* transform_mngr)
+	: m_transform_mngr(transform_mngr)
 {
 	const uint bytes = size * ( sizeof(Entity) +
 								2*sizeof(Vec3) +
@@ -59,11 +60,6 @@ void AirplanePhysicsComponentManager::reallocate(uint size)
 	delete m_data.buffer;
 
 	m_data = new_data;
-}
-
-void AirplanePhysicsComponentManager::connectToTransformComponents(TransformComponentManager* transform_mngr)
-{
-	m_transform_mngr = transform_mngr;
 }
 
 void AirplanePhysicsComponentManager::addComponent(Entity entity,

@@ -55,6 +55,8 @@ public:
 
 	void scale(uint index, Vec3 scale_factors);
 
+	void setPosition(uint index, Vec3 position);
+
 	const Vec3 getPosition(uint index);
 
 	const Quat getOrientation(uint index);

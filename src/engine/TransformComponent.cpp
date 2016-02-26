@@ -147,13 +147,24 @@ void TransformComponentManager::scale(uint index, Vec3 scale_factors)
 
 void TransformComponentManager::transform(uint index)
 {
-	//Mat4x4 parent_transform = m_data.world_transform[m_data.parent[index]];
+	Mat4x4 parent_transform(1.0);
+
+	if(m_data.parent[index] !=  index)
+		Mat4x4 parent_transform = m_data.world_transform[m_data.parent[index]];
+
 
 	Mat4x4 local_translation = glm::translate(Mat4x4(),m_data.position[index]);
 	Mat4x4 local_orientation = glm::toMat4(m_data.orientation[index]);
 	Mat4x4 local_scaling = glm::scale(Mat4x4(),m_data.scale[index]);
 
-	m_data.world_transform[index] = local_translation * local_orientation * local_scaling;
+	m_data.world_transform[index] = parent_transform * local_translation * local_orientation * local_scaling;
+}
+
+void TransformComponentManager::setPosition(uint index, Vec3 position)
+{
+	m_data.position[index] = position;
+
+	transform(index);
 }
 
 const Vec3 TransformComponentManager::getPosition(uint index)

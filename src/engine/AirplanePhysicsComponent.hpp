@@ -37,12 +37,10 @@ private:
 	TransformComponentManager* m_transform_mngr;
 
 public:
-	AirplanePhysicsComponentManager(uint size);
+	AirplanePhysicsComponentManager(uint size, TransformComponentManager* transform_mngr);
 	~AirplanePhysicsComponentManager();
 
 	void reallocate(uint size);
-
-	void connectToTransformComponents(TransformComponentManager* transform_mngr);
 
 	void addComponent(Entity entity,
 						Vec3 velocity,
