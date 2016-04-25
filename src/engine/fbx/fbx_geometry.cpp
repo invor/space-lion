@@ -6,10 +6,15 @@
 
 namespace FBX {
 	static void loadArrayData(std::vector<OpenGL::ColorRGBA> &result, const std::vector<double>& data) {
-		if (data.size() % 3 != 0) throw Exception("data length not a multiple of 3");
-		result.reserve(data.size() / 3);
-		for (size_t i = 0; i < data.size(); i += 3) {
-			result.push_back(OpenGL::ColorRGBA(data[i], data[i+1], data[i+2]));
+		//if (data.size() % 3 != 0) throw Exception("data length not a multiple of 3");
+		//result.reserve(data.size() / 3);
+		//for (size_t i = 0; i < data.size(); i += 3) {
+		//	result.push_back(OpenGL::ColorRGBA(data[i], data[i+1], data[i+2]));
+		//}
+		if (data.size() % 4 != 0) throw Exception("data length not a multiple of 4");
+		result.reserve(data.size() / 4);
+		for (size_t i = 0; i < data.size(); i += 4) {
+			result.push_back(OpenGL::ColorRGBA(data[i], data[i+1], data[i+2], data[i+3]));
 		}
 	}
 
@@ -107,7 +112,16 @@ namespace FBX {
 			if (Empty == mapping) return false;
 			reference = referenceTypeFromString(n_referencetype.properties.at(0).getString());
 			if (reference == IndexToDirect) {
-				if (!reader.find(n_data, n_layer, NodeName(dataName.toString() + "Index"))) return false;
+
+				if(dataName == NodeName::Colors)
+				{
+					NodeName indexName = NodeName::Color;
+					if (!reader.find(n_data, n_layer, NodeName(indexName.toString() + "Index"))) return false;
+				}
+				else
+				{
+					if (!reader.find(n_data, n_layer, NodeName(dataName.toString() + "Index"))) return false;
+				}
 				index = n_data.properties.at(0).getInt32s();
 			}
 			return true;
