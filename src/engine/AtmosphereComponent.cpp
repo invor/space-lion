@@ -6,7 +6,7 @@ AtmosphereComponentManager::AtmosphereComponentManager(uint size, ResourceManage
 	const uint bytes = size * ( sizeof(Entity) +
 								2*sizeof(Vec3) +
 								4*sizeof(float) +
-								1*sizeof(AtmosphereMaterial*) );
+								1*sizeof(Material*) );
 
 	m_data.buffer = new char[bytes];
 
@@ -20,7 +20,7 @@ AtmosphereComponentManager::AtmosphereComponentManager(uint size, ResourceManage
 	m_data.h_m = (float*)(m_data.h_r + size);
 	m_data.min_altitude = (float*)(m_data.h_m + size);
 	m_data.max_altitude = (float*)(m_data.min_altitude + size);
-	m_data.material = (AtmosphereMaterial**)(m_data.max_altitude + size);
+	m_data.material = (Material**)(m_data.max_altitude + size);
 }
 
 AtmosphereComponentManager::~AtmosphereComponentManager()
@@ -47,7 +47,7 @@ void AtmosphereComponentManager::reallocate(uint size)
 	new_data.h_m = (float*)(new_data.h_r + size);
 	new_data.min_altitude = (float*)(new_data.h_m + size);
 	new_data.max_altitude = (float*)(new_data.min_altitude + size);
-	new_data.material = (AtmosphereMaterial**)(new_data.max_altitude + size);
+	new_data.material = (Material**)(new_data.max_altitude + size);
 
 	std::memcpy(new_data.entity, m_data.entity, m_data.used * sizeof(Entity));
 	std::memcpy(new_data.beta_r, m_data.beta_r, m_data.used * sizeof(Vec3));
@@ -56,7 +56,7 @@ void AtmosphereComponentManager::reallocate(uint size)
 	std::memcpy(new_data.h_m, m_data.h_m, m_data.used * sizeof(float));
 	std::memcpy(new_data.min_altitude, m_data.min_altitude, m_data.used * sizeof(float));
 	std::memcpy(new_data.max_altitude, m_data.max_altitude, m_data.used * sizeof(float));
-	std::memcpy(new_data.material, m_data.material, m_data.used * sizeof(AtmosphereMaterial*));
+	std::memcpy(new_data.material, m_data.material, m_data.used * sizeof(Material*));
 
 	delete m_data.buffer;
 
@@ -156,10 +156,11 @@ void AtmosphereComponentManager::processNewComponents()
 				std::pair<GLenum,GLenum>(GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE) } );
 
 		//TODO let the resource_mngr handle the creation!
-		std::shared_ptr<Material> new_material = std::make_shared<AtmosphereMaterial>("atmosphere_" + m_data.entity[addedComponent_idx].id(),prgm,transmittance_table,rayleigh_inscatter_table,mie_inscatter_table,irradiance_table);
-		m_resource_mngr->addMaterial(new_material);
+		std::shared_ptr<Material> new_material = m_resource_mngr->createMaterial("atmosphere_" + std::to_string(m_data.entity[addedComponent_idx].id()),
+																					prgm,
+																					{ transmittance_table,rayleigh_inscatter_table,mie_inscatter_table,irradiance_table });
 
-		m_data.material[addedComponent_idx] = (AtmosphereMaterial*) new_material.get();
+		m_data.material[addedComponent_idx] = (Material*) new_material.get();
 
 		computeTransmittance(addedComponent_idx);
 		computeInscatterSingle(addedComponent_idx);
@@ -178,7 +179,7 @@ void AtmosphereComponentManager::computeTransmittance(uint index)
 
 	transmittance_prgm->use();
 
-	glBindImageTexture(0,m_data.material[index]->getTransmittanceTable()->getHandle(),0,GL_FALSE,0,GL_WRITE_ONLY,GL_RGBA32F);
+	glBindImageTexture(0,m_data.material[index]->getTextures()[0]->getHandle(),0,GL_FALSE,0,GL_WRITE_ONLY,GL_RGBA32F);
 	transmittance_prgm->setUniform("transmittance_tx2D",0);
 
 	transmittance_prgm->setUniform("min_altitude",m_data.min_altitude[index]);
@@ -199,16 +200,15 @@ void AtmosphereComponentManager::computeInscatterSingle(uint index)
 
 	inscatter_single_prgm->use();
 
-	glBindImageTexture(0,m_data.material[index]->getRayleighInscatterTable()->getHandle(),0,GL_FALSE,0,GL_WRITE_ONLY,GL_RGBA32F);
+	glBindImageTexture(0,m_data.material[index]->getTextures()[1]->getHandle(),0,GL_FALSE,0,GL_WRITE_ONLY,GL_RGBA32F);
 	inscatter_single_prgm->setUniform("rayleigh_inscatter_tx3D",0);
 
-	glBindImageTexture(1,m_data.material[index]->getMieInscatterTable()->getHandle(),0,GL_FALSE,0,GL_WRITE_ONLY,GL_RGBA32F);
+	glBindImageTexture(1,m_data.material[index]->getTextures()[2]->getHandle(),0,GL_FALSE,0,GL_WRITE_ONLY,GL_RGBA32F);
 	inscatter_single_prgm->setUniform("mie_inscatter_tx3D",1);
 
-	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE2);
 	inscatter_single_prgm->setUniform("transmittance_tx2D",2);
-	m_data.material[index]->getTransmittanceTable()->bindTexture();
+	m_data.material[index]->getTextures()[0]->bindTexture();
 	glDisable(GL_TEXTURE_2D);
 
 	inscatter_single_prgm->setUniform("min_altitude",m_data.min_altitude[index]);

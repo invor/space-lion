@@ -28,7 +28,7 @@ private:
 		float* h_m;						///< ?
 		float* min_altitude;			///< minimum altitude of the atmosphere
 		float* max_altitude;			///< maximum altitude of the atmosphere
-		AtmosphereMaterial** material;
+		Material** material;
 	};
 
 	Data m_data;

@@ -8,7 +8,7 @@
 
 namespace Controls
 {
-	enum ControlState { CAMERA };
+	enum ControlState { CAMERA, EDITOR };
 
 	void init(TransformComponentManager* transform_mngr, Entity* active_camera);
 

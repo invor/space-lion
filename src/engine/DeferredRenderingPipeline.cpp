@@ -7,7 +7,9 @@ DeferredRenderingPipeline::DeferredRenderingPipeline(EntityManager* entity_mngr,
 										PointlightComponentManager* light_mngr,
 										SunlightComponentManager* sunligh_mngr,
 										AtmosphereComponentManager* atmosphere_mngr,
-										StaticMeshComponentManager* staticMesh_mngr)
+										StaticMeshComponentManager* staticMesh_mngr,
+										VolumeComponentManager* volume_mngr,
+										InterfaceMeshComponentManager* interface_mngr)
 	: m_lights_prepass(),
 		m_staticMeshes_pass(),
 		m_shadow_map_pass(),
@@ -19,10 +21,12 @@ DeferredRenderingPipeline::DeferredRenderingPipeline(EntityManager* entity_mngr,
 		m_light_mngr(light_mngr),
 		m_sunlight_mngr(sunligh_mngr),
 		m_atmosphere_mngr(atmosphere_mngr),
-		m_staticMesh_mngr(staticMesh_mngr)
+		m_staticMesh_mngr(staticMesh_mngr),
+		m_volume_mngr(volume_mngr),
+		m_interfaceMesh_mngr(interface_mngr)
 {
 	transform_mngr->addComponent(m_active_camera,Vec3(0.0f,0.0f,20.0f),Quat(),Vec3(1.0f));
-	camera_mngr->addComponent(m_active_camera, 0.1f, 15000.0f);
+	camera_mngr->addComponent(m_active_camera, 0.1f, 15000.0f, 0.7f);
 }
 
 DeferredRenderingPipeline::~DeferredRenderingPipeline()
@@ -35,6 +39,14 @@ void DeferredRenderingPipeline::orderIndependentTransparencyPass()
 
 void DeferredRenderingPipeline::geometryPass()
 {
+	glDisable(GL_BLEND);
+	m_gBuffer->bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	int width, height;
+	height = m_gBuffer->getHeight();
+	width = m_gBuffer->getWidth();
+	glViewport(0, 0, width, height);
+
 	RenderJobManager::RootNode m_root = m_staticMeshes_pass.getRoot();
 
 	/* Get information on active camera */
@@ -50,7 +62,21 @@ void DeferredRenderingPipeline::geometryPass()
 
 		for(auto& material : shader.materials)
 		{
-			material.material->use();
+			glActiveTexture(GL_TEXTURE0);
+			shader.shader_prgm->setUniform("diffuse_tx2D",0);
+			material.material->getTextures()[0]->bindTexture();
+
+			glActiveTexture(GL_TEXTURE1);
+			shader.shader_prgm->setUniform("specular_tx2D",1);
+			material.material->getTextures()[1]->bindTexture();
+
+			glActiveTexture(GL_TEXTURE2);
+			shader.shader_prgm->setUniform("roughness_tx2D",2);
+			material.material->getTextures()[2]->bindTexture();
+
+			glActiveTexture(GL_TEXTURE3);
+			shader.shader_prgm->setUniform("normal_tx2D",3);
+			material.material->getTextures()[3]->bindTexture();
 
 			for(auto& mesh : material.meshes)
 			{
@@ -90,14 +116,87 @@ void DeferredRenderingPipeline::geometryPass()
 	}
 }
 
+void DeferredRenderingPipeline::volumePass()
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glActiveTexture(GL_TEXTURE0);
+	m_gBuffer->bindColorbuffer(0);
+
+	RenderJobManager::RootNode m_root = m_volume_pass.getRoot();
+
+	/* Get information on active camera */
+	Mat4x4 view_matrix = glm::inverse(m_transform_mngr->getWorldTransformation( m_transform_mngr->getIndex(m_active_camera) ));
+	Mat4x4 proj_matrix = m_camera_mngr->getProjectionMatrix( m_camera_mngr->getIndex(m_active_camera) );
+
+	for(auto& shader : m_root.shaders)
+	{
+		/* Bind shader program and set per program uniforms */
+		shader.shader_prgm->use();
+
+		// TODO upload camera position
+		shader.shader_prgm->setUniform("camera_position", m_transform_mngr->getPosition( m_transform_mngr->getIndex(m_active_camera) ) );
+
+		for(auto& material : shader.materials)
+		{
+			glActiveTexture(GL_TEXTURE0);
+			shader.shader_prgm->setUniform("volume_tx3D",0);
+			material.material->getTextures()[0]->bindTexture();
+
+			for(auto& mesh : material.meshes)
+			{
+				/*	Draw all entities instanced */
+				int instance_counter = 0;
+				std::string uniform_name;
+			
+				for(auto& entity : mesh.enities)
+				{
+					uint transform_index = m_transform_mngr->getIndex(entity);
+					Mat4x4 model_matrix = m_transform_mngr->getWorldTransformation(transform_index);
+
+					Vec3 bbox_min = m_volume_mngr->m_data[m_volume_mngr->getIndex(entity)].boundingBox_min;
+					Vec3 bbox_max = m_volume_mngr->m_data[m_volume_mngr->getIndex(entity)].boundingBox_max;
+
+					Mat4x4 texture_matrix = glm::scale(glm::inverse(model_matrix), 1.0f/(bbox_max-bbox_min));
+					texture_matrix = glm::translate(texture_matrix, -bbox_min);
+					shader.shader_prgm->setUniform("texture_matrix", texture_matrix);
+			
+					Mat4x4 model_view_proj_matrix = proj_matrix * view_matrix * model_matrix;
+					//	Mat4x4 model_view_matrix = view_matrix;
+					std::string uniform_name("model_view_proj_matrix[" + std::to_string(instance_counter) + "]");
+					shader.shader_prgm->setUniform(uniform_name.c_str(), model_view_proj_matrix);
+			
+					instance_counter++;
+			
+					if(instance_counter == 128)
+					{
+						mesh.mesh->draw(instance_counter);
+						instance_counter = 0;
+					}
+				}
+				mesh.mesh->draw(instance_counter);
+				instance_counter = 0;
+			}
+		}
+	}
+}
+
 void DeferredRenderingPipeline::atmospherePass()
 {
+	m_atmosphere_fbo->bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, m_atmosphere_fbo->getWidth(), m_atmosphere_fbo->getHeight());
+
+	glDisable(GL_CULL_FACE);
+
+	glActiveTexture(GL_TEXTURE0);
+	m_gBuffer->bindColorbuffer(0);
+
 	AtmosphereComponentManager::Data const * const atmosphere_data = m_atmosphere_mngr->getData();
 	uint num_entities = atmosphere_data->used;
 
 	if( num_entities == 0 ) return;
-
-	glDisable(GL_CULL_FACE);
 
 	// TODO: Try to remove redundancy of getting this information twice during rendering a single frame
 	/* Get information on active camera */
@@ -161,14 +260,13 @@ void DeferredRenderingPipeline::atmospherePass()
 		atmosphere_center_uniform = ("atmosphere_center[" + std::to_string(instance_counter) + "]");
 		shader_prgm->setUniform(atmosphere_center_uniform.c_str(),m_transform_mngr->getPosition(transform_index));
 		
-		glEnable(GL_TEXTURE_3D);
 		glActiveTexture(GL_TEXTURE1);
+		atmosphere_data->material[i]->getTextures()[1]->bindTexture();
 		shader_prgm->setUniform("rayleigh_inscatter_tx3D",1);
-		atmosphere_data->material[i]->getRayleighInscatterTable()->bindTexture();
 
 		glActiveTexture(GL_TEXTURE2);
+		atmosphere_data->material[i]->getTextures()[2]->bindTexture();
 		shader_prgm->setUniform("mie_inscatter_tx3D",2);
-		atmosphere_data->material[i]->getMieInscatterTable()->bindTexture();
 
 		instance_counter++;
 
@@ -184,6 +282,22 @@ void DeferredRenderingPipeline::atmospherePass()
 
 void DeferredRenderingPipeline::lightingPass()
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	int width, height;
+	glfwGetFramebufferSize(m_active_window, &width, &height);
+	glViewport(0, 0, width, height);
+	
+	glActiveTexture(GL_TEXTURE0);
+	m_gBuffer->bindColorbuffer(0);
+	glActiveTexture(GL_TEXTURE1);
+	m_gBuffer->bindColorbuffer(1);
+	glActiveTexture(GL_TEXTURE2);
+	m_gBuffer->bindColorbuffer(2);
+	
+	glActiveTexture(GL_TEXTURE3);
+	m_atmosphere_fbo->bindColorbuffer(0);
+
 	m_lighting_prgm->use();
 
 	// Bind textures from framebuffer
@@ -247,6 +361,110 @@ void DeferredRenderingPipeline::lightingPass()
 	m_fullscreenQuad->draw();
 }
 
+void DeferredRenderingPipeline::interfacePass()
+{
+	RenderJobManager::RootNode m_root = m_interface_pass.getRoot();
+
+	/* Get information on active camera */
+	Mat4x4 view_matrix = glm::inverse(m_transform_mngr->getWorldTransformation( m_transform_mngr->getIndex(m_active_camera) ));
+	Mat4x4 proj_matrix = m_camera_mngr->getProjectionMatrix( m_camera_mngr->getIndex(m_active_camera) );
+
+	for(auto& shader : m_root.shaders)
+	{
+		/* Bind shader program and set per program uniforms */
+		shader.shader_prgm->use();
+		shader.shader_prgm->setUniform("projection_matrix", proj_matrix);
+
+		for(auto& material : shader.materials)
+		{
+			for(auto& mesh : material.meshes)
+			{
+				/*	Draw all entities instanced */
+				int instance_counter = 0;
+				std::string uniform_name;
+
+				for(auto& entity : mesh.enities)
+				{
+					uint transform_index = m_transform_mngr->getIndex(entity);
+					Mat4x4 model_matrix = m_transform_mngr->getWorldTransformation(transform_index);
+					Mat4x4 model_view_matrix = view_matrix * model_matrix;
+					//	Mat4x4 model_view_matrix = view_matrix;
+					std::string uniform_name("model_view_matrix[" + std::to_string(instance_counter) + "]");
+					shader.shader_prgm->setUniform(uniform_name.c_str(), model_view_matrix);
+
+					instance_counter++;
+
+					if(instance_counter == 128)
+					{
+						mesh.mesh->draw(instance_counter);
+						instance_counter = 0;
+					}
+				}
+				mesh.mesh->draw(instance_counter);
+				instance_counter = 0;
+			}
+		}
+	}
+}
+
+void DeferredRenderingPipeline::pickingPass()
+{
+	RenderJobManager::RootNode m_root = m_picking_pass.getRoot();
+
+	/* Get information on active camera */
+	Mat4x4 view_matrix = glm::inverse(m_transform_mngr->getWorldTransformation( m_transform_mngr->getIndex(m_active_camera) ));
+	Mat4x4 proj_matrix = m_camera_mngr->getProjectionMatrix( m_camera_mngr->getIndex(m_active_camera) );
+
+	for(auto& shader : m_root.shaders)
+	{
+		/* Bind shader program and set per program uniforms */
+		shader.shader_prgm->use();
+		shader.shader_prgm->setUniform("projection_matrix", proj_matrix);
+
+		for(auto& material : shader.materials)
+		{
+			for(auto& mesh : material.meshes)
+			{
+				/*	Draw all entities instanced */
+				int instance_counter = 0;
+				std::string uniform_name;
+
+				for(auto& entity : mesh.enities)
+				{
+					uint transform_index = m_transform_mngr->getIndex(entity);
+					Mat4x4 model_matrix = m_transform_mngr->getWorldTransformation(transform_index);
+					Mat4x4 model_view_matrix = view_matrix * model_matrix;
+					//	Mat4x4 model_view_matrix = view_matrix;
+					std::string uniform_name("model_view_matrix[" + std::to_string(instance_counter) + "]");
+					shader.shader_prgm->setUniform(uniform_name.c_str(), model_view_matrix);
+
+					std::string id_uniform_name("entity[" + std::to_string(entity.id()) + "]");
+					shader.shader_prgm->setUniform(id_uniform_name.c_str(), entity.id());
+
+					instance_counter++;
+
+					if(instance_counter == 128)
+					{
+						mesh.mesh->draw(instance_counter);
+						instance_counter = 0;
+					}
+				}
+				mesh.mesh->draw(instance_counter);
+				instance_counter = 0;
+			}
+		}
+	}
+}
+
+void DeferredRenderingPipeline::processSingleExecTasks()
+{
+	while ( !m_singleExecution_tasks.empty() )
+	{
+		std::function<void()> task = m_singleExecution_tasks.pop();
+		task();
+	}
+}
+
 void DeferredRenderingPipeline::run()
 {
 	std::cout<<"----------------------------\n"
@@ -299,6 +517,7 @@ void DeferredRenderingPipeline::run()
 	// Apparently glweInit() causes a GL ERROR 1280, so let's just catch that...
 	glGetError();
 
+	// TODO Switch to new vertex descriptor style
 	// Create dummy geometry for deferred rendering
 	std::vector<Vertex_pu> vertex_array = {{ Vertex_pu(-1.0,-1.0f,-1.0f,0.0f,0.0f),
 											Vertex_pu(-1.0,1.0f,-1.0f,0.0f,1.0f),
@@ -312,23 +531,22 @@ void DeferredRenderingPipeline::run()
 	m_lighting_prgm = m_resource_mngr->createShaderProgram({"../resources/shaders/genericPostProc_v.glsl","../resources/shaders/dfr_lighting_f.glsl"});
 
 	// Create basic boundingbox for atmosphere rendering
-	m_atmosphere_boundingSphere = m_resource_mngr->createIcoSphere(0);
+	m_atmosphere_boundingSphere = m_resource_mngr->createIcoSphere(2);
 
-	// Create G-Buffer
-	FramebufferObject gBuffer(1600,900,true);
-	gBuffer.createColorAttachment(GL_RGBA16F,GL_RGBA,GL_HALF_FLOAT);
-	gBuffer.createColorAttachment(GL_RGBA8,GL_RGBA,GL_UNSIGNED_BYTE);
-	gBuffer.createColorAttachment(GL_RGBA8,GL_RGBA,GL_UNSIGNED_BYTE);
-	std::cout<<gBuffer.getLog()<<std::endl;
+	// Create g-Buffer
+	m_gBuffer = std::make_unique<FramebufferObject>(1600,900,true);
+	m_gBuffer->createColorAttachment(GL_RGBA16F,GL_RGBA,GL_HALF_FLOAT);
+	m_gBuffer->createColorAttachment(GL_RGBA8,GL_RGBA,GL_UNSIGNED_BYTE);
+	m_gBuffer->createColorAttachment(GL_RGBA8,GL_RGBA,GL_UNSIGNED_BYTE);
+	std::cout<<m_gBuffer->getLog()<<std::endl;
 
-	FramebufferObject atmosphere_fbo(1600,900,true);
-	atmosphere_fbo.createColorAttachment(GL_RGBA16F,GL_RGBA,GL_HALF_FLOAT);
+	m_atmosphere_fbo = std::make_unique<FramebufferObject>(1600,900,true);
+	m_atmosphere_fbo->createColorAttachment(GL_RGBA16F,GL_RGBA,GL_HALF_FLOAT);
 
 	// Set some OpenGL states
 	glClearColor(0.0f,0.0f,0.0f,0.0f);
-	glEnable (GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glDisable(GL_BLEND);
 
 	double t0,t1 = 0.0;
 
@@ -342,59 +560,44 @@ void DeferredRenderingPipeline::run()
 
 		Controls::checkKeyStatus(m_active_window,dt);
 
-		// Process new RenderJobRequest
-		//processRenderJobRequest();
-
+		// Register any new gfx related components
 		registerStaticMeshComponents();
-
+		registerVolumetricComponents();
+		registerInterfaceMeshComponents();
 		registerLightComponents();
+
+		// TODO would be nice if method names matched
 
 		// Process new atmoshpere entities
 		m_atmosphere_mngr->processNewComponents();
 
+		processSingleExecTasks();
+
+
 		// Geometry pass
 		m_camera_mngr->setCameraAttributes(m_camera_mngr->getIndex(m_active_camera),0.01,10000.0);
-		gBuffer.bind();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		int width, height;
-		height = gBuffer.getHeight();
-		width = gBuffer.getWidth();
-		glViewport(0, 0, width, height);
-
 		geometryPass();
 
 		// Atmosphere pass
-		m_camera_mngr->setCameraAttributes(m_camera_mngr->getIndex(m_active_camera),100.0,100000000.0);
-
-		atmosphere_fbo.bind();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		height = atmosphere_fbo.getHeight();
-		width = atmosphere_fbo.getWidth();
-		glViewport(0, 0, width, height);
-
-		glActiveTexture(GL_TEXTURE0);
-		gBuffer.bindColorbuffer(0);
+		m_camera_mngr->setCameraAttributes(m_camera_mngr->getIndex(m_active_camera),100.0,6430000.0);
 		atmospherePass();
 	
-		// Lighting pass
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glfwGetFramebufferSize(m_active_window, &width, &height);
-		glViewport(0, 0, width, height);
-		
-		glActiveTexture(GL_TEXTURE0);
-		gBuffer.bindColorbuffer(0);
-		glActiveTexture(GL_TEXTURE1);
-		gBuffer.bindColorbuffer(1);
-		glActiveTexture(GL_TEXTURE2);
-		gBuffer.bindColorbuffer(2);
-
-		glActiveTexture(GL_TEXTURE3);
-		atmosphere_fbo.bindColorbuffer(0);
-		
+		// Lighting pass		
 		lightingPass();
 
+		// Volume rendering pass
+		m_camera_mngr->setCameraAttributes(m_camera_mngr->getIndex(m_active_camera),0.01,10000.0);
+		volumePass();
+
+
 		//TODO post processing
+
+#ifdef EDITOR_MODE
+		// draw interface on top of scene image
+		glDisable(GL_BLEND);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		interfacePass();
+#endif
 
 		glfwSwapBuffers(m_active_window);
 		glfwPollEvents();
@@ -402,7 +605,11 @@ void DeferredRenderingPipeline::run()
 
 	/* Clear resources while context is still alive */
 	m_staticMeshes_pass.clearRenderJobs();
+	m_interface_pass.clearRenderJobs();
+	m_volume_pass.clearRenderJobs();
 	m_resource_mngr->clearLists();
+	m_gBuffer.reset();
+	m_atmosphere_fbo.reset();
 	m_fullscreenQuad.reset();
 	m_lighting_prgm.reset();
 	m_atmosphere_boundingSphere.reset();
@@ -410,32 +617,14 @@ void DeferredRenderingPipeline::run()
 	glfwMakeContextCurrent(NULL);
 }
 
-void DeferredRenderingPipeline::requestRenderJob(const RenderJobRequest& new_request)
+void DeferredRenderingPipeline::addSingleExecutionGpuTask(std::function<void()> task)
 {
-	m_renderJobRequest_queue.push(new_request);
-}
-
-void DeferredRenderingPipeline::addLightsource(Entity entity)
-{
-	m_active_lightsources.push_back(entity);
+	m_singleExecution_tasks.push(task);
 }
 
 void DeferredRenderingPipeline::setActiveCamera(Entity entity)
 {
 	m_active_camera = entity;
-}
-
-void DeferredRenderingPipeline::processRenderJobRequest()
-{
-	while(!m_renderJobRequest_queue.empty())
-	{
-		RenderJobRequest new_jobRequest = m_renderJobRequest_queue.pop();
-
-		std::shared_ptr<Material> material = m_resource_mngr->createMaterial(new_jobRequest.material_path);
-		std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(new_jobRequest.mesh_path);
-
-		m_staticMeshes_pass.addRenderJob(RenderJob(new_jobRequest.entity,material,mesh));
-	}
 }
 
 void DeferredRenderingPipeline::registerStaticMeshComponents()
@@ -451,6 +640,91 @@ void DeferredRenderingPipeline::registerStaticMeshComponents()
 
 		StaticMeshComponentManager::Data* component_data = &staticMesh_data[idx];
 
+		if( component_data->mesh != nullptr && component_data->material != nullptr )
+		{
+			m_staticMeshes_pass.addRenderJob(RenderJob(component_data->entity,component_data->material,component_data->mesh));
+		}
+		else
+		{
+			std::shared_ptr<Material> material = m_resource_mngr->createMaterial(component_data->material_path);
+			//std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path);
+			std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path,
+											component_data->vertex_data,
+											component_data->index_data,
+											component_data->vertex_description,
+											component_data->mesh_type );
+
+			m_staticMeshes_pass.addRenderJob(RenderJob(component_data->entity,material.get(),mesh.get()));
+		}
+	}
+}
+
+void DeferredRenderingPipeline::registerVolumetricComponents()
+{
+	// Access volume components
+	auto* volume_data = &m_volume_mngr->m_data;
+	auto* volume_queue = &m_volume_mngr->m_update_queue;
+
+	while( !volume_queue->empty() )
+	{
+		auto idx = volume_queue->pop();
+
+		VolumeComponentManager::Data* component_data = &(*volume_data)[idx];
+
+		if( component_data->volume != nullptr && component_data->boundingGeometry != nullptr )
+		{
+			std::shared_ptr<GLSLProgram> prgm = m_resource_mngr->createShaderProgram({"../resources/shaders/volRen_v.glsl","../resources/shaders/volRen_f.glsl"});
+			std::shared_ptr<Material> mtl = m_resource_mngr->createMaterial(component_data->volume->getName()+"_mtl",prgm,{(component_data->volume)});
+
+			m_volume_pass.addRenderJob(RenderJob(component_data->entity,mtl.get(),component_data->boundingGeometry.get()));
+		}
+		else
+		{
+			// TODO design new way to create materials s.t. GPU doesn't do an IO
+
+			std::shared_ptr<GLSLProgram> prgm = m_resource_mngr->createShaderProgram({"../resources/shaders/volRen_v.glsl","../resources/shaders/volRen_f.glsl"});
+			std::shared_ptr<Texture> volume = m_resource_mngr->createTexture3D(component_data->volume_path,
+																				component_data->volume_description.internal_format,
+																				component_data->volume_description.width,
+																				component_data->volume_description.height,
+																				component_data->volume_description.depth,
+																				component_data->volume_description.format,
+																				component_data->volume_description.type,
+																				component_data->volume_data.data());
+			(reinterpret_cast<Texture3D*>(volume.get()))->texParameteri<std::vector<std::pair<GLenum,GLenum>>>({std::pair<GLenum,GLenum>(GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE),
+																												std::pair<GLenum,GLenum>(GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE),
+																												std::pair<GLenum,GLenum>(GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE),
+																												std::pair<GLenum,GLenum>(GL_TEXTURE_MAG_FILTER, GL_NEAREST),
+																												std::pair<GLenum,GLenum>(GL_TEXTURE_MIN_FILTER, GL_NEAREST)});
+
+			std::shared_ptr<Material> mtl = m_resource_mngr->createMaterial(component_data->volume_path+"_mtl",prgm,{volume});
+
+			std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->boundingGeometry_path,
+																		component_data->vertex_data,
+																		component_data->index_data,
+																		component_data->vertex_description,
+																		component_data->mesh_type );
+
+			//std::shared_ptr<Mesh> mesh = m_resource_mngr->createBox();
+
+			m_volume_pass.addRenderJob(RenderJob(component_data->entity,mtl.get(),mesh.get()));
+		}
+	}
+}
+
+void DeferredRenderingPipeline::registerInterfaceMeshComponents()
+{
+	// Access interface mesh components
+	auto& interfaceMesh_data = m_interfaceMesh_mngr->getData();
+	auto& interfaceMesh_queue = m_interfaceMesh_mngr->getComponentsQueue();
+
+	// Check for newly added components
+	while ( !interfaceMesh_queue.empty() )
+	{
+		auto idx = interfaceMesh_queue.pop();
+
+		InterfaceMeshComponentManager::Data* component_data = &interfaceMesh_data[idx];
+
 		std::shared_ptr<Material> material = m_resource_mngr->createMaterial(component_data->material_path);
 		//std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path);
 		std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path,
@@ -460,7 +734,54 @@ void DeferredRenderingPipeline::registerStaticMeshComponents()
 										component_data->mesh_type );
 
 
-		m_staticMeshes_pass.addRenderJob(RenderJob(component_data->entity,material,mesh));
+		m_interface_pass.addRenderJob(RenderJob(component_data->entity,material.get(),mesh.get()));
+	}
+
+	auto& update_queue = m_interfaceMesh_mngr->m_updated_components_queue;
+
+	// Check for updated components
+	while ( !update_queue.empty() )
+	{
+		auto idx = update_queue.pop();
+
+		InterfaceMeshComponentManager::Data* component_data = &interfaceMesh_data[idx];
+
+		//std::shared_ptr<Material> material = m_resource_mngr->createMaterial(component_data->material_path);
+		//std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path);
+		m_resource_mngr->updateMesh(component_data->mesh_path,
+										component_data->vertex_data,
+										component_data->index_data,
+										component_data->vertex_description,
+										component_data->mesh_type );
+
+
+		//m_interface_pass.addRenderJob(RenderJob(component_data->entity,material,mesh));
+	}
+}
+
+void DeferredRenderingPipeline::registerSelectableCompontens()
+{
+	// Access select components
+	auto& select_data = m_select_mngr->getData();
+	auto& select_queue = m_select_mngr->getComponentsQueue();
+
+	// Check for newly added components
+	while ( !select_queue.empty() )
+	{
+		auto idx = select_queue.pop();
+
+		SelectComponentManager::Data* component_data = &select_data[idx];
+
+		std::shared_ptr<Material> material = m_resource_mngr->createMaterial(component_data->material_path);
+		//std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path);
+		std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path,
+										component_data->vertex_data,
+										component_data->index_data,
+										component_data->vertex_description,
+										component_data->mesh_type );
+
+
+		m_picking_pass.addRenderJob(RenderJob(component_data->entity,material.get(),mesh.get()));
 	}
 }
 

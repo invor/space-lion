@@ -1,8 +1,13 @@
 #ifndef DeferredRenderingPipeline_h
 #define DeferredRenderingPipeline_h
 
+#include <functional>
+
 #include "AtmosphereComponent.hpp"
 #include "StaticMeshComponent.hpp"
+#include "VolumeComponent.hpp"
+#include "InterfaceMeshComponent.hpp"
+#include "SelectComponent.hpp"
 #include "RenderJobs.hpp"
 #include "ResourceManager.h"
 #include "MTQueue.hpp"
@@ -41,8 +46,27 @@ private:
 	/** Render jobs for all visible objects in the scene with opaque surface. */
 	RenderJobManager m_staticMeshes_pass;
 
+	/** Render jobs for simple volumetric objects */
+	RenderJobManager m_volume_pass;
+
 	/** Render jobs for all translucent objects in the scene. */
 	RenderJobManager m_orderIndependentTransparency_pass;
+
+	/** Render jobs for a seperate (optional) picking pass */
+	RenderJobManager m_picking_pass;
+
+	/** Render jobs for interface related objects, i.e. move-gizmo in editor mode */
+	RenderJobManager m_interface_pass;
+
+	/** Thread-safe queue for tasks that have to executed on the render thread, but only a single time */
+	MTQueue<std::function<void()>> m_singleExecution_tasks;
+
+	/** The g-Buffer used by the rendering pipeline */
+	std::unique_ptr<FramebufferObject> m_gBuffer;
+
+	/** Framebuffer used for atmosphereic entities */
+	std::unique_ptr<FramebufferObject> m_atmosphere_fbo;
+
 
 	/** Fullscreen quad mesh for deferred rendering passes */
 	std::shared_ptr<Mesh> m_fullscreenQuad;
@@ -51,9 +75,7 @@ private:
 
 	std::shared_ptr<Mesh> m_atmosphere_boundingSphere;
 
-	/*
-	 * Resources for order independent transparency rendering
-	 */
+	/* Resources for order independent transparency rendering */
 	std::shared_ptr<ShaderStorageBufferObject> m_oit_headBuffer;
 	std::shared_ptr<ShaderStorageBufferObject> m_oit_sampleBuffer;
 	GLuint m_oit_counterBuffer;
@@ -63,9 +85,6 @@ private:
 
 	Entity m_active_camera;
 	std::vector<Entity> m_active_lightsources;
-
-	/** Thread-safe queue used to request new render jobs */
-	MTQueue<RenderJobRequest> m_renderJobRequest_queue;
 
 	/**************************************************************************
 	 * Pointers to relevant modules of the engine,
@@ -79,35 +98,49 @@ private:
 	SunlightComponentManager* m_sunlight_mngr;
 	AtmosphereComponentManager* m_atmosphere_mngr;
 	StaticMeshComponentManager* m_staticMesh_mngr;
+	VolumeComponentManager* m_volume_mngr;
+	InterfaceMeshComponentManager* m_interfaceMesh_mngr;
+	SelectComponentManager* m_select_mngr;
+	
 
-	/** Gather necessary resources and add actual RenderJobs from requests. DEPRECATED */
-	void processRenderJobRequest();
-
-	/** Check StaticMeshComponentsManager for newly added components and add actual render jobs. */
+	/** Check StaticMeshComponentManager for newly added components and add actual render jobs */
 	void registerStaticMeshComponents();
+
+	/** Check VolumetricComponentManager for newly added volume and actual render jobs */
+	void registerVolumetricComponents();
+
+	/** Check InterfaceMeshComponentManager for newly added components and add actual render jobs */
+	void registerInterfaceMeshComponents();
+
+	/** Check SelectableComponentManager for newly added components and add actual render jobs */
+	void registerSelectableCompontens();
 
 	/** Check PointLightComponentManager for newly added components and add to active light source list */
 	void registerLightComponents();
 
-	/**
-	 * Render objects with transparency
-	 */
+	/** Render objects with transparency */
 	void orderIndependentTransparencyPass();
 
-	/**
-	 * Render solid geometry to framebuffer
-	 */
+	/** Render solid geometry to framebuffer */
 	void geometryPass();
 
-	/**
-	 * Render atmospheres
-	 */
+	/** Render volumes */
+	void volumePass();
+
+	/** Render atmospheres */
 	void atmospherePass();
 
-	/**
-	 * Compute scene lighting
-	 */
+	/** Compute scene lighting */
 	void lightingPass();
+
+	/** Render interface objects */
+	void interfacePass();
+
+	/** Do a picking pass */
+	void pickingPass();
+
+	/** Process single execution task queue */
+	void processSingleExecTasks();
 
 	/**
 	 * TODO
@@ -131,18 +164,20 @@ public:
 							PointlightComponentManager* light_mngr,
 							SunlightComponentManager* sunlight_mngr,
 							AtmosphereComponentManager* atmosphere_mngr,
-							StaticMeshComponentManager* staticMesh_mngr);
+							StaticMeshComponentManager* staticMesh_mngr,
+							VolumeComponentManager* volume_mngr,
+							InterfaceMeshComponentManager* interfaceMesh_mngr);
 
 	~DeferredRenderingPipeline();
 
-	/* Deprecated */
-	void requestRenderJob(const RenderJobRequest& new_request);
-	/* Deprecated */
-	void addLightsource(Entity entity);
+	/** Start and run rendering pipeline. Returns only after rendering window is closed. */
+	void run();
+
+	/** Add a task to the render pipeline that only has to be executed once */
+	void addSingleExecutionGpuTask(std::function<void()> task);
 
 	void setActiveCamera(Entity entity);
 
-	void run();
 };
 
 #endif

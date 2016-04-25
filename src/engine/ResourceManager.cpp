@@ -249,7 +249,6 @@ std::shared_ptr<Mesh> ResourceManager::createMesh(const std::string& name,
 	for(GLuint i=0; i<vertex_description.attributes.size(); i++)
 	{
 		VertexDescriptor::Attribute attrib = vertex_description.attributes[i];
-		std::cout<<i<<","<<attrib.size<<","<<attrib.type<<","<<attrib.normalized<<","<<vertex_description.byte_size<<","<<(GLvoid*)attrib.offset<<std::endl;
 		mesh->setVertexAttribPointer(i,attrib.size,attrib.type,attrib.normalized,vertex_description.byte_size,(GLvoid*)attrib.offset);
 	}
 
@@ -258,10 +257,32 @@ std::shared_ptr<Mesh> ResourceManager::createMesh(const std::string& name,
 	return geometry_list.back();
 }
 
-std::shared_ptr<Material> ResourceManager::createMaterial(const std::string path)
+void ResourceManager::updateMesh(const std::string& name, const std::vector<uint8_t>& vertex_data,
+										const std::vector<uint32_t>& index_data,
+										VertexDescriptor& vertex_description,
+										GLenum mesh_type )
+{
+	for(auto& mesh : geometry_list)
+	{
+		if(mesh->getName() == name)
+		{
+			mesh->bufferDataFromArray(vertex_data,index_data,mesh_type);
+
+			for(GLuint i=0; i<vertex_description.attributes.size(); i++)
+			{
+				VertexDescriptor::Attribute attrib = vertex_description.attributes[i];
+				mesh->setVertexAttribPointer(i,attrib.size,attrib.type,attrib.normalized,vertex_description.byte_size,(GLvoid*)attrib.offset);
+			}
+
+			return;
+		}
+	}
+}
+
+std::shared_ptr<Material> ResourceManager::createMaterial(const std::string& path)
 {
 	// copys a struct around by values, but hell it's easer to read for now
-	SurfaceMaterialInfo inOutMtlInfo = parseMaterial(path);
+	MaterialInfo mtl_info = parseMaterial(path);
 
 	for(auto& material : material_list)
 	{
@@ -269,38 +290,60 @@ std::shared_ptr<Material> ResourceManager::createMaterial(const std::string path
 			return material;
 	}
 
-	std::vector<std::string> shader_paths;
+	std::shared_ptr<GLSLProgram> prgPtr = createShaderProgram(mtl_info.shader_filepaths);
 
-	if(inOutMtlInfo.vs_path.empty() || inOutMtlInfo.fs_path.empty())
-	{
-		//Error
-	}
-	shader_paths.push_back(inOutMtlInfo.vs_path);
-	shader_paths.push_back(inOutMtlInfo.fs_path);
+	std::vector<std::shared_ptr<Texture>> textures;
 
-	if( !inOutMtlInfo.tessCtrl_path.empty() && inOutMtlInfo.tessEval_path.empty() )
+	for(auto& texture_filepath : mtl_info.texture_filepaths)
 	{
-		shader_paths.push_back(inOutMtlInfo.tessCtrl_path);
-		shader_paths.push_back(inOutMtlInfo.tessEval_path);
+		textures.push_back(createTexture2D(texture_filepath));
 	}
 
-
-	std::shared_ptr<GLSLProgram> prgPtr = createShaderProgram(shader_paths);
-
-	std::shared_ptr<Texture> texPtr1 = createTexture2D(inOutMtlInfo.diff_path);
-	std::shared_ptr<Texture> texPtr2 = createTexture2D(inOutMtlInfo.spec_path);
-	std::shared_ptr<Texture> texPtr3 = createTexture2D(inOutMtlInfo.roughness_path);
-	std::shared_ptr<Texture> texPtr4 = createTexture2D(inOutMtlInfo.normal_path);
-
-
-	std::shared_ptr<Material> material(new SurfaceMaterial(path,prgPtr,texPtr1,texPtr2,texPtr3,texPtr4));
+	std::shared_ptr<Material> material(new Material(path,prgPtr,textures));
 	material_list.push_back(std::move(material));
 
-	prgPtr.reset();
-	texPtr1.reset();
-	texPtr2.reset();
-	texPtr3.reset();
-	texPtr4.reset();
+	return material_list.back();
+}
+
+std::shared_ptr<Material> ResourceManager::createMaterial(const std::string& name,
+															const std::vector<std::string>& shader_filepaths,
+															const std::vector<std::string>& texture_filepaths)
+{
+	// TODO better handling of what to do when name already in use
+	for(auto& material : material_list)
+	{
+		if(material->getName() == name)
+			return material;
+	}
+
+	std::shared_ptr<GLSLProgram> prgPtr = createShaderProgram(shader_filepaths);
+
+	std::vector<std::shared_ptr<Texture>> textures;
+
+	for(auto& texture_filepath : texture_filepaths)
+	{
+		textures.push_back(createTexture2D(texture_filepath));
+	}
+
+	std::shared_ptr<Material> material(new Material(name,prgPtr,textures));
+	material_list.push_back(std::move(material));
+
+	return material_list.back();
+}
+
+std::shared_ptr<Material> ResourceManager::createMaterial(const std::string& name,
+												const std::shared_ptr<GLSLProgram> shader_prgm,
+												const std::vector<std::shared_ptr<Texture>>& textures)
+{
+	// TODO better handling of what to do when name already in use
+	for(auto& material : material_list)
+	{
+		if(material->getName() == name)
+			return material;
+	}
+
+	std::shared_ptr<Material> material(new Material(name,shader_prgm,textures));
+	material_list.push_back(std::move(material));
 
 	return material_list.back();
 }
@@ -318,6 +361,7 @@ std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(const std::vec
 	std::string vertex_src;
 	std::string tessellationControl_src;
 	std::string tessellationEvaluation_src;
+	std::string geometry_src;
 	std::string fragment_src;
 	std::string compute_src;
 
@@ -331,6 +375,9 @@ std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(const std::vec
 		fragment_src = readShaderFile(paths[1].c_str());
 		break;
 	case 3: // vertex+geom+fragement shader (currently not supported!)
+		vertex_src = readShaderFile(paths[0].c_str());
+		fragment_src = readShaderFile(paths[1].c_str());
+		geometry_src = readShaderFile(paths[2].c_str());
 		break;
 	case 4: // vertex+tessControl+tessEval+fragment shader
 		vertex_src = readShaderFile(paths[0].c_str());
@@ -385,6 +432,7 @@ std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(const std::vec
 
 	param_idx = 0;
 
+
 	// And scan fragment shader for output parameters
 	if(!fragment_src.empty())
 	{
@@ -418,7 +466,7 @@ std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(const std::vec
 						buffer.erase(buffer.end()-1);
 						shaderPrg->bindFragDataLocation(param_idx++,buffer.c_str());
 
-						std::cout<<"Output parameter name: "<<buffer<<std::endl;
+						//std::cout<<"Output parameter name: "<<buffer<<std::endl;
 					}
 				}
 			}
@@ -432,6 +480,161 @@ std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(const std::vec
 		if(!shaderPrg->compileShaderFromString(&vertex_src,GL_VERTEX_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
 	if(!fragment_src.empty())
 		if(!shaderPrg->compileShaderFromString(&fragment_src,GL_FRAGMENT_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
+	if(!geometry_src.empty())
+		if(!shaderPrg->compileShaderFromString(&geometry_src,GL_GEOMETRY_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
+	if(!tessellationControl_src.empty())
+		if(!shaderPrg->compileShaderFromString(&tessellationControl_src,GL_TESS_CONTROL_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
+	if(!tessellationEvaluation_src.empty())
+		if(!shaderPrg->compileShaderFromString(&tessellationEvaluation_src,GL_TESS_EVALUATION_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
+	/*
+	*	THIS SEEM TO BE OUTDATED IF IT WAS EVER TRUE
+	*	A non-empty compute source string should only happen if all other sources are empty strings.
+	*	I won't check for this though, assuming that nobody - i.e. me - fucked up a compute shader case above.
+	*/
+	if(!compute_src.empty())
+		if(!shaderPrg->compileShaderFromString(&compute_src,GL_COMPUTE_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
+
+	if(!shaderPrg->link()){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
+
+	shader_program_list.push_back(std::move(shaderPrg));
+
+	return shader_program_list.back();
+}
+
+std::shared_ptr<GLSLProgram> ResourceManager::createShaderProgram(const std::vector<std::string>& paths, const std::string& defines)
+{
+	std::shared_ptr<GLSLProgram> shaderPrg(new GLSLProgram());
+	shaderPrg->init();
+
+	std::string vertex_src;
+	std::string tessellationControl_src;
+	std::string tessellationEvaluation_src;
+	std::string geometry_src;
+	std::string fragment_src;
+	std::string compute_src;
+
+	size_t search;
+
+	switch (paths.size())
+	{
+	case 1: // compute shader
+		compute_src = readShaderFile(paths[0].c_str());
+		search = compute_src.find("\n");
+		search += 2;
+		compute_src.insert(search,defines);
+		break;
+	case 2: // vertex+fragement shader
+		vertex_src = readShaderFile(paths[0].c_str());
+		fragment_src = readShaderFile(paths[1].c_str());
+		break;
+	case 3: // vertex+geom+fragement shader (currently not supported!)
+		vertex_src = readShaderFile(paths[0].c_str());
+		fragment_src = readShaderFile(paths[1].c_str());
+		geometry_src = readShaderFile(paths[2].c_str());
+		break;
+	case 4: // vertex+tessControl+tessEval+fragment shader
+		vertex_src = readShaderFile(paths[0].c_str());
+		fragment_src = readShaderFile(paths[1].c_str());
+
+		tessellationControl_src = readShaderFile(paths[2].c_str());
+		tessellationEvaluation_src = readShaderFile(paths[3].c_str());
+		break;
+	case 5: // vert+tessCont+tessEval+geom+frag ?
+		break;
+	default:
+		break;
+	}
+
+	// Scan vertex shader for input parameters
+	unsigned int param_idx = 0;
+	std::string line;
+	std::ifstream file;
+	
+	if(!vertex_src.empty())
+	{
+		file.open(paths[0], std::ios::in);
+
+		if( file.is_open())
+		{
+			file.seekg(0, std::ios::beg);
+
+			while(!file.eof())
+			{
+				getline(file,line,'\n');
+
+				std::stringstream ss(line);
+				std::string buffer;
+
+				ss >> buffer;
+
+				if(std::strcmp("in",buffer.c_str()) == 0)
+				{
+					ss >> buffer; // this should be the data type
+					ss >> buffer; // this should be the variable name
+					
+					buffer.erase(buffer.end()-1);
+					shaderPrg->bindAttribLocation(param_idx++,buffer.c_str());
+
+					std::cout<<"Input parameter name: "<<buffer<<std::endl;
+				}
+			}
+
+			file.close();
+		}
+	}
+
+	param_idx = 0;
+
+
+	// And scan fragment shader for output parameters
+	if(!fragment_src.empty())
+	{
+		file.open(paths[1], std::ios::in);
+
+		if( file.is_open())
+		{
+			file.seekg(0, std::ios::beg);
+
+			while(!file.eof())
+			{
+				getline(file,line,'\n');
+
+				std::stringstream ss(line);
+				std::string buffer;
+
+				ss >> buffer;
+
+				if(std::strcmp("layout",buffer.c_str()) == 0)
+				{
+					while(std::strcmp("out",buffer.c_str()) != 0 && !ss.eof())
+					{
+						ss >> buffer;
+					}
+
+					if(!ss.eof())
+					{
+						ss >> buffer; // this should be the data type
+						ss >> buffer; // this should be the variable name
+						
+						buffer.erase(buffer.end()-1);
+						shaderPrg->bindFragDataLocation(param_idx++,buffer.c_str());
+
+						//std::cout<<"Output parameter name: "<<buffer<<std::endl;
+					}
+				}
+			}
+
+			file.close();
+		}
+	}
+
+
+	if(!vertex_src.empty())
+		if(!shaderPrg->compileShaderFromString(&vertex_src,GL_VERTEX_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
+	if(!fragment_src.empty())
+		if(!shaderPrg->compileShaderFromString(&fragment_src,GL_FRAGMENT_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
+	if(!geometry_src.empty())
+		if(!shaderPrg->compileShaderFromString(&geometry_src,GL_GEOMETRY_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
 	if(!tessellationControl_src.empty())
 		if(!shaderPrg->compileShaderFromString(&tessellationControl_src,GL_TESS_CONTROL_SHADER)){ std::cout<<shaderPrg->getLog(); /*TODO more error handling*/}
 	if(!tessellationEvaluation_src.empty())
@@ -485,7 +688,7 @@ std::shared_ptr<Texture2D> ResourceManager::createTexture2D(const std::string pa
 	int imgDimX;
 	int imgDimY;
 
-	if(!readPpmHeader(path.c_str(),dataBegin,imgDimX,imgDimY)) return false;
+	if(!readPpmHeader(path.c_str(),dataBegin,imgDimX,imgDimY)) return false; // TODO return false is obsolete
 	imageData = new char[3*imgDimX*imgDimY];
 	if(!readPpmData(path.c_str(),imageData,dataBegin,imgDimX,imgDimY)) return false;
 
@@ -645,14 +848,17 @@ void ResourceManager::loadFbxGeometry(const std::string &path,
 		}
 		if (s.features & FBX::Geometry::NORMAL && locations.ndx_normal >= 0) {
 			vertex_description.attributes.push_back(VertexDescriptor::Attribute(GL_FLOAT,3,GL_FALSE,s.offset_normal));
+			std::cout<<"Normal offset: "<<s.offset_normal<<std::endl;
 		}
 		if (s.features & FBX::Geometry::TANGENT && locations.ndx_tangent >= 0) {
 			vertex_description.attributes.push_back(VertexDescriptor::Attribute(GL_FLOAT,3,GL_FALSE,s.offset_tangent));
+			std::cout<<"Tangent offset: "<<s.offset_tangent<<std::endl;
 		}
 		if (s.features & FBX::Geometry::COLOR && locations.ndx_color >= 0) {
 			vertex_description.attributes.push_back(VertexDescriptor::Attribute(GL_UNSIGNED_BYTE,4,GL_TRUE,s.offset_color));
 			// no static color support in Mesh
 			// ndx_static_color = -1;
+			std::cout<<"Color offset: "<<s.offset_color<<std::endl;
 		}
 		else {
 			// no static color support in Mesh
@@ -744,12 +950,18 @@ std::shared_ptr<Mesh> ResourceManager::loadBinaryGeometry(const std::string &pat
 	return std::move(mesh);
 }
 
-SurfaceMaterialInfo ResourceManager::parseMaterial(const std::string materialPath)
+MaterialInfo ResourceManager::parseMaterial(const std::string& material_path)
 {
 	std::ifstream file;
-	file.open(materialPath, std::ifstream::in);
+	file.open(material_path, std::ifstream::in);
 
-	SurfaceMaterialInfo mat_info;
+	MaterialInfo mtl_info;
+
+	std::string vs_path;
+	std::string fs_path;
+	std::string gs_path;
+	std::string tessCtrl_path;
+	std::string tessEval_path;
 
 	if( file.is_open() )
 	{
@@ -763,30 +975,53 @@ SurfaceMaterialInfo ResourceManager::parseMaterial(const std::string materialPat
 
 			std::stringstream ss(line);
 			std::string buffer;
+			std::string texture_path;
 
 			ss >> buffer;
 
 			if(std::strcmp("vs",buffer.c_str()) == 0)
-				ss >> mat_info.vs_path;
+				 ss >> vs_path;
 			else if(std::strcmp("fs",buffer.c_str()) == 0)
-				ss >> mat_info.fs_path;
+				ss >> fs_path;
+			else if(std::strcmp("gs",buffer.c_str()) == 0)
+				ss >> gs_path;
 			else if(std::strcmp("tc",buffer.c_str()) == 0)
-				ss >> mat_info.tessCtrl_path;
+				ss >> tessCtrl_path;
 			else if(std::strcmp("te",buffer.c_str()) == 0)
-				ss >> mat_info.tessEval_path;
+				ss >> tessEval_path;
 			else if(std::strcmp("td",buffer.c_str()) == 0)
-				ss >> mat_info.diff_path;
+				ss >> texture_path;
 			else if(std::strcmp("ts",buffer.c_str()) == 0)
-				ss >> mat_info.spec_path;
+				ss >> texture_path;
 			else if(std::strcmp("tr",buffer.c_str()) == 0)
-				ss >> mat_info.roughness_path;
+				ss >> texture_path;
 			else if(std::strcmp("tn",buffer.c_str()) == 0)
-				ss >> mat_info.normal_path;
+				ss >> texture_path;
+
+			if(!texture_path.empty())
+				mtl_info.texture_filepaths.push_back(texture_path);
+		}
+
+		if( !vs_path.empty() && !fs_path.empty())
+		{
+			mtl_info.shader_filepaths.push_back(vs_path);
+			mtl_info.shader_filepaths.push_back(fs_path);
+		}
+
+		if( !gs_path.empty() )
+		{
+			mtl_info.shader_filepaths.push_back(gs_path);
+		}
+
+		if( !tessCtrl_path.empty() && tessEval_path.empty() )
+		{
+			mtl_info.shader_filepaths.push_back(tessCtrl_path);
+			mtl_info.shader_filepaths.push_back(tessEval_path);
 		}
 
 	}
 
-	return mat_info;
+	return mtl_info;
 }
 
 const std::string ResourceManager::readShaderFile(const char* const path)

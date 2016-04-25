@@ -12,7 +12,7 @@ void RenderJobManager::addRenderJob(RenderJob new_job)
 {
 	for(auto& shader_node : m_root.shaders)
 	{
-		if(shader_node.shader_prgm == new_job.material->getShaderProgram())
+		if(shader_node.shader_prgm == new_job.material->getShaderProgram().get())
 		{
 
 			for(auto& material_node : shader_node.materials)
@@ -62,7 +62,7 @@ void RenderJobManager::addRenderJob(RenderJob new_job)
 	/* At this point in the method call, the shader seems not to be in use yet. We add it. */
 	m_root.shaders.push_back(ShaderNode());
 	auto& new_shader_node = m_root.shaders.back();
-	new_shader_node.shader_prgm = new_job.material->getShaderProgram();
+	new_shader_node.shader_prgm = new_job.material->getShaderProgram().get();
 	new_shader_node.materials.push_back(MaterialNode());
 	auto& new_material_node = new_shader_node.materials.back();
 	new_material_node.material = new_job.material;

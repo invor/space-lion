@@ -5,7 +5,12 @@ namespace Controls
 	/* Hidden namespace to store some control related variables and functions */
 	namespace
 	{
+
+#ifdef EDITOR_MODE
+		ControlState current_state = EDITOR;
+#else
 		ControlState current_state = CAMERA;
+#endif
 
 		Entity* _active_camera;
 		TransformComponentManager* _transform_mngr;
@@ -38,10 +43,59 @@ namespace Controls
 
 		void cameraKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
-
 			if(key == GLFW_KEY_ESCAPE)
 			{
 				glfwSetWindowShouldClose(window,true);
+			}
+		}
+
+		/*
+		 * Mouse and keyboard callbacks for very simple editor controls
+		 */
+		void editorCursorPosCallback(GLFWwindow* window, double xpos, double ypos)
+		{
+			if( glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+			{
+				double dx = xpos - last_xpos;
+				double dy = ypos - last_ypos;
+
+				//std::cout<<"Mouse dx: "<<dx<<" dy: "<<dy<<std::endl;
+
+				last_xpos = xpos;
+				last_ypos = ypos;
+
+				uint idx = _transform_mngr->getIndex(*_active_camera);
+				Quat orientation = _transform_mngr->getOrientation(idx);
+				Vec3 worldUp = glm::rotate(glm::conjugate(orientation),Vec3(0.0,1.0,0.0));
+				_transform_mngr->rotate(idx,glm::rotate(Quat(),-0.001f*(float)dx,worldUp));
+				_transform_mngr->rotate(idx,glm::rotate(Quat(),-0.001f*(float)dy,Vec3(1.0,0.0,0.0)));
+			}
+		}
+
+		void editorMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+		{
+			if( button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+				glfwGetCursorPos(window,&last_xpos,&last_ypos);
+		}
+
+		void editorKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+		{
+			switch (key)
+			{
+			case GLFW_KEY_ESCAPE:
+				glfwSetWindowShouldClose(window,true);
+				break;
+			case GLFW_KEY_W:
+				//TODO select move tool
+				break;
+			case GLFW_KEY_E:
+				//TODO select rotate tool
+				break;
+			case GLFW_KEY_R:
+				//TODO select scale tool
+				break;
+			default:
+				break;
 			}
 		}
 	}
@@ -92,6 +146,11 @@ namespace Controls
 				glfwSetCursorPosCallback(active_window,cameraCursorPosCallback);
 				glfwSetMouseButtonCallback(active_window,cameraMouseButtonCallback);
 				glfwSetKeyCallback(active_window,cameraKeyCallback);
+				break;
+			case EDITOR:
+				glfwSetCursorPosCallback(active_window,editorCursorPosCallback);
+				glfwSetMouseButtonCallback(active_window,editorMouseButtonCallback);
+				glfwSetKeyCallback(active_window,editorKeyCallback);
 				break;
 		default:
 			break;

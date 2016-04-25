@@ -40,7 +40,21 @@ void AdvancedDeferredRenderingPipeline::geometryPass()
 
 		for(auto& material : shader.materials)
 		{
-			material.material->use();
+			glActiveTexture(GL_TEXTURE0);
+			shader.shader_prgm->setUniform("diffuse_tx2D",0);
+			material.material->getTextures()[0]->bindTexture();
+
+			glActiveTexture(GL_TEXTURE1);
+			shader.shader_prgm->setUniform("specular_tx2D",1);
+			material.material->getTextures()[1]->bindTexture();
+
+			glActiveTexture(GL_TEXTURE2);
+			shader.shader_prgm->setUniform("roughness_tx2D",2);
+			material.material->getTextures()[2]->bindTexture();
+
+			glActiveTexture(GL_TEXTURE3);
+			shader.shader_prgm->setUniform("normal_tx2D",3);
+			material.material->getTextures()[3]->bindTexture();
 
 			for(auto& mesh : material.meshes)
 			{
@@ -262,7 +276,7 @@ void AdvancedDeferredRenderingPipeline::processRenderJobRequest()
 		std::shared_ptr<Material> material = m_resource_mngr.createMaterial(new_jobRequest.material_path);
 		std::shared_ptr<Mesh> mesh = m_resource_mngr.createMesh(new_jobRequest.mesh_path);
 
-		m_geometry_pass.addRenderJob(RenderJob(new_jobRequest.entity,material,mesh));
+		m_geometry_pass.addRenderJob(RenderJob(new_jobRequest.entity,material.get(),mesh.get()));
 	}
 }
 

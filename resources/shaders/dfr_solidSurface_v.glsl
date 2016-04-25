@@ -14,8 +14,8 @@ uniform mat4 projection_matrix;
 in vec3 v_position;
 in vec3 v_normal;
 in vec3 v_tangent;
-in vec3 v_bitangent;
 in vec4 v_colour;
+in vec3 v_bitangent;
 in vec2 v_uvCoord;
 
 out vec3 position;
@@ -23,7 +23,7 @@ out vec2 uvCoord;
 out mat3 tangent_space_matrix;
 
 void main()
-{
+{   
 	/*	Construct matrices that use the model matrix*/
 	mat3 normal_matrix = transpose(inverse(mat3(model_view_matrix[gl_InstanceID])));
 

@@ -128,6 +128,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)\include;$(SolutionDir)\..\..\glowl\include\glowl</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>EDITOR_MODE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -148,7 +149,6 @@
     <ClInclude Include="..\..\src\engine\AdvancedDeferredRenderingPipeline.hpp" />
     <ClInclude Include="..\..\src\engine\AirplanePhysicsComponent.hpp" />
     <ClInclude Include="..\..\src\engine\AtmosphereComponent.hpp" />
-    <ClInclude Include="..\..\src\engine\AtmosphereMaterial.hpp" />
     <ClInclude Include="..\..\src\engine\CameraComponent.hpp" />
     <ClInclude Include="..\..\src\engine\Controls.hpp" />
     <ClInclude Include="..\..\src\engine\DeferredRenderingPipeline.hpp" />
@@ -166,20 +166,23 @@
     <ClInclude Include="..\..\src\engine\fbx\fbx_types.hpp" />
     <ClInclude Include="..\..\src\engine\fbx\fbx_unzip.hpp" />
     <ClInclude Include="..\..\src\engine\fbx\fbx_value.hpp" />
+    <ClInclude Include="..\..\src\engine\InterfaceMeshComponent.hpp" />
+    <ClInclude Include="..\..\src\engine\MarchingCubesTriangleTable.hpp" />
     <ClInclude Include="..\..\src\engine\PointlightComponent.hpp" />
     <ClInclude Include="..\..\src\engine\Material.hpp" />
     <ClInclude Include="..\..\src\engine\SelectComponent.hpp" />
     <ClInclude Include="..\..\src\engine\SunlightComponent.hpp" />
     <ClInclude Include="..\..\src\engine\StaticMeshComponent.hpp" />
-    <ClInclude Include="..\..\src\engine\SurfaceMaterial.hpp" />
     <ClInclude Include="..\..\src\engine\MTQueue.hpp" />
     <ClInclude Include="..\..\src\engine\RenderingPipeline.hpp" />
     <ClInclude Include="..\..\src\engine\RenderJobs.hpp" />
     <ClInclude Include="..\..\src\engine\ResourceManager.h" />
     <ClInclude Include="..\..\src\engine\Terrain.hpp" />
     <ClInclude Include="..\..\src\engine\TransformComponent.hpp" />
+    <ClInclude Include="..\..\src\engine\TransformTool.hpp" />
     <ClInclude Include="..\..\src\engine\types.hpp" />
     <ClInclude Include="..\..\src\engine\vertexStructs.h" />
+    <ClInclude Include="..\..\src\engine\VolumeComponent.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\glowl\src\framebufferObject.cpp" />
@@ -191,7 +194,6 @@
     <ClCompile Include="..\..\src\engine\AdvancedDeferredRenderingPipeline.cpp" />
     <ClCompile Include="..\..\src\engine\AirplanePhysicsComponent.cpp" />
     <ClCompile Include="..\..\src\engine\AtmosphereComponent.cpp" />
-    <ClCompile Include="..\..\src\engine\AtmosphereMaterial.cpp" />
     <ClCompile Include="..\..\src\engine\CameraComponent.cpp" />
     <ClCompile Include="..\..\src\engine\Controls.cpp" />
     <ClCompile Include="..\..\src\engine\DeferredRenderingPipeline.cpp" />
@@ -205,15 +207,53 @@
     <ClCompile Include="..\..\src\engine\fbx\fbx_reader.cpp" />
     <ClCompile Include="..\..\src\engine\fbx\fbx_unzip.cpp" />
     <ClCompile Include="..\..\src\engine\fbx\fbx_value.cpp" />
+    <ClCompile Include="..\..\src\engine\InterfaceMeshComponent.cpp" />
     <ClCompile Include="..\..\src\engine\PointlightComponent.cpp" />
     <ClCompile Include="..\..\src\engine\main.cpp" />
     <ClCompile Include="..\..\src\engine\SunlightComponent.cpp" />
     <ClCompile Include="..\..\src\engine\StaticMeshComponent.cpp" />
-    <ClCompile Include="..\..\src\engine\SurfaceMaterial.cpp" />
     <ClCompile Include="..\..\src\engine\RenderingPipeline.cpp" />
     <ClCompile Include="..\..\src\engine\RenderJobs.cpp" />
     <ClCompile Include="..\..\src\engine\ResourceManager.cpp" />
+    <ClCompile Include="..\..\src\engine\Terrain.cpp" />
     <ClCompile Include="..\..\src\engine\TransformComponent.cpp" />
+    <ClCompile Include="..\..\src\engine\TransformTool.cpp" />
+    <ClCompile Include="..\..\src\engine\VolumeComponent.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\resources\shaders\adfr_lighting_f.glsl" />
+    <None Include="..\..\resources\shaders\adfr_solidSurface_f.glsl" />
+    <None Include="..\..\resources\shaders\atmosphere_f.glsl" />
+    <None Include="..\..\resources\shaders\atmosphere_v.glsl" />
+    <None Include="..\..\resources\shaders\buildGuidanceField_c.glsl" />
+    <None Include="..\..\resources\shaders\dfr_lighting_f.glsl" />
+    <None Include="..\..\resources\shaders\dfr_solidSurface_f.glsl" />
+    <None Include="..\..\resources\shaders\dfr_solidSurface_v.glsl" />
+    <None Include="..\..\resources\shaders\flat_f.glsl" />
+    <None Include="..\..\resources\shaders\flat_v.glsl" />
+    <None Include="..\..\resources\shaders\fxaa_f.glsl" />
+    <None Include="..\..\resources\shaders\genericPostProc_v.glsl" />
+    <None Include="..\..\resources\shaders\gradient_f.glsl" />
+    <None Include="..\..\resources\shaders\hesse_f.glsl" />
+    <None Include="..\..\resources\shaders\idle_f.glsl" />
+    <None Include="..\..\resources\shaders\inscatter_single_c.glsl" />
+    <None Include="..\..\resources\shaders\interface_curve_f.glsl" />
+    <None Include="..\..\resources\shaders\interface_curve_g.glsl" />
+    <None Include="..\..\resources\shaders\interface_curve_v.glsl" />
+    <None Include="..\..\resources\shaders\interface_cv_f.glsl" />
+    <None Include="..\..\resources\shaders\interface_cv_v.glsl" />
+    <None Include="..\..\resources\shaders\irradiance_single_c.glsl" />
+    <None Include="..\..\resources\shaders\phong_f.glsl" />
+    <None Include="..\..\resources\shaders\phong_v.glsl" />
+    <None Include="..\..\resources\shaders\propagate_c.glsl" />
+    <None Include="..\..\resources\shaders\seperatedGaussian_f.glsl" />
+    <None Include="..\..\resources\shaders\structureTensor_f.glsl" />
+    <None Include="..\..\resources\shaders\surface_lighting_f.glsl" />
+    <None Include="..\..\resources\shaders\surface_lighting_v.glsl" />
+    <None Include="..\..\resources\shaders\transmittance_c.glsl" />
+    <None Include="..\..\resources\shaders\volRen_f.glsl" />
+    <None Include="..\..\resources\shaders\volRen_v.glsl" />
+    <None Include="..\..\resources\shaders\voxelization_c.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

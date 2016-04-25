@@ -28,8 +28,6 @@
 
 /*	Include space-lion headers */
 #include "Material.hpp"
-#include "SurfaceMaterial.hpp"
-#include "AtmosphereMaterial.hpp"
 #include "vertexStructs.h"
 #include "types.hpp"
 
@@ -65,7 +63,7 @@ struct VertexDescriptor
 		GLsizei offset;
 	};
 
-	VertexDescriptor() = delete;
+	VertexDescriptor() : byte_size(0), attributes() {}
 	VertexDescriptor(size_t byte_size, std::vector<Attribute> attributes)
 		: byte_size(byte_size), attributes(attributes) {}
 
@@ -73,6 +71,19 @@ struct VertexDescriptor
 	std::vector<Attribute> attributes;
 };
 
+struct TextureDescriptor
+{
+	TextureDescriptor() {}
+	TextureDescriptor(GLint internal_format, int width,	int height,	int depth, GLenum format, GLenum type)
+		: internal_format(internal_format), width(width), height(height), depth(depth), format(format), type(type) {}
+
+	GLint internal_format;
+	int width;
+	int height;
+	int depth;
+	GLenum format;
+	GLenum type;
+};
 
 class ResourceManager
 {
@@ -176,21 +187,30 @@ public:
 										VertexDescriptor& vertex_description,
 										GLenum mesh_type );
 
+	void updateMesh(const std::string& name, const std::vector<uint8_t>& vertex_data,
+										const std::vector<uint32_t>& index_data,
+										VertexDescriptor& vertex_description,
+										GLenum mesh_type );
+
 	/**
 	 * \brief Creates a material object from a local file
 	 * \param path Location of the material file
-	 * \return 
+	 * \return Pointer to created material
 	 */
-	std::shared_ptr<Material> createMaterial(const std::string path);
-
-	void addMaterial(const std::shared_ptr<Material> material);
+	std::shared_ptr<Material> createMaterial(const std::string& path);
 
 	/**
-	 * \brief Reload a material object from file
-	 * \note Not yet implemented. For later use, when some kind of editor allows to change material properties at runtime
-	 * \return 
+	 * \brief Creates a material object from 
 	 */
-	bool reloadMaterial();
+	std::shared_ptr<Material> createMaterial(const std::string& name,
+												const std::vector<std::string>& shader_filepaths,
+												const std::vector<std::string>& texture_filepaths);
+
+	std::shared_ptr<Material> createMaterial(const std::string& name,
+												const std::shared_ptr<GLSLProgram> shader_prgm,
+												const std::vector<std::shared_ptr<Texture>>& textures);
+
+	void addMaterial(const std::shared_ptr<Material> material);
 
 	/**
 	 * Creates a GLSLprogram object
@@ -198,6 +218,8 @@ public:
 	 * \return Returns shared pointer to GLSL shader program.
 	 */
 	std::shared_ptr<GLSLProgram> createShaderProgram(const std::vector<std::string>& paths);
+
+	std::shared_ptr<GLSLProgram> createShaderProgram(const std::vector<std::string>& paths, const std::string& defines);
 
 	/**
 	 * \brief Creates a 2D texture from a given data array
@@ -217,13 +239,6 @@ public:
 	 * \return Returns shared pointer to new texture or existing texture if given path already exits
 	 */
 	std::shared_ptr<Texture2D> createTexture2D(const std::string path);
-
-	/**
-	 * \brief Reloads a texture in case a texture file is changed during runtime
-	 * \note Not yet implemented!
-	 * \return Returns true if texture was succesfully reloaded, false otherwise
-	 */
-	bool reloadTexture();
 
 	/**
 	 * \brief Create a 3D texture from a given data array
@@ -293,11 +308,10 @@ protected:
 
 	/**
 	 * \brief Parses a material file
-	 * \param materialPath Location of the material file
-	 * \param inOutMtlInfo Contains the material information after the method is called (in-out parameter)
-	 * \return Returns true if the material file was succesfully parsed, false otherwise
+	 * \param material_path Location of the material file
+	 * \return Returns MaterialInfo parsed from material file
 	 */
-	SurfaceMaterialInfo parseMaterial(const std::string materialPath);
+	MaterialInfo parseMaterial(const std::string& material_path);
 
 	/**
 	 * \brief Read a shader source file

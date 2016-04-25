@@ -168,7 +168,7 @@ void main()
     /* Adjust exposure */
     rgb_linear *= exposure;
     //rgb_linear *= 0.18/4000.0; // default value for mapping avg luminance of ~4000cd/m^2 to 0.18 intensity
-    
+	
 	/*	Temporary gamma correction */
 	frag_colour = vec4( pow( rgb_linear, vec3(1.0/2.2) ), 1.0);
 }

@@ -3,6 +3,8 @@
 
 Entity EntityManager::create()
 {
+	std::unique_lock<std::mutex> lock(m_mutex);
+
 	Entity new_entity;
 
 	if( (m_is_alive.size()) < MAX_UINT)
@@ -29,6 +31,8 @@ Entity EntityManager::create()
 
 void EntityManager::destroy(Entity entity)
 {
+	std::unique_lock<std::mutex> lock(m_mutex);
+
 	m_is_alive[entity.m_id] = false;
 	m_free_indices.push_back(entity.m_id);
 

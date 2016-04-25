@@ -67,28 +67,6 @@ void TransformComponentManager::reallocate(uint size)
 	m_data = new_data;
 }
 
-void TransformComponentManager::addComponent(Entity entity)
-{
-	assert(m_data.used < m_data.allocated);
-
-	uint index = m_data.used;
-
-	m_index_map.insert({entity.id(),index});
-
-	m_data.entity[index] = entity;
-	m_data.position[index] = Vec3();
-	m_data.orientation[index] = Quat();
-	m_data.scale[index] = Vec3(1.0);
-
-	m_data.parent[index] = index;
-	m_data.first_child[index] = index;
-	m_data.next_sibling[index] = index;
-
-	m_data.used++;
-
-	transform(index);
-}
-
 void TransformComponentManager::addComponent(Entity entity, Vec3 position, Quat orientation, Vec3 scale)
 {
 	assert(m_data.used < m_data.allocated);
@@ -150,7 +128,7 @@ void TransformComponentManager::transform(uint index)
 	Mat4x4 parent_transform(1.0);
 
 	if(m_data.parent[index] !=  index)
-		Mat4x4 parent_transform = m_data.world_transform[m_data.parent[index]];
+		parent_transform = m_data.world_transform[m_data.parent[index]];
 
 
 	Mat4x4 local_translation = glm::translate(Mat4x4(),m_data.position[index]);
@@ -163,6 +141,13 @@ void TransformComponentManager::transform(uint index)
 void TransformComponentManager::setPosition(uint index, Vec3 position)
 {
 	m_data.position[index] = position;
+
+	transform(index);
+}
+
+void TransformComponentManager::setParent(uint index, Entity parent)
+{
+	m_data.parent[index] = getIndex(parent);
 
 	transform(index);
 }

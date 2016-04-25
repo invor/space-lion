@@ -1,5 +1,5 @@
-#ifndef StaticMeshComponent_hpp
-#define StaticMeshComponent_hpp
+#ifndef InterfaceMeshComponent_hpp
+#define InterfaceMeshComponent_hpp
 
 #include <map>
 #include <string>
@@ -8,26 +8,23 @@
 #include "RenderJobs.hpp"
 #include "ResourceManager.h"
 
-class StaticMeshComponentManager
+class InterfaceMeshComponentManager
 {	
 private:
 	/** Data a single component carries. */
 	struct Data
 	{
-		Data(Entity e, Material* material, Mesh* mesh, std::string material_path, std::string mesh_path, VertexDescriptor vertex_description, GLenum mesh_type, bool cast_shadow)
-		: entity(e), material(material), mesh(mesh), material_path(material_path), mesh_path(mesh_path),
-			vertex_data(), index_data(), vertex_description(vertex_description), mesh_type(mesh_type), cast_shadow(cast_shadow) {}
+		Data(Entity e, std::string material_path, std::string mesh_path, VertexDescriptor vertex_description, GLenum mesh_type)
+		: entity(e), material_path(material_path), mesh_path(mesh_path),
+			vertex_data(), index_data(), vertex_description(vertex_description), mesh_type(mesh_type) {}
 
 		Entity entity;
-		Material* material;
-		Mesh* mesh;
 		std::string material_path;
 		std::string mesh_path;
 		std::vector<uint8_t> vertex_data;
 		std::vector<uint32_t> index_data;
 		VertexDescriptor vertex_description;
 		GLenum mesh_type;
-		bool cast_shadow;
 	};
 
 	/** Dynamic storage of components data (Since components contains strings, dynamic allocation with a vector is used). */
@@ -39,6 +36,8 @@ private:
 	/** Thread safe queue containing indices of added components that haven't been registerd by the Rendering Pipeline yet. */
 	MTQueue<uint> m_added_components_queue;
 
+	MTQueue<uint> m_updated_components_queue;
+
 	std::vector<Data>& getData() { return m_data; }
 	MTQueue<uint>& getComponentsQueue()  { return m_added_components_queue; }
 
@@ -48,21 +47,18 @@ private:
 	friend class DeferredRenderingPipeline;
 
 public:
-	StaticMeshComponentManager(ResourceManager* resource_mngr);
-	~StaticMeshComponentManager();
+	InterfaceMeshComponentManager(ResourceManager* resource_mngr);
+	~InterfaceMeshComponentManager();
 
-	void addComponent(Entity e, std::string material_path, std::string mesh_path, bool cast_shadow);
-
-	/** Add component using existing GPU resources */
-	void addComponent(Entity e, Mesh* mesh, Material* material, bool cast_shadow);
+	void addComponent(Entity e, std::string material_path, std::string mesh_path);
 	
 	template<typename VertexContainer, typename IndexContainer>
 	void addComponent(Entity e, std::string name, std::string material_path, const VertexContainer& vertices,
-						const IndexContainer& indices, const VertexDescriptor& vertex_description, GLenum mesh_type, bool cast_shadow)
+						const IndexContainer& indices, const VertexDescriptor& vertex_description, GLenum mesh_type)
 	{
 		m_index_map.insert(std::pair<uint,uint>(e.id(),m_data.size()));
 
-		m_data.push_back(Data(e,nullptr,nullptr,material_path,name,vertex_description,mesh_type,cast_shadow));
+		m_data.push_back(Data(e,material_path,name,vertex_description,mesh_type));
 
 		size_t byte_size = vertices.size() * sizeof(VertexContainer::value_type);
 
@@ -73,6 +69,26 @@ public:
 		std::copy(indices.begin(), indices.end(), m_data.back().index_data.begin());
 
 		m_added_components_queue.push(m_data.size()-1);
+	}
+
+	template<typename VertexContainer, typename IndexContainer>
+	void updateComponent(Entity e, const VertexContainer& vertices, const IndexContainer& indices, const VertexDescriptor& vertex_description, GLenum mesh_type)
+	{
+		auto search = m_index_map.find(e.id());
+
+		assert( (search != m_index_map.end()) );
+
+		uint idx = search->second;
+
+		size_t byte_size = vertices.size() * sizeof(VertexContainer::value_type);
+
+		m_data[idx].vertex_data.resize(vertices.size() * sizeof(VertexContainer::value_type));
+		std::memcpy(m_data[idx].vertex_data.data(),vertices.data(),byte_size);
+
+		m_data[idx].index_data.resize(indices.size());
+		std::copy(indices.begin(), indices.end(), m_data[idx].index_data.begin());
+
+		m_updated_components_queue.push(idx);
 	}
 
 };

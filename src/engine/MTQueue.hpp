@@ -91,6 +91,8 @@ public:
 		return m_queue.empty();
 	}
 
+
+
 private:
 	/** Underlying standard queue. */
 	std::queue<T> m_queue;

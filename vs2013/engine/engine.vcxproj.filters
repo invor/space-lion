@@ -31,6 +31,9 @@
     <Filter Include="Source Files\gfx\fbx">
       <UniqueIdentifier>{27ab7e09-4ca6-4bdc-9ccf-d3847bd1c012}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\shaders">
+      <UniqueIdentifier>{bcc11b33-ff32-4667-b8e1-7523fed503c5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\fbx\fbx_exceptions.hpp">
@@ -135,12 +138,6 @@
     <ClInclude Include="..\..\src\engine\AtmosphereComponent.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\engine\AtmosphereMaterial.hpp">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\engine\SurfaceMaterial.hpp">
-      <Filter>Header Files\gfx</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\engine\Material.hpp">
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
@@ -157,6 +154,18 @@
       <Filter>Header Files\gfx</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\SunlightComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\VolumeComponent.hpp">
+      <Filter>Header Files\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\InterfaceMeshComponent.hpp">
+      <Filter>Header Files\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\TransformTool.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\MarchingCubesTriangleTable.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -242,12 +251,6 @@
     <ClCompile Include="..\..\src\engine\AtmosphereComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\SurfaceMaterial.cpp">
-      <Filter>Source Files\gfx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\engine\AtmosphereMaterial.cpp">
-      <Filter>Source Files\gfx</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\engine\PointlightComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -257,5 +260,118 @@
     <ClCompile Include="..\..\src\engine\SunlightComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\engine\Terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\VolumeComponent.cpp">
+      <Filter>Source Files\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\InterfaceMeshComponent.cpp">
+      <Filter>Source Files\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\TransformTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\resources\shaders\genericPostProc_v.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\gradient_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\hesse_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\idle_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\inscatter_single_c.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\interface_curve_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\interface_curve_g.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\interface_curve_v.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\interface_cv_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\interface_cv_v.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\irradiance_single_c.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\phong_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\phong_v.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\seperatedGaussian_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\structureTensor_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\surface_lighting_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\surface_lighting_v.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\transmittance_c.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\volRen_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\volRen_v.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\voxelization_c.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\adfr_lighting_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\adfr_solidSurface_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\atmosphere_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\atmosphere_v.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\buildGuidanceField_c.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\dfr_lighting_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\dfr_solidSurface_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\dfr_solidSurface_v.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\flat_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\flat_v.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\fxaa_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="..\..\resources\shaders\propagate_c.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

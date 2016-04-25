@@ -3,6 +3,7 @@
 
 #include <deque>
 #include <limits>
+#include <mutex>
 #include <vector>
 
 typedef unsigned int uint;
@@ -16,7 +17,10 @@ const size_t MAX_UINT = std::numeric_limits<uint>::max();
  */
 struct Entity
 {
-	inline uint id() { return m_id; }
+	inline uint id() const { return m_id; } 
+
+	inline bool operator==(const Entity& rhs) { return m_id == rhs.id(); }
+	inline bool operator!=(const Entity& rhs) { return m_id != rhs.id(); }
 
 	friend class EntityManager;
 private:
@@ -39,6 +43,9 @@ class EntityManager
 	 * deletion and reuse is maximized.
 	 */
 	std::deque<uint> m_free_indices;
+
+	/** Mutex to protect queue operations. */
+	mutable std::mutex m_mutex;
 
 public:
 	Entity create();

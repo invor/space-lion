@@ -41,9 +41,7 @@ public:
 
 	void reallocate(uint size);
 
-	void addComponent(Entity entity);
-
-	void addComponent(Entity entity, Vec3 position, Quat orientation, Vec3 scale);
+	void addComponent(Entity entity, Vec3 position = Vec3(), Quat orientation = Quat(), Vec3 scale = Vec3(1.0));
 
 	void deleteComonent(Entity entity);
 
@@ -56,6 +54,8 @@ public:
 	void scale(uint index, Vec3 scale_factors);
 
 	void setPosition(uint index, Vec3 position);
+
+	void setParent(uint index, Entity parent);
 
 	const Vec3 getPosition(uint index);
 

@@ -199,9 +199,9 @@ void main()
         else
         {
             /* fake sun disc */
-            if( (abs(viewSun)>0.999) )
+            if( (abs(viewSun)>0.9995) )
             {
-                float intensity = pow((abs(viewSun)-0.999)/(1.0-0.999),3.0) * suns[i].sun_luminance;
+                float intensity = pow((abs(viewSun)-0.9995)/(1.0-0.9995),3.0) * suns[i].sun_luminance;
                 rgb_linear += vec3(intensity,intensity,intensity) * 0.9;
             }
         }

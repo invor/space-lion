@@ -43,7 +43,7 @@ public:
 					float far = 1000.0f,
 					float fovy = 0.5236f,
 					float aspect_ratio = 16.0/9.0f,
-					float exposure = 0.000045f); // default value for mapping avg luminance of ~4000cd/m^2 to 0.18 intensity
+					float exposure = 0.000036f); // default value for mapping avg luminance of ~5000cd/m^2 to 0.18 intensity
 
 	void deleteComponent(Entity entity);
 

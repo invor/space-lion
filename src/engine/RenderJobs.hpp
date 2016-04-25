@@ -37,12 +37,12 @@ struct RenderJobRequest
  */
 struct RenderJob
 {
-	RenderJob(Entity e, std::shared_ptr<Material> material, std::shared_ptr<Mesh> mesh)
+	RenderJob(Entity e, Material* material, Mesh* mesh)
 		: entity(e), material(material), mesh(mesh) {}
 
 	Entity entity;
-	std::shared_ptr<Material> material;
-	std::shared_ptr<Mesh> mesh;
+	Material* material;
+	Mesh* mesh;
 };
 
 /**
@@ -60,7 +60,7 @@ class RenderJobManager
 private:
 	struct MeshNode
 	{
-		std::shared_ptr<Mesh> mesh;
+		Mesh* mesh;
 	
 		uint instance_count;
 		std::vector<Entity> enities;	///< List of entites that use this mesh. The leaves of the tree datastructure.
@@ -68,14 +68,14 @@ private:
 
 	struct MaterialNode
 	{
-		std::shared_ptr<Material> material;
+		Material* material;
 	
 		std::vector<MeshNode> meshes;
 	};
 
 	struct ShaderNode
 	{
-		std::shared_ptr<GLSLProgram> shader_prgm;
+		GLSLProgram* shader_prgm;
 	
 		std::vector<MaterialNode> materials;
 	};
