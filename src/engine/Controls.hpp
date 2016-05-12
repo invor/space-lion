@@ -1,3 +1,5 @@
+#include "GlobalCoreComponents.hpp"
+
 #ifndef Controls_hpp
 #define Controls_hpp
 
@@ -10,7 +12,7 @@ namespace Controls
 {
 	enum ControlState { CAMERA, EDITOR };
 
-	void init(TransformComponentManager* transform_mngr, Entity* active_camera);
+	void init(Entity* active_camera);
 
 	void checkKeyStatus(GLFWwindow* active_window, double dt);
 

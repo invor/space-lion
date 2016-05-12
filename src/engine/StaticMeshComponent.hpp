@@ -1,3 +1,5 @@
+#include "GlobalCoreComponents.hpp"
+
 #ifndef StaticMeshComponent_hpp
 #define StaticMeshComponent_hpp
 
@@ -42,13 +44,11 @@ private:
 	std::vector<Data>& getData() { return m_data; }
 	MTQueue<uint>& getComponentsQueue()  { return m_added_components_queue; }
 
-	ResourceManager* m_resource_mngr;
-
 	/* Grant Rendering Pipeline access to private members. */
 	friend class DeferredRenderingPipeline;
 
 public:
-	StaticMeshComponentManager(ResourceManager* resource_mngr);
+	StaticMeshComponentManager();
 	~StaticMeshComponentManager();
 
 	void addComponent(Entity e, std::string material_path, std::string mesh_path, bool cast_shadow);

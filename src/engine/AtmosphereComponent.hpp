@@ -1,12 +1,12 @@
+#include "GlobalCoreComponents.hpp"
+
 #ifndef AtmosphereComponent_hpp
 #define AtmosphereComponent_hpp
 
 #include <unordered_map>
 
-#include "EntityManager.hpp"
-#include "types.hpp"
 #include "MTQueue.hpp"
-#include "ResourceManager.h"
+#include "types.hpp"
 
 /**
  * Manages atmosphere components and functions as a decentralized module of the rendering pipeline
@@ -35,11 +35,13 @@ private:
 
 	std::unordered_map<uint,uint> m_index_map;
 
+	/** Pointer to sphere mesh used as atmoshpere proxy geometry */
+	Mesh* m_atmosphere_proxySphere;
+	/** Pointer to GLSL program used to draw atmospheres */
+	std::shared_ptr<GLSLProgram> m_atmosphere_prgm;
+
 	/** Queue to store request for new components until the GPU thread picks them up (see processNewComponents()). */
 	MTQueue<uint> m_addedComponents_queue;
-
-	/** Pointer to gfx resource manager */
-	ResourceManager* m_resource_mngr;
 
 	/** Add new components, create neceassary resources, compute data. To be called from a thread with OpenGL context! */
 	void processNewComponents();
@@ -47,19 +49,20 @@ private:
 	/** Access raw data. */
 	Data const * const getData() const;
 
-	/******************************************************
-	 * Compute methods
-	 *****************************************************/
 
+	/*****************************************************************
+	 * Buffer, compute and draw methods (only call from GPU thread!)
+	 ****************************************************************/
+	void createGpuResources();
+
+	void createMaterial(uint index);
 	void computeTransmittance(uint index);
 	void computeInscatterSingle(uint index);
 	void computeIrradianceSingle(uint index);
-
-	/* Grant DeferredRenderingPipeline access to private methods */
-	friend class DeferredRenderingPipeline;
+	void draw();
 
 public:
-	AtmosphereComponentManager(uint size, ResourceManager* resource_mngr);
+	AtmosphereComponentManager(uint size);
 	~AtmosphereComponentManager();
 
 	void reallocate(uint size);

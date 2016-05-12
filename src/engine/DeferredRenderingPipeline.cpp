@@ -1,32 +1,10 @@
 #include "DeferredRenderingPipeline.hpp"
 
-DeferredRenderingPipeline::DeferredRenderingPipeline(EntityManager* entity_mngr,
-										ResourceManager* resource_mngr,
-										TransformComponentManager* transform_mngr,
-										CameraComponentManager* camera_mngr,
-										PointlightComponentManager* light_mngr,
-										SunlightComponentManager* sunligh_mngr,
-										AtmosphereComponentManager* atmosphere_mngr,
-										StaticMeshComponentManager* staticMesh_mngr,
-										VolumeComponentManager* volume_mngr,
-										InterfaceMeshComponentManager* interface_mngr)
-	: m_lights_prepass(),
-		m_staticMeshes_pass(),
-		m_shadow_map_pass(),
-		m_active_camera(entity_mngr->create()),
-		m_entity_mngr(entity_mngr),
-		m_resource_mngr(resource_mngr),
-		m_transform_mngr(transform_mngr),
-		m_camera_mngr(camera_mngr),
-		m_light_mngr(light_mngr),
-		m_sunlight_mngr(sunligh_mngr),
-		m_atmosphere_mngr(atmosphere_mngr),
-		m_staticMesh_mngr(staticMesh_mngr),
-		m_volume_mngr(volume_mngr),
-		m_interfaceMesh_mngr(interface_mngr)
+DeferredRenderingPipeline::DeferredRenderingPipeline()
+	: m_active_camera(GCoreComponents::entityManager().create())
 {
-	transform_mngr->addComponent(m_active_camera,Vec3(0.0f,0.0f,20.0f),Quat(),Vec3(1.0f));
-	camera_mngr->addComponent(m_active_camera, 0.1f, 15000.0f, 0.7f);
+	GCoreComponents::transformManager().addComponent(m_active_camera,Vec3(0.0f,0.0f,20.0f),Quat(),Vec3(1.0f));
+	GCoreComponents::cameraManager().addComponent(m_active_camera, 0.1f, 15000.0f, 0.7f);
 }
 
 DeferredRenderingPipeline::~DeferredRenderingPipeline()
@@ -50,8 +28,8 @@ void DeferredRenderingPipeline::geometryPass()
 	RenderJobManager::RootNode m_root = m_staticMeshes_pass.getRoot();
 
 	/* Get information on active camera */
-	Mat4x4 view_matrix = glm::inverse(m_transform_mngr->getWorldTransformation( m_transform_mngr->getIndex(m_active_camera) ));
-	Mat4x4 proj_matrix = m_camera_mngr->getProjectionMatrix( m_camera_mngr->getIndex(m_active_camera) );
+	Mat4x4 view_matrix = glm::inverse(GCoreComponents::transformManager().getWorldTransformation( GCoreComponents::transformManager().getIndex(m_active_camera) ));
+	Mat4x4 proj_matrix = GCoreComponents::cameraManager().getProjectionMatrix( GCoreComponents::cameraManager().getIndex(m_active_camera) );
 
 	for(auto& shader : m_root.shaders)
 	{
@@ -86,8 +64,8 @@ void DeferredRenderingPipeline::geometryPass()
 
 				for(auto& entity : mesh.enities)
 				{
-					uint transform_index = m_transform_mngr->getIndex(entity);
-					Mat4x4 model_matrix = m_transform_mngr->getWorldTransformation(transform_index);
+					uint transform_index = GCoreComponents::transformManager().getIndex(entity);
+					Mat4x4 model_matrix = GCoreComponents::transformManager().getWorldTransformation(transform_index);
 
 					//	std::cout<<"=========================="<<std::endl;
 					//	std::cout<<model_matrix[0][0]<<" "<<model_matrix[1][0]<<" "<<model_matrix[2][0]<<" "<<model_matrix[3][0]<<std::endl;
@@ -127,8 +105,8 @@ void DeferredRenderingPipeline::volumePass()
 	RenderJobManager::RootNode m_root = m_volume_pass.getRoot();
 
 	/* Get information on active camera */
-	Mat4x4 view_matrix = glm::inverse(m_transform_mngr->getWorldTransformation( m_transform_mngr->getIndex(m_active_camera) ));
-	Mat4x4 proj_matrix = m_camera_mngr->getProjectionMatrix( m_camera_mngr->getIndex(m_active_camera) );
+	Mat4x4 view_matrix = glm::inverse(GCoreComponents::transformManager().getWorldTransformation( GCoreComponents::transformManager().getIndex(m_active_camera) ));
+	Mat4x4 proj_matrix = GCoreComponents::cameraManager().getProjectionMatrix( GCoreComponents::cameraManager().getIndex(m_active_camera) );
 
 	for(auto& shader : m_root.shaders)
 	{
@@ -136,7 +114,7 @@ void DeferredRenderingPipeline::volumePass()
 		shader.shader_prgm->use();
 
 		// TODO upload camera position
-		shader.shader_prgm->setUniform("camera_position", m_transform_mngr->getPosition( m_transform_mngr->getIndex(m_active_camera) ) );
+		shader.shader_prgm->setUniform("camera_position", GCoreComponents::transformManager().getPosition( GCoreComponents::transformManager().getIndex(m_active_camera) ) );
 
 		for(auto& material : shader.materials)
 		{
@@ -152,11 +130,11 @@ void DeferredRenderingPipeline::volumePass()
 			
 				for(auto& entity : mesh.enities)
 				{
-					uint transform_index = m_transform_mngr->getIndex(entity);
-					Mat4x4 model_matrix = m_transform_mngr->getWorldTransformation(transform_index);
+					uint transform_index = GCoreComponents::transformManager().getIndex(entity);
+					Mat4x4 model_matrix = GCoreComponents::transformManager().getWorldTransformation(transform_index);
 
-					Vec3 bbox_min = m_volume_mngr->m_data[m_volume_mngr->getIndex(entity)].boundingBox_min;
-					Vec3 bbox_max = m_volume_mngr->m_data[m_volume_mngr->getIndex(entity)].boundingBox_max;
+					Vec3 bbox_min = GCoreComponents::volumeManager().m_data[GCoreComponents::volumeManager().getIndex(entity)].boundingBox_min;
+					Vec3 bbox_max = GCoreComponents::volumeManager().m_data[GCoreComponents::volumeManager().getIndex(entity)].boundingBox_max;
 
 					Mat4x4 texture_matrix = glm::scale(glm::inverse(model_matrix), 1.0f/(bbox_max-bbox_min));
 					texture_matrix = glm::translate(texture_matrix, -bbox_min);
@@ -188,96 +166,103 @@ void DeferredRenderingPipeline::atmospherePass()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, m_atmosphere_fbo->getWidth(), m_atmosphere_fbo->getHeight());
 
-	glDisable(GL_CULL_FACE);
-
-	glActiveTexture(GL_TEXTURE0);
-	m_gBuffer->bindColorbuffer(0);
-
-	AtmosphereComponentManager::Data const * const atmosphere_data = m_atmosphere_mngr->getData();
-	uint num_entities = atmosphere_data->used;
-
-	if( num_entities == 0 ) return;
-
-	// TODO: Try to remove redundancy of getting this information twice during rendering a single frame
-	/* Get information on active camera */
-	Mat4x4 view_matrix = glm::inverse(m_transform_mngr->getWorldTransformation( m_transform_mngr->getIndex(m_active_camera) ));
-	Mat4x4 proj_matrix = m_camera_mngr->getProjectionMatrix( m_camera_mngr->getIndex(m_active_camera) );
-
-	auto shader_prgm = atmosphere_data->material[0]->getShaderProgram();
-
-	shader_prgm->use();
-	shader_prgm->setUniform("normal_depth_tx2D",0);
-	shader_prgm->setUniform("projection_matrix", proj_matrix);
-	shader_prgm->setUniform("view_matrix", view_matrix);
-	shader_prgm->setUniform("camera_position", m_transform_mngr->getPosition( m_transform_mngr->getIndex(m_active_camera) ));
-
-	Vec3 camera_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex(m_active_camera));
-	Vec3 atmosphere_center_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex(atmosphere_data->entity[0]));
-
-	int sun_count = m_sunlight_mngr->getData()->used;
-	for(int i=0; i<sun_count; i++)
+	std::unique_lock<std::mutex> lock(m_perFrameAtmosphere_tasks_mutex);
+	
+	for (auto& task : m_perFrameAtmosphere_tasks)
 	{
-		std::string sun_direction_uniform("suns[" + std::to_string(i) + "].sun_direction");
-		std::string sun_luminance_uniform("suns[" + std::to_string(i) + "].sun_luminance");
-
-		Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( m_sunlight_mngr->getData()->entity[i] ) );
-		shader_prgm->setUniform(sun_direction_uniform.c_str(), (light_position-camera_position) );
-
-		// Compute luminance of sun (simplified to a pointlight) just before it hits the atmosphere
-		float sun_luminance = m_sunlight_mngr->getLumen(i);
-		float distance = std::sqrt( 
-			(light_position-atmosphere_center_position).x*(light_position-atmosphere_center_position).x +
-			(light_position-atmosphere_center_position).y*(light_position-atmosphere_center_position).y +
-			(light_position-atmosphere_center_position).z*(light_position-atmosphere_center_position).z ) - atmosphere_data->max_altitude[0];
-		sun_luminance = sun_luminance/(4.0f * 3.14f * std::pow( distance ,2.0f) );
-
-		shader_prgm->setUniform(sun_luminance_uniform.c_str(), sun_luminance);
-		//std::cout<<"Luminance: "<<sun_luminance<<std::endl;
-		//std::cout<<"Distance: "<< distance <<std::endl;
-	}
-	shader_prgm->setUniform("sun_count", sun_count);
-
-	/*	Draw all entities instanced */
-	int instance_counter = 0;
-	std::string atmosphere_center_uniform;
-	std::string max_altitude_uniform;
-	std::string min_altitude_uniform;
-	std::string model_uniform;
-
-	for(uint i=0; i<num_entities; i++)
-	{
-		uint transform_index = m_transform_mngr->getIndex(atmosphere_data->entity[i]);
-		Mat4x4 model_matrix = m_transform_mngr->getWorldTransformation(transform_index);
-		model_uniform = ("model_matrix[" + std::to_string(instance_counter) + "]");
-		shader_prgm->setUniform(model_uniform.c_str(), model_matrix);
-
-		max_altitude_uniform = ("max_altitude[" + std::to_string(instance_counter) + "]");
-		shader_prgm->setUniform( max_altitude_uniform.c_str() , atmosphere_data->max_altitude[i] );
-
-		min_altitude_uniform = ("min_altitude[" + std::to_string(instance_counter) + "]");
-		shader_prgm->setUniform( min_altitude_uniform.c_str() , atmosphere_data->min_altitude[i] );
-
-		atmosphere_center_uniform = ("atmosphere_center[" + std::to_string(instance_counter) + "]");
-		shader_prgm->setUniform(atmosphere_center_uniform.c_str(),m_transform_mngr->getPosition(transform_index));
-		
-		glActiveTexture(GL_TEXTURE1);
-		atmosphere_data->material[i]->getTextures()[1]->bindTexture();
-		shader_prgm->setUniform("rayleigh_inscatter_tx3D",1);
-
-		glActiveTexture(GL_TEXTURE2);
-		atmosphere_data->material[i]->getTextures()[2]->bindTexture();
-		shader_prgm->setUniform("mie_inscatter_tx3D",2);
-
-		instance_counter++;
-
-		if(instance_counter == 128)
-		{
-			m_atmosphere_boundingSphere->draw(instance_counter);
-			instance_counter = 0;
-		}
+		task();
 	}
 
-	m_atmosphere_boundingSphere->draw(instance_counter);
+	//	glDisable(GL_CULL_FACE);
+	//	
+	//	glActiveTexture(GL_TEXTURE0);
+	//	m_gBuffer->bindColorbuffer(0);
+	//	
+	//	AtmosphereComponentManager::Data const * const atmosphere_data = m_atmosphere_mngr->getData();
+	//	uint num_entities = atmosphere_data->used;
+	//	
+	//	if( num_entities == 0 ) return;
+	//	
+	//	// TODO: Try to remove redundancy of getting this information twice during rendering a single frame
+	//	/* Get information on active camera */
+	//	Mat4x4 view_matrix = glm::inverse(GCoreComponents::transformManager().getWorldTransformation( GCoreComponents::transformManager().getIndex(m_active_camera) ));
+	//	Mat4x4 proj_matrix = GCoreComponents::cameraManager().getProjectionMatrix( GCoreComponents::cameraManager().getIndex(m_active_camera) );
+	//	
+	//	auto shader_prgm = atmosphere_data->material[0]->getShaderProgram();
+	//	
+	//	shader_prgm->use();
+	//	shader_prgm->setUniform("normal_depth_tx2D",0);
+	//	shader_prgm->setUniform("projection_matrix", proj_matrix);
+	//	shader_prgm->setUniform("view_matrix", view_matrix);
+	//	shader_prgm->setUniform("camera_position", GCoreComponents::transformManager().getPosition( GCoreComponents::transformManager().getIndex(m_active_camera) ));
+	//	
+	//	Vec3 camera_position = GCoreComponents::transformManager().getPosition( GCoreComponents::transformManager().getIndex(m_active_camera));
+	//	Vec3 atmosphere_center_position = GCoreComponents::transformManager().getPosition( GCoreComponents::transformManager().getIndex(atmosphere_data->entity[0]));
+	//	
+	//	int sun_count = m_sunlight_mngr->getData()->used;
+	//	for(int i=0; i<sun_count; i++)
+	//	{
+	//		std::string sun_direction_uniform("suns[" + std::to_string(i) + "].sun_direction");
+	//		std::string sun_luminance_uniform("suns[" + std::to_string(i) + "].sun_luminance");
+	//	
+	//		Vec3 light_position = GCoreComponents::transformManager().getPosition( GCoreComponents::transformManager().getIndex( m_sunlight_mngr->getData()->entity[i] ) );
+	//		shader_prgm->setUniform(sun_direction_uniform.c_str(), (light_position-camera_position) );
+	//	
+	//		// Compute luminance of sun (simplified to a pointlight) just before it hits the atmosphere
+	//		float sun_luminance = m_sunlight_mngr->getLumen(i);
+	//		float distance = std::sqrt( 
+	//			(light_position-atmosphere_center_position).x*(light_position-atmosphere_center_position).x +
+	//			(light_position-atmosphere_center_position).y*(light_position-atmosphere_center_position).y +
+	//			(light_position-atmosphere_center_position).z*(light_position-atmosphere_center_position).z ) - atmosphere_data->max_altitude[0];
+	//		sun_luminance = sun_luminance/(4.0f * 3.14f * std::pow( distance ,2.0f) );
+	//	
+	//		shader_prgm->setUniform(sun_luminance_uniform.c_str(), sun_luminance);
+	//		//std::cout<<"Luminance: "<<sun_luminance<<std::endl;
+	//	//std::cout<<"Distance: "<< distance <<std::endl;
+	//	}
+	//	shader_prgm->setUniform("sun_count", sun_count);
+	//	
+	//	/*	Draw all entities instanced */
+	//	int instance_counter = 0;
+	//	std::string atmosphere_center_uniform;
+	//	std::string max_altitude_uniform;
+	//	std::string min_altitude_uniform;
+	//	std::string model_uniform;
+	//	
+	//	for(uint i=0; i<num_entities; i++)
+	//	{
+	//		uint transform_index = GCoreComponents::transformManager().getIndex(atmosphere_data->entity[i]);
+	//		Mat4x4 model_matrix = GCoreComponents::transformManager().getWorldTransformation(transform_index);
+	//		model_uniform = ("model_matrix[" + std::to_string(instance_counter) + "]");
+	//		shader_prgm->setUniform(model_uniform.c_str(), model_matrix);
+	//	
+	//		max_altitude_uniform = ("max_altitude[" + std::to_string(instance_counter) + "]");
+	//		shader_prgm->setUniform( max_altitude_uniform.c_str() , atmosphere_data->max_altitude[i] );
+	//	
+	//		min_altitude_uniform = ("min_altitude[" + std::to_string(instance_counter) + "]");
+	//		shader_prgm->setUniform( min_altitude_uniform.c_str() , atmosphere_data->min_altitude[i] );
+	//	
+	//		atmosphere_center_uniform = ("atmosphere_center[" + std::to_string(instance_counter) + "]");
+	//		shader_prgm->setUniform(atmosphere_center_uniform.c_str(),GCoreComponents::transformManager().getPosition(transform_index));
+	//		
+	//		glActiveTexture(GL_TEXTURE1);
+	//		atmosphere_data->material[i]->getTextures()[1]->bindTexture();
+	//		shader_prgm->setUniform("rayleigh_inscatter_tx3D",1);
+	//	
+	//		glActiveTexture(GL_TEXTURE2);
+	//		atmosphere_data->material[i]->getTextures()[2]->bindTexture();
+	//		shader_prgm->setUniform("mie_inscatter_tx3D",2);
+	//	
+	//		instance_counter++;
+	//	
+	//		if(instance_counter == 128)
+	//		{
+	//			m_atmosphere_boundingSphere->draw(instance_counter);
+	//			instance_counter = 0;
+	//		}
+	//	}
+	//	
+	//	m_atmosphere_boundingSphere->draw(instance_counter);
 }
 
 void DeferredRenderingPipeline::lightingPass()
@@ -309,11 +294,11 @@ void DeferredRenderingPipeline::lightingPass()
 
 
 	// Get information on active camera
-	Mat4x4 view_matrix = glm::inverse(m_transform_mngr->getWorldTransformation( m_transform_mngr->getIndex(m_active_camera) ));
-	float fovy = m_camera_mngr->getFovy(m_camera_mngr->getIndex(m_active_camera));
-	float aspect_ratio = m_camera_mngr->getAspectRatio(m_camera_mngr->getIndex(m_active_camera));
+	Mat4x4 view_matrix = glm::inverse(GCoreComponents::transformManager().getWorldTransformation( GCoreComponents::transformManager().getIndex(m_active_camera) ));
+	float fovy = GCoreComponents::cameraManager().getFovy(GCoreComponents::cameraManager().getIndex(m_active_camera));
+	float aspect_ratio = GCoreComponents::cameraManager().getAspectRatio(GCoreComponents::cameraManager().getIndex(m_active_camera));
 	Vec2 aspect_fovy(aspect_ratio,fovy);
-	float exposure = m_camera_mngr->getExposure(m_camera_mngr->getIndex(m_active_camera));
+	float exposure = GCoreComponents::cameraManager().getExposure(GCoreComponents::cameraManager().getIndex(m_active_camera));
 	m_lighting_prgm->setUniform("view_matrix", view_matrix);
 	m_lighting_prgm->setUniform("aspect_fovy", aspect_fovy);
 	m_lighting_prgm->setUniform("exposure", exposure);
@@ -322,10 +307,10 @@ void DeferredRenderingPipeline::lightingPass()
 	uint light_counter = 0;
 	for(auto light_entity : m_active_lightsources )
 	{
-		Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( light_entity ) );
+		Vec3 light_position = GCoreComponents::transformManager().getPosition( GCoreComponents::transformManager().getIndex( light_entity ) );
 		// TODO check how to correctly mix light color and lumens
-		Vec3 light_intensity = m_light_mngr->getColour( m_light_mngr->getIndex( light_entity ))
-								 *m_light_mngr->getLumen( m_light_mngr->getIndex( light_entity ));
+		Vec3 light_intensity = GCoreComponents::pointlightManager().getColour( GCoreComponents::pointlightManager().getIndex( light_entity ))
+								 *GCoreComponents::pointlightManager().getLumen( GCoreComponents::pointlightManager().getIndex( light_entity ));
 
 		std::string light_position_uniform_name("lights[" + std::to_string(light_counter) + "].position");
 		std::string light_intensity_uniform_name("lights[" + std::to_string(light_counter) + "].lumen");
@@ -339,17 +324,17 @@ void DeferredRenderingPipeline::lightingPass()
 	m_lighting_prgm->setUniform("num_lights", (int) m_active_lightsources.size() );
 
 	//TODO add sunlight
-	int sun_count = m_sunlight_mngr->getComponentCount();
+	int sun_count = GCoreComponents::sunlightManager().getComponentCount();
 	for(int i=0; i < sun_count; i++)
 	{
 		std::string sun_position_uniform("suns[" + std::to_string(i) + "].position");
 		std::string sun_illuminance_uniform("suns[" + std::to_string(i) + "].illuminance");
 
-		Vec3 light_position = m_transform_mngr->getPosition( m_transform_mngr->getIndex( m_sunlight_mngr->getData()->entity[i] ) );
+		Vec3 light_position = GCoreComponents::transformManager().getPosition( GCoreComponents::transformManager().getIndex(GCoreComponents::sunlightManager().getData()->entity[i] ) );
 		m_lighting_prgm->setUniform(sun_position_uniform.c_str(), light_position );
 
 		// Compute luminance of sun (simplified to a pointlight) just before it hits the atmosphere
-		float sun_luminous_power = m_sunlight_mngr->getLumen(i);
+		float sun_luminous_power = GCoreComponents::sunlightManager().getLumen(i);
 		
 		//TODO compute actual illuminance
 
@@ -366,8 +351,8 @@ void DeferredRenderingPipeline::interfacePass()
 	RenderJobManager::RootNode m_root = m_interface_pass.getRoot();
 
 	/* Get information on active camera */
-	Mat4x4 view_matrix = glm::inverse(m_transform_mngr->getWorldTransformation( m_transform_mngr->getIndex(m_active_camera) ));
-	Mat4x4 proj_matrix = m_camera_mngr->getProjectionMatrix( m_camera_mngr->getIndex(m_active_camera) );
+	Mat4x4 view_matrix = glm::inverse(GCoreComponents::transformManager().getWorldTransformation( GCoreComponents::transformManager().getIndex(m_active_camera) ));
+	Mat4x4 proj_matrix = GCoreComponents::cameraManager().getProjectionMatrix( GCoreComponents::cameraManager().getIndex(m_active_camera) );
 
 	for(auto& shader : m_root.shaders)
 	{
@@ -385,8 +370,8 @@ void DeferredRenderingPipeline::interfacePass()
 
 				for(auto& entity : mesh.enities)
 				{
-					uint transform_index = m_transform_mngr->getIndex(entity);
-					Mat4x4 model_matrix = m_transform_mngr->getWorldTransformation(transform_index);
+					uint transform_index = GCoreComponents::transformManager().getIndex(entity);
+					Mat4x4 model_matrix = GCoreComponents::transformManager().getWorldTransformation(transform_index);
 					Mat4x4 model_view_matrix = view_matrix * model_matrix;
 					//	Mat4x4 model_view_matrix = view_matrix;
 					std::string uniform_name("model_view_matrix[" + std::to_string(instance_counter) + "]");
@@ -412,8 +397,8 @@ void DeferredRenderingPipeline::pickingPass()
 	RenderJobManager::RootNode m_root = m_picking_pass.getRoot();
 
 	/* Get information on active camera */
-	Mat4x4 view_matrix = glm::inverse(m_transform_mngr->getWorldTransformation( m_transform_mngr->getIndex(m_active_camera) ));
-	Mat4x4 proj_matrix = m_camera_mngr->getProjectionMatrix( m_camera_mngr->getIndex(m_active_camera) );
+	Mat4x4 view_matrix = glm::inverse(GCoreComponents::transformManager().getWorldTransformation( GCoreComponents::transformManager().getIndex(m_active_camera) ));
+	Mat4x4 proj_matrix = GCoreComponents::cameraManager().getProjectionMatrix( GCoreComponents::cameraManager().getIndex(m_active_camera) );
 
 	for(auto& shader : m_root.shaders)
 	{
@@ -431,8 +416,8 @@ void DeferredRenderingPipeline::pickingPass()
 
 				for(auto& entity : mesh.enities)
 				{
-					uint transform_index = m_transform_mngr->getIndex(entity);
-					Mat4x4 model_matrix = m_transform_mngr->getWorldTransformation(transform_index);
+					uint transform_index = GCoreComponents::transformManager().getIndex(entity);
+					Mat4x4 model_matrix = GCoreComponents::transformManager().getWorldTransformation(transform_index);
 					Mat4x4 model_view_matrix = view_matrix * model_matrix;
 					//	Mat4x4 model_view_matrix = view_matrix;
 					std::string uniform_name("model_view_matrix[" + std::to_string(instance_counter) + "]");
@@ -463,6 +448,11 @@ void DeferredRenderingPipeline::processSingleExecTasks()
 		std::function<void()> task = m_singleExecution_tasks.pop();
 		task();
 	}
+}
+
+void DeferredRenderingPipeline::processPerFrameGeometryTasks()
+{
+
 }
 
 void DeferredRenderingPipeline::run()
@@ -500,7 +490,7 @@ void DeferredRenderingPipeline::run()
 	glfwSetWindowSizeCallback(m_active_window,windowSizeCallback);
 	glfwSetWindowCloseCallback(m_active_window,windowCloseCallback);
 
-	Controls::init(m_transform_mngr,&m_active_camera);
+	Controls::init(&m_active_camera);
 	Controls::setControlCallbacks(m_active_window);
 
 	// Initialize glew
@@ -525,13 +515,13 @@ void DeferredRenderingPipeline::run()
 											Vertex_pu(1.0,-1.0f,-1.0f,1.0f,0.0f) }};
 	std::vector<GLuint> index_array = {{ 0,2,1,2,0,3 }};
 
-	m_fullscreenQuad = m_resource_mngr->createMesh("fullscreen_quad",vertex_array,index_array,GL_TRIANGLES);
+	m_fullscreenQuad = GCoreComponents::resourceManager().createMesh("fullscreen_quad",vertex_array,index_array,GL_TRIANGLES);
 
 	// Load lighting shader program for deferred rendering
-	m_lighting_prgm = m_resource_mngr->createShaderProgram({"../resources/shaders/genericPostProc_v.glsl","../resources/shaders/dfr_lighting_f.glsl"});
+	m_lighting_prgm = GCoreComponents::resourceManager().createShaderProgram({"../resources/shaders/genericPostProc_v.glsl","../resources/shaders/dfr_lighting_f.glsl"});
 
 	// Create basic boundingbox for atmosphere rendering
-	m_atmosphere_boundingSphere = m_resource_mngr->createIcoSphere(2);
+	m_atmosphere_boundingSphere = GCoreComponents::resourceManager().createIcoSphere(2);
 
 	// Create g-Buffer
 	m_gBuffer = std::make_unique<FramebufferObject>(1600,900,true);
@@ -566,27 +556,23 @@ void DeferredRenderingPipeline::run()
 		registerInterfaceMeshComponents();
 		registerLightComponents();
 
-		// TODO would be nice if method names matched
-
-		// Process new atmoshpere entities
-		m_atmosphere_mngr->processNewComponents();
 
 		processSingleExecTasks();
 
 
 		// Geometry pass
-		m_camera_mngr->setCameraAttributes(m_camera_mngr->getIndex(m_active_camera),0.01,10000.0);
+		GCoreComponents::cameraManager().setCameraAttributes(GCoreComponents::cameraManager().getIndex(m_active_camera),0.01,10000.0);
 		geometryPass();
 
 		// Atmosphere pass
-		m_camera_mngr->setCameraAttributes(m_camera_mngr->getIndex(m_active_camera),100.0,6430000.0);
+		GCoreComponents::cameraManager().setCameraAttributes(GCoreComponents::cameraManager().getIndex(m_active_camera),100.0,6430000.0);
 		atmospherePass();
 	
 		// Lighting pass		
 		lightingPass();
 
 		// Volume rendering pass
-		m_camera_mngr->setCameraAttributes(m_camera_mngr->getIndex(m_active_camera),0.01,10000.0);
+		GCoreComponents::cameraManager().setCameraAttributes(GCoreComponents::cameraManager().getIndex(m_active_camera),0.01,10000.0);
 		volumePass();
 
 
@@ -607,7 +593,7 @@ void DeferredRenderingPipeline::run()
 	m_staticMeshes_pass.clearRenderJobs();
 	m_interface_pass.clearRenderJobs();
 	m_volume_pass.clearRenderJobs();
-	m_resource_mngr->clearLists();
+	GCoreComponents::resourceManager().clearLists();
 	m_gBuffer.reset();
 	m_atmosphere_fbo.reset();
 	m_fullscreenQuad.reset();
@@ -616,6 +602,22 @@ void DeferredRenderingPipeline::run()
 
 	glfwMakeContextCurrent(NULL);
 }
+
+
+void DeferredRenderingPipeline::addPerFrameGeometryGpuTask(std::function<void()> task)
+{
+	std::unique_lock<std::mutex> lock(m_perFrameGeometry_tasks_mutex);
+
+	m_perFrameGeometry_tasks.push_back(task);
+}
+
+void DeferredRenderingPipeline::addPerFrameAtmosphereGpuTask(std::function<void()> task)
+{
+	std::unique_lock<std::mutex> lock(m_perFrameAtmosphere_tasks_mutex);
+
+	m_perFrameAtmosphere_tasks.push_back(task);
+}
+
 
 void DeferredRenderingPipeline::addSingleExecutionGpuTask(std::function<void()> task)
 {
@@ -627,11 +629,21 @@ void DeferredRenderingPipeline::setActiveCamera(Entity entity)
 	m_active_camera = entity;
 }
 
+FramebufferObject* DeferredRenderingPipeline::getGBuffer()
+{
+	return m_gBuffer.get();
+}
+
+Entity DeferredRenderingPipeline::getActiveCamera()
+{
+	return m_active_camera;
+}
+
 void DeferredRenderingPipeline::registerStaticMeshComponents()
 {
 	// Access static mesh components
-	auto& staticMesh_data = m_staticMesh_mngr->getData();
-	auto& staticMesh_queue = m_staticMesh_mngr->getComponentsQueue();
+	auto& staticMesh_data = GCoreComponents::staticMeshManager().getData();
+	auto& staticMesh_queue = GCoreComponents::staticMeshManager().getComponentsQueue();
 
 	// Check for newly added components
 	while ( !staticMesh_queue.empty() )
@@ -646,9 +658,9 @@ void DeferredRenderingPipeline::registerStaticMeshComponents()
 		}
 		else
 		{
-			std::shared_ptr<Material> material = m_resource_mngr->createMaterial(component_data->material_path);
-			//std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path);
-			std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path,
+			std::shared_ptr<Material> material = GCoreComponents::resourceManager().createMaterial(component_data->material_path);
+			//std::shared_ptr<Mesh> mesh = GCoreComponents::resourceManager().createMesh(component_data->mesh_path);
+			std::shared_ptr<Mesh> mesh = GCoreComponents::resourceManager().createMesh(component_data->mesh_path,
 											component_data->vertex_data,
 											component_data->index_data,
 											component_data->vertex_description,
@@ -662,8 +674,8 @@ void DeferredRenderingPipeline::registerStaticMeshComponents()
 void DeferredRenderingPipeline::registerVolumetricComponents()
 {
 	// Access volume components
-	auto* volume_data = &m_volume_mngr->m_data;
-	auto* volume_queue = &m_volume_mngr->m_update_queue;
+	auto* volume_data = &GCoreComponents::volumeManager().m_data;
+	auto* volume_queue = &GCoreComponents::volumeManager().m_update_queue;
 
 	while( !volume_queue->empty() )
 	{
@@ -673,8 +685,8 @@ void DeferredRenderingPipeline::registerVolumetricComponents()
 
 		if( component_data->volume != nullptr && component_data->boundingGeometry != nullptr )
 		{
-			std::shared_ptr<GLSLProgram> prgm = m_resource_mngr->createShaderProgram({"../resources/shaders/volRen_v.glsl","../resources/shaders/volRen_f.glsl"});
-			std::shared_ptr<Material> mtl = m_resource_mngr->createMaterial(component_data->volume->getName()+"_mtl",prgm,{(component_data->volume)});
+			std::shared_ptr<GLSLProgram> prgm = GCoreComponents::resourceManager().createShaderProgram({"../resources/shaders/volRen_v.glsl","../resources/shaders/volRen_f.glsl"});
+			std::shared_ptr<Material> mtl = GCoreComponents::resourceManager().createMaterial(component_data->volume->getName()+"_mtl",prgm,{(component_data->volume)});
 
 			m_volume_pass.addRenderJob(RenderJob(component_data->entity,mtl.get(),component_data->boundingGeometry.get()));
 		}
@@ -682,8 +694,8 @@ void DeferredRenderingPipeline::registerVolumetricComponents()
 		{
 			// TODO design new way to create materials s.t. GPU doesn't do an IO
 
-			std::shared_ptr<GLSLProgram> prgm = m_resource_mngr->createShaderProgram({"../resources/shaders/volRen_v.glsl","../resources/shaders/volRen_f.glsl"});
-			std::shared_ptr<Texture> volume = m_resource_mngr->createTexture3D(component_data->volume_path,
+			std::shared_ptr<GLSLProgram> prgm = GCoreComponents::resourceManager().createShaderProgram({"../resources/shaders/volRen_v.glsl","../resources/shaders/volRen_f.glsl"});
+			std::shared_ptr<Texture> volume = GCoreComponents::resourceManager().createTexture3D(component_data->volume_path,
 																				component_data->volume_description.internal_format,
 																				component_data->volume_description.width,
 																				component_data->volume_description.height,
@@ -697,15 +709,15 @@ void DeferredRenderingPipeline::registerVolumetricComponents()
 																												std::pair<GLenum,GLenum>(GL_TEXTURE_MAG_FILTER, GL_NEAREST),
 																												std::pair<GLenum,GLenum>(GL_TEXTURE_MIN_FILTER, GL_NEAREST)});
 
-			std::shared_ptr<Material> mtl = m_resource_mngr->createMaterial(component_data->volume_path+"_mtl",prgm,{volume});
+			std::shared_ptr<Material> mtl = GCoreComponents::resourceManager().createMaterial(component_data->volume_path+"_mtl",prgm,{volume});
 
-			std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->boundingGeometry_path,
+			std::shared_ptr<Mesh> mesh = GCoreComponents::resourceManager().createMesh(component_data->boundingGeometry_path,
 																		component_data->vertex_data,
 																		component_data->index_data,
 																		component_data->vertex_description,
 																		component_data->mesh_type );
 
-			//std::shared_ptr<Mesh> mesh = m_resource_mngr->createBox();
+			//std::shared_ptr<Mesh> mesh = GCoreComponents::resourceManager().createBox();
 
 			m_volume_pass.addRenderJob(RenderJob(component_data->entity,mtl.get(),mesh.get()));
 		}
@@ -715,8 +727,8 @@ void DeferredRenderingPipeline::registerVolumetricComponents()
 void DeferredRenderingPipeline::registerInterfaceMeshComponents()
 {
 	// Access interface mesh components
-	auto& interfaceMesh_data = m_interfaceMesh_mngr->getData();
-	auto& interfaceMesh_queue = m_interfaceMesh_mngr->getComponentsQueue();
+	auto& interfaceMesh_data = GCoreComponents::interfaceMeshManager().getData();
+	auto& interfaceMesh_queue = GCoreComponents::interfaceMeshManager().getComponentsQueue();
 
 	// Check for newly added components
 	while ( !interfaceMesh_queue.empty() )
@@ -725,9 +737,9 @@ void DeferredRenderingPipeline::registerInterfaceMeshComponents()
 
 		InterfaceMeshComponentManager::Data* component_data = &interfaceMesh_data[idx];
 
-		std::shared_ptr<Material> material = m_resource_mngr->createMaterial(component_data->material_path);
-		//std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path);
-		std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path,
+		std::shared_ptr<Material> material = GCoreComponents::resourceManager().createMaterial(component_data->material_path);
+		//std::shared_ptr<Mesh> mesh = GCoreComponents::resourceManager().createMesh(component_data->mesh_path);
+		std::shared_ptr<Mesh> mesh = GCoreComponents::resourceManager().createMesh(component_data->mesh_path,
 										component_data->vertex_data,
 										component_data->index_data,
 										component_data->vertex_description,
@@ -737,7 +749,7 @@ void DeferredRenderingPipeline::registerInterfaceMeshComponents()
 		m_interface_pass.addRenderJob(RenderJob(component_data->entity,material.get(),mesh.get()));
 	}
 
-	auto& update_queue = m_interfaceMesh_mngr->m_updated_components_queue;
+	auto& update_queue = GCoreComponents::interfaceMeshManager().m_updated_components_queue;
 
 	// Check for updated components
 	while ( !update_queue.empty() )
@@ -746,9 +758,9 @@ void DeferredRenderingPipeline::registerInterfaceMeshComponents()
 
 		InterfaceMeshComponentManager::Data* component_data = &interfaceMesh_data[idx];
 
-		//std::shared_ptr<Material> material = m_resource_mngr->createMaterial(component_data->material_path);
-		//std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path);
-		m_resource_mngr->updateMesh(component_data->mesh_path,
+		//std::shared_ptr<Material> material = GCoreComponents::resourceManager().createMaterial(component_data->material_path);
+		//std::shared_ptr<Mesh> mesh = GCoreComponents::resourceManager().createMesh(component_data->mesh_path);
+		GCoreComponents::resourceManager().updateMesh(component_data->mesh_path,
 										component_data->vertex_data,
 										component_data->index_data,
 										component_data->vertex_description,
@@ -759,6 +771,7 @@ void DeferredRenderingPipeline::registerInterfaceMeshComponents()
 	}
 }
 
+/*
 void DeferredRenderingPipeline::registerSelectableCompontens()
 {
 	// Access select components
@@ -772,9 +785,9 @@ void DeferredRenderingPipeline::registerSelectableCompontens()
 
 		SelectComponentManager::Data* component_data = &select_data[idx];
 
-		std::shared_ptr<Material> material = m_resource_mngr->createMaterial(component_data->material_path);
-		//std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path);
-		std::shared_ptr<Mesh> mesh = m_resource_mngr->createMesh(component_data->mesh_path,
+		std::shared_ptr<Material> material = GCoreComponents::resourceManager().createMaterial(component_data->material_path);
+		//std::shared_ptr<Mesh> mesh = GCoreComponents::resourceManager().createMesh(component_data->mesh_path);
+		std::shared_ptr<Mesh> mesh = GCoreComponents::resourceManager().createMesh(component_data->mesh_path,
 										component_data->vertex_data,
 										component_data->index_data,
 										component_data->vertex_description,
@@ -784,11 +797,12 @@ void DeferredRenderingPipeline::registerSelectableCompontens()
 		m_picking_pass.addRenderJob(RenderJob(component_data->entity,material.get(),mesh.get()));
 	}
 }
+*/
 
 void DeferredRenderingPipeline::registerLightComponents()
 {
 	// Access point light components
-	auto& pointlight_queue = m_light_mngr->getComponentsQueue();
+	auto& pointlight_queue = GCoreComponents::pointlightManager().getComponentsQueue();
 
 	while( !pointlight_queue.empty() )
 	{

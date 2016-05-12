@@ -1,3 +1,5 @@
+#include "GlobalCoreComponents.hpp"
+
 #ifndef InterfaceMeshComponent_hpp
 #define InterfaceMeshComponent_hpp
 
@@ -41,13 +43,11 @@ private:
 	std::vector<Data>& getData() { return m_data; }
 	MTQueue<uint>& getComponentsQueue()  { return m_added_components_queue; }
 
-	ResourceManager* m_resource_mngr;
-
 	/* Grant Rendering Pipeline access to private members. */
 	friend class DeferredRenderingPipeline;
 
 public:
-	InterfaceMeshComponentManager(ResourceManager* resource_mngr);
+	InterfaceMeshComponentManager();
 	~InterfaceMeshComponentManager();
 
 	void addComponent(Entity e, std::string material_path, std::string mesh_path);

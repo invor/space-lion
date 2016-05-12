@@ -58,6 +58,8 @@ void CameraComponentManager::reallocate(uint size)
 
 void CameraComponentManager::addComponent(Entity entity, float near, float far, float fovy, float aspect_ratio, float exposure)
 {
+	std::cout << m_data.used << "" << m_data.allocated << std::endl;
+	
 	assert(m_data.used < m_data.allocated);
 
 	uint index = m_data.used;

@@ -33,6 +33,7 @@ private:
 	MTQueue<Entity>& getComponentsQueue()  { return m_added_components_queue; }
 
 	friend class DeferredRenderingPipeline;
+	friend class AtmosphereComponentManager;
 
 public:
 	SunlightComponentManager(uint size);

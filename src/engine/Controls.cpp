@@ -13,7 +13,6 @@ namespace Controls
 #endif
 
 		Entity* _active_camera;
-		TransformComponentManager* _transform_mngr;
 
 		double last_xpos, last_ypos;
 
@@ -30,11 +29,11 @@ namespace Controls
 			last_xpos = xpos;
 			last_ypos = ypos;
 
-			uint idx = _transform_mngr->getIndex(*_active_camera);
-			Quat orientation = _transform_mngr->getOrientation(idx);
+			uint idx = GCoreComponents::transformManager().getIndex(*_active_camera);
+			Quat orientation = GCoreComponents::transformManager().getOrientation(idx);
 			Vec3 worldUp = glm::rotate(glm::conjugate(orientation),Vec3(0.0,1.0,0.0));
-			_transform_mngr->rotate(idx,glm::rotate(Quat(),-0.001f*(float)dx,worldUp));
-			_transform_mngr->rotate(idx,glm::rotate(Quat(),-0.001f*(float)dy,Vec3(1.0,0.0,0.0)));
+			GCoreComponents::transformManager().rotate(idx,glm::rotate(Quat(),-0.001f*(float)dx,worldUp));
+			GCoreComponents::transformManager().rotate(idx,glm::rotate(Quat(),-0.001f*(float)dy,Vec3(1.0,0.0,0.0)));
 		}
 
 		void cameraMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -64,11 +63,11 @@ namespace Controls
 				last_xpos = xpos;
 				last_ypos = ypos;
 
-				uint idx = _transform_mngr->getIndex(*_active_camera);
-				Quat orientation = _transform_mngr->getOrientation(idx);
+				uint idx = GCoreComponents::transformManager().getIndex(*_active_camera);
+				Quat orientation = GCoreComponents::transformManager().getOrientation(idx);
 				Vec3 worldUp = glm::rotate(glm::conjugate(orientation),Vec3(0.0,1.0,0.0));
-				_transform_mngr->rotate(idx,glm::rotate(Quat(),-0.001f*(float)dx,worldUp));
-				_transform_mngr->rotate(idx,glm::rotate(Quat(),-0.001f*(float)dy,Vec3(1.0,0.0,0.0)));
+				GCoreComponents::transformManager().rotate(idx,glm::rotate(Quat(),-0.001f*(float)dx,worldUp));
+				GCoreComponents::transformManager().rotate(idx,glm::rotate(Quat(),-0.001f*(float)dy,Vec3(1.0,0.0,0.0)));
 			}
 		}
 
@@ -100,9 +99,8 @@ namespace Controls
 		}
 	}
 
-	void init(TransformComponentManager* transform_mngr, Entity* active_camera)
+	void init(Entity* active_camera)
 	{
-		_transform_mngr = transform_mngr;
 		_active_camera = active_camera;
 	}
 
@@ -113,8 +111,8 @@ namespace Controls
 		if (glfwGetKey(active_window,GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 			boost = 50.0f;
 
-		uint idx = _transform_mngr->getIndex(*_active_camera);
-		Quat orientation = _transform_mngr->getOrientation(idx);
+		uint idx = GCoreComponents::transformManager().getIndex(*_active_camera);
+		Quat orientation = GCoreComponents::transformManager().getOrientation(idx);
 
 		Quat qFront = glm::cross(glm::cross(orientation,glm::quat(0.0,0.0,0.0,-1.0)),glm::conjugate(orientation));
 		Quat qUp =	glm::cross(glm::cross(orientation,glm::quat(0.0,0.0,1.0,0.0)),glm::conjugate(orientation));
@@ -125,16 +123,16 @@ namespace Controls
 		Vec3 vRighthand = glm::normalize(glm::vec3(qRighthand.x,qRighthand.y,qRighthand.z)) * boost * (float)dt;
 
 		if (glfwGetKey(active_window,GLFW_KEY_W) == GLFW_PRESS)
-			_transform_mngr->translate(idx,vfront);
+			GCoreComponents::transformManager().translate(idx,vfront);
 
 		if (glfwGetKey(active_window,GLFW_KEY_A) == GLFW_PRESS)
-			_transform_mngr->translate(idx,-vRighthand);
+			GCoreComponents::transformManager().translate(idx,-vRighthand);
 
 		if (glfwGetKey(active_window,GLFW_KEY_S) == GLFW_PRESS)
-			_transform_mngr->translate(idx,-vfront);
+			GCoreComponents::transformManager().translate(idx,-vfront);
 
 		if (glfwGetKey(active_window,GLFW_KEY_D) == GLFW_PRESS)
-			_transform_mngr->translate(idx,vRighthand);
+			GCoreComponents::transformManager().translate(idx,vRighthand);
 	}
 
 	void setControlCallbacks(GLFWwindow* active_window)

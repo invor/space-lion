@@ -1,0 +1,306 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Editor Mode Release|Win32">
+      <Configuration>Editor Mode Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Editor Mode Release|x64">
+      <Configuration>Editor Mode Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{437161F7-947B-45E8-89B3-F5841050CEA3}</ProjectGuid>
+    <RootNamespace>engine</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor Mode Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor Mode Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Editor Mode Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Editor Mode Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor Mode Release|Win32'">
+    <OutDir>$(SolutionDir)/../bin/</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)/../bin/</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)/../bin/</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor Mode Release|x64'">
+    <OutDir>$(SolutionDir)/../bin/</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)/../bin/</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)/../bin/</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../../glowl/include/glowl;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../../glowl/include/glowl;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../../glowl/include/glowl;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Editor Mode Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../../glowl/include/glowl;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>EDITOR_MODE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../../glowl/include/glowl;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Editor Mode Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../../glowl/include/glowl;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>EDITOR_MODE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\glowl\include\glowl\framebufferObject.h" />
+    <ClInclude Include="..\..\..\glowl\include\glowl\glowl.h" />
+    <ClInclude Include="..\..\..\glowl\include\glowl\GLSLProgram.h" />
+    <ClInclude Include="..\..\..\glowl\include\glowl\mesh.h" />
+    <ClInclude Include="..\..\..\glowl\include\glowl\shaderStorageBufferObject.h" />
+    <ClInclude Include="..\..\..\glowl\include\glowl\texture.h" />
+    <ClInclude Include="..\..\..\glowl\include\glowl\texture2D.h" />
+    <ClInclude Include="..\..\..\glowl\include\glowl\texture3D.h" />
+    <ClInclude Include="..\..\src\engine\AdvancedDeferredRenderingPipeline.hpp" />
+    <ClInclude Include="..\..\src\engine\AirplanePhysicsComponent.hpp" />
+    <ClInclude Include="..\..\src\engine\AtmosphereComponent.hpp" />
+    <ClInclude Include="..\..\src\engine\CameraComponent.hpp" />
+    <ClInclude Include="..\..\src\engine\CameraControls.hpp" />
+    <ClInclude Include="..\..\src\engine\Controls.hpp" />
+    <ClInclude Include="..\..\src\engine\DeferredRenderingPipeline.hpp" />
+    <ClInclude Include="..\..\src\engine\EntityManager.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_exceptions.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_generic_parser.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_geometry.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_node_name.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_node_property.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_opengl_geometry.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_parser.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_print.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_property.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_reader.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_types.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_unzip.hpp" />
+    <ClInclude Include="..\..\src\engine\fbx\fbx_value.hpp" />
+    <ClInclude Include="..\..\src\engine\GlobalCoreComponents.hpp" />
+    <ClInclude Include="..\..\src\engine\InterfaceMeshComponent.hpp" />
+    <ClInclude Include="..\..\src\engine\MarchingCubesTriangleTable.hpp" />
+    <ClInclude Include="..\..\src\engine\Material.hpp" />
+    <ClInclude Include="..\..\src\engine\MTQueue.hpp" />
+    <ClInclude Include="..\..\src\engine\PointlightComponent.hpp" />
+    <ClInclude Include="..\..\src\engine\RenderingPipeline.hpp" />
+    <ClInclude Include="..\..\src\engine\RenderJobs.hpp" />
+    <ClInclude Include="..\..\src\engine\ResourceManager.h" />
+    <ClInclude Include="..\..\src\engine\SelectComponent.hpp" />
+    <ClInclude Include="..\..\src\engine\slm.h" />
+    <ClInclude Include="..\..\src\engine\StaticMeshComponent.hpp" />
+    <ClInclude Include="..\..\src\engine\SunlightComponent.hpp" />
+    <ClInclude Include="..\..\src\engine\Terrain.hpp" />
+    <ClInclude Include="..\..\src\engine\TransformComponent.hpp" />
+    <ClInclude Include="..\..\src\engine\TransformTool.hpp" />
+    <ClInclude Include="..\..\src\engine\types.hpp" />
+    <ClInclude Include="..\..\src\engine\vertexStructs.h" />
+    <ClInclude Include="..\..\src\engine\VolumeComponent.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\glowl\src\framebufferObject.cpp" />
+    <ClCompile Include="..\..\..\glowl\src\GLSLProgram.cpp" />
+    <ClCompile Include="..\..\..\glowl\src\mesh.cpp" />
+    <ClCompile Include="..\..\..\glowl\src\shaderStorageBufferObject.cpp" />
+    <ClCompile Include="..\..\..\glowl\src\texture2D.cpp" />
+    <ClCompile Include="..\..\..\glowl\src\texture3D.cpp" />
+    <ClCompile Include="..\..\src\engine\AdvancedDeferredRenderingPipeline.cpp" />
+    <ClCompile Include="..\..\src\engine\AirplanePhysicsComponent.cpp" />
+    <ClCompile Include="..\..\src\engine\AtmosphereComponent.cpp" />
+    <ClCompile Include="..\..\src\engine\CameraComponent.cpp" />
+    <ClCompile Include="..\..\src\engine\CameraControls.cpp" />
+    <ClCompile Include="..\..\src\engine\Controls.cpp" />
+    <ClCompile Include="..\..\src\engine\DeferredRenderingPipeline.cpp" />
+    <ClCompile Include="..\..\src\engine\EntityManager.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_node_name.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_opengl_geometry.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_parser.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_print.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_property.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_reader.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_unzip.cpp" />
+    <ClCompile Include="..\..\src\engine\fbx\fbx_value.cpp" />
+    <ClCompile Include="..\..\src\engine\GlobalCoreComponents.cpp" />
+    <ClCompile Include="..\..\src\engine\InterfaceMeshComponent.cpp" />
+    <ClCompile Include="..\..\src\engine\main.cpp" />
+    <ClCompile Include="..\..\src\engine\PointlightComponent.cpp" />
+    <ClCompile Include="..\..\src\engine\RenderingPipeline.cpp" />
+    <ClCompile Include="..\..\src\engine\RenderJobs.cpp" />
+    <ClCompile Include="..\..\src\engine\ResourceManager.cpp" />
+    <ClCompile Include="..\..\src\engine\StaticMeshComponent.cpp" />
+    <ClCompile Include="..\..\src\engine\SunlightComponent.cpp" />
+    <ClCompile Include="..\..\src\engine\Terrain.cpp" />
+    <ClCompile Include="..\..\src\engine\TransformComponent.cpp" />
+    <ClCompile Include="..\..\src\engine\TransformTool.cpp" />
+    <ClCompile Include="..\..\src\engine\VolumeComponent.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\glm.0.9.7.1\build\native\glm.targets" Condition="Exists('..\packages\glm.0.9.7.1\build\native\glm.targets')" />
+    <Import Project="..\packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets" Condition="Exists('..\packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" />
+    <Import Project="..\packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets" Condition="Exists('..\packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\glm.0.9.7.1\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\glm.0.9.7.1\build\native\glm.targets'))" />
+    <Error Condition="!Exists('..\packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets'))" />
+  </Target>
+</Project>

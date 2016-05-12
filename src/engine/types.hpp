@@ -11,4 +11,6 @@ typedef glm::vec3 Vec3;
 typedef glm::vec2 Vec2;
 typedef glm::quat Quat;
 
+typedef unsigned int uint;
+
 #endif

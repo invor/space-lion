@@ -1,0 +1,288 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\fbx">
+      <UniqueIdentifier>{f904b583-9be5-4582-8f3f-5d8ae45aa0fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\fbx">
+      <UniqueIdentifier>{20d4534b-1285-41be-bfc1-4ab356dec574}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glowl">
+      <UniqueIdentifier>{9b0cd631-71da-41fb-8929-53e16dfbc255}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\glowl">
+      <UniqueIdentifier>{8b6e19d4-7441-4c92-aacc-aeb91e2dec11}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\engine\VolumeComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\AdvancedDeferredRenderingPipeline.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\AirplanePhysicsComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\AtmosphereComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\CameraComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\CameraControls.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Controls.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\DeferredRenderingPipeline.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\EntityManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\InterfaceMeshComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\MarchingCubesTriangleTable.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Material.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\MTQueue.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\PointlightComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\RenderingPipeline.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\RenderJobs.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ResourceManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\SelectComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\slm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\StaticMeshComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\SunlightComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Terrain.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\TransformComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\TransformTool.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\types.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\vertexStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_value.hpp">
+      <Filter>Header Files\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_exceptions.hpp">
+      <Filter>Header Files\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_generic_parser.hpp">
+      <Filter>Header Files\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_geometry.hpp">
+      <Filter>Header Files\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_node_name.hpp">
+      <Filter>Header Files\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_node_property.hpp">
+      <Filter>Header Files\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_opengl_geometry.hpp">
+      <Filter>Header Files\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_parser.hpp">
+      <Filter>Header Files\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_print.hpp">
+      <Filter>Header Files\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_property.hpp">
+      <Filter>Header Files\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_reader.hpp">
+      <Filter>Header Files\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_types.hpp">
+      <Filter>Header Files\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\fbx\fbx_unzip.hpp">
+      <Filter>Header Files\fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\framebufferObject.h">
+      <Filter>Header Files\glowl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\glowl.h">
+      <Filter>Header Files\glowl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\GLSLProgram.h">
+      <Filter>Header Files\glowl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\mesh.h">
+      <Filter>Header Files\glowl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\shaderStorageBufferObject.h">
+      <Filter>Header Files\glowl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\texture.h">
+      <Filter>Header Files\glowl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\texture2D.h">
+      <Filter>Header Files\glowl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\glowl\include\glowl\texture3D.h">
+      <Filter>Header Files\glowl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\GlobalCoreComponents.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\engine\VolumeComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\AdvancedDeferredRenderingPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\AirplanePhysicsComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\AtmosphereComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\CameraComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\CameraControls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Controls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\DeferredRenderingPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\EntityManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\InterfaceMeshComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\PointlightComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\RenderingPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\RenderJobs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ResourceManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\StaticMeshComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\SunlightComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\TransformComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\TransformTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_geometry.cpp">
+      <Filter>Source Files\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_node_name.cpp">
+      <Filter>Source Files\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_opengl_geometry.cpp">
+      <Filter>Source Files\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_parser.cpp">
+      <Filter>Source Files\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_print.cpp">
+      <Filter>Source Files\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_property.cpp">
+      <Filter>Source Files\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_reader.cpp">
+      <Filter>Source Files\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_unzip.cpp">
+      <Filter>Source Files\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\fbx\fbx_value.cpp">
+      <Filter>Source Files\fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\glowl\src\texture3D.cpp">
+      <Filter>Source Files\glowl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\glowl\src\framebufferObject.cpp">
+      <Filter>Source Files\glowl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\glowl\src\GLSLProgram.cpp">
+      <Filter>Source Files\glowl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\glowl\src\mesh.cpp">
+      <Filter>Source Files\glowl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\glowl\src\shaderStorageBufferObject.cpp">
+      <Filter>Source Files\glowl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\glowl\src\texture2D.cpp">
+      <Filter>Source Files\glowl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\GlobalCoreComponents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>

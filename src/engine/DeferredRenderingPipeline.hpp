@@ -1,9 +1,11 @@
+#include "GlobalCoreComponents.hpp"
+
 #ifndef DeferredRenderingPipeline_h
 #define DeferredRenderingPipeline_h
 
 #include <functional>
 
-#include "AtmosphereComponent.hpp"
+//#include "AtmosphereComponent.hpp"
 #include "StaticMeshComponent.hpp"
 #include "VolumeComponent.hpp"
 #include "InterfaceMeshComponent.hpp"
@@ -58,8 +60,16 @@ private:
 	/** Render jobs for interface related objects, i.e. move-gizmo in editor mode */
 	RenderJobManager m_interface_pass;
 
-	/** Thread-safe queue for tasks that have to executed on the render thread, but only a single time */
+	/** Thread-safe queue for tasks that have to be executed on the render thread, but only a single time */
 	MTQueue<std::function<void()>> m_singleExecution_tasks;
+
+	/** Thread-safe queue for tasks that have to be executed on the render thread, during the geometry pass of each frame */
+	mutable std::mutex m_perFrameGeometry_tasks_mutex; //TODO replace with MTList
+	std::list<std::function<void()>> m_perFrameGeometry_tasks;
+
+	/** Thread-safe queue for tasks that have to be executed on the render thread, during the atmosphere pass of each frame */
+	mutable std::mutex m_perFrameAtmosphere_tasks_mutex; //TODO replace with MTList
+	std::list<std::function<void()>> m_perFrameAtmosphere_tasks;
 
 	/** The g-Buffer used by the rendering pipeline */
 	std::unique_ptr<FramebufferObject> m_gBuffer;
@@ -86,23 +96,6 @@ private:
 	Entity m_active_camera;
 	std::vector<Entity> m_active_lightsources;
 
-	/**************************************************************************
-	 * Pointers to relevant modules of the engine,
-	 * e.g. the EntityManager and TransformManager
-	 *************************************************************************/
-	EntityManager* m_entity_mngr;
-	ResourceManager* m_resource_mngr;
-	TransformComponentManager* m_transform_mngr;
-	CameraComponentManager* m_camera_mngr;
-	PointlightComponentManager* m_light_mngr;
-	SunlightComponentManager* m_sunlight_mngr;
-	AtmosphereComponentManager* m_atmosphere_mngr;
-	StaticMeshComponentManager* m_staticMesh_mngr;
-	VolumeComponentManager* m_volume_mngr;
-	InterfaceMeshComponentManager* m_interfaceMesh_mngr;
-	SelectComponentManager* m_select_mngr;
-	
-
 	/** Check StaticMeshComponentManager for newly added components and add actual render jobs */
 	void registerStaticMeshComponents();
 
@@ -113,7 +106,7 @@ private:
 	void registerInterfaceMeshComponents();
 
 	/** Check SelectableComponentManager for newly added components and add actual render jobs */
-	void registerSelectableCompontens();
+	//void registerSelectableCompontens();
 
 	/** Check PointLightComponentManager for newly added components and add to active light source list */
 	void registerLightComponents();
@@ -142,6 +135,9 @@ private:
 	/** Process single execution task queue */
 	void processSingleExecTasks();
 
+	/** Process per frame geometry tasks */
+	void processPerFrameGeometryTasks();
+
 	/**
 	 * TODO
 	 * Compute new exposure from previous frame
@@ -157,16 +153,7 @@ private:
 	static void windowCloseCallback(GLFWwindow* window);
 
 public:
-	DeferredRenderingPipeline(EntityManager* entity_mngr,
-							ResourceManager* resource_mngr,
-							TransformComponentManager* transform_mngr,
-							CameraComponentManager* camera_mngr, 
-							PointlightComponentManager* light_mngr,
-							SunlightComponentManager* sunlight_mngr,
-							AtmosphereComponentManager* atmosphere_mngr,
-							StaticMeshComponentManager* staticMesh_mngr,
-							VolumeComponentManager* volume_mngr,
-							InterfaceMeshComponentManager* interfaceMesh_mngr);
+	DeferredRenderingPipeline();
 
 	~DeferredRenderingPipeline();
 
@@ -176,7 +163,18 @@ public:
 	/** Add a task to the render pipeline that only has to be executed once */
 	void addSingleExecutionGpuTask(std::function<void()> task);
 
+	/** Add a task to the render pipline that is executed each frame during the geometry pass */
+	void addPerFrameGeometryGpuTask(std::function<void()> task);
+
+	/** Add a task to the render pipline that is executed each frame during the atmosphere pass */
+	void addPerFrameAtmosphereGpuTask(std::function<void()> task);
+
 	void setActiveCamera(Entity entity);
+
+	/** Return pointer to scene depth buffer (useful for volumetric components) */
+	FramebufferObject* getGBuffer();
+
+	Entity getActiveCamera();
 
 };
 

@@ -158,7 +158,7 @@ void AdvancedDeferredRenderingPipeline::run()
 	glfwSetWindowSizeCallback(m_active_window,windowSizeCallback);
 	glfwSetWindowCloseCallback(m_active_window,windowCloseCallback);
 
-	Controls::init(m_transform_mngr,&m_active_camera);
+	Controls::init(&m_active_camera);
 	Controls::setControlCallbacks(m_active_window);
 
 	// Initialize glew

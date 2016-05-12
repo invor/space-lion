@@ -1,3 +1,5 @@
+#include "GlobalCoreComponents.hpp"
+
 #ifndef AirplanePhysicsComponent_hpp
 #define AirplanePhysicsComponent_hpp
 
@@ -34,10 +36,8 @@ private:
 
 	std::unordered_map<uint,uint> m_index_map;
 
-	TransformComponentManager* m_transform_mngr;
-
 public:
-	AirplanePhysicsComponentManager(uint size, TransformComponentManager* transform_mngr);
+	AirplanePhysicsComponentManager(uint size);
 	~AirplanePhysicsComponentManager();
 
 	void reallocate(uint size);

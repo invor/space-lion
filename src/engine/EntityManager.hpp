@@ -6,7 +6,7 @@
 #include <mutex>
 #include <vector>
 
-typedef unsigned int uint;
+#include "types.hpp"
 
 const size_t MAX_UINT = std::numeric_limits<uint>::max();
 

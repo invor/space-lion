@@ -1,7 +1,6 @@
 #include "AirplanePhysicsComponent.hpp"
 
-AirplanePhysicsComponentManager::AirplanePhysicsComponentManager(uint size,TransformComponentManager* transform_mngr)
-	: m_transform_mngr(transform_mngr)
+AirplanePhysicsComponentManager::AirplanePhysicsComponentManager(uint size)
 {
 	const uint bytes = size * ( sizeof(Entity) +
 								2*sizeof(Vec3) +
@@ -94,8 +93,8 @@ void AirplanePhysicsComponentManager::update(float timestep)
 	for(int i=0; i<m_data.used; i++)
 	{
 
-		uint transform_idx = m_transform_mngr->getIndex( m_data.entity[i] );
-		Quat orientation = m_transform_mngr->getOrientation(transform_idx);
+		uint transform_idx = GCoreComponents::transformManager().getIndex( m_data.entity[i] );
+		Quat orientation = GCoreComponents::transformManager().getOrientation(transform_idx);
 
 		Quat qFront = glm::cross(glm::cross(orientation,glm::quat(0.0,0.0,0.0,1.0)),glm::conjugate(orientation));
 		Quat qUp =	glm::cross(glm::cross(orientation,glm::quat(0.0,0.0,1.0,0.0)),glm::conjugate(orientation));
@@ -132,7 +131,7 @@ void AirplanePhysicsComponentManager::update(float timestep)
 
 		m_data.velocity[i] += m_data.acceleration[i] * timestep;
 
-		m_transform_mngr->translate(transform_idx,m_data.velocity[i] * timestep);	
+		GCoreComponents::transformManager().translate(transform_idx,m_data.velocity[i] * timestep);	
 	}
 
 
