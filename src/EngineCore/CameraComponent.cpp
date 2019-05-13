@@ -1,11 +1,14 @@
 #include "CameraComponent.hpp"
 
+#include "EntityManager.hpp"
+
 CameraComponentManager::CameraComponentManager(uint size)
+	: m_active_camera_idx(0)
 {
 	const uint bytes = size * (sizeof(Entity)
 								+ 5*sizeof(float)
 								+ 1*sizeof(Mat4x4));
-	m_data.buffer = new char[bytes];
+	m_data.buffer = new uint8_t[bytes];
 
 	m_data.used = 0;
 	m_data.allocated = size;
@@ -17,11 +20,13 @@ CameraComponentManager::CameraComponentManager(uint size)
 	m_data.aspect_ratio = (float*)(m_data.fovy + size);
 	m_data.exposure = (float*)(m_data.aspect_ratio + size);
 	m_data.projection_matrix = (Mat4x4*)(m_data.exposure + size);
+
+	//GEngineCore::renderingPipeline().addPerFrameInterfaceGpuTask(std::bind(&CameraComponentManager::drawDebugInterface, this));
 }
 
 CameraComponentManager::~CameraComponentManager()
 {
-	delete m_data.buffer;
+	delete[] m_data.buffer;
 }
 
 void CameraComponentManager::reallocate(uint size)
@@ -30,7 +35,7 @@ void CameraComponentManager::reallocate(uint size)
 	const uint bytes = size * (sizeof(Entity)
 								+ 5*sizeof(float)
 								+ 1*sizeof(Mat4x4));
-	new_data.buffer = new char[bytes];
+	new_data.buffer = new uint8_t[bytes];
 
 	new_data.used = m_data.used;
 	new_data.allocated = size;
@@ -57,9 +62,7 @@ void CameraComponentManager::reallocate(uint size)
 }
 
 void CameraComponentManager::addComponent(Entity entity, float near, float far, float fovy, float aspect_ratio, float exposure)
-{
-	std::cout << m_data.used << "" << m_data.allocated << std::endl;
-	
+{	
 	assert(m_data.used < m_data.allocated);
 
 	uint index = m_data.used;
@@ -82,13 +85,50 @@ void CameraComponentManager::deleteComponent(Entity entity)
 {
 }
 
-const uint CameraComponentManager::getIndex(Entity entity)
+bool CameraComponentManager::checkComponent(uint entity_id) const
+{
+	auto search = m_index_map.find(entity_id);
+
+	if (search == m_index_map.end())
+		return false;
+	else
+		return true;
+}
+
+uint CameraComponentManager::getIndex(Entity entity) const
 {
 	auto search = m_index_map.find(entity.id());
 
 	assert( (search != m_index_map.end()) );
 
 	return search->second;
+}
+
+uint CameraComponentManager::getIndex(uint entity_id) const
+{
+	auto search = m_index_map.find(entity_id);
+
+	assert((search != m_index_map.end()));
+
+	return search->second;
+}
+
+void CameraComponentManager::setActiveCamera(Entity entity)
+{
+	auto search = m_index_map.find(entity.id());
+
+	if(search != m_index_map.end())
+		m_active_camera_idx = search->second;
+}
+
+uint CameraComponentManager::getActiveCameraIndex() const
+{
+	return m_active_camera_idx;
+}
+
+Entity CameraComponentManager::getEntity(uint index) const
+{
+	return m_data.entity[index];
 }
 
 void CameraComponentManager::setCameraAttributes(uint index, float near, float far, float fovy, float aspect_ratio, float exposure)
@@ -137,22 +177,47 @@ void CameraComponentManager::updateProjectionMatrix(uint index)
 	//	m_data.projection_matrix[index] = projection_matrix;
 }
 
-const Mat4x4 CameraComponentManager::getProjectionMatrix(uint index)
+void CameraComponentManager::setNear(uint index, float near)
+{
+	m_data.near[index] = near;
+}
+
+void CameraComponentManager::setFar(uint index, float far)
+{
+	m_data.far[index] = far;
+}
+
+Mat4x4 CameraComponentManager::getProjectionMatrix(uint index) const
 {
 	return m_data.projection_matrix[index];
 }
 
-const float CameraComponentManager::getFovy(uint index)
+float CameraComponentManager::getFovy(uint index) const
 {
 	return m_data.fovy[index];
 }
 
-const float CameraComponentManager::getAspectRatio(uint index)
+void CameraComponentManager::setFovy(uint index, float fovy)
+{
+	m_data.fovy[index] = fovy;
+}
+
+float CameraComponentManager::getAspectRatio(uint index) const
 {
 	return m_data.aspect_ratio[index];
 }
 
-const float CameraComponentManager::getExposure(uint index)
+void CameraComponentManager::setAspectRatio(uint index, float aspect_ratio)
+{
+	m_data.aspect_ratio[index] = aspect_ratio;
+}
+
+float CameraComponentManager::getExposure(uint index) const
 {
 	return m_data.exposure[index];
+}
+
+void CameraComponentManager::setExposure(uint index, float exposure)
+{
+	m_data.exposure[index] = exposure;
 }

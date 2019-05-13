@@ -14,7 +14,7 @@ private:
 	{
 		uint used;		///< number of components currently in use
 		uint allocated;	///< number of components that the allocated memery can hold
-		void* buffer;	///< raw data pointer
+		uint8_t* buffer;	///< raw data pointer
 
 		Entity* entity;				///< entity owning that owns the component
 		Vec3* light_colour;			///< color of the light in rgb values
@@ -26,14 +26,6 @@ private:
 
 	std::unordered_map<uint,uint> m_index_map;
 
-	MTQueue<Entity> m_added_components_queue;
-
-	/** Access raw data. */
-	Data const * const getData() const;
-	MTQueue<Entity>& getComponentsQueue()  { return m_added_components_queue; }
-
-	friend class DeferredRenderingPipeline;
-
 public:
 	PointlightComponentManager(uint size);
 	~PointlightComponentManager();
@@ -44,14 +36,27 @@ public:
 
 	void deleteComonent(Entity entity);
 
+	uint getComponentCount();
+
 	uint getIndex(Entity entity);
 
-	const Vec3 getColour(uint index);
+	std::pair<bool, uint> getIndex(uint entity_id);
 
-	const float getLumen(uint index);
+	Entity getEntity(uint index);
 
-	const float getRadius(uint index);
+	Vec3 getColour(uint index) const;
 
+	float getLumen(uint index) const;
+
+	float getRadius(uint index) const;
+
+	void setColour(uint index, Vec3 colour);
+
+	void setLumen(uint index, float lumen);
+
+	void setRadius(uint index, float radius);
+
+	std::vector<Entity> getListOfEntities() const;
 };
 
 #endif

@@ -1,14 +1,14 @@
-#ifndef CameraComponent_h
-#define CameraComponent_h
+#ifndef CameraComponent_hpp
+#define CameraComponent_hpp
 
+// forward declartion of Entity
+struct Entity;
+
+// space-lion includes
+#include "types.hpp"
+
+// std includes
 #include <unordered_map>
-#include <iostream>
-
-#include "EntityManager.hpp"
-#include <glm\glm.hpp>
-#include <glm\gtc\matrix_transform.hpp>
-
-typedef glm::mat4 Mat4x4;
 
 class CameraComponentManager
 {
@@ -17,7 +17,7 @@ private:
 	{
 		uint used;		///< number of components currently in use
 		uint allocated;	///< number of components that the allocated memery can hold
-		void* buffer;	///< raw data pointer
+		uint8_t* buffer;	///< raw data pointer
 
 		Entity* entity;				///< entity owning the component
 		float* near;				///< near clipping plane
@@ -31,6 +31,9 @@ private:
 	Data m_data;
 
 	std::unordered_map<uint,uint> m_index_map;
+
+	// TODO move this elsewhere?
+	uint m_active_camera_idx;
 
 public:
 	CameraComponentManager(uint size);
@@ -47,19 +50,39 @@ public:
 
 	void deleteComponent(Entity entity);
 
-	const uint getIndex(Entity entity);
+	bool checkComponent(uint entity_id) const;
+
+	uint getIndex(Entity entity) const;
+
+	uint getIndex(uint entity_id) const;
+
+	void setActiveCamera(Entity entity);
+
+	uint getActiveCameraIndex() const;
+
+	Entity getEntity(uint index) const;
 
 	void setCameraAttributes(uint index, float near, float far, float fovy = 0.5236f, float aspect_ratio = 16.0/9.0f, float exposure = 0.000045f);
 
 	void updateProjectionMatrix(uint index);
 
-	const Mat4x4 getProjectionMatrix(uint index);
+	Mat4x4 getProjectionMatrix(uint index) const;
 
-	const float getFovy(uint index);
+	void setNear(uint index, float near);
 
-	const float getAspectRatio(uint index);
+	void setFar(uint index, float far);
+
+	float getFovy(uint index) const;
+
+	void setFovy(uint index, float fovy);
+
+	float getAspectRatio(uint index) const;
+
+	void setAspectRatio(uint index, float aspect_ratio);
 	
-	const float getExposure(uint index);
+	float getExposure(uint index) const;
+
+	void setExposure(uint index, float exposure);
 };
 
 #endif

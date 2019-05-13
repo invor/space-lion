@@ -1,64 +1,111 @@
-#include "GlobalCoreComponents.hpp"
-
 #ifndef AirplanePhysicsComponent_hpp
 #define AirplanePhysicsComponent_hpp
 
-#include <unordered_map>
-
-#include "EntityManager.hpp"
-#include "TransformComponent.hpp"
+#include "BaseComponentManager.hpp"
 #include "types.hpp"
 
-class AirplanePhysicsComponentManager
-{	
-private:
-	struct Data
+struct Entity;
+
+namespace EngineCore
+{
+	class WorldState;
+
+	namespace Physics
 	{
-		uint used;					///< number of components currently in use
-		uint allocated;				///< number of components that the allocated memery can hold
-		void* buffer;				///< raw data pointer
 
-		Entity* entity;				///< entity owning the component
+		class AirplanePhysicsComponentManager : public BaseComponentManager
+		{
+		private:
 
-		Vec3* velocity;				///< velocity of the airplane (direction and magnitude)
-		Vec3* acceleration;			///< acceleration of the airplance
+			struct AerodynamicForces
+			{
+				Vec3 lift;
+				Vec3 drag;
+				Vec3 thrust;
+				Vec3 gravity;
+			};
 
-		float* engine_thrust;		///< engine thrust, force acting in the direction of airplane orientation
-		float* aerodynamic_drag;	///< aerodynamic drag, force acting in opposite direction of the velocity
-		float* aerodynamic_lift;	///< aerodynamic lift, force acting upward from airplane orientation
+			struct Data
+			{
+				uint used;					///< number of components currently in use
+				uint allocated;				///< number of components that the allocated memery can hold
+				uint8_t* buffer;				///< raw data pointer
 
-		float* wing_surface;		///< airplane wing surface (necessary for computing lift)
-		float* mass;				///< airplane mass (necessary for computing lift)
+				Entity* entity;				///< entity owning the component
 
-	};
+				Vec3* velocity;				///< velocity of the airplane (direction and magnitude)
+				Vec3* acceleration;			///< acceleration of the airplance
 
-	Data m_data;
+				float* engine_thrust;		///< engine thrust, force acting in the direction of airplane orientation
+				float* elevator_angle;		///< angle of the elevator, controls aircraft pitch
+				float* rudder_angle;		///< angle of the rudder, controls aircraft yaw
+				float* aileron_angle;		///< angle of the ailerons, controls aircraft banking
+				float* pitch_torque;
+				float* roll_torque;
+				float* yaw_torque;
 
-	std::unordered_map<uint,uint> m_index_map;
+				float* angle_of_attack;
+				float* angle_of_sideslip;
+				float* lift_coefficient;
+				float* drag_coefficient;
+				float* aerodynamic_drag;	///< aerodynamic drag, force acting in opposite direction of the velocity
+				float* aerodynamic_lift;	///< aerodynamic lift, force acting upward from airplane orientation
 
-public:
-	AirplanePhysicsComponentManager(uint size);
-	~AirplanePhysicsComponentManager();
+				float* wing_surface;		///< airplane wing surface (necessary for computing lift)
+				float* mass;				///< airplane mass (necessary for computing lift)
 
-	void reallocate(uint size);
+			};
 
-	void addComponent(Entity entity,
-						Vec3 velocity,
-						Vec3 acceleration,
-						float engine_thrust,
-						float mass,
-						float wing_surface);
+			Data m_data;
 
-	void deleteComponent(Entity entity);
+			mutable std::mutex m_data_mutex;
 
-	void update(float timestep);
+			WorldState& m_world;
 
-	const uint getIndex(Entity entity);
+		public:
+			AirplanePhysicsComponentManager(uint size, WorldState& world);
+			~AirplanePhysicsComponentManager();
 
-	void setEngineThrust(uint index, float engine_thrust);
+			void reallocate(uint size);
 
-	const Vec3 getVelocity(uint index);
+			void addComponent(Entity entity,
+				Vec3 velocity,
+				Vec3 acceleration,
+				float engine_thrust,
+				float mass,
+				float wing_surface);
 
-	const Vec3 getAcceleration(uint index);
-};
+			void deleteComponent(Entity entity);
+
+			void update(float timestep);
+
+			std::pair<bool, uint> getIndex(uint entity_id) const;
+
+			float getEngineThrust(uint index) const;
+
+			void setEngineThrust(uint index, float engine_thrust);
+
+			void setElevatorAngle(uint index, float elevator_angle);
+
+			void setRudderAngle(uint index, float rudder_angle);
+
+			void setAileronAngle(uint index, float aileron_angle);
+
+			Vec3 getVelocity(uint index) const;
+			Vec3 getAcceleration(uint index) const;
+			float getAngleOfAttack(uint index) const;
+			float getAngleOfSideslip(uint index) const;
+			float getLiftCoefficient(uint index) const;
+			float getDragCoefficient(uint index) const;
+			float getAerodynamicDrag(uint index) const;
+			float getAerodynamicLift(uint index) const;
+			float getAileronAngle(uint index) const;
+			float getRudderAngle(uint index) const;
+			float getElevatorAngle(uint index) const;
+			float getWingSurface(uint index) const;
+		};
+
+	}
+
+}
 #endif

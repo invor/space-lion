@@ -1,11 +1,15 @@
 #ifndef VolumeComponent_hpp
 #define VolumeComponent_hpp
 
-#include <unordered_map>
-
+#include "GlobalEngineCore.hpp"
+#include "DeferredRenderingPipeline.hpp"
 #include "EntityManager.hpp"
-#include "ResourceManager.h"
+#include "ResourceManager.hpp"
+
+#include "RenderJobs.hpp"
 #include "MTQueue.hpp"
+
+#include <unordered_map>
 
 /**
  * Simple component for rendering volume data
@@ -15,11 +19,11 @@ class VolumeComponentManager
 private:
 	struct Data
 	{
-		Data(Entity e, const std::string& volume_path, const std::string& boundingGeometry_path, TextureDescriptor volume_description, VertexDescriptor vertex_description, GLenum mesh_type)
+		Data(Entity e, const std::string& volume_path, const std::string& boundingGeometry_path, TextureLayout volume_description, VertexLayout vertex_description, GLenum mesh_type, bool isVisible = true)
 			: entity(e), volume_path(volume_path), boundingGeometry_path(boundingGeometry_path),
-				volume_description(volume_description), vertex_description(vertex_description), mesh_type(mesh_type) {}
+				volume_description(volume_description), vertex_description(vertex_description), mesh_type(mesh_type), isVisible(isVisible) {}
 
-		Data(Entity e, std::shared_ptr<Texture3D> volume, std::shared_ptr<Mesh> boundingGeometry)
+		Data(Entity e, Texture3D* volume, Mesh* boundingGeometry)
 			: entity(e), volume(volume), boundingGeometry(boundingGeometry) {}
 
 		Entity entity;							///< entity
@@ -27,18 +31,21 @@ private:
 		std::string volume_path;				///< path to raw file or name of volume
 		std::string boundingGeometry_path;		///< path to mesh file or name of mesh
 
-		std::shared_ptr<Texture3D> volume;		///< pointer to volume texture
-		std::shared_ptr<Mesh> boundingGeometry;	///< pointer to bounding geometry mesh
+		Texture3D* volume;						///< pointer to volume texture
+		Mesh* boundingGeometry;					///< pointer to bounding geometry mesh
+		GLSLProgram* program;
 
 		std::vector<uint8_t> volume_data;		///< raw volume data
-		TextureDescriptor volume_description;	///< description of volume data
+		TextureLayout volume_description;	///< description of volume data
 
 		std::vector<uint8_t> vertex_data;		///< vertex data of bounding geometry
 		std::vector<uint32_t> index_data;		///< index data of bounding geometry
-		VertexDescriptor vertex_description;	///< description of bounding geometry vertices
+		VertexLayout vertex_description;	///< description of bounding geometry vertices
 		GLenum mesh_type;
 		Vec3 boundingBox_min;
 		Vec3 boundingBox_max;
+
+		bool isVisible;
 	};
 
 	std::vector<Data> m_data;
@@ -46,18 +53,11 @@ private:
 	/** Map for fast entity to component index conversion */
 	std::unordered_map<uint,uint> m_index_map;
 
-	/** Thread safe queue containing indices of added components that haven't been registerd by the Rendering Pipeline yet. */
-	MTQueue<uint> m_update_queue;
-
-	/** Pointer to active ResourceManager */
-	ResourceManager* m_resource_mngr;
-
-	/* Grant Rendering Pipeline access to private members. */
-	friend class DeferredRenderingPipeline;
+	/** Volume RenderJobs */
+	RenderJobManager m_renderJobs;
 
 public:
-	VolumeComponentManager();
-	~VolumeComponentManager();
+	void registerRenderingPipelineTasks();
 
 	uint getIndex(Entity e);
 
@@ -65,17 +65,17 @@ public:
 	void addComponent(Entity e, std::string& volume_path, std::string& boundingGeometry_path);
 
 	/** Add component using existing GPU resources */
-	void addComponent(Entity e, std::shared_ptr<Texture3D> volume, std::shared_ptr<Mesh> boundingGeometry);
+	void addComponent(Entity e, Texture3D* volume, Mesh* boundingGeometry, const Vec3& boundingBox_min, const Vec3& boundingBox_max);
 
 	/** Add component from raw data */
 	template<typename VertexContainer, typename IndexContainer, typename VolumeContainer>
-	void addComponent(Entity e, const std::string& volume_name, const VolumeContainer& volume_data, const TextureDescriptor& volume_description,
-						const VertexContainer& vertices, const IndexContainer& indices, const VertexDescriptor& vertex_description, const GLenum mesh_type,
-						const Vec3 boundingBox_min, const Vec3 boundingBox_max)
+	void addComponent(Entity e, const std::string& volume_name, const VolumeContainer& volume_data, const TextureLayout& volume_description,
+						const VertexContainer& vertices, const IndexContainer& indices, const VertexLayout& vertex_description, const GLenum mesh_type,
+						const Vec3 boundingBox_min, const Vec3 boundingBox_max, bool isVisible)
 	{
-		uint idx = m_data.size();
+		uint idx = static_cast<uint>(m_data.size());
 
-		m_data.push_back(Data(e,volume_name,volume_name+"_bg",volume_description,vertex_description,mesh_type));
+		m_data.push_back(Data(e,volume_name,volume_name+"_bg",volume_description,vertex_description,mesh_type,isVisible));
 
 		// copy volume data
 		size_t volume_byte_size = volume_data.size() * sizeof(VolumeContainer::value_type);
@@ -93,8 +93,57 @@ public:
 		m_data.back().boundingBox_max = boundingBox_max;
 
 		m_index_map.insert(std::pair<uint,uint>(e.id(),idx));
-		m_update_queue.push(idx);
+
+
+		// Create GPU resources
+		GEngineCore::renderingPipeline().addSingleExecutionGpuTask([this, idx]() {
+
+			VolumeComponentManager::Data& component_data = m_data[idx];
+
+			GLSLProgram* prgm = GEngineCore::resourceManager().createShaderProgram({ "../resources/shaders/volRen_v.glsl","../resources/shaders/volRen_f.glsl" }, "generic_volume_rendering").resource;
+
+			component_data.boundingGeometry = GEngineCore::resourceManager().createMesh(component_data.volume_path + "_boundingGeometry", component_data.vertex_data, component_data.index_data, component_data.vertex_description, component_data.mesh_type).resource;
+			Texture* volume = GEngineCore::resourceManager().createTexture3D(component_data.volume_path,
+																				component_data.volume_description,
+																				component_data.volume_data.data()).resource;
+			component_data.volume = reinterpret_cast<Texture3D*>( volume );
+
+			Material* mtl = GEngineCore::resourceManager().createMaterial(component_data.volume_path + "_mtl", prgm, { volume }).resource;
+
+			component_data.boundingGeometry = GEngineCore::resourceManager().createMesh(component_data.boundingGeometry_path,
+																						component_data.vertex_data,
+																						component_data.index_data,
+																						component_data.vertex_description,
+																						component_data.mesh_type).resource;
+
+			m_renderJobs.addRenderJob(RenderJob(component_data.entity, mtl, component_data.boundingGeometry));
+		});
 	}
+
+	template<typename VolumeContainer>
+	void updateComponent(Entity e, const VolumeContainer& volume_data, const TextureLayout& volume_description)
+	{
+		uint idx = getIndex(e);
+
+		// copy volume data
+		size_t volume_byte_size = volume_data.size() * sizeof(VolumeContainer::value_type);
+		m_data[idx].volume_data.resize(volume_byte_size);
+		std::memcpy(m_data[idx].volume_data.data(), volume_data.data(), volume_byte_size);
+
+		m_data[idx].volume_description = volume_description;
+
+		GEngineCore::renderingPipeline().addSingleExecutionGpuTask([this, idx]() {
+
+			VolumeComponentManager::Data& component_data = m_data[idx];
+
+			component_data.volume->reload(m_data[idx].volume_description, component_data.volume_data.data());
+
+		});
+	}
+
+	void setVisibility(Entity e, bool isVisible);
+
+	void draw();
 };
 
 #endif

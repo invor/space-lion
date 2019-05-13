@@ -1,0 +1,12 @@
+[submodule "src/External/glm"]
+	path = src/External/glm
+	url = https://github.com/g-truc/glm
+[submodule "src/External/glowl"]
+	path = src/External/glowl
+	url = https://github.com/invor/glowl
+[submodule "src/External/imgui"]
+	path = src/External/imgui
+	url = https://github.com/ocornut/imgui
+[submodule "src/External/lodepng"]
+	path = src/External/lodepng
+	url = https://github.com/lvandeve/lodepng.git

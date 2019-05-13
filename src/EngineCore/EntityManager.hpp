@@ -3,12 +3,12 @@
 
 #include <deque>
 #include <limits>
-#include <mutex>
+#include <shared_mutex>
 #include <vector>
 
 #include "types.hpp"
 
-const size_t MAX_UINT = std::numeric_limits<uint>::max();
+const size_t MAX_ENTITY_ID = std::numeric_limits<uint>::max() - 1;
 
 /**
  * Most basic entity representation using only a unique id.
@@ -24,7 +24,8 @@ struct Entity
 
 	friend class EntityManager;
 private:
-	Entity() {}
+	constexpr Entity() : m_id(std::numeric_limits<uint>::max()) {}
+
 	uint m_id;
 };
 
@@ -45,14 +46,24 @@ class EntityManager
 	std::deque<uint> m_free_indices;
 
 	/** Mutex to protect queue operations. */
-	mutable std::mutex m_mutex;
+	mutable std::shared_mutex m_mutex;
 
 public:
 	Entity create();
 
 	void destroy(Entity entity);
 
+	uint getEntityCount() const;
+
+	std::pair<bool, Entity> getEntity(uint index) const;
+
 	bool alive(Entity entity) const;
+
+	/**
+	 * Get the invalid entity, i.e. the entity with id = max_uint.
+	 * Useful for functions that return an entity if something goes wrong.
+	 */
+	Entity invalidEntity() const { return Entity(); }
 };
 
 #endif

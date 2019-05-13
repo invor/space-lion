@@ -5,16 +5,12 @@
 #include <vector>
 #include <string>
 
-
 #include "EntityManager.hpp"
-#include "GLSLProgram.h"
-#include "Material.hpp"
-#include "mesh.h"
-#include "TransformComponent.hpp"
-#include "CameraComponent.hpp"
-#include "PointlightComponent.hpp"
 #include "types.hpp"
-#include "ResourceManager.h"
+
+class GLSLProgram;
+class Material;
+class Mesh;
 
 /**
  * A request for a render job is compromised of an entity and the paths to
@@ -58,13 +54,14 @@ struct RenderJob
  */
 class RenderJobManager
 {
-private:
+public:
 	struct MeshNode
 	{
 		Mesh* mesh;
 	
 		uint instance_count;
-		std::vector<Entity> enities;	///< List of entites that use this mesh. The leaves of the tree datastructure.
+		std::vector<Entity> enities;			///< List of entites that use this mesh. The leaves of the tree datastructure.
+		std::vector<uint> transform_indices;	///< List of indices for transform matrix array. For use in a Frame.
 	};
 
 	struct MaterialNode
@@ -90,19 +87,18 @@ private:
 		std::vector<ShaderNode> shaders;
 	};
 
+private:
 	RootNode m_root;
 
-	friend class RenderingPipeline;
-	friend class DeferredRenderingPipeline;
-	friend class AdvancedDeferredRenderingPipeline;
-
 public:
-	RenderJobManager();
-	~RenderJobManager();
 
 	void addRenderJob(RenderJob new_job);
 
-	RootNode getRoot();
+	void removeRenderJob(RenderJob job);
+
+	RootNode& getRoot();
+
+	const RootNode& getRoot() const;
 
 	void clearRenderJobs();
 };
