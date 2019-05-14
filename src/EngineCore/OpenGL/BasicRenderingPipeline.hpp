@@ -7,17 +7,22 @@
 
 namespace EngineCore
 {
-	namespace Graphics
-	{
-		namespace OpenGL
-		{
-			/** Experimenting with new Renderer architecture */
-			void setupBasicRenderingPipeline(
-				Common::Frame&   frame,
-				WorldState&      world_state,
-				ResourceManager& resource_mngr);
-		}
-	}
+    namespace Graphics
+    {
+        namespace OpenGL
+        {
+            void setupBasicForwardRenderingPipeline(
+                Common::Frame&   frame,
+                WorldState&      world_state,
+                ResourceManager& resource_mngr);
+
+            /** Experimenting with new Renderer architecture */
+            void setupBasicRenderingPipeline(
+                Common::Frame&   frame,
+                WorldState&      world_state,
+                ResourceManager& resource_mngr);
+        }
+    }
 }
 
 #endif // !BasicRenderingPipeline

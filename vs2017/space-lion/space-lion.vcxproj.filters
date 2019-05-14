@@ -234,6 +234,15 @@
     <ClInclude Include="..\..\src\EngineCore\BaseComponentManager.hpp">
       <Filter>Header Files\EngineCore\Common</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\EngineCore\SunlightComponentManager.hpp">
+      <Filter>Header Files\EngineCore\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\EngineCore\PointlightComponent.hpp">
+      <Filter>Header Files\EngineCore\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\EngineCore\CameraComponent.hpp">
+      <Filter>Header Files\EngineCore\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\EngineCore\EngineFrontend.cpp">
@@ -340,6 +349,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\EngineCore\AirplanePhysicsComponent.cpp">
       <Filter>Source Files\EngineCore\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\EngineCore\SunlightComponentManager.cpp">
+      <Filter>Source Files\EngineCore\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\EngineCore\PointlightComponent.cpp">
+      <Filter>Source Files\EngineCore\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\EngineCore\CameraComponent.cpp">
+      <Filter>Source Files\EngineCore\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

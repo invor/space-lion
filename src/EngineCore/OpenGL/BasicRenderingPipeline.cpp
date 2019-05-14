@@ -7,12 +7,226 @@
 
 namespace EngineCore
 {
+    namespace Graphics
+    {
+        namespace OpenGL
+        {
+            void setupBasicForwardRenderingPipeline(
+                Common::Frame & frame,
+                WorldState & world_state,
+                ResourceManager & resource_mngr)
+            {
+                struct GeomPassData
+                {
+                    struct DrawElementsCommand
+                    {
+                        GLuint cnt;
+                        GLuint instance_cnt;
+                        GLuint first_idx;
+                        GLuint base_vertex;
+                        GLuint base_instance;
+                    };
+
+                    struct StaticMeshParams
+                    {
+                        Mat4x4 transform;
+                    };
+
+                    // static mesh (shader) params per object per batch
+                    std::vector<std::vector<StaticMeshParams>>    static_mesh_params;
+                    std::vector<std::vector<DrawElementsCommand>> static_mesh_drawCommands;
+
+                    Mat4x4 view_matrix;
+                    Mat4x4 proj_matrix;
+                };
+
+                struct GeomPassResources
+                {
+                    struct BatchResources
+                    {
+                        WeakResource<GLSLProgram>  shader_prgm;
+                        WeakResource<BufferObject> object_params;
+                        WeakResource<BufferObject> draw_commands;
+                        WeakResource<Mesh>         geometry;
+                    };
+
+                    std::vector<BatchResources> m_batch_resources;
+
+                    WeakResource<FramebufferObject> m_render_target;
+                };
+
+                frame.addRenderPass<GeomPassData, GeomPassResources>("GeometryPass",
+                    // data setup phase
+                    [&world_state, &resource_mngr](GeomPassData& data, GeomPassResources& resources) {
+
+                    auto& cam_mngr = world_state.accessCameraComponentManager();
+                    auto& mesh_mngr = world_state.accessMeshComponentManager();
+                    auto& renderTask_mngr = world_state.accessRenderTaskComponentManager();
+                    auto& transform_mngr = world_state.accessTransformManager();
+                    
+
+                    // set camera matrices
+                    uint camera_idx = cam_mngr.getActiveCameraIndex();
+                    Entity camera_entity = cam_mngr.getEntity(camera_idx);
+                    uint camera_transform_idx = transform_mngr.getIndex(camera_entity);
+                    data.view_matrix = glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx));
+                    data.proj_matrix = cam_mngr.getProjectionMatrix(camera_idx);
+
+                    // set per object data
+                    auto& objs = renderTask_mngr.getComponentData();
+
+                    ResourceID current_mtl = resource_mngr.getInvalidResourceID();
+                    ResourceID current_mesh = resource_mngr.getInvalidResourceID();
+
+                    // iterate all objects
+                    for (auto& obj : objs)
+                    {
+                        // create a new batch for each resource change
+                        if (obj.material_resource != current_mtl || obj.mesh_resource != current_mesh)
+                        {
+                            current_mtl = obj.material_resource;
+                            current_mesh = obj.mesh_resource;
+
+                            data.static_mesh_params.push_back(std::vector<GeomPassData::StaticMeshParams>());
+                            data.static_mesh_drawCommands.push_back(std::vector<GeomPassData::DrawElementsCommand>());
+
+                            // TODO query batch GPU resources early
+                            GeomPassResources::BatchResources batch_resources;
+                            batch_resources.shader_prgm = resource_mngr.getGLSLProgram(current_mtl);
+                            batch_resources.object_params = resource_mngr.getBufferObject("geometryPass_object_parameters");
+                            batch_resources.draw_commands = resource_mngr.getBufferObject("geometryPass_draw_commands");
+                            batch_resources.geometry = resource_mngr.getMesh(current_mesh);
+                            resources.m_batch_resources.push_back(batch_resources);
+                        }
+
+
+                        GeomPassData::StaticMeshParams params;
+                        uint transform_idx = GCoreComponents::transformManager().getIndex(obj.entity);
+                        params.transform = GCoreComponents::transformManager().getWorldTransformation(transform_idx);
+                        data.static_mesh_params.back().push_back(params);
+
+                        // set draw command values
+                        GeomPassData::DrawElementsCommand draw_command;
+                        auto obj_mesh_idx = GRenderingComponents::meshManager().getIndex(obj.entity);
+                        draw_command.cnt = GRenderingComponents::meshManager().getComponents().at(std::get<1>(obj_mesh_idx)).indices_cnt;
+                        draw_command.base_vertex = GRenderingComponents::meshManager().getComponents().at(std::get<1>(obj_mesh_idx)).base_vertex;
+                        draw_command.first_idx = GRenderingComponents::meshManager().getComponents().at(std::get<1>(obj_mesh_idx)).first_index;
+                        draw_command.base_instance = 0;
+                        draw_command.instance_cnt = 1;
+                        data.static_mesh_drawCommands.back().push_back(draw_command);
+                    }
+                },
+                    // resource setup phase
+                    [&world_state, &resource_mngr](GeomPassData& data, GeomPassResources& resources) {
+
+                    if (resources.m_render_target.state == NOT_READY)
+                        resources.m_render_target = resource_mngr.getFramebufferObject("gBuffer");
+
+                    // buffer data to resources
+                    uint batch = 0;
+                    for (auto& batch_resources : resources.m_batch_resources)
+                    {
+                        if (batch_resources.shader_prgm.state != READY)
+                        {
+                            //???
+                        }
+
+                        if (batch_resources.geometry.state != READY)
+                        {
+                            //???
+                        }
+
+                        if (batch_resources.object_params.state != READY)
+                        {
+                            batch_resources.object_params = resource_mngr.createBufferObject("geometryPass_object_parameters", GL_SHADER_STORAGE_BUFFER, data.static_mesh_params[batch]);
+                        }
+                        else
+                        {
+                            batch_resources.object_params.resource->rebuffer(data.static_mesh_params[batch]);
+                        }
+
+                        if (batch_resources.draw_commands.state != READY)
+                        {
+                            batch_resources.draw_commands = resource_mngr.createBufferObject("geometryPass_draw_commands", GL_DRAW_INDIRECT_BUFFER, data.static_mesh_drawCommands[batch]);
+                        }
+                        else
+                        {
+                            batch_resources.draw_commands.resource->rebuffer(data.static_mesh_drawCommands[batch]);
+                        }
+
+                        ++batch;
+                    }
+                },
+                    // execute phase
+                    [](GeomPassData const& data, GeomPassResources const& resources) {
+
+                    if (resources.m_render_target.state != READY)
+                        return;
+
+                    //glEnable(GL_CULL_FACE);
+                    //glFrontFace(GL_CCW);
+
+                    glDisable(GL_BLEND);
+
+                    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                    int width = ? ? ;
+                    int height = ? ?;
+                    glViewport(0, 0, width, height);
+
+                    // bind global resources?
+
+                    uint batch_idx = 0;
+                    for (auto& batch_resources : resources.m_batch_resources)
+                    {
+                        if (batch_resources.shader_prgm.state != READY || batch_resources.geometry.state != READY)
+                            continue;
+
+                        batch_resources.shader_prgm.resource->use();
+
+                        batch_resources.shader_prgm.resource->setUniform("view_matrix", data.view_matrix);
+                        batch_resources.shader_prgm.resource->setUniform("projection_matrix", data.proj_matrix);
+
+                        batch_resources.object_params.resource->bind(0);
+
+                        batch_resources.draw_commands.resource->bind();
+                        batch_resources.geometry.resource->bindVertexArray();
+
+                        GLsizei draw_cnt = data.static_mesh_drawCommands[batch_idx].size();
+
+                        glMultiDrawElementsIndirect(
+                            batch_resources.geometry.resource->getPrimitiveType(),
+                            batch_resources.geometry.resource->getIndicesType(),
+                            (GLvoid*)0,
+                            draw_cnt,
+                            0);
+                    }
+
+                    //glDisable(GL_CULL_FACE);
+
+                    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+                    auto gl_err = glGetError();
+                    if (gl_err != GL_NO_ERROR)
+                        std::cerr << "GL error in geometry pass : " << gl_err << std::endl;
+                }
+                );
+            }
+        }
+    }
+}
+#endif
+
+#if  0
+
+namespace EngineCore
+{
 	namespace Graphics
 	{
 		namespace OpenGL
 		{
-
-			void setupBasicRenderingPipeline(
+            
+            void setupBasicRenderingPipeline(
 				Common::Frame& frame,
 				WorldState& world_state,
 				ResourceManager& resource_mngr)

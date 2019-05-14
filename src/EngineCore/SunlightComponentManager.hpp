@@ -3,59 +3,59 @@
 
 struct Entity;
 
+#include "BaseComponentManager.hpp"
 #include "types.hpp"
-#include "MTQueue.hpp"
 
-#include <unordered_map>
-
-class SunlightComponentManager
+namespace EngineCore
 {
-private:
-	struct Data
-	{
-		uint used;					///< number of components currently in use
-		uint allocated;				///< number of components that the allocated memery can hold
-		uint8_t* buffer;			///< raw data pointer
+    namespace Graphics
+    {
 
-		Entity* entity;				///< entity owning that owns the component
-		Vec3* light_colour;			///< color of the light in rgb values
-		float* lumen;				///< Luminous power of the light source given in Lumen (lm)
-		float* star_radius;			///< Radius of the star (used to compute solid angle)
-	};
+        class SunlightComponentManager : public BaseComponentManager
+        {
+        private:
+            struct Data
+            {
+                uint     used;      ///< number of components currently in use
+                uint     allocated; ///< number of components that the allocated memery can hold
+                uint8_t* buffer;    ///< raw data pointer
 
-	Data m_data;
+                Entity* entity;       ///< entity owning that owns the component
+                Vec3*   light_colour; ///< color of the light in rgb values
+                float*  lumen;        ///< Luminous power of the light source given in Lumen (lm)
+                float*  star_radius;  ///< Radius of the star (used to compute solid angle)
+            };
 
-	std::unordered_map<uint,uint> m_index_map;
+            Data m_data;
 
-public:
-	SunlightComponentManager(uint size);
-	~SunlightComponentManager();
+        public:
+            SunlightComponentManager(uint size);
+            ~SunlightComponentManager();
 
-	void reallocate(uint size);
+            void reallocate(uint size);
 
-	void addComponent(Entity entity, Vec3 light_colour, float lumen, float radius);
+            void addComponent(Entity entity, Vec3 light_colour, float lumen, float radius);
 
-	void deleteComonent(Entity entity);
+            void deleteComonent(Entity entity);
 
-	uint getComponentCount() { return m_data.used; }
+            uint getComponentCount() { return m_data.used; }
 
-	uint getIndex(Entity entity);
+            void setColour(uint index, Vec3 colour);
 
-	std::pair<bool, uint> getIndex(uint entity_id);
+            void setLumen(uint index, float lumen);
 
-	void setColour(uint index, Vec3 colour);
+            void setStarRadius(uint index, float radius);
 
-	void setLumen(uint index, float lumen);
+            Entity getEntity(uint index) const;
 
-	void setStarRadius(uint index, float radius);
+            Vec3 getColour(uint index) const;
 
-	Entity getEntity(uint index) const;
+            float getLumen(uint index) const;
 
-	Vec3 getColour(uint index) const;
+            float getStarRadius(uint index) const;
+        };
 
-	float getLumen(uint index) const;
-
-	float getStarRadius(uint index) const;
-};
+    }
+}
 
 #endif

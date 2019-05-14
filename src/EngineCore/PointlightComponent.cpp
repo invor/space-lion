@@ -1,152 +1,131 @@
 #include "PointlightComponent.hpp"
 
-PointlightComponentManager::PointlightComponentManager(uint size)
+namespace EngineCore
 {
-	const uint bytes = size * (sizeof(Entity)
-								+ sizeof(Vec3)
-								+ (2 * static_cast<uint>(sizeof(float))) );
-	m_data.buffer = new uint8_t[bytes];
+    namespace Graphics
+    {
 
-	m_data.used = 0;
-	m_data.allocated = size;
+        PointlightComponentManager::PointlightComponentManager(uint size)
+        {
+            const uint bytes = size * (sizeof(Entity)
+                + sizeof(Vec3)
+                + (2 * static_cast<uint>(sizeof(float))));
+            m_data.buffer = new uint8_t[bytes];
 
-	m_data.entity = (Entity*)(m_data.buffer);
-	m_data.light_colour = (Vec3*)(m_data.entity + size);
-	m_data.lumen = (float*)(m_data.light_colour + size);
-	m_data.radius = (float*)(m_data.lumen + size);
-	
-}
+            m_data.used = 0;
+            m_data.allocated = size;
 
-PointlightComponentManager::~PointlightComponentManager()
-{
-	delete[] m_data.buffer;
-}
+            m_data.entity = (Entity*)(m_data.buffer);
+            m_data.light_colour = (Vec3*)(m_data.entity + size);
+            m_data.lumen = (float*)(m_data.light_colour + size);
+            m_data.radius = (float*)(m_data.lumen + size);
 
-void PointlightComponentManager::reallocate(uint size)
-{
-	Data new_data;
+        }
 
-	const uint bytes = size * (sizeof(Entity)
-								+ sizeof(Vec3)
-								+ (2 * static_cast<uint>(sizeof(float))) );
-	new_data.buffer = new uint8_t[bytes];
+        PointlightComponentManager::~PointlightComponentManager()
+        {
+            delete[] m_data.buffer;
+        }
 
-	new_data.used = m_data.used;
-	new_data.allocated = size;
+        void PointlightComponentManager::reallocate(uint size)
+        {
+            Data new_data;
 
-	new_data.entity = (Entity*)(new_data.buffer);
-	new_data.light_colour = (Vec3*)(new_data.entity + size);
-	new_data.lumen = (float*)(new_data.light_colour + size);
-	new_data.radius = (float*)(new_data.lumen + size);
+            const uint bytes = size * (sizeof(Entity)
+                + sizeof(Vec3)
+                + (2 * static_cast<uint>(sizeof(float))));
+            new_data.buffer = new uint8_t[bytes];
 
-	std::memcpy(m_data.entity, new_data.entity, m_data.used * sizeof(Entity));
-	std::memcpy(m_data.light_colour, new_data.light_colour, m_data.used * sizeof(Vec3));
-	std::memcpy(m_data.lumen, new_data.lumen, m_data.used * sizeof(float));
-	std::memcpy(m_data.radius, new_data.radius, m_data.used * sizeof(float));
+            new_data.used = m_data.used;
+            new_data.allocated = size;
 
-	delete m_data.buffer;
+            new_data.entity = (Entity*)(new_data.buffer);
+            new_data.light_colour = (Vec3*)(new_data.entity + size);
+            new_data.lumen = (float*)(new_data.light_colour + size);
+            new_data.radius = (float*)(new_data.lumen + size);
 
-	m_data = new_data;
-}
+            std::memcpy(m_data.entity, new_data.entity, m_data.used * sizeof(Entity));
+            std::memcpy(m_data.light_colour, new_data.light_colour, m_data.used * sizeof(Vec3));
+            std::memcpy(m_data.lumen, new_data.lumen, m_data.used * sizeof(float));
+            std::memcpy(m_data.radius, new_data.radius, m_data.used * sizeof(float));
 
-void PointlightComponentManager::addComponent(Entity entity, Vec3 light_colour, float lumen, float radius)
-{
-	assert(m_data.used < m_data.allocated);
+            delete m_data.buffer;
 
-	uint index = m_data.used;
+            m_data = new_data;
+        }
 
-	m_index_map.insert({entity.id(),index});
+        void PointlightComponentManager::addComponent(Entity entity, Vec3 light_colour, float lumen, float radius)
+        {
+            assert(m_data.used < m_data.allocated);
 
-	m_data.entity[index] = entity;
-	m_data.light_colour[index] = light_colour;
-	m_data.lumen[index] = lumen;
-	m_data.radius[index] = radius;
+            uint index = m_data.used;
 
-	m_data.used++;
-}
+            addIndex(entity.id(),index);
 
-void PointlightComponentManager::deleteComonent(Entity entity)
-{
+            m_data.entity[index] = entity;
+            m_data.light_colour[index] = light_colour;
+            m_data.lumen[index] = lumen;
+            m_data.radius[index] = radius;
 
-}
+            m_data.used++;
+        }
 
-uint PointlightComponentManager::getComponentCount()
-{
-	return m_data.used;
-}
+        void PointlightComponentManager::deleteComonent(Entity entity)
+        {
 
-uint PointlightComponentManager::getIndex(Entity entity)
-{
-	auto search = m_index_map.find(entity.id());
+        }
 
-	assert( (search != m_index_map.end()) );
+        uint PointlightComponentManager::getComponentCount()
+        {
+            return m_data.used;
+        }
 
-	return search->second;
-}
+        Entity PointlightComponentManager::getEntity(uint index)
+        {
+            return m_data.entity[index];
+        }
 
-std::pair<bool, uint> PointlightComponentManager::getIndex(uint entity_id)
-{
-	auto search = m_index_map.find(entity_id);
+        Vec3 PointlightComponentManager::getColour(uint index) const
+        {
+            return m_data.light_colour[index];
+        }
 
-	std::pair<bool, uint> rtn;
+        float PointlightComponentManager::getLumen(uint index) const
+        {
+            return m_data.lumen[index];
+        }
 
-	if (search != m_index_map.end())
-	{
-		rtn.first = true;
-		rtn.second = search->second;
-	}
-	else
-	{
-		rtn.first = false;
-		rtn.second = 0;
-	}
+        float PointlightComponentManager::getRadius(uint index) const
+        {
+            return m_data.radius[index];
+        }
 
-	return rtn;
-}
+        void PointlightComponentManager::setColour(uint index, Vec3 colour)
+        {
+            m_data.light_colour[index] = colour;
+        }
 
-Entity PointlightComponentManager::getEntity(uint index)
-{
-	return m_data.entity[index];
-}
+        void PointlightComponentManager::setLumen(uint index, float lumen)
+        {
+            m_data.lumen[index] = lumen;
+        }
 
-Vec3 PointlightComponentManager::getColour(uint index) const
-{
-	return m_data.light_colour[index];
-}
+        void PointlightComponentManager::setRadius(uint index, float radius)
+        {
+            m_data.radius[index] = radius;
+        }
 
-float PointlightComponentManager::getLumen(uint index) const
-{
-	return m_data.lumen[index];
-}
+        std::vector<Entity> PointlightComponentManager::getListOfEntities() const
+        {
+            std::vector<Entity> rtn;
 
-float PointlightComponentManager::getRadius(uint index) const
-{
-	return m_data.radius[index];
-}
+            for (uint i = 0; i < m_data.used; i++)
+            {
+                rtn.push_back(m_data.entity[i]);
+            }
 
-void PointlightComponentManager::setColour(uint index, Vec3 colour)
-{
-	m_data.light_colour[index] = colour;
-}
+            return rtn;
+        }
 
-void PointlightComponentManager::setLumen(uint index, float lumen)
-{
-	m_data.lumen[index] = lumen;
-}
-
-void PointlightComponentManager::setRadius(uint index, float radius)
-{
-	m_data.radius[index] = radius;
-}
-
-std::vector<Entity> PointlightComponentManager::getListOfEntities() const
-{
-	std::vector<Entity> rtn;
-
-	for (uint i = 0; i < m_data.used; i++)
-	{
-		rtn.push_back(m_data.entity[i]);
-	}
-
-	return rtn;
+    }
 }

@@ -126,6 +126,7 @@
     <ClInclude Include="..\..\src\EngineCore\AirplanePhysicsComponent.hpp" />
     <ClInclude Include="..\..\src\EngineCore\BaseComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\BaseResourceManager.hpp" />
+    <ClInclude Include="..\..\src\EngineCore\CameraComponent.hpp" />
     <ClInclude Include="..\..\src\EngineCore\DebugNameComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\EngineFrontend.hpp" />
     <ClInclude Include="..\..\src\EngineCore\EntityManager.hpp" />
@@ -136,9 +137,11 @@
     <ClInclude Include="..\..\src\EngineCore\OpenGL\BasicRenderingPipeline.hpp" />
     <ClInclude Include="..\..\src\EngineCore\OpenGL\GraphicsBackend.hpp" />
     <ClInclude Include="..\..\src\EngineCore\OpenGL\ResourceManager.hpp" />
+    <ClInclude Include="..\..\src\EngineCore\PointlightComponent.hpp" />
     <ClInclude Include="..\..\src\EngineCore\RenderPass.hpp" />
     <ClInclude Include="..\..\src\EngineCore\RenderTaskComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\ResourceLoading.hpp" />
+    <ClInclude Include="..\..\src\EngineCore\SunlightComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\TaskSchedueler.hpp" />
     <ClInclude Include="..\..\src\EngineCore\TransformComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\types.hpp" />
@@ -171,6 +174,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\EngineCore\AirplanePhysicsComponent.cpp" />
+    <ClCompile Include="..\..\src\EngineCore\CameraComponent.cpp" />
     <ClCompile Include="..\..\src\EngineCore\DebugNameComponentManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\EngineFrontend.cpp" />
     <ClCompile Include="..\..\src\EngineCore\EntityManager.cpp" />
@@ -181,9 +185,11 @@
     <ClCompile Include="..\..\src\EngineCore\OpenGL\BasicRenderingPipeline.cpp" />
     <ClCompile Include="..\..\src\EngineCore\OpenGL\GraphicsBackend.cpp" />
     <ClCompile Include="..\..\src\EngineCore\OpenGL\ResourceManager.cpp" />
+    <ClCompile Include="..\..\src\EngineCore\PointlightComponent.cpp" />
     <ClCompile Include="..\..\src\EngineCore\RenderPass.cpp" />
     <ClCompile Include="..\..\src\EngineCore\RenderTaskComponentManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\ResourceLoading.cpp" />
+    <ClCompile Include="..\..\src\EngineCore\SunlightComponentManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\TaskSchedueler.cpp" />
     <ClCompile Include="..\..\src\EngineCore\TransformComponentManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\WorldState.cpp" />

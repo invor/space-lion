@@ -6,44 +6,35 @@
 #include <chrono>
 
 //#include "OpenGL/BasicRenderingPipeline.hpp"
-#include "OpenGL/GraphicsBackend.hpp"
-#include "OpenGL/ResourceManager.hpp"
-#include "TaskSchedueler.hpp"
-#include "WorldState.hpp"
 
 namespace EngineCore
 {
 	namespace Common
 	{
+		EngineFrontend::EngineFrontend()
+			: m_task_schedueler(std::make_unique<Utility::TaskSchedueler>()),
+			m_frame_manager(std::make_unique<FrameManager>()),
+			m_graphics_backend(std::make_unique<Graphics::OpenGL::GraphicsBackend>()),
+			m_resource_manager(std::make_unique<Graphics::OpenGL::ResourceManager>()),
+			m_world_state(std::make_unique<WorldState>(m_resource_manager.get()))
+		{
+		}
+
 		void EngineFrontend::startEngine()
 		{
-			// create task manager
-			Utility::TaskSchedueler task_schedueler;
-
-			// create frame manager
-			FrameManager frame_manager;
-
-			// create graphics backend and graphics resource management
-			Graphics::OpenGL::GraphicsBackend graphics_backend;
-			Graphics::OpenGL::ResourceManager resource_manager;
-
-			// create world
-			WorldState world_state(&resource_manager);
-
-
 			// create initial frame
 			size_t frameID = 0;
 
 			// start rendering pipeline
 			//std::thread render_thread(&(DeferredRenderingPipeline::run), &GEngineCore::renderingPipeline()));
-			auto render_exec = std::async(std::launch::async, &(Graphics::OpenGL::GraphicsBackend::run), &graphics_backend, &resource_manager, &frame_manager);
+			auto render_exec = std::async(std::launch::async, &(Graphics::OpenGL::GraphicsBackend::run), m_graphics_backend.get(), m_resource_manager.get(), m_frame_manager.get());
 			auto render_exec_status = render_exec.wait_for(std::chrono::microseconds(0));
 
 			//auto render_exec = std::async(std::launch::async, &(GraphicsBackend::run), &GEngineCore::graphicsBackend());
 			//auto render_exec_status = render_exec.wait_for(std::chrono::microseconds(0));
 
 			// start task schedueler with 1 thread
-			task_schedueler.run(1);
+			m_task_schedueler->run(1);
 
 			auto t_0 = std::chrono::high_resolution_clock::now();
 			auto t_1 = std::chrono::high_resolution_clock::now();
@@ -74,7 +65,7 @@ namespace EngineCore
 
 				//Graphics::OpenGL::setupBasicRenderingPipeline(new_frame);
 
-				frame_manager.swapUpdateFrame(new_frame);
+				m_frame_manager->swapUpdateFrame(new_frame);
 
 				// check if rendering pipeline is still running
 				render_exec_status = render_exec.wait_for(std::chrono::microseconds(0));
@@ -82,11 +73,56 @@ namespace EngineCore
 				t_1 = std::chrono::high_resolution_clock::now();
 			}
 
-			task_schedueler.stop();
+			m_task_schedueler->stop();
 		}
 
 		void EngineFrontend::createDemoScene()
 		{
+
+
+            /*Entity debug_entity = m_entity_manager.create();
+
+            m_transform_manager.addComponent(debug_entity,Vec3(0.0f,0.0f,-2.0f),Quat::CreateFromAxisAngle(Vec3(0.0f,1.0f,0.0f),0.0f), Vec3(1.0f, 1.0f, 1.0f));
+
+            auto triangle_vertices = std::make_shared<std::vector<std::vector<float>>>();
+            (*triangle_vertices) = { {0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f},
+                                        {-0.25f, 0.0f, 0.0f, 0.25f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f},
+                                        {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.1f} };
+
+            auto triangle_indices = std::make_shared<std::vector<uint32_t>>(3);
+            (*triangle_indices) = { 0,1,2 };
+
+            auto vertex_layout = std::make_shared<VertexLayout>();
+            vertex_layout->strides = { 12, 12, 8 };
+            vertex_layout->attributes = {
+                { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+                { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+                { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+            };
+
+            auto mesh_rsrc = m_mesh_manager.addComponent(debug_entity, "debug_mesh", triangle_vertices, triangle_indices, vertex_layout, DXGI_FORMAT_R32_UINT, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+            typedef std::pair < std::wstring, Graphics::Dx11::ShaderProgram::ShaderType > ShaderFilename;
+
+            auto shader_names = std::make_shared<std::vector<ShaderFilename>>(
+                std::initializer_list<ShaderFilename>{
+                    { L"ms-appx:///gltfVertexShader.cso", Graphics::Dx11::ShaderProgram::VertexShader },
+                    { L"ms-appx:///GeometryShader.cso", Graphics::Dx11::ShaderProgram::GeometryShader },
+                    { L"ms-appx:///PixelShader.cso", Graphics::Dx11::ShaderProgram::PixelShader }
+                }
+            );
+
+            auto shader_rsrc = m_resource_manager.createShaderProgramAsync(
+                "triangle_debug_shader",
+                shader_names,
+                vertex_layout);
+
+            m_material_manager.addComponent(debug_entity, "debug_material", shader_rsrc);
+
+            m_render_task_manager.addComponent(debug_entity, mesh_rsrc, 0, shader_rsrc, 0);*/
+
+
+
 	//		// Create test scene
 	//		Entity camera_entity = GEngineCore::entityManager().create();
 	//		GCoreComponents::transformManager().addComponent(camera_entity, Vec3(0.0, 1.0, -20.0), Quat(), Vec3(1.0));
@@ -172,31 +208,6 @@ namespace EngineCore
 	//		//GCoreComponents::transformManager().addComponent(box, Vec3(0.0f, 0.0f, 0.0f), Quat(), Vec3(1.0f));
 	//		//GRenderingComponents::staticMeshManager().addComponent(box, "../resources/materials/freepbr/octostone.slmtl", "../resources/meshes/box.fbx");
 	//
-	//		/*
-	//		// Create monkey grid
-	//		for (int z = -200; z <= 200; z += 10)
-	//		{
-	//			for (int y = -200; y <= 200; y += 10)
-	//			{
-	//				Entity grid_monkey = GEngineCore::entityManager().create();
-	//				GCoreComponents::transformManager().addComponent(grid_monkey, Vec3(15.0f, (float)y, (float)z), Quat(), Vec3(1.0f));
-	//				GRenderingComponents::staticMeshManager().addComponent(grid_monkey, "../resources/materials/dfr_debug.slmtl", "../resources/meshes/monkey.fbx");
-	//				//GEngineCore::renderingPipeline().addSingleExecutionGpuTask([grid_monkey]() {
-	//				//	std::vector<uint8_t> vertex_data;
-	//				//	std::vector<uint32_t> index_data;
-	//				//	VertexLayout vertex_layout;
-	//				//	ResourceLoading::loadFbxGeometrySlim("../resources/meshes/monkey.fbx", vertex_data, index_data, vertex_layout);
-	//				//	Mesh* mesh = GEngineCore::resourceManager().createMesh("monkey_slim",
-	//				//		vertex_data,
-	//				//		index_data,
-	//				//		vertex_layout,
-	//				//		GL_TRIANGLES).get();
-	//				//	GRenderingComponents::shadowCastMeshManager().addComponent(grid_monkey, "../resources/materials/shadowCaster.slmtl", mesh);
-	//				//}
-	//				//);
-	//			}
-	//		}
-	//		*/
 	//
 	//		/*
 	//		Entity cube = GEngineCore::entityManager().create();
@@ -206,125 +217,6 @@ namespace EngineCore
 	//		GTools::selectManager().addComponent(cube, [cube]() { GTools::transformTool().activate(); }, [cube]() { GTools::transformTool().deactivate(); });
 	//		*/
 	//
-	//		/*
-	//		// Create monkey grid
-	//		for (int z = -20; z <= 20; z += 10)
-	//		{
-	//			for (int y = -20; y <= 20; y += 10)
-	//			{
-	//				Entity grid_monkey = GEngineCore::entityManager().create();
-	//				GCoreComponents::transformManager().addComponent(grid_monkey, Vec3(15.0f, (float)y, (float)z), Quat(), Vec3(1.0f));
-	//				GRenderingComponents::staticMeshManager().addComponent(grid_monkey, "../resources/materials/dfr_debug.slmtl", "../resources/meshes/monkey.fbx");
-	//				GEngineCore::renderingPipeline().addSingleExecutionGpuTask([grid_monkey]() {
-	//						std::vector<uint8_t> vertex_data;
-	//						std::vector<uint32_t> index_data;
-	//						VertexLayout vertex_layout;
-	//						ResourceLoading::loadFbxGeometrySlim("../resources/meshes/monkey.fbx", vertex_data, index_data, vertex_layout);
-	//						Mesh* mesh = GEngineCore::resourceManager().createMesh("monkey_slim",
-	//							vertex_data,
-	//							index_data,
-	//							vertex_layout,
-	//							GL_TRIANGLES).get();
-	//						GRenderingComponents::shadowCastMeshManager().addComponent(grid_monkey, "../resources/materials/shadowCaster.slmtl", mesh);
-	//					}
-	//				);
-	//			}
-	//		}
-	//
-	//		// Create pointlight grid
-	//		for (int z = -5; z <= 5; z += 5)
-	//		{
-	//			for (int y = -5; y <= 5; y += 5)
-	//			{
-	//				Entity light = GEngineCore::entityManager().create();
-	//				GCoreComponents::transformManager().addComponent(light, Vec3(-10.0f, (float)y, (float)z));
-	//				GCoreComponents::pointlightManager().addComponent(light, Vec3(1.0), 10000000, 1000);
-	//				GRenderingComponents::interfaceMeshManager().addComponent(light, "../resources/materials/editor/interface_pointlight.slmtl", "../resources/meshes/editor/pointlight.fbx");
-	//				GRenderingComponents::pickingManager().addComponent(light, "../resources/materials/editor/picking.slmtl", "../resources/meshes/editor/pointlight.fbx");
-	//				GTools::selectManager().addComponent(light, [light]() { GTools::transformTool().activate(); }, [light]() { GTools::transformTool().deactivate(); });
-	//				GCoreComponents::debugNameManager().addComponent(light, "light " + std::to_string(z) + std::to_string(y));
-	//			}
-	//		}
-	//
-	//		Entity cube = GEngineCore::entityManager().create();
-	//		GCoreComponents::transformManager().addComponent(cube, Vec3(5.0f, 0.0f, 0.0f), Quat(), Vec3(5.0f));
-	//		GRenderingComponents::staticMeshManager().addComponent(cube, "../resources/materials/freepbr/mahogfloor.slmtl", "../resources/meshes/cube.fbx");
-	//		GRenderingComponents::pickingManager().addComponent(cube, "../resources/materials/editor/picking.slmtl", "../resources/meshes/cube.fbx");
-	//		GTools::selectManager().addComponent(cube, [cube]() { GTools::transformTool().activate(); }, [cube]() { GTools::transformTool().deactivate(); });
-	//
-	//		Entity cube2 = GEngineCore::entityManager().create();
-	//		GCoreComponents::transformManager().addComponent(cube2, Vec3(-10.0f, 0.0f, 0.0f), Quat(), Vec3(5.0f));
-	//		GRenderingComponents::staticMeshManager().addComponent(cube2, "../resources/materials/freepbr/mahogfloor.slmtl", "../resources/meshes/cube.fbx");
-	//		GRenderingComponents::pickingManager().addComponent(cube2, "../resources/materials/editor/picking.slmtl", "../resources/meshes/cube.fbx");
-	//		GTools::selectManager().addComponent(cube2, [cube2]() { GTools::transformTool().activate(); }, [cube2]() { GTools::transformTool().deactivate(); });
-	//
-	//		Entity sphere = GEngineCore::entityManager().create();
-	//		GCoreComponents::transformManager().addComponent(sphere, Vec3(0.0f, 0.0f, -10.0f), Quat(), Vec3(1.0f));
-	//		GRenderingComponents::staticMeshManager().addComponent(sphere, "../resources/materials/freepbr/mahogfloor.slmtl", "../resources/meshes/sphere.fbx");
-	//		GRenderingComponents::pickingManager().addComponent(sphere, "../resources/materials/editor/picking.slmtl", "../resources/meshes/cube.fbx");
-	//		GTools::selectManager().addComponent(sphere, [sphere]() { GTools::transformTool().activate(); }, [sphere]() { GTools::transformTool().deactivate(); });
-	//
-	//		Entity texture_monkey = GEngineCore::entityManager().create();
-	//		GCoreComponents::transformManager().addComponent(texture_monkey, Vec3(0.0f, 0.0f, 0.0f), Quat(), Vec3(1.0f));
-	//		GRenderingComponents::staticMeshManager().addComponent(texture_monkey, "../resources/materials/freepbr/graniterockface1.slmtl", "../resources/meshes/monkey_sphereUV.fbx");
-	//		GRenderingComponents::pickingManager().addComponent(texture_monkey, "../resources/materials/editor/picking.slmtl", "../resources/meshes/monkey_sphereUV.fbx");
-	//		GTools::selectManager().addComponent(texture_monkey, [texture_monkey]() { GTools::transformTool().activate(); }, [texture_monkey]() { GTools::transformTool().deactivate(); });
-	//
-	//		Entity cerberus = GEngineCore::entityManager().create();
-	//		GCoreComponents::transformManager().addComponent(cerberus, Vec3(0.0f, 0.0f, 0.0f), Quat(), Vec3(1.0f));
-	//		GRenderingComponents::staticMeshManager().addComponent(cerberus, "../resources/materials/cerberus.slmtl", "../resources/meshes/Cerberus.fbx");
-	//		GRenderingComponents::pickingManager().addComponent(cerberus, "../resources/materials/editor/picking.slmtl", "../resources/meshes/Cerberus.fbx");
-	//		GTools::selectManager().addComponent(cerberus, [cerberus]() { GTools::transformTool().activate(); }, [cerberus]() { GTools::transformTool().deactivate(); });
-	//		GCoreComponents::debugNameManager().addComponent(cerberus, "cerberus");
-	//		GEngineCore::renderingPipeline().addSingleExecutionGpuTask([cerberus]() {
-	//			std::vector<uint8_t> vertex_data;
-	//			std::vector<uint32_t> index_data;
-	//			VertexLayout vertex_layout;
-	//			ResourceLoading::loadFbxGeometrySlim("../resources/meshes/Cerberus.fbx", vertex_data, index_data, vertex_layout);
-	//			Mesh* mesh = GEngineCore::resourceManager().createMesh("cerberus_slim",
-	//				vertex_data,
-	//				index_data,
-	//				vertex_layout,
-	//				GL_TRIANGLES).get();
-	//			GRenderingComponents::shadowCastMeshManager().addComponent(cerberus, "../resources/materials/shadowCaster.slmtl", mesh);
-	//		}
-	//		);
-	//		*/
-	//
-	//		Entity ground_plane = GEngineCore::entityManager().create();
-	//		GCoreComponents::transformManager().addComponent(ground_plane, Vec3(0.0, -0.5, 0.0), Quat(), Vec3(1.0));
-	//		auto plane_geometry = GeometryBakery::createPlane(2.0f, 2.0f);
-	//		GRenderingComponents::staticMeshManager().addComponent(ground_plane, "ground_plane", "../resources/materials/dfr_checkerboard.slmtl", std::get<0>(plane_geometry), std::get<1>(plane_geometry), std::get<2>(plane_geometry), GL_TRIANGLES, true);
-	//		//GRenderingComponents::staticMeshManager().addComponent(ground_plane, "../resources/materials/dfr_debug.slmtl", "../resources/meshes/ground_plane.fbx", false);
-	//
-	//		auto ground_plane_mtl = GRenderingComponents::materialManager().addComponent(ground_plane, "../resources/materials/brp_simple.slmtl");
-	//		auto ground_plane_mesh = GRenderingComponents::meshManager().addComponent(ground_plane, "ground_plane_200_200", std::get<0>(plane_geometry), std::get<1>(plane_geometry), std::get<2>(plane_geometry), GL_TRIANGLES, true);
-	//		GRenderingComponents::simpleObjectDrawManager().addComponent(ground_plane, ground_plane_mesh, ground_plane_mtl);
-	//
-	//		//Entity debug_box = GEngineCore::entityManager().create();
-	//		//GCoreComponents::transformManager().addComponent(debug_box, Vec3(-1.75, 0.0, -37.5), Quat(), Vec3(5.0));
-	//		//auto obstacle = GeometryBakery::createBox();
-	//		//GRenderingComponents::staticMeshManager().addComponent(debug_box, "box", "../resources/materials/dfr_checkerboard.slmtl", std::get<0>(obstacle), std::get<1>(obstacle), std::get<2>(obstacle), GL_TRIANGLES, true);
-	//		//GTools::selectManager().addComponent(debug_box, []() { GTools::transformTool().activate(); }, []() { GTools::transformTool().deactivate(); });
-	//		//GRenderingComponents::pickingManager().addComponent(debug_box, "box_picking", "../resources/materials/editor/picking.slmtl", std::get<0>(obstacle), std::get<1>(obstacle), std::get<2>(obstacle), GL_TRIANGLES);
-	//
-	//
-	//		//Entity tragwerk = GEngineCore::entityManager().create();
-	//		//GCoreComponents::transformManager().addComponent(tragwerk, Vec3(), Quat(), Vec3(1.0f));
-	//		//GRenderingComponents::staticMeshManager().addComponent(tragwerk, "../resources/materials/templates/gold.slmtl", "../resources/meshes/tragwerk_gesamt.fbx");
-	//		//GEngineCore::renderingPipeline().addSingleExecutionGpuTask([tragwerk]() {
-	//		//	std::vector<uint8_t> vertex_data;
-	//		//	std::vector<uint32_t> index_data;
-	//		//	VertexLayout vertex_layout;
-	//		//	ResourceLoading::loadFbxGeometrySlim("../resources/meshes/tragwerk_gesamt.fbx", vertex_data, index_data, vertex_layout);
-	//		//	Mesh* mesh = GEngineCore::resourceManager().createMesh("tragwerk_slim",
-	//		//		vertex_data,
-	//		//		index_data,
-	//		//		vertex_layout,
-	//		//		GL_TRIANGLES).resource;
-	//		//	GRenderingComponents::shadowCastMeshManager().addComponent(tragwerk, "../resources/materials/shadowCaster.slmtl", mesh);
-	//		//}
-	//		//);
 		}
 
 	}

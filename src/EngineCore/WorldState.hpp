@@ -4,6 +4,7 @@
 #include <future>
 
 #include "AirplanePhysicsComponent.hpp"
+#include "CameraComponent.hpp"
 #include "EntityManager.hpp"
 #include "TransformComponentManager.hpp"
 #include "MaterialComponentManager.hpp"
@@ -20,17 +21,18 @@ namespace EngineCore
 	public:
 		typedef Graphics::OpenGL::ResourceManager ResourceManager;
 
-		WorldState(ResourceManager* resource_manager);
+		WorldState(ResourceManager* resource_manager)
+            : m_material_manager(resource_manager),
+            m_mesh_manager(resource_manager),
+            m_airplane_physics_manager(128, *this) {}
 		~WorldState() = default;
-
-		void createDebugScene();
-		std::future<void> createDebugSceneGLTF(std::function<void()> callback);
 
 		EntityManager&                                       accessEntityManager();
 
 		Common::TransformComponentManager&                   accessTransformManager();
 		Common::NameComponentManager&                        accessNameManager();
 
+        Graphics::CameraComponentManager&                    accessCameraComponentManager();
 		Graphics::MaterialComponentManager<ResourceManager>& accessMaterialComponentManager();
 		Graphics::MeshComponentManager<ResourceManager>&     accessMeshComponentManager();
 		Graphics::RenderTaskComponentManager&                accessRenderTaskComponentManager();
@@ -44,6 +46,7 @@ namespace EngineCore
 		Common::TransformComponentManager m_transform_manager;
 		Common::NameComponentManager m_name_manager;
 
+        Graphics::CameraComponentManager                    m_camera_manager;
 		Graphics::MaterialComponentManager<ResourceManager> m_material_manager;
 		Graphics::MeshComponentManager<ResourceManager>     m_mesh_manager;
 		Graphics::RenderTaskComponentManager                m_render_task_manager;
