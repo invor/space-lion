@@ -10,46 +10,46 @@
 
 namespace EngineCore
 {
-	namespace Common
-	{
-		class EngineFrontend
-		{
-		public:
-			EngineFrontend();
-			~EngineFrontend() = default;
+    namespace Common
+    {
+        class EngineFrontend
+        {
+        public:
+            EngineFrontend();
+            ~EngineFrontend() = default;
 
-			void startEngine();
+            void startEngine();
 
-		private:
-			void createDemoScene();
+        private:
+            void createDemoScene();
 
-			/**
-			 * Simple multi-thread task schedueler.
-			 */
-			std::unique_ptr<Utility::TaskSchedueler> m_task_schedueler;
+            /**
+             * Simple multi-thread task schedueler.
+             */
+            std::unique_ptr<Utility::TaskSchedueler> m_task_schedueler;
 
-			/**
-			 * The frame manager used to carry over snapshots of the world simulation to rendering.
-			 */
-			std::unique_ptr<FrameManager> m_frame_manager;
+            /**
+             * The frame manager used to carry over snapshots of the world simulation to rendering.
+             */
+            std::unique_ptr<FrameManager> m_frame_manager;
 
-			/**
-			 * Graphics backend used for rendering.
-			 */
-			std::unique_ptr<Graphics::OpenGL::GraphicsBackend> m_graphics_backend;
+            /**
+             * Graphics backend used for rendering.
+             */
+            std::unique_ptr<Graphics::OpenGL::GraphicsBackend> m_graphics_backend;
 
-			/** 
-			 * GPU resource manager.
-			 */
-			std::unique_ptr<Graphics::OpenGL::ResourceManager> m_resource_manager;
+            /**
+             * GPU resource manager.
+             */
+            std::unique_ptr<Graphics::OpenGL::ResourceManager> m_resource_manager;
 
-			/**
-			 * Collection of all component manager that make up the world (state).
-			 */
-			std::unique_ptr<WorldState> m_world_state;
+            /**
+             * Collection of all component manager that make up the world (state).
+             */
+            std::unique_ptr<WorldState> m_world_state;
 
-		};
-	}
+        };
+    }
 }
 
 #endif // !EngineFrontend_hpp

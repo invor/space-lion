@@ -9,26 +9,26 @@
 
 namespace EngineCore
 {
-	namespace Utility
-	{
+    namespace Utility
+    {
 
-		typedef std::function<void()> Task;
+        typedef std::function<void()> Task;
 
-		class TaskSchedueler
-		{
-		private:
-			std::atomic_flag				m_taskScheduelerActive = ATOMIC_FLAG_INIT; //TODO replace
-			MTQueue<std::function<void()>>	m_task_queue;
-			std::vector<std::thread>		m_worker_thread_pool;
+        class TaskSchedueler
+        {
+        private:
+            std::atomic_flag				m_taskScheduelerActive = ATOMIC_FLAG_INIT; //TODO replace
+            MTQueue<std::function<void()>>	m_task_queue;
+            std::vector<std::thread>		m_worker_thread_pool;
 
-		public:
-			void run(int worker_thread_cnt);
+        public:
+            void run(int worker_thread_cnt);
 
-			void stop();
+            void stop();
 
-			void submitTask(Task new_task);
-		};
-	}
+            void submitTask(Task new_task);
+        };
+    }
 }
 
 #endif // !TaskSchedueler_hpp

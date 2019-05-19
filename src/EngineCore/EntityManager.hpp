@@ -17,53 +17,53 @@ const size_t MAX_ENTITY_ID = std::numeric_limits<uint>::max() - 1;
  */
 struct Entity
 {
-	inline uint id() const { return m_id; } 
+    inline uint id() const { return m_id; }
 
-	inline bool operator==(const Entity& rhs) { return m_id == rhs.id(); }
-	inline bool operator!=(const Entity& rhs) { return m_id != rhs.id(); }
+    inline bool operator==(const Entity& rhs) { return m_id == rhs.id(); }
+    inline bool operator!=(const Entity& rhs) { return m_id != rhs.id(); }
 
-	friend class EntityManager;
+    friend class EntityManager;
 private:
-	constexpr Entity() : m_id(std::numeric_limits<uint>::max()) {}
+    constexpr Entity() : m_id(std::numeric_limits<uint>::max()) {}
 
-	uint m_id;
+    uint m_id;
 };
 
 class EntityManager
 {
-	/**
-	 * Keeps track of created entities.
-	 */
-	std::vector<bool> m_is_alive;
+    /**
+     * Keeps track of created entities.
+     */
+    std::vector<bool> m_is_alive;
 
-	/** 
-	 * Store ids (indices) of deleted entities in order to reuse
-	 * reuse them once the number of created entities exceeds
-	 * the value range of a uint.
-	 * Ids are reused in order of deletion, i.e. the time between
-	 * deletion and reuse is maximized.
-	 */
-	std::deque<uint> m_free_indices;
+    /**
+     * Store ids (indices) of deleted entities in order to reuse
+     * reuse them once the number of created entities exceeds
+     * the value range of a uint.
+     * Ids are reused in order of deletion, i.e. the time between
+     * deletion and reuse is maximized.
+     */
+    std::deque<uint> m_free_indices;
 
-	/** Mutex to protect queue operations. */
-	mutable std::shared_mutex m_mutex;
+    /** Mutex to protect queue operations. */
+    mutable std::shared_mutex m_mutex;
 
 public:
-	Entity create();
+    Entity create();
 
-	void destroy(Entity entity);
+    void destroy(Entity entity);
 
-	uint getEntityCount() const;
+    uint getEntityCount() const;
 
-	std::pair<bool, Entity> getEntity(uint index) const;
+    std::pair<bool, Entity> getEntity(uint index) const;
 
-	bool alive(Entity entity) const;
+    bool alive(Entity entity) const;
 
-	/**
-	 * Get the invalid entity, i.e. the entity with id = max_uint.
-	 * Useful for functions that return an entity if something goes wrong.
-	 */
-	Entity invalidEntity() const { return Entity(); }
+    /**
+     * Get the invalid entity, i.e. the entity with id = max_uint.
+     * Useful for functions that return an entity if something goes wrong.
+     */
+    Entity invalidEntity() const { return Entity(); }
 };
 
 #endif
