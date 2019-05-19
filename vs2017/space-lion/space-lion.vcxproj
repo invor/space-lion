@@ -69,7 +69,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)..\bin\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -131,6 +133,7 @@
     <ClInclude Include="..\..\src\EngineCore\EngineFrontend.hpp" />
     <ClInclude Include="..\..\src\EngineCore\EntityManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\Frame.hpp" />
+    <ClInclude Include="..\..\src\EngineCore\GeometryBakery.hpp" />
     <ClInclude Include="..\..\src\EngineCore\MaterialComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\MeshComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\MTQueue.hpp" />
@@ -179,6 +182,7 @@
     <ClCompile Include="..\..\src\EngineCore\EngineFrontend.cpp" />
     <ClCompile Include="..\..\src\EngineCore\EntityManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\Frame.cpp" />
+    <ClCompile Include="..\..\src\EngineCore\GeometryBakery.cpp" />
     <ClCompile Include="..\..\src\EngineCore\main.cpp" />
     <ClCompile Include="..\..\src\EngineCore\MaterialComponentManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\MeshComponentManager.cpp" />

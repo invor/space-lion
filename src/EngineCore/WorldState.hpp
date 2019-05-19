@@ -21,8 +21,10 @@ namespace EngineCore
 	public:
 		typedef Graphics::OpenGL::ResourceManager ResourceManager;
 
-		WorldState(ResourceManager* resource_manager)
-            : m_material_manager(resource_manager),
+        WorldState(ResourceManager* resource_manager)
+            : m_transform_manager(4096),
+            m_material_manager(resource_manager),
+            m_camera_manager(8),
             m_mesh_manager(resource_manager),
             m_airplane_physics_manager(128, *this) {}
 		~WorldState() = default;
@@ -65,6 +67,10 @@ namespace EngineCore
 	inline Common::NameComponentManager& WorldState::accessNameManager() {
 		return m_name_manager;
 	}
+
+    inline Graphics::CameraComponentManager& WorldState::accessCameraComponentManager() {
+        return m_camera_manager;
+    }
 
 	inline Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>& WorldState::accessMaterialComponentManager() {
 		return m_material_manager;

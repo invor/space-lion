@@ -9,6 +9,7 @@
 #include "EntityManager.hpp"
 #include "BaseComponentManager.hpp"
 #include "BaseResourceManager.hpp"
+#include "VertexLayout.hpp"
 
 namespace EngineCore
 {
@@ -137,7 +138,6 @@ namespace EngineCore
 			size_t req_vertex_cnt = vb_byte_sizes.front() / vb_attrib_byte_sizes.front();
 			size_t req_index_cnt = ib_byte_size / computeByteSize(index_type);
 
-
 			auto it = m_mesh_data.begin();
 			if (!store_seperate)
 			{
@@ -148,7 +148,7 @@ namespace EngineCore
 
 					bool layout_check = ( (*vertex_layout) == mesh.resource->getVertexLayout());
 					//TODO check interleaved vs non-interleaved
-					bool idx_type_check = (index_type == mesh.resource->getIndexFormat());
+					bool idx_type_check = (index_type == mesh.resource->getIndexType());
 
 					if (layout_check && idx_type_check)
 					{

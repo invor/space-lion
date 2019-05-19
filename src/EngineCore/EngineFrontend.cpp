@@ -5,7 +5,8 @@
 #include <future>
 #include <chrono>
 
-//#include "OpenGL/BasicRenderingPipeline.hpp"
+#include "OpenGL/BasicRenderingPipeline.hpp"
+#include "GeometryBakery.hpp"
 
 namespace EngineCore
 {
@@ -39,6 +40,16 @@ namespace EngineCore
 			auto t_0 = std::chrono::high_resolution_clock::now();
 			auto t_1 = std::chrono::high_resolution_clock::now();
 
+            createDemoScene();
+
+            auto& entity_mngr = m_world_state->accessEntityManager();
+            auto& camera_mngr = m_world_state->accessCameraComponentManager();
+            auto& mtl_mngr = m_world_state->accessMaterialComponentManager();
+            auto& mesh_mngr = m_world_state->accessMeshComponentManager();
+            auto& rsrc_mngr = (*m_resource_manager);
+            auto& renderTask_mngr = m_world_state->accessRenderTaskComponentManager();
+            auto& transform_mngr = m_world_state->accessTransformManager();
+
 			// engine update loop
 			while (render_exec_status != std::future_status::ready)
 			{
@@ -51,19 +62,19 @@ namespace EngineCore
 				// finalize engine update by creating a new frame
 				Frame new_frame;
 
-				new_frame.m_frameID = frameID;
+				new_frame.m_frameID = frameID++;
 				new_frame.m_dt = dt;
 
-				//uint camera_idx = GCoreComponents::cameraManager().getActiveCameraIndex();
-				//Entity camera_entity = GCoreComponents::cameraManager().getEntity(camera_idx);
-				//uint camera_transform_idx = GCoreComponents::transformManager().getIndex(camera_entity);
-				//new_frame.m_view_matrix = glm::inverse(GCoreComponents::transformManager().getWorldTransformation(camera_transform_idx));
-				//new_frame.m_projection_matrix = GCoreComponents::cameraManager().getProjectionMatrix(camera_idx);
-				//new_frame.m_fovy = GCoreComponents::cameraManager().getFovy(camera_idx);
-				//new_frame.m_aspect_ratio = GCoreComponents::cameraManager().getAspectRatio(camera_idx);
-				//new_frame.m_exposure = GCoreComponents::cameraManager().getExposure(camera_idx);
+				uint camera_idx = camera_mngr.getActiveCameraIndex();
+				Entity camera_entity = camera_mngr.getEntity(camera_idx);
+				size_t camera_transform_idx = transform_mngr.getIndex(camera_entity).front();
+				new_frame.m_view_matrix = glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx));
+				new_frame.m_projection_matrix = camera_mngr.getProjectionMatrix(camera_idx);
+				new_frame.m_fovy = camera_mngr.getFovy(camera_idx);
+				new_frame.m_aspect_ratio = camera_mngr.getAspectRatio(camera_idx);
+				new_frame.m_exposure = camera_mngr.getExposure(camera_idx);
 
-				//Graphics::OpenGL::setupBasicRenderingPipeline(new_frame);
+				Graphics::OpenGL::setupBasicForwardRenderingPipeline(new_frame,*m_world_state,*m_resource_manager);
 
 				m_frame_manager->swapUpdateFrame(new_frame);
 
@@ -77,7 +88,46 @@ namespace EngineCore
 		}
 
 		void EngineFrontend::createDemoScene()
-		{
+        {
+            auto& entity_mngr = m_world_state->accessEntityManager();
+            auto& camera_mngr = m_world_state->accessCameraComponentManager();
+            auto& mtl_mngr = m_world_state->accessMaterialComponentManager();
+            auto& mesh_mngr = m_world_state->accessMeshComponentManager();
+            auto& rsrc_mngr = (*m_resource_manager);
+            auto& renderTask_mngr = m_world_state->accessRenderTaskComponentManager();
+            auto& transform_mngr = m_world_state->accessTransformManager();
+
+            auto camera = entity_mngr.create();
+            transform_mngr.addComponent(camera);
+            camera_mngr.addComponent(camera);
+
+            //TODO create turntable animation
+            auto cube = entity_mngr.create();
+            transform_mngr.addComponent(cube, Vec3(0.0, 0.0, -2.0));
+            auto mesh_data = Graphics::createBox();
+            auto mesh_rsrc = mesh_mngr.addComponent(
+                cube,
+                "demo_cube",
+                std::get<0>(mesh_data),
+                std::get<1>(mesh_data),
+                std::get<2>(mesh_data),
+                GL_UNSIGNED_INT,
+                GL_TRIANGLES);
+
+            auto shader_names = std::make_shared<std::vector<Graphics::OpenGL::ResourceManager::ShaderFilename>>(
+                std::initializer_list<Graphics::OpenGL::ResourceManager::ShaderFilename>{
+                    { "../resources/shaders/simple_forward_vert.glsl", GLSLProgram::VertexShader },
+                    { "../resources/shaders/simple_forward_frag.glsl", GLSLProgram::FragmentShader }
+            });
+
+            auto shader_rsrc = rsrc_mngr.createShaderProgramAsync(
+                "debug_forward_shader",
+                shader_names
+            );
+
+            mtl_mngr.addComponent(cube, "debug_cube_material", shader_rsrc);
+
+            renderTask_mngr.addComponent(cube, mesh_rsrc, 0, shader_rsrc, 0);
 
 
             /*Entity debug_entity = m_entity_manager.create();
@@ -120,7 +170,6 @@ namespace EngineCore
             m_material_manager.addComponent(debug_entity, "debug_material", shader_rsrc);
 
             m_render_task_manager.addComponent(debug_entity, mesh_rsrc, 0, shader_rsrc, 0);*/
-
 
 
 	//		// Create test scene

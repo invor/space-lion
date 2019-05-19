@@ -17,9 +17,9 @@ namespace EngineCore
             m_data.allocated = size;
 
             m_data.entity = (Entity*)(m_data.buffer);
-            m_data.near = (float*)(m_data.entity + size);
-            m_data.far = (float*)(m_data.near + size);
-            m_data.fovy = (float*)(m_data.far + size);
+            m_data.near_cp = (float*)(m_data.entity + size);
+            m_data.far_cp = (float*)(m_data.near_cp + size);
+            m_data.fovy = (float*)(m_data.far_cp + size);
             m_data.aspect_ratio = (float*)(m_data.fovy + size);
             m_data.exposure = (float*)(m_data.aspect_ratio + size);
             m_data.projection_matrix = (Mat4x4*)(m_data.exposure + size);
@@ -44,16 +44,16 @@ namespace EngineCore
             new_data.allocated = size;
 
             new_data.entity = (Entity*)(new_data.buffer);
-            new_data.near = (float*)(new_data.entity + size);
-            new_data.far = (float*)(new_data.near + size);
-            new_data.fovy = (float*)(new_data.far + size);
+            new_data.near_cp = (float*)(new_data.entity + size);
+            new_data.far_cp = (float*)(new_data.near_cp + size);
+            new_data.fovy = (float*)(new_data.far_cp + size);
             new_data.aspect_ratio = (float*)(new_data.fovy + size);
             new_data.exposure = (float*)(new_data.aspect_ratio + size);
             new_data.projection_matrix = (Mat4x4*)(new_data.exposure + size);
 
             std::memcpy(new_data.entity, m_data.entity, m_data.used * sizeof(Entity));
-            std::memcpy(new_data.near, m_data.near, m_data.used * sizeof(float));
-            std::memcpy(new_data.far, m_data.far, m_data.used * sizeof(float));
+            std::memcpy(new_data.near_cp, m_data.near_cp, m_data.used * sizeof(float));
+            std::memcpy(new_data.far_cp, m_data.far_cp, m_data.used * sizeof(float));
             std::memcpy(new_data.fovy, m_data.fovy, m_data.used * sizeof(float));
             std::memcpy(new_data.aspect_ratio, m_data.aspect_ratio, m_data.used * sizeof(float));
             std::memcpy(new_data.exposure, m_data.exposure, m_data.used * sizeof(Mat4x4));
@@ -64,7 +64,7 @@ namespace EngineCore
             m_data = new_data;
         }
 
-        void CameraComponentManager::addComponent(Entity entity, float near, float far, float fovy, float aspect_ratio, float exposure)
+        void CameraComponentManager::addComponent(Entity entity, float near_cp, float far_cp, float fovy, float aspect_ratio, float exposure)
         {
             assert(m_data.used < m_data.allocated);
 
@@ -73,8 +73,8 @@ namespace EngineCore
             addIndex(entity.id(),index);
 
             m_data.entity[index] = entity;
-            m_data.near[index] = near;
-            m_data.far[index] = far;
+            m_data.near_cp[index] = near_cp;
+            m_data.far_cp[index] = far_cp;
             m_data.fovy[index] = fovy;
             m_data.aspect_ratio[index] = aspect_ratio;
             m_data.exposure[index] = exposure;
@@ -117,12 +117,12 @@ namespace EngineCore
             return m_data.entity[index];
         }
 
-        void CameraComponentManager::setCameraAttributes(uint index, float near, float far, float fovy, float aspect_ratio, float exposure)
+        void CameraComponentManager::setCameraAttributes(uint index, float near_cp, float far_cp, float fovy, float aspect_ratio, float exposure)
         {
             assert(index < m_data.used);
 
-            m_data.near[index] = near;
-            m_data.far[index] = far;
+            m_data.near_cp[index] = near_cp;
+            m_data.far_cp[index] = far_cp;
             m_data.fovy[index] = fovy;
             m_data.aspect_ratio[index] = aspect_ratio;
             m_data.exposure[index] = exposure;
@@ -132,17 +132,17 @@ namespace EngineCore
 
         void CameraComponentManager::updateProjectionMatrix(uint index)
         {
-            float near = m_data.near[index];
-            float far = m_data.far[index];
+            float near_cp = m_data.near_cp[index];
+            float far_cp = m_data.far_cp[index];
             float fovy = m_data.fovy[index];
             float aspect_ratio = m_data.aspect_ratio[index];
 
             //Mat4x4 projection_matrix;// = m_data.projection_matrix[index];
 
-            m_data.projection_matrix[index] = glm::perspective(fovy, aspect_ratio, near, far);
+            m_data.projection_matrix[index] = glm::perspective(fovy, aspect_ratio, near_cp, far_cp);
 
             //	float f = 1.0f / std::tan(fovy / 2.0f);
-            //	float nf = 1.0f / (near - far);
+            //	float nf = 1.0f / (near_cp - far_cp);
             //	projection_matrix[0][0] = f / aspect_ratio;
             //	projection_matrix[0][1] = 0.0f;
             //	projection_matrix[0][2] = 0.0f;
@@ -153,24 +153,24 @@ namespace EngineCore
             //	projection_matrix[1][3] = 0.0f;
             //	projection_matrix[2][0] = 0.0f;
             //	projection_matrix[2][1] = 0.0f;
-            //	projection_matrix[2][2] = (far + near) * nf;
+            //	projection_matrix[2][2] = (far_cp + near_cp) * nf;
             //	projection_matrix[2][3] = -1.0f;
             //	projection_matrix[3][0] = 0.0f;
             //	projection_matrix[3][1] = 0.0f;
-            //	projection_matrix[3][2] = (2.0f * far * near) * nf;
+            //	projection_matrix[3][2] = (2.0f * far_cp * near_cp) * nf;
             //	projection_matrix[3][3] = 0.0f;
             //	
             //	m_data.projection_matrix[index] = projection_matrix;
         }
 
-        void CameraComponentManager::setNear(uint index, float near)
+        void CameraComponentManager::setNear(uint index, float near_cp)
         {
-            m_data.near[index] = near;
+            m_data.near_cp[index] = near_cp;
         }
 
-        void CameraComponentManager::setFar(uint index, float far)
+        void CameraComponentManager::setFar(uint index, float far_cp)
         {
-            m_data.far[index] = far;
+            m_data.far_cp[index] = far_cp;
         }
 
         Mat4x4 CameraComponentManager::getProjectionMatrix(uint index) const

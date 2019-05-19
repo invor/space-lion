@@ -3,7 +3,7 @@
 #include <imgui.h>
 #include <examples/imgui_impl_glfw.h>
 
-#if  0
+#if  1
 
 namespace EngineCore
 {
@@ -68,56 +68,63 @@ namespace EngineCore
                     // set camera matrices
                     uint camera_idx = cam_mngr.getActiveCameraIndex();
                     Entity camera_entity = cam_mngr.getEntity(camera_idx);
-                    uint camera_transform_idx = transform_mngr.getIndex(camera_entity);
-                    data.view_matrix = glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx));
+                    auto camera_transform_idx = transform_mngr.getIndex(camera_entity);
+                    if (!camera_transform_idx.empty())
+                    {
+                        data.view_matrix = glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx.front()));
+                    }
                     data.proj_matrix = cam_mngr.getProjectionMatrix(camera_idx);
 
                     // set per object data
                     auto& objs = renderTask_mngr.getComponentData();
 
-                    ResourceID current_mtl = resource_mngr.getInvalidResourceID();
-                    ResourceID current_mesh = resource_mngr.getInvalidResourceID();
+                    ResourceID current_prgm = resource_mngr.invalidResourceID();
+                    ResourceID current_mesh = resource_mngr.invalidResourceID();
 
                     // iterate all objects
                     for (auto& obj : objs)
                     {
                         // create a new batch for each resource change
-                        if (obj.material_resource != current_mtl || obj.mesh_resource != current_mesh)
+                        if (obj.shader_prgm != current_prgm || obj.mesh != current_mesh)
                         {
-                            current_mtl = obj.material_resource;
-                            current_mesh = obj.mesh_resource;
+                            current_prgm = obj.shader_prgm;
+                            current_mesh = obj.mesh;
 
                             data.static_mesh_params.push_back(std::vector<GeomPassData::StaticMeshParams>());
                             data.static_mesh_drawCommands.push_back(std::vector<GeomPassData::DrawElementsCommand>());
 
-                            // TODO query batch GPU resources early
-                            GeomPassResources::BatchResources batch_resources;
-                            batch_resources.shader_prgm = resource_mngr.getGLSLProgram(current_mtl);
-                            batch_resources.object_params = resource_mngr.getBufferObject("geometryPass_object_parameters");
-                            batch_resources.draw_commands = resource_mngr.getBufferObject("geometryPass_draw_commands");
-                            batch_resources.geometry = resource_mngr.getMesh(current_mesh);
-                            resources.m_batch_resources.push_back(batch_resources);
+                            // TODO query batch GPU resources early?
+                            //  GeomPassResources::BatchResources batch_resources;
+                            //  batch_resources.shader_prgm = resource_mngr.getShaderProgramResource(current_prgm);
+                            //  batch_resources.object_params = resource_mngr.getBufferResource("geometryPass_object_parameters");
+                            //  batch_resources.draw_commands = resource_mngr.getBufferResource("geometryPass_draw_commands");
+                            //  batch_resources.geometry = resource_mngr.getMesh(current_mesh);
+                            //  resources.m_batch_resources.push_back(batch_resources);
                         }
 
 
                         GeomPassData::StaticMeshParams params;
-                        uint transform_idx = GCoreComponents::transformManager().getIndex(obj.entity);
-                        params.transform = GCoreComponents::transformManager().getWorldTransformation(transform_idx);
+                        auto transform_idx = transform_mngr.getIndex(obj.entity);
+                        if (!transform_idx.empty())
+                        {
+                            params.transform = transform_mngr.getWorldTransformation(transform_idx.front());
+                        }
                         data.static_mesh_params.back().push_back(params);
 
                         // set draw command values
                         GeomPassData::DrawElementsCommand draw_command;
-                        auto obj_mesh_idx = GRenderingComponents::meshManager().getIndex(obj.entity);
-                        draw_command.cnt = GRenderingComponents::meshManager().getComponents().at(std::get<1>(obj_mesh_idx)).indices_cnt;
-                        draw_command.base_vertex = GRenderingComponents::meshManager().getComponents().at(std::get<1>(obj_mesh_idx)).base_vertex;
-                        draw_command.first_idx = GRenderingComponents::meshManager().getComponents().at(std::get<1>(obj_mesh_idx)).first_index;
+                        auto obj_mesh_idx = mesh_mngr.getIndex(obj.entity);
+                        auto draw_params = mesh_mngr.getDrawIndexedParams(obj_mesh_idx[obj.mesh_component_subidx]);
+                        draw_command.cnt = std::get<0>(draw_params);
+                        draw_command.base_vertex = std::get<2>(draw_params);
+                        draw_command.first_idx = std::get<1>(draw_params);
                         draw_command.base_instance = 0;
                         draw_command.instance_cnt = 1;
                         data.static_mesh_drawCommands.back().push_back(draw_command);
                     }
                 },
                     // resource setup phase
-                    [&world_state, &resource_mngr](GeomPassData& data, GeomPassResources& resources) {
+                    [&frame, &world_state, &resource_mngr](GeomPassData& data, GeomPassResources& resources) {
 
                     if (resources.m_render_target.state == NOT_READY)
                         resources.m_render_target = resource_mngr.getFramebufferObject("gBuffer");
@@ -138,7 +145,11 @@ namespace EngineCore
 
                         if (batch_resources.object_params.state != READY)
                         {
-                            batch_resources.object_params = resource_mngr.createBufferObject("geometryPass_object_parameters", GL_SHADER_STORAGE_BUFFER, data.static_mesh_params[batch]);
+                            batch_resources.object_params = resource_mngr.createBufferObject(
+                                "geomPass_obj_params_" + frame.m_frameID,
+                                GL_SHADER_STORAGE_BUFFER,
+                                data.static_mesh_params[batch]
+                            );
                         }
                         else
                         {
@@ -147,7 +158,11 @@ namespace EngineCore
 
                         if (batch_resources.draw_commands.state != READY)
                         {
-                            batch_resources.draw_commands = resource_mngr.createBufferObject("geometryPass_draw_commands", GL_DRAW_INDIRECT_BUFFER, data.static_mesh_drawCommands[batch]);
+                            batch_resources.draw_commands = resource_mngr.createBufferObject(
+                                "geomPass_draw_commands_" + frame.m_frameID,
+                                GL_DRAW_INDIRECT_BUFFER,
+                                data.static_mesh_drawCommands[batch]
+                            );
                         }
                         else
                         {
@@ -170,8 +185,8 @@ namespace EngineCore
 
                     glBindFramebuffer(GL_FRAMEBUFFER, 0);
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                    int width = ? ? ;
-                    int height = ? ?;
+                    int width = 0, height = 0;
+                    //TODO who knows window size???? glfwGetWindowSize(window, &width, &height);
                     glViewport(0, 0, width, height);
 
                     // bind global resources?
@@ -196,7 +211,7 @@ namespace EngineCore
 
                         glMultiDrawElementsIndirect(
                             batch_resources.geometry.resource->getPrimitiveType(),
-                            batch_resources.geometry.resource->getIndicesType(),
+                            batch_resources.geometry.resource->getIndexType(),
                             (GLvoid*)0,
                             draw_cnt,
                             0);

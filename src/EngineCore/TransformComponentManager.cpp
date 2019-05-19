@@ -4,15 +4,18 @@ namespace EngineCore
 {
 	namespace Common
 	{
-		TransformComponentManager::TransformComponentManager() {}
+		TransformComponentManager::TransformComponentManager() 
+        : BaseComponentManager()
+        {}
 
-		TransformComponentManager::TransformComponentManager(uint size) : m_data()
+		TransformComponentManager::TransformComponentManager(size_t size) 
+            : BaseComponentManager(), m_data()
 		{
-			const uint bytes = size * (sizeof(Entity)
+			const size_t bytes = size * (sizeof(Entity)
 				+ sizeof(Mat4x4)
 				+ 2 * sizeof(Vec3)
 				+ sizeof(Quat)
-				+ 3 * sizeof(uint));
+				+ 3 * sizeof(size_t));
 			m_data.buffer = new uint8_t[bytes];
 
 			m_data.used = 0;
@@ -23,9 +26,9 @@ namespace EngineCore
 			m_data.position = (Vec3*)(m_data.world_transform + size);
 			m_data.orientation = (Quat*)(m_data.position + size);
 			m_data.scale = (Vec3*)(m_data.orientation + size);
-			m_data.parent = (uint*)(m_data.scale + size);
-			m_data.first_child = (uint*)(m_data.parent + size);
-			m_data.next_sibling = (uint*)(m_data.first_child + size);
+			m_data.parent = (size_t*)(m_data.scale + size);
+			m_data.first_child = (size_t*)(m_data.parent + size);
+			m_data.next_sibling = (size_t*)(m_data.first_child + size);
 		}
 
 		TransformComponentManager::~TransformComponentManager()
@@ -33,18 +36,18 @@ namespace EngineCore
 			delete[] m_data.buffer;
 		}
 
-		void TransformComponentManager::reallocate(uint size)
+		void TransformComponentManager::reallocate(size_t size)
 		{
 			//TODO data protection mutex
 
 			assert(size > m_data.used);
 
 			Data new_data;
-			const uint bytes = size * (sizeof(Entity)
+			const size_t bytes = size * (sizeof(Entity)
 				+ sizeof(Mat4x4)
 				+ 2 * sizeof(Vec3)
 				+ sizeof(Quat)
-				+ 3 * sizeof(uint));
+				+ 3 * sizeof(size_t));
 			new_data.buffer = new uint8_t[bytes];
 
 			new_data.used = m_data.used;
@@ -55,9 +58,9 @@ namespace EngineCore
 			new_data.position = (Vec3*)(new_data.world_transform + size);
 			new_data.orientation = (Quat*)(new_data.position + size);
 			new_data.scale = (Vec3*)(new_data.orientation + size);
-			new_data.parent = (uint*)(new_data.scale + size);
-			new_data.first_child = (uint*)(new_data.parent + size);
-			new_data.next_sibling = (uint*)(new_data.first_child + size);
+			new_data.parent = (size_t*)(new_data.scale + size);
+			new_data.first_child = (size_t*)(new_data.parent + size);
+			new_data.next_sibling = (size_t*)(new_data.first_child + size);
 
 			std::memcpy(new_data.entity, m_data.entity, m_data.used * sizeof(Entity));
 			std::memcpy(new_data.world_transform, m_data.world_transform, m_data.used * sizeof(Mat4x4));
@@ -75,13 +78,13 @@ namespace EngineCore
 
 		void TransformComponentManager::addComponent(Entity entity, Vec3 position, Quat orientation, Vec3 scale)
 		{
-			std::unique_lock<std::shared_mutex> index_map_lock(m_index_map_mutex);
-
 			assert(m_data.used < m_data.allocated);
 
-			uint index = m_data.used;
+            // TODO check if entity already has a transform component and issue a warning of some kind
 
-			m_index_map.insert({ entity.id(),index });
+			size_t index = m_data.used;
+
+			addIndex( entity.id(),index );
 
 			m_data.entity[index] = entity;
 			m_data.position[index] = position;
@@ -102,58 +105,27 @@ namespace EngineCore
 			//TODO
 		}
 
-		bool TransformComponentManager::checkComponent(uint entity_id) const
-		{
-			std::shared_lock<std::shared_mutex> index_map_lock(m_index_map_mutex);
-
-			auto search = m_index_map.find(entity_id);
-
-			if (search == m_index_map.end())
-				return false;
-			else
-				return true;
-		}
-
-		uint TransformComponentManager::getComponentCount() const
+		size_t TransformComponentManager::getComponentCount() const
 		{
 			return m_data.used;
 		}
 
-		uint TransformComponentManager::getIndex(Entity entity) const
-		{
-			std::shared_lock<std::shared_mutex> index_map_lock(m_index_map_mutex);
-
-			auto search = m_index_map.find(entity.id());
-
-			assert((search != m_index_map.end()));
-
-			return search->second;
-		}
-
-		uint TransformComponentManager::getIndex(uint entity_id) const
-		{
-			std::shared_lock<std::shared_mutex> index_map_lock(m_index_map_mutex);
-
-			auto search = m_index_map.find(entity_id);
-
-			assert((search != m_index_map.end()));
-
-			return search->second;
-		}
-
 		void TransformComponentManager::translate(Entity entity, Vec3 translation)
 		{
-			translate(getIndex(entity), translation);
+            auto query = getIndex(entity);
+
+            if(!query.empty())
+			    translate(query.front(), translation);
 		}
 
-		void TransformComponentManager::translate(uint index, Vec3 translation)
+		void TransformComponentManager::translate(size_t index, Vec3 translation)
 		{
 			m_data.position[index] += translation;
 
 			transform(index);
 		}
 
-		void TransformComponentManager::rotate(uint index, Quat rotation)
+		void TransformComponentManager::rotate(size_t index, Quat rotation)
 		{
 			//m_data.orientation[index] *= rotation; // local transform...
 			m_data.orientation[index] = glm::normalize(rotation * m_data.orientation[index]);
@@ -161,21 +133,21 @@ namespace EngineCore
 			transform(index);
 		}
 
-		void TransformComponentManager::rotateLocal(uint index, Quat rotation)
+		void TransformComponentManager::rotateLocal(size_t index, Quat rotation)
 		{
 			m_data.orientation[index] = glm::normalize(m_data.orientation[index] * rotation);
 
 			transform(index);
 		}
 
-		void TransformComponentManager::scale(uint index, Vec3 scale_factors)
+		void TransformComponentManager::scale(size_t index, Vec3 scale_factors)
 		{
 			m_data.scale[index] *= scale_factors;
 
 			transform(index);
 		}
 
-		void TransformComponentManager::transform(uint index)
+		void TransformComponentManager::transform(size_t index)
 		{
 			Mat4x4 parent_transform(1.0);
 
@@ -192,8 +164,8 @@ namespace EngineCore
 			// update transforms of all children
 			if (m_data.first_child[index] != index)
 			{
-				uint child_idx = m_data.first_child[index];
-				uint sibling_idx = m_data.next_sibling[child_idx];
+                size_t child_idx = m_data.first_child[index];
+                size_t sibling_idx = m_data.next_sibling[child_idx];
 
 				transform(child_idx);
 
@@ -209,54 +181,62 @@ namespace EngineCore
 
 		void TransformComponentManager::setPosition(Entity entity, Vec3 position)
 		{
-			setPosition(getIndex(entity), position);
+            auto query = getIndex(entity);
+
+            if (!query.empty())
+			    setPosition(query.front(), position);
 		}
 
-		void TransformComponentManager::setPosition(uint index, Vec3 position)
+		void TransformComponentManager::setPosition(size_t index, Vec3 position)
 		{
 			m_data.position[index] = position;
 
 			transform(index);
 		}
 
-		void TransformComponentManager::setOrientation(uint index, Quat orientation)
+		void TransformComponentManager::setOrientation(size_t index, Quat orientation)
 		{
 			m_data.orientation[index] = orientation;
 
 			transform(index);
 		}
 
-		void TransformComponentManager::setParent(uint index, Entity parent)
+		void TransformComponentManager::setParent(size_t index, Entity parent)
 		{
-			uint parent_idx = getIndex(parent);
+            auto query = getIndex(parent);
 
-			m_data.parent[index] = parent_idx;
+            if (!query.empty())
+            {
+                size_t parent_idx = query.front();
 
-			if (m_data.first_child[parent_idx] == parent_idx)
-			{
-				m_data.first_child[parent_idx] = index;
-			}
-			else
-			{
-				uint child_idx = m_data.first_child[parent_idx];
+                m_data.parent[index] = parent_idx;
 
-				while (m_data.next_sibling[child_idx] != child_idx)
-				{
-					child_idx = m_data.next_sibling[child_idx];
-				}
+                if (m_data.first_child[parent_idx] == parent_idx)
+                {
+                    m_data.first_child[parent_idx] = index;
+                }
+                else
+                {
+                    size_t child_idx = m_data.first_child[parent_idx];
 
-				m_data.next_sibling[child_idx] = index;
-			}
+                    while (m_data.next_sibling[child_idx] != child_idx)
+                    {
+                        child_idx = m_data.next_sibling[child_idx];
+                    }
 
-			transform(index);
+                    m_data.next_sibling[child_idx] = index;
+                }
+
+                transform(index);
+            }
 		}
 
-		const Vec3 & TransformComponentManager::getPosition(uint index) const
+		const Vec3 & TransformComponentManager::getPosition(size_t index) const
 		{
 			return m_data.position[index];
 		}
 
-		Vec3 TransformComponentManager::getWorldPosition(uint index) const
+		Vec3 TransformComponentManager::getWorldPosition(size_t index) const
 		{
 			assert(index < m_data.used);
 
@@ -265,17 +245,28 @@ namespace EngineCore
 
 		Vec3 TransformComponentManager::getWorldPosition(Entity e) const
 		{
-			uint idx = getIndex(e);
+            Vec3 retval;
 
-			return getWorldPosition(idx);
+            auto query = getIndex(e);
+
+            if (!query.empty())
+            {
+                retval = getWorldPosition(query.front());
+            }
+            else
+            {
+                // TODO issue some kind of warning?
+            }
+
+			return retval;
 		}
 
-		const Quat & TransformComponentManager::getOrientation(uint index) const
+		const Quat & TransformComponentManager::getOrientation(size_t index) const
 		{
 			return m_data.orientation[index];
 		}
 
-		const Mat4x4 & TransformComponentManager::getWorldTransformation(uint index) const
+		const Mat4x4 & TransformComponentManager::getWorldTransformation(size_t index) const
 		{
 			return m_data.world_transform[index];
 		}

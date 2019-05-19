@@ -148,7 +148,7 @@ namespace EngineCore
 
 			for (uint i = 0; i < m_data.used; i++)
 			{
-				uint aircraft_transform_idx =  m_world.accessTransformManager().getIndex(m_data.entity[i]);
+				size_t aircraft_transform_idx =  m_world.accessTransformManager().getIndex(m_data.entity[i]).front(); // TODO this is not safe...
 				Quat orientation = m_world.accessTransformManager().getOrientation(aircraft_transform_idx);
 
 				Quat qFront = glm::cross(glm::cross(orientation, glm::quat(0.0, 0.0, 0.0, 1.0)), glm::conjugate(orientation));

@@ -176,40 +176,11 @@ namespace EngineCore
 					bool has_stencil = false);
 			
 				template<typename Container>
-				WeakResource<BufferObject> createBufferObject(
-					std::string const& name,
-					GLenum target,
-					Container const& datastorage,
-					GLenum usage = GL_DYNAMIC_DRAW)
-				{
-					std::unique_lock<std::shared_mutex> bufferObject_lock(m_buffers_mutex);
-			
-					auto search = m_name_to_buffer_idx.find(name);
-			
-					if (search != m_name_to_buffer_idx.end())
-						return WeakResource<BufferObject>(
-							m_buffers[search->second].id,
-							m_buffers[search->second].resource.get(),
-							m_buffers[search->second].state );
-			
-					Resource<BufferObject> bufferObject_resource;
-					{
-						std::unique_lock<std::mutex> rsrcID_lock(m_rsrcID_mutex);
-						bufferObject_resource.id.m_id = m_resource_cnt++;
-					}
-					bufferObject_resource.resource = std::make_unique<BufferObject>(target, datastorage, usage);
-					bufferObject_resource.state = READY;
-			
-					uint idx = m_buffers.size();
-					m_buffers.push_back(std::move(bufferObject_resource));
-					m_name_to_buffer_idx.insert({ name, idx });
-					m_id_to_buffer_idx.insert({ m_buffers.back().id.value(), idx });
-			
-					return WeakResource<BufferObject>(
-						m_buffers.back().id,
-						m_buffers.back().resource.get(),
-						m_buffers.back().state);
-				}
+                WeakResource<BufferObject> createBufferObject(
+                    std::string const& name,
+                    GLenum target,
+                    Container const& datastorage,
+                    GLenum usage = GL_DYNAMIC_DRAW);
 			
 				WeakResource<BufferObject> createBufferObject(
 					std::string const& name,
@@ -264,13 +235,13 @@ namespace EngineCore
 				std::vector<Resource<TextureCubemapArray>> m_textureCubemapArrays;
 				std::vector<Resource<FramebufferObject>>   m_FBOs;
 				
-				std::unordered_map<std::string, uint> m_name_to_textureArray_idx;
-				std::unordered_map<std::string, uint> m_name_to_textureCubemapArray_idx;
-				std::unordered_map<std::string, uint> m_name_to_FBO_idx;
+				std::unordered_map<std::string, size_t> m_name_to_textureArray_idx;
+				std::unordered_map<std::string, size_t> m_name_to_textureCubemapArray_idx;
+				std::unordered_map<std::string, size_t> m_name_to_FBO_idx;
 			
-				std::unordered_map<uint, uint> m_id_to_textureArray_idx;
-				std::unordered_map<uint, uint> m_id_to_textureCubemapArray_idx;
-				std::unordered_map<uint, uint> m_id_to_FBO_idx;
+				std::unordered_map<uint, size_t> m_id_to_textureArray_idx;
+				std::unordered_map<uint, size_t> m_id_to_textureCubemapArray_idx;
+				std::unordered_map<uint, size_t> m_id_to_FBO_idx;
 
 				mutable std::shared_mutex m_texArr_mutex;
 				mutable std::shared_mutex m_texCubeArr_mutex;
@@ -278,13 +249,77 @@ namespace EngineCore
 			};
 
 			template<typename VertexContainer, typename IndexContainer>
-			inline void ResourceManager::updateMesh(ResourceID rsrc_id, size_t vertex_offset, size_t index_offset, std::vector<VertexContainer> const & vertex_data, IndexContainer const & index_data)
+			inline void ResourceManager::updateMesh(
+                ResourceID rsrc_id,
+                size_t vertex_offset,
+                size_t index_offset,
+                std::vector<VertexContainer> const & vertex_data,
+                IndexContainer const & index_data)
 			{
+                std::shared_lock<std::shared_mutex> lock(m_meshes_mutex);
+
+                auto query = m_id_to_mesh_idx.find(rsrc_id.value());
+
+                if (query != m_id_to_mesh_idx.end())
+                {
+                    VertexLayout vertex_layout = m_meshes[query->second].resource->getVertexLayout();
+
+                    //TODO some sanity checks, such as attrib cnt and mesh size?
+
+                    for (int attrib_idx = 0; attrib_idx < vertex_layout.attributes.size(); ++attrib_idx)
+                    {
+                        size_t attrib_byte_size = computeAttributeByteSize(vertex_layout.attributes[attrib_idx]);
+                        size_t vertex_buffer_byte_offset = attrib_byte_size * vertex_offset;
+                        m_meshes[query->second].resource->bufferVertexSubData(attrib_idx, vertex_data[attrib_idx], vertex_buffer_byte_offset);
+                    }
+
+                    size_t index_type_byte_size = computeByteSize(m_meshes[query->second].resource->getIndexFormat());
+                    size_t index_byte_offset = index_offset * index_type_byte_size;
+                    m_meshes[query->second].resource->bufferIndexSubData(index_data, index_byte_offset);
+                }
 			}
 
 			template<typename VertexContainer, typename IndexContainer>
-			inline void ResourceManager::updateMeshAsync(ResourceID rsrc_id, size_t vertex_offset, size_t index_offset, std::shared_ptr<std::vector<VertexContainer>> const & vertex_data, std::shared_ptr<IndexContainer> const & index_data)
+			inline void ResourceManager::updateMeshAsync(
+                ResourceID rsrc_id,
+                size_t vertex_offset,
+                size_t index_offset,
+                std::shared_ptr<std::vector<VertexContainer>> const & vertex_data,
+                std::shared_ptr<IndexContainer> const & index_data)
 			{
+                m_renderThread_tasks.push(
+                    /*std::async(*/[this, rsrc_id, vertex_offset, index_offset, vertex_data, index_data]() {
+
+                    std::shared_lock<std::shared_mutex> lock(m_meshes_mutex);
+
+                    auto query = m_id_to_mesh_idx.find(rsrc_id.value());
+
+                    if (query != m_id_to_mesh_idx.end())
+                    {
+                        while (!(m_meshes[query->second].state == READY)) {} // TODO somehow do this more efficiently
+
+                        VertexLayout vertex_layout = m_meshes[query->second].resource->getVertexLayout();
+
+                        //TODO some sanity checks, such as attrib cnt and mesh size?
+
+                        for (size_t attrib_idx = 0; attrib_idx < vertex_layout.attributes.size(); ++attrib_idx)
+                        {
+                            size_t attrib_byte_size = computeAttributeByteSize(vertex_layout.attributes[attrib_idx]);
+                            size_t vertex_buffer_byte_offset = attrib_byte_size * vertex_offset;
+                            m_meshes[query->second].resource->bufferVertexSubData(
+                                attrib_idx,
+                                (*vertex_data)[attrib_idx],
+                                vertex_buffer_byte_offset);
+                        }
+
+                        size_t index_type_byte_size = computeByteSize(m_meshes[query->second].resource->getIndexType());
+                        size_t index_byte_offset = index_offset * index_type_byte_size;
+                        m_meshes[query->second].resource->bufferIndexSubData(
+                            *index_data,
+                            index_byte_offset);
+                    }
+
+                });
 			}
 
 			template<typename TexelDataContainer>
@@ -319,6 +354,39 @@ namespace EngineCore
 				return m_textures_2d[idx].id;
 			}
 
+            template<typename Container>
+            WeakResource<BufferObject> ResourceManager::createBufferObject(
+                std::string const& name,
+                GLenum target,
+                Container const& datastorage,
+                GLenum usage)
+            {
+                {
+                    std::shared_lock<std::shared_mutex> tex_lock(m_buffers_mutex);
+                    auto search = m_name_to_buffer_idx.find(name);
+                    if (search != m_name_to_buffer_idx.end())
+                        return WeakResource<BufferObject>(
+                            m_buffers[search->second].id,
+                            m_buffers[search->second].resource.get(),
+                            m_buffers[search->second].state);
+                }
+
+                size_t idx = m_buffers.size();
+                ResourceID rsrc_id = generateResourceID();
+
+                std::unique_lock<std::shared_mutex> lock(m_buffers_mutex);
+                m_buffers.push_back(Resource<BufferObject>(rsrc_id));
+                m_id_to_buffer_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
+                m_name_to_buffer_idx.insert(std::pair<std::string, size_t>(name, idx));
+
+                m_buffers[idx].resource = std::make_unique<BufferObject>(target, datastorage, usage);
+                m_buffers[idx].state = READY;
+
+                return WeakResource<BufferObject>(
+                    m_buffers[idx].id,
+                    m_buffers[idx].resource.get(),
+                    m_buffers[idx].state);
+            }
 		}
 	}
 }

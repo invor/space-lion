@@ -28,11 +28,13 @@ namespace EngineCore
 		{
 			inline unsigned int value() const { return m_id; }
 
-			inline bool operator==(const ResourceID& rhs) { return m_id == rhs.value(); }
-			inline bool operator!=(const ResourceID& rhs) { return m_id != rhs.value(); }
+			inline bool operator==(const ResourceID& rhs) const { return m_id == rhs.value(); }
+			inline bool operator!=(const ResourceID& rhs) const { return m_id != rhs.value(); }
 
 			template<typename Buffer,typename Mesh,typename ShaderProgram,typename Texture2D,typename Texture3D>
 			friend class BaseResourceManager;
+            template<typename ResourceType>
+            friend struct WeakResource;
 		private:
 			ResourceID() : m_id( (std::numeric_limits<unsigned int>::max)() ) {}
 			ResourceID(unsigned int id) : m_id(id) {}
@@ -45,8 +47,8 @@ namespace EngineCore
 		template<typename ResourceType>
 		struct WeakResource
 		{
-			//WeakResource() : id(GEngineCore::resourceManager().getInvalidResourceID()), resource(nullptr), state(NOT_READY) {}
-//			WeakResource() : id(ResourceID()), resource(nullptr), state(NOT_READY) {}
+			//WeakResource() : id(BaseResourceManager::invalidResourceID()), resource(nullptr), state(NOT_READY) {}
+			WeakResource() : id(ResourceID()), resource(nullptr), state(NOT_READY) {}
 			//WeakResource() = delete;
 			WeakResource(ResourceID id, ResourceType* resource, ResourceState state) : id(id), resource(resource), state(state) {}
 
@@ -92,6 +94,8 @@ namespace EngineCore
 					m_renderThread_tasks.pop()();
 				}
 			}
+
+            WeakResource<Buffer> getBufferResource(ResourceID rsrc_id);
 
 			WeakResource<Mesh> getMeshResource(ResourceID rsrc_id);
 
@@ -176,7 +180,27 @@ namespace EngineCore
 			mutable std::shared_mutex m_textures_3d_mutex;
 		};
 
-		template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
+        inline WeakResource<Buffer> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getBufferResource(ResourceID rsrc_id)
+        {
+            std::shared_lock<std::shared_mutex> lock(m_buffers_mutex);
+
+            WeakResource<Mesh> retval(rsrc_id, nullptr, NOT_READY);
+
+            auto query = m_id_to_buffer_idx.find(rsrc_id.value());
+
+            if (query != m_id_to_buffer_idx.end())
+            {
+                retval = WeakResource<Buffer>(
+                    m_meshes[query->second].id,
+                    m_meshes[query->second].resource.get(),
+                    m_meshes[query->second].state);
+            }
+
+            return retval;
+        }
+
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
 		inline WeakResource<Mesh> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getMeshResource(ResourceID rsrc_id)
 		{
 			std::shared_lock<std::shared_mutex> lock(m_meshes_mutex);
