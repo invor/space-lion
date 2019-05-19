@@ -207,7 +207,7 @@ namespace EngineCore
                         batch_resources.draw_commands.resource->bind();
                         batch_resources.geometry.resource->bindVertexArray();
 
-                        GLsizei draw_cnt = data.static_mesh_drawCommands[batch_idx].size();
+                        GLsizei draw_cnt = static_cast<GLsizei>( data.static_mesh_drawCommands[batch_idx].size() );
 
                         glMultiDrawElementsIndirect(
                             batch_resources.geometry.resource->getPrimitiveType(),

@@ -6,54 +6,39 @@ namespace EngineCore
     {
         void NameComponentManager::addComponent(Entity entity, std::string const& debug_name)
         {
-            //std::unique_lock<std::mutex> lock(m_dataAccess_mutex);
+            std::unique_lock<std::mutex> lock(m_dataAccess_mutex);
 
             uint idx = static_cast<uint>(m_data.size());
 
-            m_index_map.insert(std::pair<uint, uint>(entity.id(), idx));
+            addIndex(entity.id(), idx);
 
             m_data.push_back(Data(entity, debug_name));
         }
 
         void NameComponentManager::addComponent(Entity entity, std::string && debug_name)
         {
-            //std::unique_lock<std::mutex> lock(m_dataAccess_mutex);
+            std::unique_lock<std::mutex> lock(m_dataAccess_mutex);
 
             uint idx = static_cast<uint>(m_data.size());
 
-            m_index_map.insert(std::pair<uint, uint>(entity.id(), idx));
+            addIndex(entity.id(), idx);
 
             m_data.push_back(Data(entity, debug_name));
         }
 
-        std::pair<bool, uint> NameComponentManager::getIndex(Entity entity) const
-        {
-            auto search = m_index_map.find(entity.id());
-
-            std::pair<bool, uint> rtn(false, -1);
-
-            if (search != m_index_map.end())
-            {
-                rtn.first = true;
-                rtn.second = search->second;
-            }
-
-            return rtn;
-        }
-
         std::string NameComponentManager::getDebugName(Entity entity) const
         {
-            auto idx_pair = getIndex(entity);
+            auto query = getIndex(entity);
 
-            std::string rtn;
+            std::string retval;
 
-            if (idx_pair.first)
-                rtn = m_data[idx_pair.second].debug_name;
+            if (!query.empty())
+                retval = m_data[query.front()].debug_name;
 
-            return rtn;
+            return retval;
         }
 
-        std::string NameComponentManager::getDebugName(uint index) const
+        std::string NameComponentManager::getDebugName(size_t index) const
         {
             return m_data[index].debug_name;
         }

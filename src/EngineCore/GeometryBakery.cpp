@@ -251,7 +251,8 @@ namespace EngineCore
                                     VertexLayout::Attribute(GL_FLOAT,2, GL_FALSE, 40),
                                     VertexLayout::Attribute(GL_FLOAT,3, GL_FALSE, 48) });
 
-            auto vertices = std::make_shared< std::vector <std::vector<uint8_t>>>( std::vector<std::vector<uint8_t>>{ positions, normals, tangents, colors, uv_coords, bitangents });
+            auto vertices = std::make_shared< std::vector <std::vector<uint8_t>>>( 
+                std::vector<std::vector<uint8_t>>{ positions, normals, tangents, colors, uv_coords, bitangents });
 
             return std::tuple<VertexDataPtr, IndexDataPtr, VertexLayoutPtr>(vertices, indices, layout);
         }

@@ -23,6 +23,9 @@ namespace EngineCore
             class GraphicsBackend
             {
             public:
+                GraphicsBackend() : m_active_window(nullptr), m_singleExecution_tasks() {}
+                ~GraphicsBackend() = default;
+
                 /** Start and run graphics backend. Returns only after rendering window is closed. */
                 void run(ResourceManager* resource_manager, Common::FrameManager* frame_manager);
 

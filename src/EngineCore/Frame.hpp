@@ -18,11 +18,15 @@ namespace EngineCore
          */
         struct Frame
         {
-            Frame() : m_frameID(0), m_dt(0.0f) {}
+            Frame() : m_frameID(0), m_dt(0.0), m_window_width(0), m_window_height(0) {}
 
             // frame meta-data
             size_t m_frameID;
-            float  m_dt;
+            double  m_dt;
+
+            // info on output window
+            int m_window_width;
+            int m_window_height;
 
             // camera data
             Mat4x4 m_view_matrix;

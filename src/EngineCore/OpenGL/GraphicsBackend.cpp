@@ -101,6 +101,9 @@ namespace EngineCore
                     // Perform single execution tasks
                     processSingleExecutionTasks();
 
+                    // Perform resource manager async tasks
+                    resource_manager->executeRenderThreadTasks();
+
                     // Get current frame for rendering
                     auto& frame = frame_manager->getRenderFrame();
 
@@ -165,11 +168,14 @@ namespace EngineCore
 
             std::pair<int, int> GraphicsBackend::getActiveWindowResolution()
             {
-                std::pair<int, int> rtn;
+                std::pair<int, int> retval;
 
-                glfwGetWindowSize(m_active_window, &std::get<0>(rtn), &std::get<1>(rtn));
+                if (m_active_window != nullptr)
+                {
+                    glfwGetWindowSize(m_active_window, &std::get<0>(retval), &std::get<1>(retval));
+                }
 
-                return rtn;
+                return retval;
             }
 
             void GraphicsBackend::windowSizeCallback(GLFWwindow* window, int width, int height)

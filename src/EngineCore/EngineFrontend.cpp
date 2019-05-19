@@ -65,6 +65,10 @@ namespace EngineCore
                 new_frame.m_frameID = frameID++;
                 new_frame.m_dt = dt;
 
+                auto window_res = m_graphics_backend->getActiveWindowResolution();
+                new_frame.m_window_width = std::get<0>(window_res);
+                new_frame.m_window_height = std::get<1>(window_res);
+
                 uint camera_idx = camera_mngr.getActiveCameraIndex();
                 Entity camera_entity = camera_mngr.getEntity(camera_idx);
                 size_t camera_transform_idx = transform_mngr.getIndex(camera_entity).front();
