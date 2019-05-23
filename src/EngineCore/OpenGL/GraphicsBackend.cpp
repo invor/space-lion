@@ -101,8 +101,16 @@ namespace EngineCore
                     // Perform single execution tasks
                     processSingleExecutionTasks();
 
+                    auto gl_err = glGetError();
+                    if (gl_err != GL_NO_ERROR)
+                        std::cerr << "GL error after single exection tasks: " << gl_err << std::endl;
+
                     // Perform resource manager async tasks
                     resource_manager->executeRenderThreadTasks();
+
+                    gl_err = glGetError();
+                    if (gl_err != GL_NO_ERROR)
+                        std::cerr << "GL error after resource manager tasks: " << gl_err << std::endl;
 
                     // Get current frame for rendering
                     auto& frame = frame_manager->getRenderFrame();
@@ -113,7 +121,7 @@ namespace EngineCore
                         render_pass.setupResources();
                     }
 
-                    auto gl_err = glGetError();
+                    gl_err = glGetError();
                     if (gl_err != GL_NO_ERROR)
                         std::cerr << "GL error after resource setup of frame " << frame.m_frameID << " : " << gl_err << std::endl;
 

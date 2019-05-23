@@ -73,6 +73,7 @@ namespace EngineCore
                         index_data_byte_size,
                         *vertex_layout,
                         index_type,
+                        GL_DYNAMIC_DRAW,
                         mesh_type);
 
                     this->m_meshes[idx].state = READY;
