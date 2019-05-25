@@ -21,8 +21,8 @@ namespace EngineCore
                 uint8_t* buffer;    ///< raw data pointer
 
                 Entity* entity;            ///< entity owning the component
-                float* near_cp;               ///< near clipping plane
-                float* far_cp;                ///< far clipping plane
+                float* near_cp;            ///< near clipping plane
+                float* far_cp;             ///< far clipping plane
                 float* fovy;               ///< camera vertical field of view in radian
                 float* aspect_ratio;       ///< camera aspect ratio
                 float* exposure;           ///< camera exposure, a simplification of iso-value, aperature number and exposure time

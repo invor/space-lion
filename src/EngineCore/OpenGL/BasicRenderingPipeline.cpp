@@ -51,8 +51,6 @@ namespace EngineCore
                     };
 
                     std::vector<BatchResources> m_batch_resources;
-
-                    WeakResource<FramebufferObject> m_render_target;
                 };
 
                 frame.addRenderPass<GeomPassData, GeomPassResources>("GeometryPass",
@@ -94,12 +92,12 @@ namespace EngineCore
                             data.static_mesh_drawCommands.push_back(std::vector<GeomPassData::DrawElementsCommand>());
 
                             // TODO query batch GPU resources early?
-                            //  GeomPassResources::BatchResources batch_resources;
-                            //  batch_resources.shader_prgm = resource_mngr.getShaderProgramResource(current_prgm);
-                            //  batch_resources.object_params = resource_mngr.getBufferResource("geometryPass_object_parameters");
-                            //  batch_resources.draw_commands = resource_mngr.getBufferResource("geometryPass_draw_commands");
-                            //  batch_resources.geometry = resource_mngr.getMesh(current_mesh);
-                            //  resources.m_batch_resources.push_back(batch_resources);
+                            GeomPassResources::BatchResources batch_resources;
+                            batch_resources.shader_prgm = resource_mngr.getShaderProgramResource(current_prgm);
+                            //batch_resources.object_params = resource_mngr.getBufferResource("geometryPass_object_parameters");
+                            //batch_resources.draw_commands = resource_mngr.getBufferResource("geometryPass_draw_commands");
+                            batch_resources.geometry = resource_mngr.getMeshResource(current_mesh);
+                            resources.m_batch_resources.push_back(batch_resources);
                         }
 
 
@@ -125,9 +123,6 @@ namespace EngineCore
                 },
                     // resource setup phase
                     [&frame, &world_state, &resource_mngr](GeomPassData& data, GeomPassResources& resources) {
-
-                    if (resources.m_render_target.state == NOT_READY)
-                        resources.m_render_target = resource_mngr.getFramebufferObject("gBuffer");
 
                     // buffer data to resources
                     uint batch = 0;
@@ -170,13 +165,14 @@ namespace EngineCore
                         }
 
                         ++batch;
+
+                        auto gl_err = glGetError();
+                        if (gl_err != GL_NO_ERROR)
+                            std::cerr << "GL error in geometry pass resource setup - batch " << batch << " : " << gl_err << std::endl;
                     }
                 },
                     // execute phase
-                    [](GeomPassData const& data, GeomPassResources const& resources) {
-
-                    if (resources.m_render_target.state != READY)
-                        return;
+                    [&frame](GeomPassData const& data, GeomPassResources const& resources) {
 
                     //glEnable(GL_CULL_FACE);
                     //glFrontFace(GL_CCW);
@@ -184,10 +180,9 @@ namespace EngineCore
                     glDisable(GL_BLEND);
 
                     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                    glClearColor(1, 0, 0, 1);
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                    int width = 0, height = 0;
-                    //TODO who knows window size???? glfwGetWindowSize(window, &width, &height);
-                    glViewport(0, 0, width, height);
+                    glViewport(0, 0, frame.m_window_width, frame.m_window_height);
 
                     // bind global resources?
 
@@ -209,6 +204,10 @@ namespace EngineCore
 
                         GLsizei draw_cnt = static_cast<GLsizei>( data.static_mesh_drawCommands[batch_idx].size() );
 
+                        auto gl_err = glGetError();
+                        if (gl_err != GL_NO_ERROR)
+                            std::cerr << "GL error in geometry pass execution - batch "<< batch_idx<<" : " << gl_err << std::endl;
+
                         glMultiDrawElementsIndirect(
                             batch_resources.geometry.resource->getPrimitiveType(),
                             batch_resources.geometry.resource->getIndexType(),
@@ -219,7 +218,7 @@ namespace EngineCore
 
                     //glDisable(GL_CULL_FACE);
 
-                    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
                     auto gl_err = glGetError();
                     if (gl_err != GL_NO_ERROR)
