@@ -274,11 +274,11 @@ namespace EngineCore
             (*indices)[30] = 20; (*indices)[31] = 22; (*indices)[32] = 21;
             (*indices)[33] = 22; (*indices)[34] = 20; (*indices)[35] = 23;
 
-            auto layout = std::make_shared< VertexLayout>(60, 
+            auto layout = std::make_shared< VertexLayout>(0, 
                 std::vector<VertexLayout::Attribute>{ VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
                                     VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
                                     VertexLayout::Attribute(GL_FLOAT,3, GL_FALSE, 0),
-                                    VertexLayout::Attribute(GL_UNSIGNED_BYTE,4, GL_TRUE, 0),
+                                    VertexLayout::Attribute(GL_UNSIGNED_BYTE,4, GL_FALSE, 0),
                                     VertexLayout::Attribute(GL_FLOAT,2, GL_FALSE, 0),
                                     VertexLayout::Attribute(GL_FLOAT,3, GL_FALSE, 0) });
 

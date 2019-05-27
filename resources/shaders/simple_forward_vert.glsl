@@ -51,7 +51,7 @@ void main()
 	
 	uvCoord = v_uvCoord;
 	
-	//gl_Position =  projection_matrix  * vec4(position, 1.0);
+	gl_Position =  projection_matrix  * vec4(position, 1.0);
 
-	gl_Position = vec4(quadVertices[gl_VertexID], 0.0,1.0);
+	//gl_Position = vec4(quadVertices[gl_VertexID], 0.0,1.0);
 }

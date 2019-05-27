@@ -155,9 +155,9 @@ namespace EngineCore
                 parent_transform = m_data.world_transform[m_data.parent[index]];
 
 
-            Mat4x4 local_translation = glm::translate(Mat4x4(), m_data.position[index]);
+            Mat4x4 local_translation = glm::translate(Mat4x4(1.0), m_data.position[index]);
             Mat4x4 local_orientation = glm::toMat4(m_data.orientation[index]);
-            Mat4x4 local_scaling = glm::scale(Mat4x4(), m_data.scale[index]);
+            Mat4x4 local_scaling = glm::scale(Mat4x4(1.0), m_data.scale[index]);
 
             m_data.world_transform[index] = parent_transform * local_translation * local_orientation * local_scaling;
 
