@@ -103,7 +103,7 @@ namespace EngineCore
                 std::unique_lock<std::shared_mutex> lock(m_shader_programs_mutex);
                 m_shader_programs.push_back(Resource<GLSLProgram>(rsrc_id));
                 m_id_to_shader_program_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
-                m_name_to_shader_program_idx.insert(std::pair<std::string, uint>(program_name, idx));
+                m_name_to_shader_program_idx.insert(std::pair<std::string, size_t>(program_name, idx));
 
                 m_shader_programs[idx].resource = std::make_unique<GLSLProgram>();
                 m_shader_programs[idx].resource->setId(program_name);
@@ -258,8 +258,8 @@ namespace EngineCore
                 {
                     std::unique_lock<std::shared_mutex> lock(m_shader_programs_mutex);
                     m_shader_programs.push_back(Resource<GLSLProgram>(rsrc_id));
-                    m_name_to_shader_program_idx.insert(std::pair<std::string, uint>(program_name, idx));
-                    m_id_to_shader_program_idx.insert(std::pair<uint, uint>(m_shader_programs.back().id.value(), idx));
+                    m_name_to_shader_program_idx.insert(std::pair<std::string, size_t>(program_name, idx));
+                    m_id_to_shader_program_idx.insert(std::pair<uint, size_t>(m_shader_programs.back().id.value(), idx));
                 }
 
                 m_renderThread_tasks.push([this, idx, program_name, shader_filenames, additional_cs_defines]() {
@@ -427,7 +427,7 @@ namespace EngineCore
                 std::unique_lock<std::shared_mutex> lock(m_textures_2d_mutex);
                 m_textures_2d.push_back(Resource<Texture2D>(rsrc_id));
                 m_id_to_textures_2d_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
-                m_name_to_textures_2d_idx.insert(std::pair<std::string, uint>(name, idx));
+                m_name_to_textures_2d_idx.insert(std::pair<std::string, size_t>(name, idx));
 
                 m_textures_2d[idx].resource = std::make_unique<Texture2D>(name, layout, data, generateMipmap);
                 m_textures_2d[idx].state = READY;
@@ -457,7 +457,7 @@ namespace EngineCore
                 std::unique_lock<std::shared_mutex> lock(m_textures_2d_mutex);
                 m_textures_2d.push_back(Resource<Texture2D>(rsrc_id));
                 m_id_to_textures_2d_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
-                m_name_to_textures_2d_idx.insert(std::pair<std::string, uint>(name, idx));
+                m_name_to_textures_2d_idx.insert(std::pair<std::string, size_t>(name, idx));
 
                 m_renderThread_tasks.push([this, idx, name, layout, data, generateMipmap]() {
                     std::unique_lock<std::shared_mutex> tex_lock(m_textures_2d_mutex);
@@ -491,7 +491,7 @@ namespace EngineCore
                 std::unique_lock<std::shared_mutex> lock(m_texArr_mutex);
                 m_textureArrays.push_back(Resource<Texture2DArray>(rsrc_id));
                 m_id_to_textureArray_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
-                m_name_to_textureArray_idx.insert(std::pair<std::string, uint>(name, idx));
+                m_name_to_textureArray_idx.insert(std::pair<std::string, size_t>(name, idx));
 
                 m_textureArrays[idx].resource = std::make_unique<Texture2DArray>(name, layout, data, generateMipmap);
                 m_textureArrays[idx].state = READY;
@@ -521,7 +521,7 @@ namespace EngineCore
                 std::unique_lock<std::shared_mutex> lock(m_texArr_mutex);
                 m_textureArrays.push_back(Resource<Texture2DArray>(rsrc_id));
                 m_id_to_textureArray_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
-                m_name_to_textureArray_idx.insert(std::pair<std::string, uint>(name, idx));
+                m_name_to_textureArray_idx.insert(std::pair<std::string, size_t>(name, idx));
 
                 m_renderThread_tasks.push([this, idx, name, layout, data, generateMipmap]() {
                     std::unique_lock<std::shared_mutex> tex_lock(m_texArr_mutex);
@@ -554,7 +554,7 @@ namespace EngineCore
                 std::unique_lock<std::shared_mutex> lock(m_textures_3d_mutex);
                 m_textures_3d.push_back(Resource<Texture3D>(rsrc_id));
                 m_id_to_textures_3d_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
-                m_name_to_textures_3d_idx.insert(std::pair<std::string, uint>(name, idx));
+                m_name_to_textures_3d_idx.insert(std::pair<std::string, size_t>(name, idx));
 
                 m_textures_3d[idx].resource = std::make_unique<Texture3D>(name, layout, data);
                 m_textures_3d[idx].state = READY;
@@ -589,7 +589,7 @@ namespace EngineCore
                 std::unique_lock<std::shared_mutex> lock(m_fbo_mutex);
                 m_FBOs.push_back(Resource<FramebufferObject>(rsrc_id));
                 m_id_to_FBO_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
-                m_name_to_FBO_idx.insert(std::pair<std::string, uint>(name, idx));
+                m_name_to_FBO_idx.insert(std::pair<std::string, size_t>(name, idx));
 
                 m_FBOs[idx].resource = std::make_unique<FramebufferObject>(width, height, has_depth, has_stencil);
                 m_FBOs[idx].state = READY;
@@ -625,7 +625,7 @@ namespace EngineCore
                 std::unique_lock<std::shared_mutex> lock(m_buffers_mutex);
                 m_buffers.push_back(Resource<BufferObject>(rsrc_id));
                 m_id_to_buffer_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
-                m_name_to_buffer_idx.insert(std::pair<std::string, uint>(name, idx));
+                m_name_to_buffer_idx.insert(std::pair<std::string, size_t>(name, idx));
 
                 m_buffers[idx].resource = std::make_unique<BufferObject>(target, data, byte_size, usage);
                 m_buffers[idx].state = READY;
@@ -668,7 +668,7 @@ namespace EngineCore
             }
 
             void ResourceManager::updateBufferObject(
-                uint idx,
+                size_t idx,
                 GLvoid const* data,
                 GLsizeiptr byte_size)
             {

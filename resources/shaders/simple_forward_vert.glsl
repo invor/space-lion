@@ -22,6 +22,9 @@ out vec3 position;
 out vec2 uvCoord;
 out mat3 tangent_space_matrix;
 
+const vec2 quadVertices[4] = { vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0), vec2(1.0, 1.0) };
+const int quadIndices[6] = {3,2,0,0,1,3};
+
 void main()
 {   
 	/*	Construct matrices that use the model matrix*/
@@ -48,5 +51,7 @@ void main()
 	
 	uvCoord = v_uvCoord;
 	
-	gl_Position =  projection_matrix  * vec4(position, 1.0);
+	//gl_Position =  projection_matrix  * vec4(position, 1.0);
+
+	gl_Position = vec4(quadVertices[gl_VertexID], 0.0,1.0);
 }

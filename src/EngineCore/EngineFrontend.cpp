@@ -108,10 +108,10 @@ namespace EngineCore
             //TODO create turntable animation
             auto cube = entity_mngr.create();
             transform_mngr.addComponent(cube, Vec3(0.0, 0.0, -2.0));
-            auto mesh_data = Graphics::createBox();
+            auto mesh_data = Graphics::createPlane(1.0f,1.0f);
             auto mesh_rsrc = mesh_mngr.addComponent(
                 cube,
-                "demo_cube",
+                "demo_plane",
                 std::get<0>(mesh_data),
                 std::get<1>(mesh_data),
                 std::get<2>(mesh_data),

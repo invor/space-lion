@@ -42,7 +42,7 @@ void EntityManager::destroy(Entity entity)
     // that want to immediatly get rid of components (looking at you renderer)
 }
 
-uint EntityManager::getEntityCount() const
+size_t EntityManager::getEntityCount() const
 {
     std::shared_lock<std::shared_mutex> lock(m_mutex);
     return m_is_alive.size();

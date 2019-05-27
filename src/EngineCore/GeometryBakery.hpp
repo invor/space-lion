@@ -27,7 +27,7 @@ namespace EngineCore
         /**
         * \brief Creates and return plane (quad) geometry
         */
-        std::tuple<VertexData, IndexData, VertexLayout> createPlane(float width, float height);
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexLayoutPtr> createPlane(float width, float height);
 
         /**
         * \brief Creates and returns unit box geometry

@@ -219,7 +219,7 @@ namespace EngineCore
             private:
 
                 void updateBufferObject(
-                    uint idx,
+                    size_t idx,
                     GLvoid const* data,
                     GLsizeiptr byte_size
                 );
@@ -362,7 +362,7 @@ namespace EngineCore
                 GLenum usage)
             {
                 {
-                    std::shared_lock<std::shared_mutex> tex_lock(m_buffers_mutex);
+                    std::shared_lock<std::shared_mutex> lock(m_buffers_mutex);
                     auto search = m_name_to_buffer_idx.find(name);
                     if (search != m_name_to_buffer_idx.end())
                         return WeakResource<BufferObject>(

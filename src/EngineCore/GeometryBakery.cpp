@@ -41,48 +41,79 @@ namespace EngineCore
             return std::tuple<VertexData, IndexData, VertexLayout>(vertices, indices, layout);
         }
 
-        std::tuple<VertexData, IndexData, VertexLayout> createPlane(float width, float height)
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexLayoutPtr> createPlane(float width, float height)
         {
-            VertexData vertices(4 * 18 * 4); // 4 vertices * 18 float entries * bytesize
-            IndexData indices(6);
+            struct Vec2
+            {
+                float u, v;
+            };
 
-            float* floatView = reinterpret_cast<float*>(vertices.data());
+            struct Vec3
+            {
+                float x, y, z;
+            };
+
+            struct Color
+            {
+                uint8_t r, g, b, a;
+            };
+
+            VertexDataPtr vertex_data = std::make_shared< std::vector<std::vector<uint8_t>>>(6);
+            (*vertex_data)[0].resize(4 * sizeof(Vec3));
+            (*vertex_data)[1].resize(4 * sizeof(Vec3));
+            (*vertex_data)[2].resize(4 * sizeof(Vec3));
+            (*vertex_data)[3].resize(4 * sizeof(Color));
+            (*vertex_data)[4].resize(4 * sizeof(Vec2));
+            (*vertex_data)[5].resize(4 * sizeof(Vec3));
+
+            Vec3* position_ptr = reinterpret_cast<Vec3*>((*vertex_data)[0].data());
+            Vec3* normal_ptr = reinterpret_cast<Vec3*>((*vertex_data)[1].data());
+            Vec3* tangent_ptr = reinterpret_cast<Vec3*>((*vertex_data)[2].data());
+            Color* color_ptr = reinterpret_cast<Color*>((*vertex_data)[3].data());
+            Vec2* uv_ptr = reinterpret_cast<Vec2*>((*vertex_data)[4].data());
+            Vec3* bitangent_ptr = reinterpret_cast<Vec3*>((*vertex_data)[5].data());
 
             std::array<float, 4> width_signs = { -1.0f,1.0f,1.0f,-1.0f };
             std::array<float, 4> height_signs = { -1.0f,-1.0f,1.0f,1.0f };
 
             for (int i = 0; i < 4; ++i)
             {
-                floatView[(i * 18) + 0] = (width / 2.0) * width_signs[i];
-                floatView[(i * 18) + 1] = 0.0f;
-                floatView[(i * 18) + 2] = (height / 2.0f) * height_signs[i];
-                floatView[(i * 18) + 3] = 0.0f;
-                floatView[(i * 18) + 4] = 1.0f;
-                floatView[(i * 18) + 5] = 0.0f;
-                floatView[(i * 18) + 6] = 1.0f;
-                floatView[(i * 18) + 7] = 0.0f;
-                floatView[(i * 18) + 8] = 0.0f;
-                floatView[(i * 18) + 9] = 0.5f;
-                floatView[(i * 18) + 10] = 0.5f;
-                floatView[(i * 18) + 11] = 1.0f;
-                floatView[(i * 18) + 12] = 1.0f;
-                floatView[(i * 18) + 13] = (width_signs[i] + 1.0f) / 2.0f;
-                floatView[(i * 18) + 14] = (height_signs[i] + 1.0f) / 2.0f;
-                floatView[(i * 18) + 15] = 0.0f;
-                floatView[(i * 18) + 16] = 0.0f;
-                floatView[(i * 18) + 17] = 1.0f;
+                position_ptr[i].x = (width / 2.0f) * width_signs[i];
+                position_ptr[i].y = 0.0f;
+                position_ptr[i].z = (height / 2.0f) * height_signs[i];
+
+                normal_ptr[i].x = 0.0f;
+                normal_ptr[i].y = 1.0f;
+                normal_ptr[i].z = 0.0f;
+
+                tangent_ptr[i].x = 1.0f;
+                tangent_ptr[i].y = 0.0f;
+                tangent_ptr[i].z = 0.0f;
+
+                color_ptr[i].r = 128;
+                color_ptr[i].g = 128;
+                color_ptr[i].b = 255;
+                color_ptr[i].a = 255;
+
+                uv_ptr[i].u = (width_signs[i] + 1.0f) / 2.0f;
+                uv_ptr[i].v = (height_signs[i] + 1.0f) / 2.0f;
+
+                bitangent_ptr[i].x = 0.0f;
+                bitangent_ptr[i].y = 0.0f;
+                bitangent_ptr[i].z = 1.0f;
             }
 
-            indices[0] = 0; indices[1] = 3; indices[2] = 1; indices[3] = 3; indices[4] = 2; indices[5] = 1;
+            IndexDataPtr indices = std::make_shared<IndexData>(IndexData{ 0,3,1,3,2,0 });
 
-            VertexLayout layout(72, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
-                VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,12),
-                VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,24),
-                VertexLayout::Attribute(GL_FLOAT,4,GL_FALSE,36),
-                VertexLayout::Attribute(GL_FLOAT,2,GL_FALSE,52),
-                VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,60) });
+            VertexLayoutPtr layout = std::make_shared<VertexLayout>(VertexLayout(0, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
+                VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
+                VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
+                VertexLayout::Attribute(GL_UNSIGNED_BYTE,4,GL_FALSE,0),
+                VertexLayout::Attribute(GL_FLOAT,2,GL_FALSE,0),
+                VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0) })
+            );
 
-            return std::tuple<VertexData, IndexData, VertexLayout>(vertices, indices, layout);
+            return std::tuple<VertexDataPtr, IndexDataPtr, VertexLayoutPtr>(vertex_data, indices, layout);
         }
 
         std::tuple<VertexDataPtr, IndexDataPtr, VertexLayoutPtr> createBox()
@@ -245,11 +276,11 @@ namespace EngineCore
 
             auto layout = std::make_shared< VertexLayout>(60, 
                 std::vector<VertexLayout::Attribute>{ VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
-                                    VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,12),
-                                    VertexLayout::Attribute(GL_FLOAT,3, GL_FALSE, 24),
-                                    VertexLayout::Attribute(GL_UNSIGNED_BYTE,4, GL_TRUE, 36),
-                                    VertexLayout::Attribute(GL_FLOAT,2, GL_FALSE, 40),
-                                    VertexLayout::Attribute(GL_FLOAT,3, GL_FALSE, 48) });
+                                    VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
+                                    VertexLayout::Attribute(GL_FLOAT,3, GL_FALSE, 0),
+                                    VertexLayout::Attribute(GL_UNSIGNED_BYTE,4, GL_TRUE, 0),
+                                    VertexLayout::Attribute(GL_FLOAT,2, GL_FALSE, 0),
+                                    VertexLayout::Attribute(GL_FLOAT,3, GL_FALSE, 0) });
 
             auto vertices = std::make_shared< std::vector <std::vector<uint8_t>>>( 
                 std::vector<std::vector<uint8_t>>{ positions, normals, tangents, colors, uv_coords, bitangents });

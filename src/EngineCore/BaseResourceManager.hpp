@@ -97,6 +97,8 @@ namespace EngineCore
 
             WeakResource<Buffer> getBufferResource(ResourceID rsrc_id);
 
+            WeakResource<Buffer> getBufferResource(std::string const& rsrc_name);
+
             WeakResource<Mesh> getMeshResource(ResourceID rsrc_id);
 
             WeakResource<ShaderProgram> getShaderProgramResource(ResourceID rsrc_id);
@@ -197,6 +199,24 @@ namespace EngineCore
                     m_meshes[query->second].state);
             }
 
+            return retval;
+        }
+
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
+        inline WeakResource<Buffer> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getBufferResource(std::string const& rsrc_name)
+        {
+            WeakResource<Buffer> retval;
+
+            std::shared_lock<std::shared_mutex> lock(m_buffers_mutex);
+            auto search = m_name_to_buffer_idx.find(rsrc_name);
+            if (search != m_name_to_buffer_idx.end())
+            {
+                retval = WeakResource<Buffer>(
+                    m_buffers[search->second].id,
+                    m_buffers[search->second].resource.get(),
+                    m_buffers[search->second].state);
+            }
+             
             return retval;
         }
 

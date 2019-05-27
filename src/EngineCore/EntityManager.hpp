@@ -53,7 +53,7 @@ public:
 
     void destroy(Entity entity);
 
-    uint getEntityCount() const;
+    size_t getEntityCount() const;
 
     std::pair<bool, Entity> getEntity(uint index) const;
 
