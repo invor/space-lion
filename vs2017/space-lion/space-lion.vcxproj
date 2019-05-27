@@ -147,6 +147,7 @@
     <ClInclude Include="..\..\src\EngineCore\SunlightComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\TaskSchedueler.hpp" />
     <ClInclude Include="..\..\src\EngineCore\TransformComponentManager.hpp" />
+    <ClInclude Include="..\..\src\EngineCore\TurntableComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\types.hpp" />
     <ClInclude Include="..\..\src\EngineCore\utility.hpp" />
     <ClInclude Include="..\..\src\EngineCore\WorldState.hpp" />
@@ -196,6 +197,7 @@
     <ClCompile Include="..\..\src\EngineCore\SunlightComponentManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\TaskSchedueler.cpp" />
     <ClCompile Include="..\..\src\EngineCore\TransformComponentManager.cpp" />
+    <ClCompile Include="..\..\src\EngineCore\TurntableComponentManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\WorldState.cpp" />
     <ClCompile Include="..\..\src\External\glad\src\glad.c" />
     <ClCompile Include="..\..\src\External\glowl\src\BufferObject.cpp" />

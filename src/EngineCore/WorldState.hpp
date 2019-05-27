@@ -11,6 +11,7 @@
 #include "MeshComponentManager.hpp"
 #include "DebugNameComponentManager.hpp"
 #include "RenderTaskComponentManager.hpp"
+#include "TurntableComponentManager.hpp"
 
 #include "OpenGL/ResourceManager.hpp"
 
@@ -22,7 +23,8 @@ namespace EngineCore
         typedef Graphics::OpenGL::ResourceManager ResourceManager;
 
         WorldState(ResourceManager* resource_manager)
-            : m_transform_manager(4096),
+            : m_turntable_manager(*this),
+            m_transform_manager(4096),
             m_material_manager(resource_manager),
             m_camera_manager(8),
             m_mesh_manager(resource_manager),
@@ -30,6 +32,8 @@ namespace EngineCore
         ~WorldState() = default;
 
         EntityManager&                                       accessEntityManager();
+
+        Animation::TurntableComponentManager&                accessTurntableManager();
 
         Common::TransformComponentManager&                   accessTransformManager();
         Common::NameComponentManager&                        accessNameManager();
@@ -44,9 +48,11 @@ namespace EngineCore
     private:
         EntityManager m_entity_manager;
 
+        Animation::TurntableComponentManager                m_turntable_manager;
+
         //TODO add component managers for this world
-        Common::TransformComponentManager m_transform_manager;
-        Common::NameComponentManager m_name_manager;
+        Common::TransformComponentManager                   m_transform_manager;
+        Common::NameComponentManager                        m_name_manager;
 
         Graphics::CameraComponentManager                    m_camera_manager;
         Graphics::MaterialComponentManager<ResourceManager> m_material_manager;
@@ -59,6 +65,11 @@ namespace EngineCore
 
     inline EntityManager& WorldState::accessEntityManager() {
         return m_entity_manager;
+    }
+
+    inline Animation::TurntableComponentManager & WorldState::accessTurntableManager()
+    {
+        return m_turntable_manager;
     }
 
     inline Common::TransformComponentManager& WorldState::accessTransformManager() {

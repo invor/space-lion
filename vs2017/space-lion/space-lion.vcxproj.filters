@@ -246,6 +246,9 @@
     <ClInclude Include="..\..\src\EngineCore\GeometryBakery.hpp">
       <Filter>Header Files\EngineCore\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\EngineCore\TurntableComponentManager.hpp">
+      <Filter>Header Files\EngineCore\Animation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\EngineCore\EngineFrontend.cpp">
@@ -364,6 +367,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\EngineCore\GeometryBakery.cpp">
       <Filter>Source Files\EngineCore\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\EngineCore\TurntableComponentManager.cpp">
+      <Filter>Source Files\EngineCore\Animation</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

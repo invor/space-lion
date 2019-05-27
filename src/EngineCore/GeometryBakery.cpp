@@ -222,23 +222,23 @@ namespace EngineCore
 
             Vec2* uv_access_ptr = reinterpret_cast<Vec2*>(uv_coords.data());
             /*	front face */
-            access_ptr[0] = { 0.0, 0.0 }; access_ptr[1] = { 0.0, 1.0 };
-            access_ptr[2] = { 1.0, 1.0 }; access_ptr[3] = { 1.0, 0.0 };
+            uv_access_ptr[0] = { 0.0, 0.0 }; uv_access_ptr[1] = { 0.0, 1.0 };
+            uv_access_ptr[2] = { 1.0, 1.0 }; uv_access_ptr[3] = { 1.0, 0.0 };
             /*	right face */
-            access_ptr[4] = { 0.0, 0.0 }; access_ptr[5] = { 0.0, 1.0 };
-            access_ptr[6] = { 1.0, 1.0 }; access_ptr[7] = { 1.0, 0.0 };
+            uv_access_ptr[4] = { 0.0, 0.0 }; uv_access_ptr[5] = { 0.0, 1.0 };
+            uv_access_ptr[6] = { 1.0, 1.0 }; uv_access_ptr[7] = { 1.0, 0.0 };
             /*	left face */
-            access_ptr[8] = { 0.0, 0.0 }; access_ptr[9] = { 0.0, 1.0 };
-            access_ptr[10] = { 1.0, 1.0 }; access_ptr[11] = { 1.0, 0.0 };
+            uv_access_ptr[8] = { 0.0, 0.0 }; uv_access_ptr[9] = { 0.0, 1.0 };
+            uv_access_ptr[10] = { 1.0, 1.0 }; uv_access_ptr[11] = { 1.0, 0.0 };
             /*	back face */
-            access_ptr[12] = { 0.0, 0.0 }; access_ptr[13] = { 0.0, 1.0 };
-            access_ptr[14] = { 1.0, 1.0 }; access_ptr[15] = { 1.0, 0.0 };
+            uv_access_ptr[12] = { 0.0, 0.0 }; uv_access_ptr[13] = { 0.0, 1.0 };
+            uv_access_ptr[14] = { 1.0, 1.0 }; uv_access_ptr[15] = { 1.0, 0.0 };
             /*	bottom face */
-            access_ptr[16] = { 0.0, 0.0 }; access_ptr[17] = { 0.0, 1.0 };
-            access_ptr[18] = { 1.0, 1.0 }; access_ptr[19] = { 1.0, 0.0 };
+            uv_access_ptr[16] = { 0.0, 0.0 }; uv_access_ptr[17] = { 0.0, 1.0 };
+            uv_access_ptr[18] = { 1.0, 1.0 }; uv_access_ptr[19] = { 1.0, 0.0 };
             /*	top face */
-            access_ptr[20] = { 0.0, 0.0 }; access_ptr[21] = { 0.0, 1.0 };
-            access_ptr[22] = { 1.0, 1.0 }; access_ptr[23] = { 1.0, 0.0 };
+            uv_access_ptr[20] = { 0.0, 0.0 }; uv_access_ptr[21] = { 0.0, 1.0 };
+            uv_access_ptr[22] = { 1.0, 1.0 }; uv_access_ptr[23] = { 1.0, 0.0 };
 
             access_ptr = reinterpret_cast<Vec3*>(bitangents.data());
             /*	front face */

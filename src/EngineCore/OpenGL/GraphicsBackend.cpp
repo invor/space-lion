@@ -50,6 +50,8 @@ namespace EngineCore
 
                 glfwMakeContextCurrent(m_active_window);
 
+                //glfwSwapInterval(1);
+
                 // Get context version information
                 int major = glfwGetWindowAttrib(m_active_window, GLFW_CONTEXT_VERSION_MAJOR);
                 int minor = glfwGetWindowAttrib(m_active_window, GLFW_CONTEXT_VERSION_MINOR);

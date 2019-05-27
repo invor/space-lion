@@ -49,6 +49,7 @@ namespace EngineCore
             auto& rsrc_mngr = (*m_resource_manager);
             auto& renderTask_mngr = m_world_state->accessRenderTaskComponentManager();
             auto& transform_mngr = m_world_state->accessTransformManager();
+            auto& turntable_mngr = m_world_state->accessTurntableManager();
 
             // engine update loop
             while (render_exec_status != std::future_status::ready)
@@ -58,6 +59,7 @@ namespace EngineCore
                 t_0 = std::chrono::high_resolution_clock::now();
 
                 //TODO update world
+                turntable_mngr.animate(dt);
 
                 // finalize engine update by creating a new frame
                 Frame new_frame;
@@ -100,6 +102,7 @@ namespace EngineCore
             auto& rsrc_mngr = (*m_resource_manager);
             auto& renderTask_mngr = m_world_state->accessRenderTaskComponentManager();
             auto& transform_mngr = m_world_state->accessTransformManager();
+            auto& turntable_mngr = m_world_state->accessTurntableManager();
 
             auto camera = entity_mngr.create();
             transform_mngr.addComponent(camera);
@@ -108,6 +111,7 @@ namespace EngineCore
             //TODO create turntable animation
             auto cube = entity_mngr.create();
             transform_mngr.addComponent(cube, Vec3(0.0, 0.0, -5.0));
+            turntable_mngr.addComponent(cube, 0.1f);
             auto mesh_data = Graphics::createBox();
             auto mesh_rsrc = mesh_mngr.addComponent(
                 cube,

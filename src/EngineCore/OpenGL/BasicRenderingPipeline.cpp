@@ -174,11 +174,11 @@ namespace EngineCore
                     // execute phase
                     [&frame](GeomPassData const& data, GeomPassResources const& resources) {
 
-                    //glEnable(GL_CULL_FACE);
-                    //glFrontFace(GL_CCW);
+                    glEnable(GL_CULL_FACE);
+                    glFrontFace(GL_CCW);
 
-                    glDisable(GL_BLEND);
-                    glDisable(GL_CULL_FACE);
+                    //glDisable(GL_BLEND);
+                    //glDisable(GL_CULL_FACE);
 
                     glBindFramebuffer(GL_FRAMEBUFFER, 0);
                     glClearColor(1, 0, 0, 1);
@@ -186,6 +186,12 @@ namespace EngineCore
                     glViewport(0, 0, frame.m_window_width, frame.m_window_height);
 
                     // bind global resources?
+
+                    if (resources.m_batch_resources.empty())
+                    {
+                        std::cerr << "Well fuck" << std::endl;
+                    }
+
 
                     uint batch_idx = 0;
                     for (auto& batch_resources : resources.m_batch_resources)
