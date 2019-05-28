@@ -20,8 +20,8 @@ namespace EngineCore
         private:
             struct Data
             {
-                Data(Entity entity, float angle)
-                    : entity(entity), angle(angle) {}
+                Data(Entity entity, float angle, Vec3 axis)
+                    : entity(entity), angle(angle), axis(axis) {}
 
                 Entity entity;
                 float  angle;

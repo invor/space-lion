@@ -111,7 +111,7 @@ namespace EngineCore
             //TODO create turntable animation
             auto cube = entity_mngr.create();
             transform_mngr.addComponent(cube, Vec3(0.0, 0.0, -5.0));
-            turntable_mngr.addComponent(cube, 0.1f);
+            turntable_mngr.addComponent(cube, 0.5f);
             auto mesh_data = Graphics::createBox();
             auto mesh_rsrc = mesh_mngr.addComponent(
                 cube,

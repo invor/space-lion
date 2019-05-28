@@ -17,7 +17,7 @@ void EngineCore::Animation::TurntableComponentManager::addComponent(Entity entit
 
     addIndex(entity.id(), idx);
 
-    m_data.push_back(Data(entity, angle));
+    m_data.push_back(Data(entity, angle, axis));
 }
 
 void EngineCore::Animation::TurntableComponentManager::animate(double dt)
