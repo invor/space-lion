@@ -18,18 +18,23 @@ void EngineCore::Common::FrameManager::swapRenderFrame()
     }
 }
 
-EngineCore::Common::Frame& EngineCore::Common::FrameManager::getRenderFrame()
+void EngineCore::Common::FrameManager::swapUpdateFrame()
 {
-    return m_frame_tripleBuffer[m_render_frame];
-}
-
-void EngineCore::Common::FrameManager::swapUpdateFrame(Frame new_frame)
-{
-    m_frame_tripleBuffer[m_update_frame] = new_frame;
-
     std::unique_lock<std::mutex> lock(m_swap_frame_mutex);
 
     uint unused_frame = m_unused_frame;
     m_unused_frame = m_update_frame;
     m_update_frame = unused_frame;
+}
+
+EngineCore::Common::Frame & EngineCore::Common::FrameManager::setUpdateFrame(Frame && new_frame)
+{
+    m_frame_tripleBuffer[m_update_frame] = new_frame;
+
+    return m_frame_tripleBuffer[m_update_frame];
+}
+
+EngineCore::Common::Frame& EngineCore::Common::FrameManager::getRenderFrame()
+{
+    return m_frame_tripleBuffer[m_render_frame];
 }

@@ -68,7 +68,9 @@ namespace EngineCore
 
             void swapRenderFrame();
 
-            void swapUpdateFrame(Frame new_frame);
+            void swapUpdateFrame();
+
+            Frame& setUpdateFrame(Frame && new_frame);
 
             Frame& getRenderFrame();
         };

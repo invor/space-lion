@@ -62,7 +62,6 @@ namespace EngineCore
                     auto& renderTask_mngr = world_state.accessRenderTaskComponentManager();
                     auto& transform_mngr = world_state.accessTransformManager();
 
-
                     // set camera matrices
                     uint camera_idx = cam_mngr.getActiveCameraIndex();
                     Entity camera_entity = cam_mngr.getEntity(camera_idx);

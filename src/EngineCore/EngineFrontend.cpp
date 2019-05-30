@@ -68,6 +68,9 @@ namespace EngineCore
                 new_frame.m_dt = dt;
 
                 auto window_res = m_graphics_backend->getActiveWindowResolution();
+
+                //assert(std::get<0>(window_res) > 0);
+
                 new_frame.m_window_width = std::get<0>(window_res);
                 new_frame.m_window_height = std::get<1>(window_res);
 
@@ -80,9 +83,11 @@ namespace EngineCore
                 new_frame.m_aspect_ratio = camera_mngr.getAspectRatio(camera_idx);
                 new_frame.m_exposure = camera_mngr.getExposure(camera_idx);
 
-                Graphics::OpenGL::setupBasicForwardRenderingPipeline(new_frame, *m_world_state, *m_resource_manager);
+                Frame& update_frame = m_frame_manager->setUpdateFrame(std::move(new_frame));
 
-                m_frame_manager->swapUpdateFrame(new_frame);
+                Graphics::OpenGL::setupBasicForwardRenderingPipeline(update_frame, *m_world_state, *m_resource_manager);
+
+                m_frame_manager->swapUpdateFrame();
 
                 // check if rendering pipeline is still running
                 render_exec_status = render_exec.wait_for(std::chrono::microseconds(0));

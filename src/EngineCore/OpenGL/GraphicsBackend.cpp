@@ -184,6 +184,10 @@ namespace EngineCore
                 {
                     glfwGetWindowSize(m_active_window, &std::get<0>(retval), &std::get<1>(retval));
                 }
+                else
+                {
+                    std::cerr << "Trying to get window resolution from nullptr." << std::endl;
+                }
 
                 return retval;
             }
