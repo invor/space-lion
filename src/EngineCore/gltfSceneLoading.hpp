@@ -29,6 +29,7 @@ namespace EngineCore
 	{
 		namespace ResourceLoading
 		{
+            // TODO seperate into API specific and generic code
 			namespace Dx11
 			{
 				typedef std::shared_ptr<EngineCore::Graphics::Dx11::VertexDescriptor> VertexDescriptorPtr;
@@ -41,6 +42,8 @@ namespace EngineCore
 
 			std::shared_ptr<tinygltf::Model> loadGLTFModel(std::vector<unsigned char> const& databuffer);
 			
+            // TODO provide callback with API specific functionality either on node or primitive level
+
 			void addNode(int node_idx, Entity parent_node, std::shared_ptr<tinygltf::Model> const model, WorldState& world);
 
 			std::future<void> loadScene(std::wstring gltf_filepath, WorldState& world);//TODO callback for adding a gltf node?

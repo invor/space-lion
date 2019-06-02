@@ -10,3 +10,6 @@
 [submodule "src/External/lodepng"]
 	path = src/External/lodepng
 	url = https://github.com/lvandeve/lodepng.git
+[submodule "src/External/tinygltf"]
+	path = src/External/tinygltf
+	url = https://github.com/syoyo/tinygltf.git
