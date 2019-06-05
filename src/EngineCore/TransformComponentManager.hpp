@@ -46,7 +46,7 @@ namespace EngineCore
 
             void reallocate(size_t size);
 
-            void addComponent(Entity entity, Vec3 position = Vec3(), Quat orientation = Quat(), Vec3 scale = Vec3(1.0));
+            size_t addComponent(Entity entity, Vec3 position = Vec3(), Quat orientation = Quat(), Vec3 scale = Vec3(1.0));
 
             void deleteComonent(Entity entity);
 

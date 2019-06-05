@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "gltfSceneLoading.hpp"
 
 #include <iostream>
@@ -6,30 +5,32 @@
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+#define STBI_MSC_SECURE_CRT
 #include <tiny_gltf.h>
 
-#include "Common/DirectXHelper.h"
+#include "../EntityManager.hpp"
+#include "ResourceManager.hpp"
+#include "../WorldState.hpp"
 
-#include "EngineCore/Dx11/VertexDescriptor.hpp"
-
-#include "WorldState.hpp"
-
-using namespace EngineCore::Utility::ResourceLoading;
-
-void EngineCore::Utility::ResourceLoading::addNode(int node_idx, Entity parent_node, std::shared_ptr<tinygltf::Model> const model, WorldState & world)
+void EngineCore::Graphics::OpenGL::addGLTFNode(
+    int node_idx,
+    Entity parent_node,
+    std::shared_ptr<tinygltf::Model> const model,
+    WorldState & world,
+    ResourceManager& resource_mngr)
 {
 	// add entity
-	auto entity = world.accessEntityManager()->create();
+	auto entity = world.accessEntityManager().create();
 
 	// add name
-	world.accessNameManager()->addComponent(entity, model->nodes[node_idx].name);
+	world.accessNameManager().addComponent(entity, model->nodes[node_idx].name);
 
 	// add transform
-	size_t transform_idx = world.accessTransformManager()->addComponent(entity);
+	size_t transform_idx = world.accessTransformManager().addComponent(entity);
 
-	if (parent_node != world.accessEntityManager()->invalidEntity())
+	if (parent_node != world.accessEntityManager().invalidEntity())
 	{
-		world.accessTransformManager()->setParent(transform_idx, parent_node);
+		world.accessTransformManager().setParent(transform_idx, parent_node);
 	}
 
 	if (model->nodes[node_idx].matrix.size() != 0) // has matrix transform
@@ -43,19 +44,19 @@ void EngineCore::Utility::ResourceLoading::addNode(int node_idx, Entity parent_n
 		auto& rotation = model->nodes[node_idx].rotation;
 
 		if (translation.size() != 0) {
-			world.accessTransformManager()->setPosition(
+			world.accessTransformManager().setPosition(
 				transform_idx,
 				Vec3(static_cast<float>(translation[0]), static_cast<float>(translation[1]), static_cast<float>(translation[2]))
 			);
 		}
 		if (scale.size() != 0) {
-			world.accessTransformManager()->scale(
+			world.accessTransformManager().scale(
 				transform_idx,
 				Vec3(static_cast<float>(scale[0]), static_cast<float>(scale[1]), static_cast<float>(scale[2]))
 			);
 		}
 		if (rotation.size() != 0) {
-			world.accessTransformManager()->setOrientation(
+			world.accessTransformManager().setOrientation(
 				transform_idx,
 				Quat(static_cast<float>(rotation[0]),
 					static_cast<float>(rotation[1]),
@@ -81,7 +82,7 @@ void EngineCore::Utility::ResourceLoading::addNode(int node_idx, Entity parent_n
 			//	(max + min) * 0.5f,
 			//	(max - min) * 0.5f));
 
-			auto mesh_data = Dx11::loadSingleNodeGLTFMeshPrimitiveData(model, node_idx, primitive_idx);
+			auto mesh_data = loadSingleNodeGLTFMeshPrimitiveData(model, node_idx, primitive_idx);
 
 			auto material_idx = model->meshes[model->nodes[node_idx].mesh].primitives[primitive_idx].material;
 			std::string material_name = "";
@@ -131,46 +132,39 @@ void EngineCore::Utility::ResourceLoading::addNode(int node_idx, Entity parent_n
 				}
 			}
 
-			EngineCore::Graphics::ResourceID mesh_rsrc = world.accessMeshComponentManager()->addComponent(
+			EngineCore::Graphics::ResourceID mesh_rsrc = world.accessMeshComponentManager().addComponent(
 				entity,
 				"gltf_debug_mesh",
 				std::get<1>(mesh_data),
 				std::get<2>(mesh_data),
 				std::get<0>(mesh_data),
-				std::get<3>(mesh_data) == 5123 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, //TODO deduce index type from gltf
-				D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				std::get<3>(mesh_data),
+				GL_TRIANGLES);
 
-			typedef std::pair < std::wstring, Graphics::Dx11::ShaderProgram::ShaderType > ShaderFilename;
-
-			auto usingVprtShaders = world.accessResourceManager()->getDeviceResources()->GetDeviceSupportsVprt();
+			typedef std::pair < std::string, GLSLProgram::ShaderType > ShaderFilename;
 
 			auto shader_names = std::make_shared<std::vector<ShaderFilename>>();
-			shader_names->push_back({ usingVprtShaders ? L"ms-appx:///gltfVprtVertexShader.cso" : L"ms-appx:///gltfVertexShader.cso", Graphics::Dx11::ShaderProgram::VertexShader });
-			shader_names->push_back({ L"ms-appx:///gltfPixelShader.cso", Graphics::Dx11::ShaderProgram::PixelShader });
+			shader_names->push_back({ "gltfVertexShader.cso",GLSLProgram::VertexShader });
+			shader_names->push_back({ "gltfPixelShader.cso", GLSLProgram::FragmentShader });
 
-			if (!usingVprtShaders) {
-				shader_names->push_back({ L"ms-appx:///gltfGeometryShader.cso", Graphics::Dx11::ShaderProgram::GeometryShader });
-			}
-
-			EngineCore::Graphics::ResourceID shader_rsrc = world.accessResourceManager()->createShaderProgramAsync(
+			EngineCore::Graphics::ResourceID shader_rsrc = resource_mngr.createShaderProgramAsync(
 				"gltf_debug_shader",
-				shader_names,
-				std::get<0>(mesh_data));
+				shader_names);
 
-			world.accessMaterialComponentManager()->addComponent(entity, material_name, shader_rsrc,base_colour,specular_colour,roughness);
+			world.accessMaterialComponentManager().addComponent(entity, material_name, shader_rsrc,base_colour,specular_colour,roughness);
 
-			size_t mesh_subidx = world.accessMeshComponentManager()->getIndex(entity).size() - 1;
-			size_t mtl_subidx = world.accessMaterialComponentManager()->getIndex(entity).size() - 1;;
+			size_t mesh_subidx = world.accessMeshComponentManager().getIndex(entity).size() - 1;
+			size_t mtl_subidx = world.accessMaterialComponentManager().getIndex(entity).size() - 1;;
 
 			//for (int subidx = 0; subidx < component_idxs.size(); ++subidx)
-			world.accessRenderTaskComponentManager()->addComponent(entity, mesh_rsrc, mesh_subidx, shader_rsrc, mtl_subidx);
+			world.accessRenderTaskComponentManager().addComponent(entity, mesh_rsrc, mesh_subidx, shader_rsrc, mtl_subidx);
 		}
 	}
 
 	// traverse children and add gltf nodes recursivly
 	for (auto child : model->nodes[node_idx].children)
 	{
-		addNode(child, entity, model, world);
+		addGLTFNode(child, entity, model, world, resource_mngr);
 	}
 
 	// if current node has no mesh to take the bounding box from, create bounding box based on children
@@ -203,19 +197,18 @@ void EngineCore::Utility::ResourceLoading::addNode(int node_idx, Entity parent_n
 	//}
 }
 
-std::shared_ptr<tinygltf::Model> EngineCore::Utility::ResourceLoading::loadGLTFModel(std::vector<unsigned char> const & databuffer)
+std::shared_ptr<tinygltf::Model> EngineCore::Graphics::OpenGL::loadGLTFModel(std::string gltf_filepath)
 {
 	std::shared_ptr<tinygltf::Model> model = std::make_shared<tinygltf::Model>();
 	tinygltf::TinyGLTF loader;
 	std::string err;
 	std::string warn;
 
-	auto ret = loader.LoadBinaryFromMemory(
+	auto ret = loader.LoadBinaryFromFile(
 		model.get(),
 		&err,
 		&warn,
-		databuffer.data(),
-		databuffer.size()
+        gltf_filepath
 	);
 
 	if (!warn.empty()) {
@@ -234,24 +227,28 @@ std::shared_ptr<tinygltf::Model> EngineCore::Utility::ResourceLoading::loadGLTFM
 	return model;
 }
 
-std::future<void> EngineCore::Utility::ResourceLoading::loadScene(std::wstring gltf_filepath, WorldState& world)
+void EngineCore::Graphics::OpenGL::loadGLTFScene(std::string gltf_filepath, WorldState& world, ResourceManager& resource_mngr)
 {
-
-	std::vector<unsigned char> databuffer = co_await DX::ReadDataAsync(gltf_filepath);
-	
-	auto gltf_model = loadGLTFModel(databuffer);
+	auto gltf_model = loadGLTFModel(gltf_filepath);
 	
 	// iterate over nodes of model and add entities+components to world
 	for (auto& scene : gltf_model->scenes)
 	{
 		for (auto node : scene.nodes)
 		{
-			addNode(node, world.accessEntityManager()->invalidEntity(), gltf_model, world);
+			addGLTFNode(node, world.accessEntityManager().invalidEntity(), gltf_model, world, resource_mngr);
 		}
 	}
 }
 
-std::tuple<Dx11::VertexDescriptorPtr, Dx11::VertexDataPtr,Dx11::IndexDataPtr,Dx11::IndexDataType> Dx11::loadSingleNodeGLTFMeshPrimitiveData(std::shared_ptr<tinygltf::Model> model, size_t node_index, size_t primitive_idx)
+std::tuple<
+    EngineCore::Graphics::OpenGL::VertexLayoutPtr, 
+    EngineCore::Graphics::OpenGL::VertexDataPtr,
+    EngineCore::Graphics::OpenGL::IndexDataPtr,
+    EngineCore::Graphics::OpenGL::IndexDataType> EngineCore::Graphics::OpenGL::loadSingleNodeGLTFMeshPrimitiveData(
+        std::shared_ptr<tinygltf::Model> model,
+        size_t node_index,
+        size_t primitive_idx)
 {
 	if (model == nullptr)
 		return { nullptr,nullptr,nullptr,0 };
@@ -267,51 +264,22 @@ std::tuple<Dx11::VertexDescriptorPtr, Dx11::VertexDataPtr,Dx11::IndexDataPtr,Dx1
 			+ (indices_accessor.count * indices_accessor.ByteStride(indices_bufferView)));
 
 		auto vertices = std::make_shared<std::vector<std::vector<unsigned char>>>();
-		auto vertex_descriptor = std::make_shared<Graphics::Dx11::VertexDescriptor>();
+		auto vertex_descriptor = std::make_shared<VertexLayout>();
+        vertex_descriptor->byte_size = 0; //TODO rename byte_size
+
 		UINT input_slot = 0;
 
 		auto& vertex_attributes = model->meshes[model->nodes[node_index].mesh].primitives[primitive_idx].attributes;
 		for (auto attrib : vertex_attributes)
 		{
-			if (attrib.first.compare("NORMAL") == 0)
-			{
-				vertex_descriptor->attributes.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-				vertex_descriptor->strides.push_back(12);
-				++input_slot;
-			}
-			else if (attrib.first.compare("POSITION") == 0)
-			{
-				vertex_descriptor->attributes.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-				vertex_descriptor->strides.push_back(12);
-				++input_slot;
-			}
-			else if (attrib.first.compare("COLOR_0") == 0)
-			{
-				//TODO float colors ?
-				vertex_descriptor->attributes.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-				vertex_descriptor->strides.push_back(16);
-				++input_slot;
-			}
-			else if (attrib.first.compare("TEXCOORD_0") == 0)
-			{
-				//continue;
-				//TODO float colors ?
-				vertex_descriptor->attributes.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA, 0 });
-				vertex_descriptor->strides.push_back(8);
-				++input_slot;
-			}
-			else if (attrib.first.compare("TEXCOORD_1") == 0)
-			{
-				//continue;
-				//TODO float colors ?
-				vertex_descriptor->attributes.push_back({ "TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA, 0 });
-				vertex_descriptor->strides.push_back(8);
-				++input_slot;
-			}
-
 			auto& vertexAttrib_accessor = model->accessors[attrib.second];
 			auto& vertexAttrib_bufferView = model->bufferViews[vertexAttrib_accessor.bufferView];
 			auto& vertexAttrib_buffer = model->buffers[vertexAttrib_bufferView.buffer];
+
+            vertex_descriptor->attributes.push_back(
+                VertexLayout::Attribute(vertexAttrib_accessor.type, vertexAttrib_accessor.componentType,
+                    vertexAttrib_accessor.normalized, vertexAttrib_accessor.byteOffset));
+
 			vertices->push_back(std::vector<unsigned char>(
 				vertexAttrib_buffer.data.begin() + vertexAttrib_bufferView.byteOffset + vertexAttrib_accessor.byteOffset,
 				vertexAttrib_buffer.data.begin() + vertexAttrib_bufferView.byteOffset + vertexAttrib_accessor.byteOffset

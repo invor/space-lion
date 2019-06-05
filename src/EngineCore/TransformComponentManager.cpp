@@ -76,7 +76,7 @@ namespace EngineCore
             m_data = new_data;
         }
 
-        void TransformComponentManager::addComponent(Entity entity, Vec3 position, Quat orientation, Vec3 scale)
+        size_t TransformComponentManager::addComponent(Entity entity, Vec3 position, Quat orientation, Vec3 scale)
         {
             assert(m_data.used < m_data.allocated);
 
@@ -98,6 +98,8 @@ namespace EngineCore
             m_data.used++;
 
             transform(index);
+
+            return index;
         }
 
         void TransformComponentManager::deleteComonent(Entity entity)
