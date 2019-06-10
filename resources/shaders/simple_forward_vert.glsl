@@ -6,7 +6,7 @@ struct PerDrawData
 	mat4 model_matrix;
 };
 
-layout(std430, binding = 0) readonly buffer PerDrawDataBuffer { PerDrawData[] per_draw_data; };
+layout(std430, binding = 0) readonly buffer PerDrawDataBuffer { PerDrawData per_draw_data[]; };
 
 uniform mat4 view_matrix;
 uniform mat4 projection_matrix;

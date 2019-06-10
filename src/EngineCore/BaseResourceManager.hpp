@@ -6,6 +6,7 @@
 #ifndef BaseResourceManager_hpp
 #define BaseResourceManager_hpp
 
+#include <functional>
 #include <memory>
 #include <shared_mutex>
 #include <string>

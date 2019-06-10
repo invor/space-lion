@@ -252,6 +252,9 @@
     <ClInclude Include="..\..\src\EngineCore\OpenGL\gltfSceneLoading.hpp">
       <Filter>Header Files\EngineCore\Graphics\OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\EngineCore\gltfAssetComponentManager.hpp">
+      <Filter>Header Files\EngineCore\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\EngineCore\EngineFrontend.cpp">

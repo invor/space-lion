@@ -97,7 +97,6 @@ namespace EngineCore
                     textures(textures)
                 {}
 
-
                 Entity                  entity;
                 std::string             material_name;
 

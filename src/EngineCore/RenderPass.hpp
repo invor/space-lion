@@ -2,6 +2,7 @@
 #define RenderPass_hpp
 
 #include <functional>
+#include <string>
 
 namespace EngineCore
 {
