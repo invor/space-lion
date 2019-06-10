@@ -43,6 +43,8 @@ namespace EngineCore
             class ResourceManager : public BaseResourceManager<BufferObject, Mesh, GLSLProgram, Texture2D, Texture3D>
             {
             public:
+                typedef VertexLayout VertexLayout;
+
                 ResourceManager() : BaseResourceManager() {}
                 ResourceManager(ResourceManager const & cpy) = delete;
                 ~ResourceManager() = default;

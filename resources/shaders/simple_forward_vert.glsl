@@ -11,12 +11,10 @@ layout(std430, binding = 0) readonly buffer PerDrawDataBuffer { PerDrawData[] pe
 uniform mat4 view_matrix;
 uniform mat4 projection_matrix;
 
-in vec3 v_position;
 in vec3 v_normal;
-in vec3 v_tangent;
-in vec4 v_colour;
+in vec3 v_position;
+in vec4 v_tangent;
 in vec2 v_uvCoord;
-in vec3 v_bitangent;
 
 out vec3 position;
 out vec2 uvCoord;
@@ -32,8 +30,8 @@ void main()
 
 	/*	Just to be on the safe side, normalize input vectors again */
 	vec3 normal = normalize(v_normal);
-	vec3 tangent = normalize(v_tangent);
-	vec3 bitangent = normalize(v_bitangent);
+	vec3 tangent = normalize(v_tangent.xyz);
+	vec3 bitangent = normalize( cross(normal, tangent) * v_tangent.w );
 	
 	/*	Transform input vectors into view space */
 	normal = normalize(normal_matrix * normal);
@@ -51,7 +49,7 @@ void main()
 	
 	uvCoord = v_uvCoord;
 	
-	gl_Position =  projection_matrix  * vec4(position, 1.0);
+	gl_Position =  projection_matrix * view_matrix * vec4(position, 1.0);
 
 	//gl_Position = vec4(quadVertices[gl_VertexID], 0.0,1.0);
 }

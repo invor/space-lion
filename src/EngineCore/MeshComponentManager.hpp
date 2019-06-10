@@ -15,7 +15,7 @@ namespace EngineCore
 {
     namespace Graphics
     {
-        template<typename ResourceManagerType>
+        template<typename ResourceManagerType, typename VertexLayoutType, typename IndexType>
         class MeshComponentManager : public BaseComponentManager
         {
         public:
@@ -25,15 +25,13 @@ namespace EngineCore
             template<
                 typename VertexContainer,
                 typename IndexContainer,
-                typename VertexDescriptor,
-                typename IndexType,
                 typename MeshType>
                 ResourceID addComponent(
                     Entity const&                                        entity,
                     std::string const&                                   mesh_description,
                     std::shared_ptr<std::vector<VertexContainer>> const& vertex_data,
                     std::shared_ptr<IndexContainer> const&               index_data,
-                    std::shared_ptr<VertexDescriptor> const&             vertex_layout,
+                    std::shared_ptr<VertexLayoutType> const&             vertex_layout,
                     IndexType const&                                     index_type,
                     MeshType const&                                      mesh_type,
                     bool                                                 store_seperate = false);
@@ -79,11 +77,13 @@ namespace EngineCore
                     indices_allocated(indices_allocated),
                     indices_used(0) {}
 
-                ResourceID   mesh_resource;
-                unsigned int vertices_allocated;
-                unsigned int vertices_used;
-                unsigned int indices_allocated;
-                unsigned int indices_used;
+                ResourceID       mesh_resource;
+                VertexLayoutType mesh_vertexLayout;
+                IndexType        mesh_indexType;
+                unsigned int     vertices_allocated;
+                unsigned int     vertices_used;
+                unsigned int     indices_allocated;
+                unsigned int     indices_used;
             };
 
             std::vector<ComponentData> m_component_data;
@@ -94,19 +94,17 @@ namespace EngineCore
 
         };
 
-        template<typename ResourceManagerType>
+        template<typename ResourceManagerType, typename VertexLayoutType, typename IndexType>
         template<
             typename VertexContainer,
             typename IndexContainer,
-            typename VertexDescriptor,
-            typename IndexType,
             typename MeshType>
-            inline ResourceID MeshComponentManager<ResourceManagerType>::addComponent(
+            inline ResourceID MeshComponentManager<ResourceManagerType, VertexLayoutType, IndexType>::addComponent(
                 Entity const&                                        entity,
                 std::string const&                                   mesh_description,
                 std::shared_ptr<std::vector<VertexContainer>> const& vertex_data,
                 std::shared_ptr<IndexContainer> const&               index_data,
-                std::shared_ptr<VertexDescriptor> const&             vertex_layout,
+                std::shared_ptr<VertexLayoutType> const&             vertex_layout,
                 IndexType const&                                     index_type,
                 MeshType const&                                      mesh_type,
                 bool                                                 store_seperate)
@@ -144,11 +142,9 @@ namespace EngineCore
                 // check for existing mesh batch with matching vertex layout and index type and enough available space
                 for (; it != m_mesh_data.end(); ++it)
                 {
-                    auto mesh = m_resource_mngr->getMeshResource(it->mesh_resource);
-
-                    bool layout_check = ((*vertex_layout) == mesh.resource->getVertexLayout());
+                    bool layout_check = ((*vertex_layout) == it->mesh_vertexLayout);
                     //TODO check interleaved vs non-interleaved
-                    bool idx_type_check = (index_type == mesh.resource->getIndexType());
+                    bool idx_type_check = (index_type == it->mesh_indexType);
 
                     if (layout_check && idx_type_check)
                     {
@@ -212,8 +208,8 @@ namespace EngineCore
             return it->mesh_resource;
         }
 
-        template<typename ResourceManagerType>
-        inline std::tuple<unsigned int, unsigned int, unsigned int> MeshComponentManager<ResourceManagerType>::getDrawIndexedParams(size_t component_index)
+        template<typename ResourceManagerType, typename VertexLayout, typename IndexType>
+        inline std::tuple<unsigned int, unsigned int, unsigned int> MeshComponentManager<ResourceManagerType,VertexLayout,IndexType>::getDrawIndexedParams(size_t component_index)
         {
             ComponentData const& data = m_component_data[component_index];
 
