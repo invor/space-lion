@@ -31,35 +31,35 @@ namespace EngineCore
             m_airplane_physics_manager(128, *this) {}
         ~WorldState() = default;
 
-        EntityManager&                                       accessEntityManager();
+        EntityManager&                                                 accessEntityManager();
 
-        Animation::TurntableComponentManager&                accessTurntableManager();
+        Animation::TurntableComponentManager&                          accessTurntableManager();
 
-        Common::TransformComponentManager&                   accessTransformManager();
-        Common::NameComponentManager&                        accessNameManager();
+        Common::TransformComponentManager&                             accessTransformManager();
+        Common::NameComponentManager&                                  accessNameManager();
 
-        Graphics::CameraComponentManager&                    accessCameraComponentManager();
-        Graphics::MaterialComponentManager<ResourceManager>& accessMaterialComponentManager();
-        Graphics::MeshComponentManager<ResourceManager>&     accessMeshComponentManager();
-        Graphics::RenderTaskComponentManager&                accessRenderTaskComponentManager();
+        Graphics::CameraComponentManager&                              accessCameraComponentManager();
+        Graphics::MaterialComponentManager<ResourceManager>&           accessMaterialComponentManager();
+        Graphics::MeshComponentManager<ResourceManager, VertexLayout, GLenum>& accessMeshComponentManager();
+        Graphics::RenderTaskComponentManager&                          accessRenderTaskComponentManager();
 
-        Physics::AirplanePhysicsComponentManager&            accessAirplanePhysicsComponentManager();
+        Physics::AirplanePhysicsComponentManager&                      accessAirplanePhysicsComponentManager();
 
     private:
         EntityManager m_entity_manager;
 
-        Animation::TurntableComponentManager                m_turntable_manager;
+        Animation::TurntableComponentManager                          m_turntable_manager;
 
         //TODO add component managers for this world
-        Common::TransformComponentManager                   m_transform_manager;
-        Common::NameComponentManager                        m_name_manager;
+        Common::TransformComponentManager                             m_transform_manager;
+        Common::NameComponentManager                                  m_name_manager;
 
-        Graphics::CameraComponentManager                    m_camera_manager;
-        Graphics::MaterialComponentManager<ResourceManager> m_material_manager;
-        Graphics::MeshComponentManager<ResourceManager>     m_mesh_manager;
-        Graphics::RenderTaskComponentManager                m_render_task_manager;
+        Graphics::CameraComponentManager                              m_camera_manager;
+        Graphics::MaterialComponentManager<ResourceManager>           m_material_manager;
+        Graphics::MeshComponentManager<ResourceManager, VertexLayout, GLenum> m_mesh_manager;
+        Graphics::RenderTaskComponentManager                          m_render_task_manager;
 
-        Physics::AirplanePhysicsComponentManager            m_airplane_physics_manager;
+        Physics::AirplanePhysicsComponentManager                      m_airplane_physics_manager;
     };
 
 
@@ -86,7 +86,7 @@ namespace EngineCore
     inline Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>& WorldState::accessMaterialComponentManager() {
         return m_material_manager;
     }
-    inline Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>& WorldState::accessMeshComponentManager() {
+    inline Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager,VertexLayout,GLenum>& WorldState::accessMeshComponentManager() {
         return m_mesh_manager;
     }
     inline Graphics::RenderTaskComponentManager& WorldState::accessRenderTaskComponentManager() {

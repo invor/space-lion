@@ -128,6 +128,11 @@ namespace EngineCore
                 float x, y, z;
             };
 
+            struct Vec4
+            {
+                float x, y, z, w;
+            };
+
             struct Color
             {
                 uint8_t r, g, b, a;
@@ -135,7 +140,7 @@ namespace EngineCore
 
             std::vector<uint8_t> positions(24 * sizeof(Vec3));
             std::vector<uint8_t> normals(24 * sizeof(Vec3));
-            std::vector<uint8_t> tangents(24 * sizeof(Vec3));
+            std::vector<uint8_t> tangents(24 * sizeof(Vec4));
             std::vector<uint8_t> colors(24 * sizeof(Color));
             std::vector<uint8_t> uv_coords(24 * sizeof(Vec2));
             std::vector<uint8_t> bitangents(24 * sizeof(Vec3));
@@ -180,25 +185,25 @@ namespace EngineCore
             access_ptr[20] = { 0.0, 1.0, 0.0 }; access_ptr[21] = { 0.0, 1.0, 0.0 };
             access_ptr[22] = { 0.0, 1.0, 0.0 }; access_ptr[23] = { 0.0, 1.0, 0.0 };
 
-            access_ptr = reinterpret_cast<Vec3*>(tangents.data());
+            Vec4* tangent_access_ptr = reinterpret_cast<Vec4*>(tangents.data());
             /*	front face */
-            access_ptr[0] = { 1.0, 0.0, 0.0 }; access_ptr[1] = { 1.0, 0.0, 0.0 };
-            access_ptr[2] = { 1.0, 0.0, 0.0 }; access_ptr[3] = { 1.0, 0.0, 0.0 };
+            tangent_access_ptr[0] = { 1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[1] = { 1.0, 0.0, 0.0, 1.0 };
+            tangent_access_ptr[2] = { 1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[3] = { 1.0, 0.0, 0.0, 1.0 };
             /*	right face */
-            access_ptr[4] = { 0.0, 0.0, -1.0 }; access_ptr[5] = { 0.0, 0.0, -1.0 };
-            access_ptr[6] = { 0.0, 0.0, -1.0 }; access_ptr[7] = { 0.0, 0.0, -1.0 };
+            tangent_access_ptr[4] = { 0.0, 0.0, -1.0, 1.0 }; tangent_access_ptr[5] = { 0.0, 0.0, -1.0, 1.0 };
+            tangent_access_ptr[6] = { 0.0, 0.0, -1.0, 1.0 }; tangent_access_ptr[7] = { 0.0, 0.0, -1.0, 1.0 };
             /*	left face */
-            access_ptr[8] = { 0.0, 0.0, 1.0 }; access_ptr[9] = { 0.0, 0.0, 1.0 };
-            access_ptr[10] = { 0.0, 0.0, 1.0 }; access_ptr[11] = { 0.0, 0.0, 1.0 };
+            tangent_access_ptr[8] = { 0.0, 0.0, 1.0 , 1.0 }; tangent_access_ptr[9] = { 0.0, 0.0, 1.0, 1.0 };
+            tangent_access_ptr[10] = { 0.0, 0.0, 1.0, 1.0 }; tangent_access_ptr[11] = { 0.0, 0.0, 1.0, 1.0 };
             /*	back face */
-            access_ptr[12] = { -1.0, 0.0, 0.0 }; access_ptr[13] = { -1.0, 0.0, 0.0 };
-            access_ptr[14] = { -1.0, 0.0, 0.0 }; access_ptr[15] = { -1.0, 0.0, 0.0 };
+            tangent_access_ptr[12] = { -1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[13] = { -1.0, 0.0, 0.0, 1.0 };
+            tangent_access_ptr[14] = { -1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[15] = { -1.0, 0.0, 0.0, 1.0 };
             /*	bottom face */
-            access_ptr[16] = { 1.0, 0.0, 0.0 }; access_ptr[17] = { 1.0, 0.0, 0.0 };
-            access_ptr[18] = { 1.0, 0.0, 0.0 }; access_ptr[19] = { 1.0, 0.0, 0.0 };
+            tangent_access_ptr[16] = { 1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[17] = { 1.0, 0.0, 0.0, 1.0 };
+            tangent_access_ptr[18] = { 1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[19] = { 1.0, 0.0, 0.0, 1.0 };
             /*	top face */
-            access_ptr[20] = { 1.0, 0.0, 0.0 }; access_ptr[21] = { 1.0, 0.0, 0.0 };
-            access_ptr[22] = { 1.0, 0.0, 0.0 }; access_ptr[23] = { 1.0, 0.0, 0.0 };
+            tangent_access_ptr[20] = { 1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[21] = { 1.0, 0.0, 0.0, 1.0 };
+            tangent_access_ptr[22] = { 1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[23] = { 1.0, 0.0, 0.0, 1.0 };
 
             Color* col_access_ptr = reinterpret_cast<Color*>(colors.data());
             /*	front face */
@@ -275,15 +280,19 @@ namespace EngineCore
             (*indices)[33] = 22; (*indices)[34] = 20; (*indices)[35] = 23;
 
             auto layout = std::make_shared< VertexLayout>(0, 
-                std::vector<VertexLayout::Attribute>{ VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
-                                    VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
-                                    VertexLayout::Attribute(GL_FLOAT,3, GL_FALSE, 0),
-                                    VertexLayout::Attribute(GL_UNSIGNED_BYTE,4, GL_FALSE, 0),
-                                    VertexLayout::Attribute(GL_FLOAT,2, GL_FALSE, 0),
-                                    VertexLayout::Attribute(GL_FLOAT,3, GL_FALSE, 0) });
+                std::vector<VertexLayout::Attribute>{ 
+                                    VertexLayout::Attribute(2, GL_FLOAT, GL_FALSE, 0),
+                                    VertexLayout::Attribute(3, GL_FLOAT, GL_FALSE, 0),
+                                    VertexLayout::Attribute(4, GL_FLOAT, GL_FALSE, 0),
+                                    VertexLayout::Attribute(3, GL_FLOAT, GL_FALSE, 0),
+                                    //VertexLayout::Attribute(GL_UNSIGNED_BYTE,4, GL_FALSE, 0),
+                                    //VertexLayout::Attribute(GL_FLOAT,3, GL_FALSE, 0)
+                }
+            );
 
             auto vertices = std::make_shared< std::vector <std::vector<uint8_t>>>( 
-                std::vector<std::vector<uint8_t>>{ positions, normals, tangents, colors, uv_coords, bitangents });
+                std::vector<std::vector<uint8_t>>{ normals, positions, tangents, uv_coords});
+                //std::vector<std::vector<uint8_t>>{ positions, normals, tangents, colors, uv_coords, bitangents });
 
             return std::tuple<VertexDataPtr, IndexDataPtr, VertexLayoutPtr>(vertices, indices, layout);
         }

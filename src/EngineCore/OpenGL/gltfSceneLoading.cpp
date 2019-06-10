@@ -144,8 +144,8 @@ void EngineCore::Graphics::OpenGL::addGLTFNode(
 			typedef std::pair < std::string, GLSLProgram::ShaderType > ShaderFilename;
 
 			auto shader_names = std::make_shared<std::vector<ShaderFilename>>();
-			shader_names->push_back({ "gltfVertexShader.cso",GLSLProgram::VertexShader });
-			shader_names->push_back({ "gltfPixelShader.cso", GLSLProgram::FragmentShader });
+			shader_names->push_back({ "../resources/shaders/simple_forward_vert.glsl",GLSLProgram::VertexShader });
+            shader_names->push_back({ "../resources/shaders/simple_forward_frag.glsl", GLSLProgram::FragmentShader });
 
 			EngineCore::Graphics::ResourceID shader_rsrc = resource_mngr.createShaderProgramAsync(
 				"gltf_debug_shader",
@@ -204,7 +204,7 @@ std::shared_ptr<tinygltf::Model> EngineCore::Graphics::OpenGL::loadGLTFModel(std
 	std::string err;
 	std::string warn;
 
-	auto ret = loader.LoadBinaryFromFile(
+	auto ret = loader.LoadASCIIFromFile(
 		model.get(),
 		&err,
 		&warn,

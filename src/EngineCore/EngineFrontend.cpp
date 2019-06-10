@@ -7,6 +7,7 @@
 
 #include "OpenGL/BasicRenderingPipeline.hpp"
 #include "GeometryBakery.hpp"
+#include "OpenGL/gltfSceneLoading.hpp"
 
 namespace EngineCore
 {
@@ -110,7 +111,7 @@ namespace EngineCore
             auto& turntable_mngr = m_world_state->accessTurntableManager();
 
             auto camera = entity_mngr.create();
-            transform_mngr.addComponent(camera);
+            transform_mngr.addComponent(camera,Vec3(0.0,0.0,5.0));
             camera_mngr.addComponent(camera);
 
             //TODO create turntable animation
@@ -141,6 +142,8 @@ namespace EngineCore
             mtl_mngr.addComponent(cube, "debug_cube_material", shader_rsrc);
 
             renderTask_mngr.addComponent(cube, mesh_rsrc, 0, shader_rsrc, 0);
+
+            Graphics::OpenGL::loadGLTFScene("../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", *m_world_state, rsrc_mngr);
 
 
             /*Entity debug_entity = m_entity_manager.create();
