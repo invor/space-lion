@@ -186,6 +186,7 @@
     <ClCompile Include="..\..\src\EngineCore\EntityManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\Frame.cpp" />
     <ClCompile Include="..\..\src\EngineCore\GeometryBakery.cpp" />
+    <ClCompile Include="..\..\src\EngineCore\gltfAssetComponentManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\main.cpp" />
     <ClCompile Include="..\..\src\EngineCore\MaterialComponentManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\MeshComponentManager.cpp" />

@@ -380,5 +380,8 @@
     <ClCompile Include="..\..\src\EngineCore\OpenGL\gltfSceneLoading.cpp">
       <Filter>Source Files\EngineCore\Graphics\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\EngineCore\gltfAssetComponentManager.cpp">
+      <Filter>Source Files\EngineCore\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
