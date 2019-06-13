@@ -87,6 +87,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)..\src\External\glowl\include\glowl;$(SolutionDir)..\src\External\glfw\;$(SolutionDir)..\src\External\glm;$(SolutionDir)..\src\External\glad\include;$(SolutionDir)..\src\External\imgui;$(SolutionDir)..\src\External\;$(SolutionDir)..\src\External\tinygltf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)..\src\External\glfw\lib\Debug\</AdditionalLibraryDirectories>
@@ -116,6 +117,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)..\src\External\glowl\include\glowl;$(SolutionDir)..\src\External\glfw\;$(SolutionDir)..\src\External\glm;$(SolutionDir)..\src\External\glad\include;$(SolutionDir)..\src\External\imgui;$(SolutionDir)..\src\External\;$(SolutionDir)..\src\External\tinygltf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -133,6 +135,7 @@
     <ClInclude Include="..\..\src\EngineCore\EngineFrontend.hpp" />
     <ClInclude Include="..\..\src\EngineCore\EntityManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\Frame.hpp" />
+    <ClInclude Include="..\..\src\EngineCore\GenericVertexLayout.hpp" />
     <ClInclude Include="..\..\src\EngineCore\GeometryBakery.hpp" />
     <ClInclude Include="..\..\src\EngineCore\gltfAssetComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\MaterialComponentManager.hpp" />

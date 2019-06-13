@@ -55,6 +55,23 @@ namespace EngineCore
                 /** Clear lists containing graphics resources */
                 void clearAllResources();
 
+                size_t computeVertexByteSize(GenericVertexLayout const& vertex_layout)
+                {
+                    size_t retval = 0;
+
+                    for (auto& attr : vertex_layout.attributes) {
+                        //VertexLayout::Attribute ogl_attr(attr.size,attr.type,attr.normalized,attr.offset);
+                        retval += computeAttributeByteSize({ attr.size,attr.type,attr.normalized, static_cast<GLsizei>(attr.offset) });
+                    }
+
+                    return retval;
+                }
+
+                size_t computeIndexByteSize(uint32_t index_type)
+                {
+                    return computeByteSize(static_cast<GLenum>(index_type));
+                }
+
 #pragma region Create mesh
                 //template<
                 //	typename VertexContainer,
@@ -70,7 +87,7 @@ namespace EngineCore
                     std::string const& name,
                     size_t vertex_cnt,
                     size_t index_cnt,
-                    std::shared_ptr<VertexLayout> const& vertex_layout,
+                    std::shared_ptr<GenericVertexLayout> const& vertex_layout,
                     GLenum const index_type,
                     GLenum const mesh_type);
 

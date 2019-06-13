@@ -15,7 +15,7 @@ namespace tinygltf
 
 struct Entity;
 
-struct VertexLayout;
+struct GenericVertexLayout;
 
 namespace EngineCore
 {
@@ -27,7 +27,7 @@ namespace EngineCore
 		{
             class ResourceManager;
 
-			typedef std::shared_ptr<VertexLayout>                                 VertexLayoutPtr;
+			typedef std::shared_ptr<GenericVertexLayout>                          VertexLayoutPtr;
 			typedef std::shared_ptr<std::vector<std::vector<unsigned char>>>      VertexDataPtr;
 			typedef std::shared_ptr<std::vector<unsigned char>>                   IndexDataPtr;
 			typedef unsigned int                                                  IndexDataType;

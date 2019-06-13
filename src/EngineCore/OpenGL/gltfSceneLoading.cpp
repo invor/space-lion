@@ -9,6 +9,7 @@
 #include <tiny_gltf.h>
 
 #include "../EntityManager.hpp"
+#include "../GenericVertexLayout.hpp"
 #include "ResourceManager.hpp"
 #include "../WorldState.hpp"
 
@@ -139,7 +140,7 @@ void EngineCore::Graphics::OpenGL::addGLTFNode(
 				std::get<2>(mesh_data),
 				std::get<0>(mesh_data),
 				std::get<3>(mesh_data),
-				GL_TRIANGLES);
+                0x0004/*GL_TRIANGLES*/);
 
 			typedef std::pair < std::string, GLSLProgram::ShaderType > ShaderFilename;
 
@@ -264,7 +265,7 @@ std::tuple<
 			+ (indices_accessor.count * indices_accessor.ByteStride(indices_bufferView)));
 
 		auto vertices = std::make_shared<std::vector<std::vector<unsigned char>>>();
-		auto vertex_descriptor = std::make_shared<VertexLayout>();
+		auto vertex_descriptor = std::make_shared<GenericVertexLayout>();
         vertex_descriptor->byte_size = 0; //TODO rename byte_size
 
 		UINT input_slot = 0;
@@ -277,7 +278,7 @@ std::tuple<
 			auto& vertexAttrib_buffer = model->buffers[vertexAttrib_bufferView.buffer];
 
             vertex_descriptor->attributes.push_back(
-                VertexLayout::Attribute(vertexAttrib_accessor.type, vertexAttrib_accessor.componentType,
+                GenericVertexLayout::Attribute(vertexAttrib_accessor.type, vertexAttrib_accessor.componentType,
                     vertexAttrib_accessor.normalized, vertexAttrib_accessor.byteOffset));
 
 			vertices->push_back(std::vector<unsigned char>(

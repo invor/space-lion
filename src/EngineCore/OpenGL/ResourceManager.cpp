@@ -41,7 +41,13 @@ namespace EngineCore
                 m_resource_cnt = 0;
             }
 
-            ResourceID ResourceManager::allocateMeshAsync(std::string const & name, size_t vertex_cnt, size_t index_cnt, std::shared_ptr<VertexLayout> const & vertex_layout, GLenum const index_type, GLenum const mesh_type)
+            ResourceID ResourceManager::allocateMeshAsync(
+                std::string const & name,
+                size_t vertex_cnt,
+                size_t index_cnt,
+                std::shared_ptr<GenericVertexLayout> const & vertex_layout,
+                GLenum const index_type,
+                GLenum const mesh_type)
             {
                 size_t idx = m_meshes.size();
                 ResourceID rsrc_id = generateResourceID();
@@ -56,12 +62,19 @@ namespace EngineCore
 
                     std::shared_lock<std::shared_mutex> lock(m_meshes_mutex);
 
-                    // TODO get number of buffer required for vertex layout and compute byte sizes
-                    std::vector<void*> vertex_data_ptrs(vertex_layout->attributes.size(), nullptr);
-                    std::vector<size_t> vertex_data_buffer_byte_sizes(vertex_layout->attributes.size());
+                    VertexLayout ogl_vertex_layout;
+                    ogl_vertex_layout.byte_size = vertex_layout->byte_size;
+                    for (auto& attr : vertex_layout->attributes) {
+                        //VertexLayout::Attribute ogl_attr(attr.size,attr.type,attr.normalized,attr.offset);
+                        ogl_vertex_layout.attributes.push_back({ attr.size,attr.type,attr.normalized, static_cast<GLsizei>(attr.offset) });
+                    }
 
-                    for (size_t attrib_idx = 0; attrib_idx < vertex_layout->attributes.size(); ++attrib_idx) {
-                        vertex_data_buffer_byte_sizes[attrib_idx] = computeAttributeByteSize(vertex_layout->attributes[attrib_idx]) * vertex_cnt;
+                    // TODO get number of buffer required for vertex layout and compute byte sizes
+                    std::vector<void*> vertex_data_ptrs(ogl_vertex_layout.attributes.size(), nullptr);
+                    std::vector<size_t> vertex_data_buffer_byte_sizes(ogl_vertex_layout.attributes.size());
+
+                    for (size_t attrib_idx = 0; attrib_idx < ogl_vertex_layout.attributes.size(); ++attrib_idx) {
+                        vertex_data_buffer_byte_sizes[attrib_idx] = computeAttributeByteSize(ogl_vertex_layout.attributes[attrib_idx]) * vertex_cnt;
                     }
 
                     size_t index_data_byte_size = 4 * index_cnt; //TODO support different index formats
@@ -71,7 +84,7 @@ namespace EngineCore
                         vertex_data_buffer_byte_sizes,
                         nullptr,
                         index_data_byte_size,
-                        *vertex_layout,
+                        ogl_vertex_layout,
                         index_type,
                         GL_DYNAMIC_DRAW,
                         mesh_type);

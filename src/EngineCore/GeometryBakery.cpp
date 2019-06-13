@@ -2,12 +2,11 @@
 
 #include <array>
 
-
 namespace EngineCore
 {
     namespace Graphics
     {
-        std::tuple<VertexData, IndexData, VertexLayout> createTriangle()
+        std::tuple<VertexData, IndexData, GenericVertexLayout> createTriangle()
         {
             VertexData vertices(3 * 6 * 4); // 3 triangles * 6 float entries * bytesize
             IndexData indices(3);
@@ -36,9 +35,9 @@ namespace EngineCore
 
             indices[0] = 0; indices[1] = 1; indices[2] = 2;
 
-            VertexLayout layout(24, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,12) });
+            GenericVertexLayout layout(24, { GenericVertexLayout::Attribute(5126,3,false,0),GenericVertexLayout::Attribute(5126,3,false,12) });
 
-            return std::tuple<VertexData, IndexData, VertexLayout>(vertices, indices, layout);
+            return std::tuple<VertexData, IndexData, GenericVertexLayout>(vertices, indices, layout);
         }
 
         std::tuple<VertexDataPtr, IndexDataPtr, VertexLayoutPtr> createPlane(float width, float height)
@@ -105,12 +104,12 @@ namespace EngineCore
 
             IndexDataPtr indices = std::make_shared<IndexData>(IndexData{ 0,3,1,3,2,0 });
 
-            VertexLayoutPtr layout = std::make_shared<VertexLayout>(VertexLayout(0, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
-                VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
-                VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
-                VertexLayout::Attribute(GL_UNSIGNED_BYTE,4,GL_FALSE,0),
-                VertexLayout::Attribute(GL_FLOAT,2,GL_FALSE,0),
-                VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0) })
+            VertexLayoutPtr layout = std::make_shared<GenericVertexLayout>(GenericVertexLayout(0, { GenericVertexLayout::Attribute(5126 /*GL_FLOAT*/,3,false,0),
+                GenericVertexLayout::Attribute(5126,3,false,0),
+                GenericVertexLayout::Attribute(5126,3,false,0),
+                GenericVertexLayout::Attribute(5121 /*GL_UNSIGNED_BYTE*/,4,false,0),
+                GenericVertexLayout::Attribute(5126,2,false,0),
+                GenericVertexLayout::Attribute(5126,3,false,0) })
             );
 
             return std::tuple<VertexDataPtr, IndexDataPtr, VertexLayoutPtr>(vertex_data, indices, layout);
@@ -207,23 +206,23 @@ namespace EngineCore
 
             Color* col_access_ptr = reinterpret_cast<Color*>(colors.data());
             /*	front face */
-            col_access_ptr[0] = { (GLubyte)0.0, (GLubyte)0.0, (GLubyte)0.0, (GLubyte)1.0 }; col_access_ptr[1] = { (GLubyte)0.0, (GLubyte)1.0, (GLubyte)0.0, (GLubyte)1.0 };
-            col_access_ptr[2] = { (GLubyte)1.0, (GLubyte)1.0, (GLubyte)0.0, (GLubyte)1.0 }; col_access_ptr[3] = { (GLubyte)1.0, (GLubyte)0.0, (GLubyte)0.0, (GLubyte)1.0 };
+            col_access_ptr[0] = { (uint8_t)0.0, (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0 }; col_access_ptr[1] = { (uint8_t)0.0, (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0 };
+            col_access_ptr[2] = { (uint8_t)1.0, (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0 }; col_access_ptr[3] = { (uint8_t)1.0, (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0 };
             /*	right face */
-            col_access_ptr[4] = { (GLubyte)1.0, (GLubyte)0.0, (GLubyte)0.0, (GLubyte)1.0 }; col_access_ptr[5] = { (GLubyte)1.0, (GLubyte)1.0, (GLubyte)0.0, (GLubyte)1.0 };
-            col_access_ptr[6] = { (GLubyte)1.0, (GLubyte)1.0, (GLubyte)1.0, (GLubyte)1.0 }; col_access_ptr[7] = { (GLubyte)1.0, (GLubyte)0.0, (GLubyte)1.0, (GLubyte)1.0 };
+            col_access_ptr[4] = { (uint8_t)1.0, (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0 }; col_access_ptr[5] = { (uint8_t)1.0, (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0 };
+            col_access_ptr[6] = { (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0 }; col_access_ptr[7] = { (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0 };
             /*	left face */
-            col_access_ptr[8] = { (GLubyte)0.0, (GLubyte)0.0, (GLubyte)1.0, (GLubyte)1.0 }; col_access_ptr[9] = { (GLubyte)0.0, (GLubyte)1.0, (GLubyte)1.0, (GLubyte)1.0 };
-            col_access_ptr[10] = { (GLubyte)0.0, (GLubyte)1.0, (GLubyte)0.0, (GLubyte)1.0 }; col_access_ptr[11] = { (GLubyte)0.0, (GLubyte)0.0, (GLubyte)0.0, (GLubyte)1.0 };
+            col_access_ptr[8] = { (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0 }; col_access_ptr[9] = { (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0 };
+            col_access_ptr[10] = { (uint8_t)0.0, (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0 }; col_access_ptr[11] = { (uint8_t)0.0, (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0 };
             /*	back face */
-            col_access_ptr[12] = { (GLubyte)1.0, (GLubyte)0.0, (GLubyte)1.0, (GLubyte)1.0 }; col_access_ptr[13] = { (GLubyte)1.0, (GLubyte)1.0, (GLubyte)1.0, (GLubyte)1.0 };
-            col_access_ptr[14] = { (GLubyte)0.0, (GLubyte)1.0, (GLubyte)1.0, (GLubyte)1.0 }; col_access_ptr[15] = { -(GLubyte)0.0, (GLubyte)0.0, (GLubyte)1.0, (GLubyte)1.0 };
+            col_access_ptr[12] = { (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0 }; col_access_ptr[13] = { (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0 };
+            col_access_ptr[14] = { (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0 }; col_access_ptr[15] = { -(uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0 };
             /*	bottom face */
-            col_access_ptr[16] = { (GLubyte)0.0, (GLubyte)0.0, (GLubyte)0.0, (GLubyte)1.0 }; col_access_ptr[17] = { (GLubyte)0.0, (GLubyte)0.0, (GLubyte)1.0, (GLubyte)1.0 };
-            col_access_ptr[18] = { (GLubyte)1.0, (GLubyte)0.0, (GLubyte)1.0, (GLubyte)1.0 }; col_access_ptr[19] = { (GLubyte)1.0, (GLubyte)0.0, (GLubyte)0.0, (GLubyte)1.0 };
+            col_access_ptr[16] = { (uint8_t)0.0, (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0 }; col_access_ptr[17] = { (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0 };
+            col_access_ptr[18] = { (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0 }; col_access_ptr[19] = { (uint8_t)1.0, (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0 };
             /*	top face */
-            col_access_ptr[20] = { (GLubyte)0.0, (GLubyte)1.0, (GLubyte)0.0, (GLubyte)1.0 }; col_access_ptr[21] = { (GLubyte)0.0, (GLubyte)1.0, (GLubyte)1.0, (GLubyte)1.0 };
-            col_access_ptr[22] = { (GLubyte)1.0, (GLubyte)1.0, (GLubyte)1.0, (GLubyte)1.0 }; col_access_ptr[23] = { (GLubyte)1.0, (GLubyte)1.0, (GLubyte)0.0, (GLubyte)1.0 };
+            col_access_ptr[20] = { (uint8_t)0.0, (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0 }; col_access_ptr[21] = { (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0 };
+            col_access_ptr[22] = { (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0 }; col_access_ptr[23] = { (uint8_t)1.0, (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0 };
 
             Vec2* uv_access_ptr = reinterpret_cast<Vec2*>(uv_coords.data());
             /*	front face */
@@ -279,12 +278,12 @@ namespace EngineCore
             (*indices)[30] = 20; (*indices)[31] = 22; (*indices)[32] = 21;
             (*indices)[33] = 22; (*indices)[34] = 20; (*indices)[35] = 23;
 
-            auto layout = std::make_shared< VertexLayout>(0, 
-                std::vector<VertexLayout::Attribute>{ 
-                                    VertexLayout::Attribute(2, GL_FLOAT, GL_FALSE, 0),
-                                    VertexLayout::Attribute(3, GL_FLOAT, GL_FALSE, 0),
-                                    VertexLayout::Attribute(4, GL_FLOAT, GL_FALSE, 0),
-                                    VertexLayout::Attribute(3, GL_FLOAT, GL_FALSE, 0),
+            auto layout = std::make_shared< GenericVertexLayout>(0,
+                std::vector<GenericVertexLayout::Attribute>{
+                                    GenericVertexLayout::Attribute(2, 5126 /* GL_FLOAT */, false, 0),
+                                    GenericVertexLayout::Attribute(3, 5126 /* GL_FLOAT */, false, 0),
+                                    GenericVertexLayout::Attribute(4, 5126 /* GL_FLOAT */, false, 0),
+                                    GenericVertexLayout::Attribute(3, 5126 /* GL_FLOAT */, false, 0),
                                     //VertexLayout::Attribute(GL_UNSIGNED_BYTE,4, GL_FALSE, 0),
                                     //VertexLayout::Attribute(GL_FLOAT,3, GL_FALSE, 0)
                 }
@@ -297,11 +296,11 @@ namespace EngineCore
             return std::tuple<VertexDataPtr, IndexDataPtr, VertexLayoutPtr>(vertices, indices, layout);
         }
 
-        std::tuple<VertexData, IndexData, VertexLayout> createIcoSphere(uint subdivions)
+        std::tuple<VertexData, IndexData, GenericVertexLayout> createIcoSphere(uint subdivions)
         {
             // Create intial icosahedron
-            GLfloat x = 0.525731112119133606f;
-            GLfloat z = 0.850650808352039932f;
+            float x = 0.525731112119133606f;
+            float z = 0.850650808352039932f;
 
             struct Vertex_pn
             {
@@ -387,7 +386,7 @@ namespace EngineCore
                 indices = refined_indices;
             }
 
-            VertexLayout layout(24, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,12) });
+            GenericVertexLayout layout(24, { GenericVertexLayout::Attribute(5126,3,false,0),GenericVertexLayout::Attribute(5126,3,false,12) });
 
             // TOOD avoid this copying stuff...
             //VertexData vertex_data(vertices.begin(),vertices.end());
@@ -395,7 +394,7 @@ namespace EngineCore
             //std::copy(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 *4), vertex_data.data());
             VertexData vertex_data(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 * 4));
 
-            return std::tuple<VertexData, IndexData, VertexLayout>(vertex_data, indices, layout);
+            return std::tuple<VertexData, IndexData, GenericVertexLayout>(vertex_data, indices, layout);
         }
     }
 }

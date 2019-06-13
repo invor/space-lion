@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "GenericVertexLayout.hpp"
 #include "MTQueue.hpp"
 
 namespace EngineCore
@@ -83,11 +84,11 @@ namespace EngineCore
             BaseResourceManager(BaseResourceManager const & cpy) = delete;
             ~BaseResourceManager() = default;
 
-            static ResourceID invalidResourceID() {
-                return ResourceID();
-            }
-
             virtual void clearAllResources() = 0;
+
+            virtual size_t computeIndexByteSize(uint32_t index_type) = 0;
+
+            virtual size_t computeVertexByteSize(GenericVertexLayout const& vertex_layout) = 0;
 
             void executeRenderThreadTasks() {
                 while (!m_renderThread_tasks.empty())
@@ -107,6 +108,11 @@ namespace EngineCore
             WeakResource<Texture2D> getTexture2DResource(ResourceID rsrc_id);
 
             WeakResource<Texture2D> getTexture2DResource(std::string name);
+
+
+            static ResourceID invalidResourceID() {
+                return ResourceID();
+            }
 
         protected:
 

@@ -9,34 +9,31 @@
 #include "EntityManager.hpp"
 #include "BaseComponentManager.hpp"
 #include "BaseResourceManager.hpp"
-#include "VertexLayout.hpp"
+#include "GenericVertexLayout.hpp"
 
 namespace EngineCore
 {
     namespace Graphics
     {
-        template<typename ResourceManagerType, typename VertexLayoutType, typename IndexType>
+        template<typename ResourceManagerType>
         class MeshComponentManager : public BaseComponentManager
         {
         public:
             MeshComponentManager(ResourceManagerType* resource_manager) : BaseComponentManager(), m_resource_mngr(resource_manager) {}
             ~MeshComponentManager() = default;
 
-            template<
-                typename VertexContainer,
-                typename IndexContainer,
-                typename MeshType>
+            template<typename VertexContainer,typename IndexContainer>
                 ResourceID addComponent(
                     Entity const&                                        entity,
                     std::string const&                                   mesh_description,
                     std::shared_ptr<std::vector<VertexContainer>> const& vertex_data,
                     std::shared_ptr<IndexContainer> const&               index_data,
-                    std::shared_ptr<VertexLayoutType> const&             vertex_layout,
-                    IndexType const&                                     index_type,
-                    MeshType const&                                      mesh_type,
+                    std::shared_ptr<GenericVertexLayout> const&          vertex_layout,
+                    uint32_t const&                                      index_type,
+                    uint32_t const&                                      mesh_type,
                     bool                                                 store_seperate = false);
 
-            std::tuple<unsigned int, unsigned int, unsigned int> getDrawIndexedParams(size_t component_index);
+            std::tuple<uint32_t, uint32_t, uint32_t> getDrawIndexedParams(size_t component_index);
 
         private:
 
@@ -46,9 +43,9 @@ namespace EngineCore
                     Entity const       entity,
                     std::string const& mesh_description,
                     ResourceID const   mesh_rsrc,
-                    unsigned int const first_index,
-                    unsigned int const indices_cnt,
-                    unsigned int const base_vertex)
+                    uint32_t const     first_index,
+                    uint32_t const     indices_cnt,
+                    uint32_t const     base_vertex)
                     : entity(entity),
                     mesh_description(mesh_description),
                     mesh_resource(mesh_rsrc),
@@ -57,33 +54,33 @@ namespace EngineCore
                     base_vertex(base_vertex)
                 {}
 
-                Entity       entity;
-                std::string  mesh_description;
-                ResourceID   mesh_resource;
-                unsigned int first_index;
-                unsigned int indices_cnt;
-                unsigned int base_vertex;
+                Entity      entity;
+                std::string mesh_description;
+                ResourceID  mesh_resource;
+                uint32_t    first_index;
+                uint32_t    indices_cnt;
+                uint32_t    base_vertex;
             };
 
             struct MeshData
             {
                 MeshData(
-                    ResourceID   mesh_rsrc,
-                    unsigned int vertices_allocated,
-                    unsigned int indices_allocated)
+                    ResourceID mesh_rsrc,
+                    size_t     vertices_allocated,
+                    size_t     indices_allocated)
                     : mesh_resource(mesh_rsrc),
                     vertices_allocated(vertices_allocated),
                     vertices_used(0),
                     indices_allocated(indices_allocated),
                     indices_used(0) {}
 
-                ResourceID       mesh_resource;
-                VertexLayoutType mesh_vertexLayout;
-                IndexType        mesh_indexType;
-                unsigned int     vertices_allocated;
-                unsigned int     vertices_used;
-                unsigned int     indices_allocated;
-                unsigned int     indices_used;
+                ResourceID          mesh_resource;
+                GenericVertexLayout mesh_vertexLayout;
+                uint32_t            mesh_indexType;
+                size_t              vertices_allocated;
+                size_t              vertices_used;
+                size_t              indices_allocated;
+                size_t              indices_used;
             };
 
             std::vector<ComponentData> m_component_data;
@@ -94,47 +91,34 @@ namespace EngineCore
 
         };
 
-        template<typename ResourceManagerType, typename VertexLayoutType, typename IndexType>
-        template<
-            typename VertexContainer,
-            typename IndexContainer,
-            typename MeshType>
-            inline ResourceID MeshComponentManager<ResourceManagerType, VertexLayoutType, IndexType>::addComponent(
+        template<typename ResourceManagerType>
+        template<typename VertexContainer,typename IndexContainer>
+            inline ResourceID MeshComponentManager<ResourceManagerType>::addComponent(
                 Entity const&                                        entity,
                 std::string const&                                   mesh_description,
                 std::shared_ptr<std::vector<VertexContainer>> const& vertex_data,
                 std::shared_ptr<IndexContainer> const&               index_data,
-                std::shared_ptr<VertexLayoutType> const&             vertex_layout,
-                IndexType const&                                     index_type,
-                MeshType const&                                      mesh_type,
+                std::shared_ptr<GenericVertexLayout> const&          vertex_layout,
+                uint32_t const&                                      index_type,
+                uint32_t const&                                      mesh_type,
                 bool                                                 store_seperate)
         {
-            // compute byte size of per vertex data in first vertex buffer
-            std::vector<size_t> vb_attrib_byte_sizes;
-            // single vertex buffer signals possible interleaved vertex layout, sum up all attribute byte sizes
-            if (vertex_data->size() == 1) {
-                vb_attrib_byte_sizes.push_back(0);
-                for (auto& attr : vertex_layout->attributes) {
-                    vb_attrib_byte_sizes.back() += computeAttributeByteSize(attr);
-                }
-            }
-            else {
-                for (auto& attr : vertex_layout->attributes) {
-                    vb_attrib_byte_sizes.push_back(computeAttributeByteSize(attr));
-                }
-            }
-
             // get vertex buffer data pointers and byte sizes
-            std::vector<size_t> vb_byte_sizes;
+            size_t vbs_byteSize = 0;
             for (auto& vb : (*vertex_data)) {
-                vb_byte_sizes.push_back(sizeof(VertexContainer::value_type) * vb.size());
+                vbs_byteSize += (sizeof(VertexContainer::value_type) * vb.size());
             }
             // compute overall byte size of index buffer
             size_t ib_byte_size = sizeof(IndexContainer::value_type) * index_data->size();
 
+            // get vertex byte size, i.e. bytes used across all vertex buffer by a single vertex
+            size_t vertex_byteSize = m_resource_mngr->computeVertexByteSize(*vertex_layout);
+            // get index byte size, i.e. byte size used by a single index in the index buffer
+            size_t index_byteSize = m_resource_mngr->computeIndexByteSize(index_type);
+
             // computer number of requested vertices and indices
-            size_t req_vertex_cnt = vb_byte_sizes.front() / vb_attrib_byte_sizes.front();
-            size_t req_index_cnt = ib_byte_size / computeByteSize(index_type);
+            size_t req_vertex_cnt = vbs_byteSize / vertex_byteSize;
+            size_t req_index_cnt = ib_byte_size / index_byteSize;
 
             auto it = m_mesh_data.begin();
             if (!store_seperate)
@@ -190,9 +174,9 @@ namespace EngineCore
                 entity,
                 mesh_description,
                 it->mesh_resource,
-                it->indices_used,
-                static_cast<unsigned int>(req_index_cnt),
-                it->vertices_used));
+                static_cast<uint32_t>(it->indices_used),
+                static_cast<uint32_t>(req_index_cnt),
+                static_cast<uint32_t>(it->vertices_used)));
 
             // update mesh async (in case a new mesh was created, the data update needs to wait async!)
             m_resource_mngr->updateMeshAsync(
@@ -202,14 +186,14 @@ namespace EngineCore
                 vertex_data,
                 index_data);
 
-            it->vertices_used += static_cast<unsigned int>(req_vertex_cnt);
-            it->indices_used += static_cast<unsigned int>(req_index_cnt);
+            it->vertices_used += req_vertex_cnt;
+            it->indices_used += req_index_cnt;
 
             return it->mesh_resource;
         }
 
-        template<typename ResourceManagerType, typename VertexLayout, typename IndexType>
-        inline std::tuple<unsigned int, unsigned int, unsigned int> MeshComponentManager<ResourceManagerType,VertexLayout,IndexType>::getDrawIndexedParams(size_t component_index)
+        template<typename ResourceManagerType>
+        inline std::tuple<uint32_t, uint32_t, uint32_t> MeshComponentManager<ResourceManagerType>::getDrawIndexedParams(size_t component_index)
         {
             ComponentData const& data = m_component_data[component_index];
 
