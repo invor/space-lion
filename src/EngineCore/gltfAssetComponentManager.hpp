@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include "GenericVertexLayout.hpp"
+
 namespace tinygltf
 {
     class Model;
@@ -23,7 +25,7 @@ namespace EngineCore
 
     namespace Graphics
     {
-        template<typename ResourceManagerType, typename VertexLayoutType>
+        template<typename ResourceManagerType>
         class GltfAssetComponentManager
         {
         public:
@@ -54,7 +56,7 @@ namespace EngineCore
             ResourceManagerType& m_rsrc_mngr;
             WorldState&          m_world;
 
-            typedef std::shared_ptr<VertexLayoutType>                        VertexLayoutPtr;
+            typedef std::shared_ptr<GenericVertexLayout>                     VertexLayoutPtr;
             typedef std::shared_ptr<std::vector<std::vector<unsigned char>>> VertexDataPtr;
             typedef std::shared_ptr<std::vector<unsigned char>>              IndexDataPtr;
             typedef unsigned int                                             IndexDataType;
@@ -63,29 +65,29 @@ namespace EngineCore
                 loadMeshPrimitveData(tinygltf::Model& model, size_t node_idx, size_t primitive_idx);
         };
 
-        template<typename ResourceManagerType, typename VertexLayoutType>
-        inline GltfAssetComponentManager<ResourceManagerType, VertexLayoutType>::GltfAssetComponentManager(ResourceManagerType & rsrc_mngr, WorldState & world)
+        template<typename ResourceManagerType>
+        inline GltfAssetComponentManager<ResourceManagerType>::GltfAssetComponentManager(ResourceManagerType & rsrc_mngr, WorldState & world)
         {
         }
 
-        template<typename ResourceManagerType, typename VertexLayoutType>
-        inline void GltfAssetComponentManager<ResourceManagerType, VertexLayoutType>::addComponent(Entity entity, std::string gltf_filepath, int gltf_node_idx)
+        template<typename ResourceManagerType>
+        inline void GltfAssetComponentManager<ResourceManagerType>::addComponent(Entity entity, std::string gltf_filepath, int gltf_node_idx)
         {
         }
 
-        template<typename ResourceManagerType, typename VertexLayoutType>
-        inline void GltfAssetComponentManager<ResourceManagerType, VertexLayoutType>::importGltfScene(std::string gltf_filepath)
+        template<typename ResourceManagerType>
+        inline void GltfAssetComponentManager<ResourceManagerType>::importGltfScene(std::string gltf_filepath)
         {
         }
 
 
-        template<typename ResourceManagerType, typename VertexLayoutType>
+        template<typename ResourceManagerType>
         inline std::tuple<
-            std::shared_ptr<VertexLayoutType>,
+            std::shared_ptr<GenericVertexLayout>,
             std::shared_ptr<std::vector<std::vector<unsigned char>>>,
             std::shared_ptr<std::vector<unsigned char>>,
             unsigned int> 
-            GltfAssetComponentManager<ResourceManagerType, VertexLayoutType>::loadMeshPrimitveData(tinygltf::Model & model, size_t node_idx, size_t primitive_idx)
+            GltfAssetComponentManager<ResourceManagerType>::loadMeshPrimitveData(tinygltf::Model & model, size_t node_idx, size_t primitive_idx)
         {
             return std::tuple<VertexLayoutPtr, VertexDataPtr, IndexDataPtr, IndexDataType>();
         }
