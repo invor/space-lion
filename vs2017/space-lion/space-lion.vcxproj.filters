@@ -249,9 +249,6 @@
     <ClInclude Include="..\..\src\EngineCore\TurntableComponentManager.hpp">
       <Filter>Header Files\EngineCore\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\EngineCore\OpenGL\gltfSceneLoading.hpp">
-      <Filter>Header Files\EngineCore\Graphics\OpenGL</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\EngineCore\gltfAssetComponentManager.hpp">
       <Filter>Header Files\EngineCore\Graphics</Filter>
     </ClInclude>
@@ -379,9 +376,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\EngineCore\TurntableComponentManager.cpp">
       <Filter>Source Files\EngineCore\Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\EngineCore\OpenGL\gltfSceneLoading.cpp">
-      <Filter>Source Files\EngineCore\Graphics\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\EngineCore\gltfAssetComponentManager.cpp">
       <Filter>Source Files\EngineCore\Graphics</Filter>

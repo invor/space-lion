@@ -7,7 +7,6 @@
 
 #include "OpenGL/BasicRenderingPipeline.hpp"
 #include "GeometryBakery.hpp"
-#include "OpenGL/gltfSceneLoading.hpp"
 
 namespace EngineCore
 {
@@ -103,6 +102,7 @@ namespace EngineCore
         {
             auto& entity_mngr = m_world_state->accessEntityManager();
             auto& camera_mngr = m_world_state->accessCameraComponentManager();
+            auto& gltf_mngr = m_world_state->accessGltfAssetComponentManager();
             auto& mtl_mngr = m_world_state->accessMaterialComponentManager();
             auto& mesh_mngr = m_world_state->accessMeshComponentManager();
             auto& rsrc_mngr = (*m_resource_manager);
@@ -143,7 +143,12 @@ namespace EngineCore
 
             renderTask_mngr.addComponent(cube, mesh_rsrc, 0, shader_rsrc, 0);
 
-            Graphics::OpenGL::loadGLTFScene("../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", *m_world_state, rsrc_mngr);
+            //Graphics::OpenGL::loadGLTFScene("../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", *m_world_state, rsrc_mngr);
+
+            auto gltf_test = entity_mngr.create();
+            transform_mngr.addComponent(gltf_test, Vec3(0.0, 0.0, -3.0));
+            turntable_mngr.addComponent(gltf_test, 0.5f);
+            gltf_mngr.addComponent(gltf_test, "../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", "RubberWood_low");
 
 
             /*Entity debug_entity = m_entity_manager.create();
