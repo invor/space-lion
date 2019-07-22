@@ -17,6 +17,7 @@
 #include "BaseComponentManager.hpp"
 #include "BaseResourceManager.hpp"
 #include "GenericVertexLayout.hpp"
+#include "GenericTextureLayout.hpp"
 
 struct Entity;
 
@@ -42,7 +43,7 @@ namespace EngineCore
 
             void addComponent(Entity entity, std::string const& gltf_filepath, int gltf_node_idx);
 
-            void importGltfScene(std::string gltf_filepath);
+            void importGltfScene(std::string const& gltf_filepath);
 
         private:
             typedef std::shared_ptr<tinygltf::Model> ModelPtr;
@@ -65,6 +66,8 @@ namespace EngineCore
             void addComponent(Entity entity, ModelPtr const& model, int gltf_node_idx);
 
             ModelPtr addGltfAsset(std::string const& gltf_filepath);
+
+            void addGltfNode(ModelPtr const& model, int gltf_node_idx, Entity parent_entity);
 
             typedef std::shared_ptr<GenericVertexLayout>                     VertexLayoutPtr;
             typedef std::shared_ptr<std::vector<std::vector<unsigned char>>> VertexDataPtr;
@@ -138,11 +141,46 @@ namespace EngineCore
         }
 
         template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::importGltfScene(std::string gltf_filepath)
+        inline void GltfAssetComponentManager<ResourceManagerType>::importGltfScene(std::string const& gltf_filepath)
         {
-            //TODO
+            auto gltf_model = addGltfAsset(gltf_filepath);
+
+            // iterate over nodes of model and add entities+components to world
+            for (auto& scene : gltf_model->scenes)
+            {
+                for (auto node : scene.nodes)
+                {
+                    addGltfNode(gltf_model, node, m_world.accessEntityManager().invalidEntity());
+                }
+            }
         }
 
+        template<typename ResourceManagerType>
+        inline void GltfAssetComponentManager<ResourceManagerType>::addGltfNode(ModelPtr const & gltf_model, int gltf_node_idx, Entity parent_entity)
+        {
+            // add entity
+            auto entity = m_world.accessEntityManager().create();
+
+            // add name
+            //m_world.accessNameManager()->addComponent(entity, model->nodes[node].name);
+
+            // add transform
+            auto transform_idx = m_world.accessTransformManager().addComponent(entity);
+
+            if (parent_entity != m_world.accessEntityManager().invalidEntity())
+            {
+                m_world.accessTransformManager().setParent(transform_idx, parent_entity);
+            }
+
+            // add gltf asset component (which in turn add mesh + material)
+            addComponent(entity, gltf_model, gltf_node_idx);
+
+            // traverse children and add gltf nodes recursivly
+            for (auto child : gltf_model->nodes[gltf_node_idx].children)
+            {
+                addGltfNode(gltf_model, child, entity);
+            }
+        }
 
         template<typename ResourceManagerType>
         inline void GltfAssetComponentManager<ResourceManagerType>::addComponent(Entity entity, ModelPtr const& model, int gltf_node_idx)
@@ -155,6 +193,44 @@ namespace EngineCore
                 addIndex(entity.id(), cmp_idx);
             }
 
+            size_t transform_idx = m_world.accessTransformManager().getIndex(entity).front();
+
+            if (model->nodes[gltf_node_idx].matrix.size() != 0) // has matrix transform
+            {
+                // TODO
+            }
+            else
+            {
+                auto& translation = model->nodes[gltf_node_idx].translation;
+                auto& scale = model->nodes[gltf_node_idx].scale;
+                auto& rotation = model->nodes[gltf_node_idx].rotation;
+
+                if (translation.size() != 0) {
+                    m_world.accessTransformManager().setPosition(
+                        transform_idx,
+                        Vec3(static_cast<float>(translation[0]),
+                            static_cast<float>(translation[1]),
+                            static_cast<float>(translation[2]))
+                    );
+                }
+                if (scale.size() != 0) {
+                    m_world.accessTransformManager().scale(
+                        transform_idx,
+                        Vec3(static_cast<float>(scale[0]),
+                            static_cast<float>(scale[1]),
+                            static_cast<float>(scale[2]))
+                    );
+                }
+                if (rotation.size() != 0) {
+                    m_world.accessTransformManager().setOrientation(
+                        transform_idx,
+                        Quat(static_cast<float>(rotation[0]),
+                            static_cast<float>(rotation[1]),
+                            static_cast<float>(rotation[2]),
+                            static_cast<float>(rotation[3]))
+                    );
+                }
+            }
 
             if (model->nodes[gltf_node_idx].mesh != -1)
             {
@@ -190,7 +266,21 @@ namespace EngineCore
                         auto roughness_query = model->materials[material_idx].values.find("roughnessQuery");
 
                         if (metallic_query != model->materials[material_idx].values.end()) {
-                            metalness = static_cast<float>(metallic_query->second.Factor());
+
+                            if (metallic_query->second.TextureIndex() != -1)
+                            {
+                                GenericTextureLayout layout;
+                                
+                                //model->textures[metallic_query->second.TextureIndex()].
+                                //m_rsrc_mngr.createTexture2DAsync(
+                                //    name,
+                                //    TextureLayout const& layout,
+                                //    GLvoid*              data);
+                            }
+                            else
+                            {
+                                metalness = static_cast<float>(metallic_query->second.Factor());
+                            }
                         }
 
                         if (baseColour_query != model->materials[material_idx].values.end()) {
@@ -298,7 +388,7 @@ namespace EngineCore
 
                     vertex_descriptor->attributes.push_back(
                         GenericVertexLayout::Attribute(vertexAttrib_accessor.type, vertexAttrib_accessor.componentType,
-                            vertexAttrib_accessor.normalized, vertexAttrib_accessor.byteOffset));
+                            vertexAttrib_accessor.normalized, static_cast<uint32_t>(vertexAttrib_accessor.byteOffset) ));
 
                     vertices->push_back(std::vector<unsigned char>(
                         vertexAttrib_buffer.data.begin() + vertexAttrib_bufferView.byteOffset + vertexAttrib_accessor.byteOffset,

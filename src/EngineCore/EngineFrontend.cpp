@@ -145,10 +145,32 @@ namespace EngineCore
 
             //Graphics::OpenGL::loadGLTFScene("../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", *m_world_state, rsrc_mngr);
 
-            auto gltf_test = entity_mngr.create();
-            transform_mngr.addComponent(gltf_test, Vec3(0.0, 0.0, -3.0));
-            turntable_mngr.addComponent(gltf_test, 0.5f);
-            gltf_mngr.addComponent(gltf_test, "../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", "RubberWood_low");
+            //  auto gltf_root = entity_mngr.create();
+            //  transform_mngr.addComponent(gltf_root, Vec3(0.0, 0.0, -3.0));
+            //  turntable_mngr.addComponent(gltf_root, 0.5f);
+            //  
+            //  {
+            //      auto gltf_subobj = entity_mngr.create();
+            //      size_t transform_idx = transform_mngr.addComponent(gltf_subobj, Vec3(0.0, 0.0, 0.0));
+            //      transform_mngr.setParent(transform_idx, gltf_root);
+            //      gltf_mngr.addComponent(gltf_subobj, "../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", "RubberWood_low");
+            //  }
+            //  
+            //  {
+            //      auto gltf_subobj = entity_mngr.create();
+            //      size_t transform_idx = transform_mngr.addComponent(gltf_subobj, Vec3(0.0, 0.0, 0.0));
+            //      transform_mngr.setParent(transform_idx, gltf_root);
+            //      gltf_mngr.addComponent(gltf_subobj, "../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", "MetalParts_low");
+            //  }
+            //  
+            //  {
+            //      auto gltf_subobj = entity_mngr.create();
+            //      size_t transform_idx = transform_mngr.addComponent(gltf_subobj, Vec3(0.0, 0.0, 0.0));
+            //      transform_mngr.setParent(transform_idx, gltf_root);
+            //      gltf_mngr.addComponent(gltf_subobj, "../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", "LeatherParts_low");
+            //  }
+
+            gltf_mngr.importGltfScene("../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf");
 
 
             /*Entity debug_entity = m_entity_manager.create();

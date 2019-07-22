@@ -255,6 +255,9 @@
     <ClInclude Include="..\..\src\EngineCore\GenericVertexLayout.hpp">
       <Filter>Header Files\EngineCore\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\EngineCore\GenericTextureLayout.hpp">
+      <Filter>Header Files\EngineCore\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\EngineCore\EngineFrontend.cpp">
