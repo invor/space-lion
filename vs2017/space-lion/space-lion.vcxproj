@@ -131,7 +131,6 @@
     <ClInclude Include="..\..\src\EngineCore\BaseComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\BaseResourceManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\CameraComponent.hpp" />
-    <ClInclude Include="..\..\src\EngineCore\DebugNameComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\EngineFrontend.hpp" />
     <ClInclude Include="..\..\src\EngineCore\EntityManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\Frame.hpp" />
@@ -142,6 +141,7 @@
     <ClInclude Include="..\..\src\EngineCore\MaterialComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\MeshComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\MTQueue.hpp" />
+    <ClInclude Include="..\..\src\EngineCore\NameComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\OpenGL\BasicRenderingPipeline.hpp" />
     <ClInclude Include="..\..\src\EngineCore\OpenGL\GraphicsBackend.hpp" />
     <ClInclude Include="..\..\src\EngineCore\OpenGL\ResourceManager.hpp" />
@@ -184,7 +184,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\EngineCore\AirplanePhysicsComponent.cpp" />
     <ClCompile Include="..\..\src\EngineCore\CameraComponent.cpp" />
-    <ClCompile Include="..\..\src\EngineCore\DebugNameComponentManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\EngineFrontend.cpp" />
     <ClCompile Include="..\..\src\EngineCore\EntityManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\Frame.cpp" />
@@ -193,6 +192,7 @@
     <ClCompile Include="..\..\src\EngineCore\main.cpp" />
     <ClCompile Include="..\..\src\EngineCore\MaterialComponentManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\MeshComponentManager.cpp" />
+    <ClCompile Include="..\..\src\EngineCore\NameComponentManager.cpp" />
     <ClCompile Include="..\..\src\EngineCore\OpenGL\BasicRenderingPipeline.cpp" />
     <ClCompile Include="..\..\src\EngineCore\OpenGL\GraphicsBackend.cpp" />
     <ClCompile Include="..\..\src\EngineCore\OpenGL\ResourceManager.cpp" />

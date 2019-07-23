@@ -22,7 +22,7 @@ namespace EngineCore
 
             // frame meta-data
             size_t m_frameID;
-            double  m_dt;
+            double m_dt;
 
             // info on output window
             int m_window_width;
@@ -57,9 +57,9 @@ namespace EngineCore
         {
         private:
             Frame m_frame_tripleBuffer[3];
-            uint m_render_frame;
-            uint m_update_frame;
-            uint m_unused_frame;
+            unsigned int m_render_frame;
+            unsigned int m_update_frame;
+            unsigned int m_unused_frame;
 
             mutable std::mutex m_swap_frame_mutex;
 

@@ -1,4 +1,4 @@
-#include "DebugNameComponentManager.hpp"
+#include "NameComponentManager.hpp"
 
 namespace EngineCore
 {

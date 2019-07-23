@@ -12,7 +12,7 @@ void EngineCore::Common::FrameManager::swapRenderFrame()
 
     if (m_frame_tripleBuffer[m_unused_frame].m_frameID > m_frame_tripleBuffer[m_render_frame].m_frameID)
     {
-        uint render_frame = m_render_frame;
+        unsigned int render_frame = m_render_frame;
         m_render_frame = m_unused_frame;
         m_unused_frame = render_frame;
     }
@@ -22,7 +22,7 @@ void EngineCore::Common::FrameManager::swapUpdateFrame()
 {
     std::unique_lock<std::mutex> lock(m_swap_frame_mutex);
 
-    uint unused_frame = m_unused_frame;
+    unsigned int unused_frame = m_unused_frame;
     m_unused_frame = m_update_frame;
     m_update_frame = unused_frame;
 }

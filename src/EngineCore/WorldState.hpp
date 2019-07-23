@@ -10,7 +10,7 @@
 #include "TransformComponentManager.hpp"
 #include "MaterialComponentManager.hpp"
 #include "MeshComponentManager.hpp"
-#include "DebugNameComponentManager.hpp"
+#include "NameComponentManager.hpp"
 #include "RenderTaskComponentManager.hpp"
 #include "TurntableComponentManager.hpp"
 

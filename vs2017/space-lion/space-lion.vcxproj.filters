@@ -180,9 +180,6 @@
     <ClInclude Include="..\..\src\EngineCore\TransformComponentManager.hpp">
       <Filter>Header Files\EngineCore\Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\EngineCore\DebugNameComponentManager.hpp">
-      <Filter>Header Files\EngineCore\Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\EngineCore\OpenGL\GraphicsBackend.hpp">
       <Filter>Header Files\EngineCore\Graphics\OpenGL</Filter>
     </ClInclude>
@@ -258,6 +255,9 @@
     <ClInclude Include="..\..\src\EngineCore\GenericTextureLayout.hpp">
       <Filter>Header Files\EngineCore\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\EngineCore\NameComponentManager.hpp">
+      <Filter>Header Files\EngineCore\Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\EngineCore\EngineFrontend.cpp">
@@ -323,9 +323,6 @@
     <ClCompile Include="..\..\src\EngineCore\TransformComponentManager.cpp">
       <Filter>Source Files\EngineCore\Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\EngineCore\DebugNameComponentManager.cpp">
-      <Filter>Source Files\EngineCore\Common</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\EngineCore\OpenGL\GraphicsBackend.cpp">
       <Filter>Source Files\EngineCore\Graphics\OpenGL</Filter>
     </ClCompile>
@@ -382,6 +379,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\EngineCore\gltfAssetComponentManager.cpp">
       <Filter>Source Files\EngineCore\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\EngineCore\NameComponentManager.cpp">
+      <Filter>Source Files\EngineCore\Common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
