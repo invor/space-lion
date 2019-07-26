@@ -130,8 +130,8 @@ namespace EngineCore
 
             auto shader_names = std::make_shared<std::vector<Graphics::OpenGL::ResourceManager::ShaderFilename>>(
                 std::initializer_list<Graphics::OpenGL::ResourceManager::ShaderFilename>{
-                    { "../resources/shaders/simple_forward_vert.glsl", GLSLProgram::VertexShader },
-                    { "../resources/shaders/simple_forward_frag.glsl", GLSLProgram::FragmentShader }
+                    { "../resources/shaders/simple_forward_vert.glsl", glowl::GLSLProgram::VertexShader },
+                    { "../resources/shaders/simple_forward_frag.glsl", glowl::GLSLProgram::FragmentShader }
             });
 
             auto shader_rsrc = rsrc_mngr.createShaderProgramAsync(

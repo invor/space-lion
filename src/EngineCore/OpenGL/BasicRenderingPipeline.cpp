@@ -44,10 +44,10 @@ namespace EngineCore
                 {
                     struct BatchResources
                     {
-                        WeakResource<GLSLProgram>  shader_prgm;
-                        WeakResource<BufferObject> object_params;
-                        WeakResource<BufferObject> draw_commands;
-                        WeakResource<Mesh>         geometry;
+                        WeakResource<glowl::GLSLProgram>  shader_prgm;
+                        WeakResource<glowl::BufferObject> object_params;
+                        WeakResource<glowl::BufferObject> draw_commands;
+                        WeakResource<glowl::Mesh>         geometry;
                     };
 
                     std::vector<BatchResources> m_batch_resources;

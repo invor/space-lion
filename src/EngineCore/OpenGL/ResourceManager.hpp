@@ -40,10 +40,15 @@ namespace EngineCore
         namespace OpenGL
         {
 
-            class ResourceManager : public BaseResourceManager<BufferObject, Mesh, GLSLProgram, Texture2D, Texture3D>
+            class ResourceManager : public BaseResourceManager<
+                glowl::BufferObject,
+                glowl::Mesh,
+                glowl::GLSLProgram,
+                glowl::Texture2D,
+                glowl::Texture3D>
             {
             public:
-                typedef VertexLayout VertexLayout;
+                typedef glowl::VertexLayout VertexLayout;
 
                 ResourceManager() : BaseResourceManager() {}
                 ResourceManager(ResourceManager const & cpy) = delete;
@@ -61,7 +66,7 @@ namespace EngineCore
 
                     for (auto& attr : vertex_layout.attributes) {
                         //VertexLayout::Attribute ogl_attr(attr.size,attr.type,attr.normalized,attr.offset);
-                        retval += computeAttributeByteSize({ attr.size,attr.type,attr.normalized, static_cast<GLsizei>(attr.offset) });
+                        retval += glowl::computeAttributeByteSize({ attr.size,attr.type,attr.normalized, static_cast<GLsizei>(attr.offset) });
                     }
 
                     return retval;
@@ -69,7 +74,7 @@ namespace EngineCore
 
                 size_t computeIndexByteSize(uint32_t index_type)
                 {
-                    return computeByteSize(static_cast<GLenum>(index_type));
+                    return glowl::computeByteSize(static_cast<GLenum>(index_type));
                 }
 
 #pragma region Create mesh
@@ -114,14 +119,14 @@ namespace EngineCore
 #pragma endregion
 
 #pragma region Create shader program
-                typedef std::pair<std::string, GLSLProgram::ShaderType> ShaderFilename;
+                typedef std::pair<std::string, glowl::GLSLProgram::ShaderType> ShaderFilename;
 
                 /**
                  * Creates a GLSLprogram object
                  * \param paths Gives the paths to all shader files.
                  * \return Returns shared pointer to GLSL shader program.
                  */
-                WeakResource<GLSLProgram> createShaderProgram(
+                WeakResource<glowl::GLSLProgram> createShaderProgram(
                     std::string const& program_name,
                     std::vector<ShaderFilename> const& shader_filenames,
                     std::string const& additional_cs_defines = "");
@@ -141,15 +146,15 @@ namespace EngineCore
                  * \param generateMipmap Specifies whether a mipmap should be generated for the texture
                  * \return Returns a pointer to new texture or existing texture if given id already exits
                  */
-                WeakResource<Texture2D> createTexture2D(
+                WeakResource<glowl::Texture2D> createTexture2D(
                     const std::string&   name,
-                    TextureLayout const& layout,
+                    glowl::TextureLayout const& layout,
                     GLvoid*              data,
                     bool                 generateMipmap = false);
 
                 ResourceID createTexture2DAsync(
                     const std::string&   name,
-                    TextureLayout const& layout,
+                    glowl::TextureLayout const& layout,
                     GLvoid*              data,
                     bool                 generateMipmap = false
                 );
@@ -157,20 +162,20 @@ namespace EngineCore
                 template<typename TexelDataContainer>
                 ResourceID createTexture2DAsync(
                     std::string const& name,
-                    TextureLayout const& layout,
+                    glowl::TextureLayout const& layout,
                     std::shared_ptr<TexelDataContainer> const& data,
                     bool generateMipmap = false
                 );
 
-                WeakResource<Texture2DArray> createTexture2DArray(
+                WeakResource<glowl::Texture2DArray> createTexture2DArray(
                     const std::string& name,
-                    const TextureLayout & layout,
+                    const glowl::TextureLayout & layout,
                     GLvoid * data,
                     bool generateMipmap = false);
 
                 ResourceID createTexture2DArrayAsync(
                     const std::string& name,
-                    const TextureLayout & layout,
+                    const glowl::TextureLayout & layout,
                     GLvoid * data,
                     bool generateMipmap = false);
 #pragma endregion
@@ -182,12 +187,12 @@ namespace EngineCore
                  * \param data Pointer to the actual texture data
                  * \return Returns a pointer to new texture or existing texture if given id already exits
                  */
-                WeakResource<Texture3D> createTexture3D(
+                WeakResource<glowl::Texture3D> createTexture3D(
                     const std::string name,
-                    TextureLayout const& layout,
+                    glowl::TextureLayout const& layout,
                     GLvoid* data);
 
-                WeakResource<FramebufferObject> createFramebufferObject(
+                WeakResource<glowl::FramebufferObject> createFramebufferObject(
                     std::string const& name,
                     uint width,
                     uint height,
@@ -195,13 +200,13 @@ namespace EngineCore
                     bool has_stencil = false);
 
                 template<typename Container>
-                WeakResource<BufferObject> createBufferObject(
+                WeakResource<glowl::BufferObject> createBufferObject(
                     std::string const& name,
                     GLenum target,
                     Container const& datastorage,
                     GLenum usage = GL_DYNAMIC_DRAW);
 
-                WeakResource<BufferObject> createBufferObject(
+                WeakResource<glowl::BufferObject> createBufferObject(
                     std::string const& name,
                     GLenum target,
                     GLvoid const* data,
@@ -232,8 +237,8 @@ namespace EngineCore
                     GLsizeiptr byte_size
                 );
 
-                WeakResource<Texture2DArray> getTexture2DArray(ResourceID id) const;
-                WeakResource<FramebufferObject> getFramebufferObject(std::string const& name) const;
+                WeakResource<glowl::Texture2DArray> getTexture2DArray(ResourceID id) const;
+                WeakResource<glowl::FramebufferObject> getFramebufferObject(std::string const& name) const;
 
             private:
 
@@ -250,9 +255,9 @@ namespace EngineCore
                 /*
                  * Additional resource collections for resource types currently not included in base class
                  */
-                std::vector<Resource<Texture2DArray>>      m_textureArrays;
-                std::vector<Resource<TextureCubemapArray>> m_textureCubemapArrays;
-                std::vector<Resource<FramebufferObject>>   m_FBOs;
+                std::vector<Resource<glowl::Texture2DArray>>      m_textureArrays;
+                std::vector<Resource<glowl::TextureCubemapArray>> m_textureCubemapArrays;
+                std::vector<Resource<glowl::FramebufferObject>>   m_FBOs;
 
                 std::unordered_map<std::string, size_t> m_name_to_textureArray_idx;
                 std::unordered_map<std::string, size_t> m_name_to_textureCubemapArray_idx;
@@ -323,7 +328,7 @@ namespace EngineCore
 
                         for (size_t attrib_idx = 0; attrib_idx < vertex_layout.attributes.size(); ++attrib_idx)
                         {
-                            size_t attrib_byte_size = computeAttributeByteSize(vertex_layout.attributes[attrib_idx]);
+                            size_t attrib_byte_size = glowl::computeAttributeByteSize(vertex_layout.attributes[attrib_idx]);
                             size_t vertex_buffer_byte_offset = attrib_byte_size * vertex_offset;
                             m_meshes[query->second].resource->bufferVertexSubData(
                                 attrib_idx,
@@ -331,7 +336,7 @@ namespace EngineCore
                                 vertex_buffer_byte_offset);
                         }
 
-                        size_t index_type_byte_size = computeByteSize(m_meshes[query->second].resource->getIndexType());
+                        size_t index_type_byte_size = glowl::computeByteSize(m_meshes[query->second].resource->getIndexType());
                         size_t index_byte_offset = index_offset * index_type_byte_size;
                         m_meshes[query->second].resource->bufferIndexSubData(
                             *index_data,
@@ -344,7 +349,7 @@ namespace EngineCore
             template<typename TexelDataContainer>
             inline ResourceID ResourceManager::createTexture2DAsync(
                 std::string const & name,
-                TextureLayout const & layout,
+                glowl::TextureLayout const & layout,
                 std::shared_ptr<TexelDataContainer> const & data,
                 bool generateMipmap)
             {
@@ -359,14 +364,14 @@ namespace EngineCore
                 ResourceID rsrc_id = generateResourceID();
 
                 std::unique_lock<std::shared_mutex> lock(m_textures_2d_mutex);
-                m_textures_2d.push_back(Resource<Texture2D>(rsrc_id));
+                m_textures_2d.push_back(Resource<glowl::Texture2D>(rsrc_id));
                 m_id_to_textures_2d_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_textures_2d_idx.insert(std::pair<std::string, uint>(name, idx));
 
                 m_renderThread_tasks.push([this, idx, name, layout, data, generateMipmap]() {
                     std::unique_lock<std::shared_mutex> tex_lock(m_textures_2d_mutex);
 
-                    m_textures_2d[idx].resource = std::make_unique<Texture2D>(name, layout, data->data(), generateMipmap);
+                    m_textures_2d[idx].resource = std::make_unique<glowl::Texture2D>(name, layout, data->data(), generateMipmap);
                     m_textures_2d[idx].state = READY;
                 });
 
@@ -374,7 +379,7 @@ namespace EngineCore
             }
 
             template<typename Container>
-            WeakResource<BufferObject> ResourceManager::createBufferObject(
+            WeakResource<glowl::BufferObject> ResourceManager::createBufferObject(
                 std::string const& name,
                 GLenum target,
                 Container const& datastorage,
@@ -384,7 +389,7 @@ namespace EngineCore
                     std::shared_lock<std::shared_mutex> lock(m_buffers_mutex);
                     auto search = m_name_to_buffer_idx.find(name);
                     if (search != m_name_to_buffer_idx.end())
-                        return WeakResource<BufferObject>(
+                        return WeakResource<glowl::BufferObject>(
                             m_buffers[search->second].id,
                             m_buffers[search->second].resource.get(),
                             m_buffers[search->second].state);
@@ -394,14 +399,14 @@ namespace EngineCore
                 ResourceID rsrc_id = generateResourceID();
 
                 std::unique_lock<std::shared_mutex> lock(m_buffers_mutex);
-                m_buffers.push_back(Resource<BufferObject>(rsrc_id));
+                m_buffers.push_back(Resource<glowl::BufferObject>(rsrc_id));
                 m_id_to_buffer_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_buffer_idx.insert(std::pair<std::string, size_t>(name, idx));
 
-                m_buffers[idx].resource = std::make_unique<BufferObject>(target, datastorage, usage);
+                m_buffers[idx].resource = std::make_unique<glowl::BufferObject>(target, datastorage, usage);
                 m_buffers[idx].state = READY;
 
-                return WeakResource<BufferObject>(
+                return WeakResource<glowl::BufferObject>(
                     m_buffers[idx].id,
                     m_buffers[idx].resource.get(),
                     m_buffers[idx].state);

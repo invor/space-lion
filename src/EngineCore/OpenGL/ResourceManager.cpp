@@ -54,7 +54,7 @@ namespace EngineCore
 
                 {
                     std::unique_lock<std::shared_mutex> lock(m_meshes_mutex);
-                    m_meshes.push_back(Resource<Mesh>(rsrc_id));
+                    m_meshes.push_back(Resource<glowl::Mesh>(rsrc_id));
                     m_id_to_mesh_idx.insert(std::pair<unsigned int, size_t>(m_meshes.back().id.value(), idx));
                 }
 
@@ -79,7 +79,7 @@ namespace EngineCore
 
                     size_t index_data_byte_size = 4 * index_cnt; //TODO support different index formats
 
-                    this->m_meshes[idx].resource = std::make_unique<Mesh>(
+                    this->m_meshes[idx].resource = std::make_unique<glowl::Mesh>(
                         vertex_data_ptrs, //TODO THIS CALLS THE WRONG CONSTRUCTOR
                         vertex_data_buffer_byte_sizes,
                         nullptr,
@@ -95,7 +95,7 @@ namespace EngineCore
                 return m_meshes.back().id;
             }
 
-            WeakResource<GLSLProgram> ResourceManager::createShaderProgram(
+            WeakResource<glowl::GLSLProgram> ResourceManager::createShaderProgram(
                 std::string const& program_name,
                 std::vector<ShaderFilename> const& shader_filenames,
                 std::string const& additional_cs_defines)
@@ -104,7 +104,7 @@ namespace EngineCore
                     std::shared_lock<std::shared_mutex> lock(m_shader_programs_mutex);
                     auto search = m_name_to_shader_program_idx.find(program_name);
                     if (search != m_name_to_shader_program_idx.end())
-                        return WeakResource<GLSLProgram>(
+                        return WeakResource<glowl::GLSLProgram>(
                             m_shader_programs[search->second].id,
                             m_shader_programs[search->second].resource.get(),
                             m_shader_programs[search->second].state);
@@ -114,11 +114,11 @@ namespace EngineCore
                 ResourceID rsrc_id = generateResourceID();
 
                 std::unique_lock<std::shared_mutex> lock(m_shader_programs_mutex);
-                m_shader_programs.push_back(Resource<GLSLProgram>(rsrc_id));
+                m_shader_programs.push_back(Resource<glowl::GLSLProgram>(rsrc_id));
                 m_id_to_shader_program_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_shader_program_idx.insert(std::pair<std::string, size_t>(program_name, idx));
 
-                m_shader_programs[idx].resource = std::make_unique<GLSLProgram>();
+                m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>();
                 m_shader_programs[idx].resource->setId(program_name);
                 m_shader_programs[idx].resource->init();
 
@@ -137,7 +137,7 @@ namespace EngineCore
 
                     switch (shader_filename.second)
                     {
-                    case GLSLProgram::VertexShader:
+                    case glowl::GLSLProgram::VertexShader:
                         vertex_src = shader_src;
 
                         {
@@ -166,7 +166,7 @@ namespace EngineCore
                         }
 
                         break;
-                    case GLSLProgram::FragmentShader:
+                    case glowl::GLSLProgram::FragmentShader:
                         fragment_src = shader_src;
 
                         {
@@ -195,16 +195,16 @@ namespace EngineCore
                         }
 
                         break;
-                    case GLSLProgram::GeometryShader:
+                    case glowl::GLSLProgram::GeometryShader:
                         geometry_src = shader_src;
                         break;
-                    case GLSLProgram::TessellationControl:
+                    case glowl::GLSLProgram::TessellationControl:
                         tessellationControl_src = shader_src;
                         break;
-                    case GLSLProgram::TessellationEvaluation:
+                    case glowl::GLSLProgram::TessellationEvaluation:
                         tessellationEvaluation_src = shader_src;
                         break;
-                    case GLSLProgram::ComputeShader:
+                    case glowl::GLSLProgram::ComputeShader:
                         compute_src = shader_src;
 
                         cs_define_insertion = compute_src.find("#version"); // find beginning of shader, i.e. version statement
@@ -249,7 +249,7 @@ namespace EngineCore
 
                 m_shader_programs[idx].state = READY;
 
-                return WeakResource<GLSLProgram>(m_shader_programs.back().id, m_shader_programs.back().resource.get(), m_shader_programs.back().state);
+                return WeakResource<glowl::GLSLProgram>(m_shader_programs.back().id, m_shader_programs.back().resource.get(), m_shader_programs.back().state);
             }
 
             ResourceID ResourceManager::createShaderProgramAsync(
@@ -270,19 +270,19 @@ namespace EngineCore
 
                 {
                     std::unique_lock<std::shared_mutex> lock(m_shader_programs_mutex);
-                    m_shader_programs.push_back(Resource<GLSLProgram>(rsrc_id));
+                    m_shader_programs.push_back(Resource<glowl::GLSLProgram>(rsrc_id));
                     m_name_to_shader_program_idx.insert(std::pair<std::string, size_t>(program_name, idx));
                     m_id_to_shader_program_idx.insert(std::pair<uint, size_t>(m_shader_programs.back().id.value(), idx));
                 }
 
                 m_renderThread_tasks.push([this, idx, program_name, shader_filenames, additional_cs_defines]() {
                     //m_renderThread_tasks.push([this,idx,name,paths]() {
-                    m_shader_programs[idx].resource = std::make_unique<GLSLProgram>();
+                    m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>();
                     m_shader_programs[idx].state = READY;
                     m_shader_programs[idx].resource->setId(program_name);
                     m_shader_programs[idx].resource->init();
 
-                    m_shader_programs[idx].resource = std::make_unique<GLSLProgram>();
+                    m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>();
                     m_shader_programs[idx].resource->setId(program_name);
                     m_shader_programs[idx].resource->init();
 
@@ -301,7 +301,7 @@ namespace EngineCore
 
                         switch (shader_filename.second)
                         {
-                        case GLSLProgram::VertexShader:
+                        case glowl::GLSLProgram::VertexShader:
                             vertex_src = shader_src;
 
                             {
@@ -330,7 +330,7 @@ namespace EngineCore
                             }
 
                             break;
-                        case GLSLProgram::FragmentShader:
+                        case glowl::GLSLProgram::FragmentShader:
                             fragment_src = shader_src;
 
                             {
@@ -359,16 +359,16 @@ namespace EngineCore
                             }
 
                             break;
-                        case GLSLProgram::GeometryShader:
+                        case glowl::GLSLProgram::GeometryShader:
                             geometry_src = shader_src;
                             break;
-                        case GLSLProgram::TessellationControl:
+                        case glowl::GLSLProgram::TessellationControl:
                             tessellationControl_src = shader_src;
                             break;
-                        case GLSLProgram::TessellationEvaluation:
+                        case glowl::GLSLProgram::TessellationEvaluation:
                             tessellationEvaluation_src = shader_src;
                             break;
-                        case GLSLProgram::ComputeShader:
+                        case glowl::GLSLProgram::ComputeShader:
                             compute_src = shader_src;
 
                             cs_define_insertion = compute_src.find("#version"); // find beginning of shader, i.e. version statement
@@ -418,9 +418,9 @@ namespace EngineCore
             }
 
 
-            WeakResource<Texture2D> ResourceManager::createTexture2D(
+            WeakResource<glowl::Texture2D> ResourceManager::createTexture2D(
                 const std::string& name,
-                TextureLayout const& layout,
+                glowl::TextureLayout const& layout,
                 GLvoid * data,
                 bool generateMipmap)
             {
@@ -428,7 +428,7 @@ namespace EngineCore
                     std::shared_lock<std::shared_mutex> tex_lock(m_textures_2d_mutex);
                     auto search = m_name_to_textures_2d_idx.find(name);
                     if (search != m_name_to_textures_2d_idx.end())
-                        return WeakResource<Texture2D>(
+                        return WeakResource<glowl::Texture2D>(
                             m_textures_2d[search->second].id,
                             m_textures_2d[search->second].resource.get(),
                             m_textures_2d[search->second].state);
@@ -438,14 +438,14 @@ namespace EngineCore
                 ResourceID rsrc_id = generateResourceID();
 
                 std::unique_lock<std::shared_mutex> lock(m_textures_2d_mutex);
-                m_textures_2d.push_back(Resource<Texture2D>(rsrc_id));
+                m_textures_2d.push_back(Resource<glowl::Texture2D>(rsrc_id));
                 m_id_to_textures_2d_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_textures_2d_idx.insert(std::pair<std::string, size_t>(name, idx));
 
-                m_textures_2d[idx].resource = std::make_unique<Texture2D>(name, layout, data, generateMipmap);
+                m_textures_2d[idx].resource = std::make_unique<glowl::Texture2D>(name, layout, data, generateMipmap);
                 m_textures_2d[idx].state = READY;
 
-                return WeakResource<Texture2D>(
+                return WeakResource<glowl::Texture2D>(
                     m_textures_2d[idx].id,
                     m_textures_2d[idx].resource.get(),
                     m_textures_2d[idx].state);
@@ -453,7 +453,7 @@ namespace EngineCore
 
             ResourceID ResourceManager::createTexture2DAsync(
                 const std::string& name,
-                TextureLayout const& layout,
+                glowl::TextureLayout const& layout,
                 GLvoid * data,
                 bool generateMipmap)
             {
@@ -468,23 +468,23 @@ namespace EngineCore
                 ResourceID rsrc_id = generateResourceID();
 
                 std::unique_lock<std::shared_mutex> lock(m_textures_2d_mutex);
-                m_textures_2d.push_back(Resource<Texture2D>(rsrc_id));
+                m_textures_2d.push_back(Resource<glowl::Texture2D>(rsrc_id));
                 m_id_to_textures_2d_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_textures_2d_idx.insert(std::pair<std::string, size_t>(name, idx));
 
                 m_renderThread_tasks.push([this, idx, name, layout, data, generateMipmap]() {
                     std::unique_lock<std::shared_mutex> tex_lock(m_textures_2d_mutex);
 
-                    m_textures_2d[idx].resource = std::make_unique<Texture2D>(name, layout, data, generateMipmap);
+                    m_textures_2d[idx].resource = std::make_unique<glowl::Texture2D>(name, layout, data, generateMipmap);
                     m_textures_2d[idx].state = READY;
                 });
 
                 return m_textures_2d[idx].id;
             }
 
-            WeakResource<Texture2DArray> ResourceManager::createTexture2DArray(
+            WeakResource<glowl::Texture2DArray> ResourceManager::createTexture2DArray(
                 std::string const& name,
-                TextureLayout const& layout,
+                glowl::TextureLayout const& layout,
                 GLvoid * data,
                 bool generateMipmap)
             {
@@ -492,7 +492,7 @@ namespace EngineCore
                     std::shared_lock<std::shared_mutex> tex_lock(m_texArr_mutex);
                     auto search = m_name_to_textureArray_idx.find(name);
                     if (search != m_name_to_textureArray_idx.end())
-                        return WeakResource<Texture2DArray>(
+                        return WeakResource<glowl::Texture2DArray>(
                             m_textureArrays[search->second].id,
                             m_textureArrays[search->second].resource.get(),
                             m_textureArrays[search->second].state);
@@ -502,14 +502,14 @@ namespace EngineCore
                 ResourceID rsrc_id = generateResourceID();
 
                 std::unique_lock<std::shared_mutex> lock(m_texArr_mutex);
-                m_textureArrays.push_back(Resource<Texture2DArray>(rsrc_id));
+                m_textureArrays.push_back(Resource<glowl::Texture2DArray>(rsrc_id));
                 m_id_to_textureArray_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_textureArray_idx.insert(std::pair<std::string, size_t>(name, idx));
 
-                m_textureArrays[idx].resource = std::make_unique<Texture2DArray>(name, layout, data, generateMipmap);
+                m_textureArrays[idx].resource = std::make_unique<glowl::Texture2DArray>(name, layout, data, generateMipmap);
                 m_textureArrays[idx].state = READY;
 
-                return WeakResource<Texture2DArray>(
+                return WeakResource<glowl::Texture2DArray>(
                     m_textureArrays[idx].id,
                     m_textureArrays[idx].resource.get(),
                     m_textureArrays[idx].state);
@@ -517,7 +517,7 @@ namespace EngineCore
 
             ResourceID ResourceManager::createTexture2DArrayAsync(
                 const std::string& name,
-                const TextureLayout & layout,
+                const glowl::TextureLayout & layout,
                 GLvoid * data,
                 bool generateMipmap)
             {
@@ -532,30 +532,30 @@ namespace EngineCore
                 ResourceID rsrc_id = generateResourceID();
 
                 std::unique_lock<std::shared_mutex> lock(m_texArr_mutex);
-                m_textureArrays.push_back(Resource<Texture2DArray>(rsrc_id));
+                m_textureArrays.push_back(Resource<glowl::Texture2DArray>(rsrc_id));
                 m_id_to_textureArray_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_textureArray_idx.insert(std::pair<std::string, size_t>(name, idx));
 
                 m_renderThread_tasks.push([this, idx, name, layout, data, generateMipmap]() {
                     std::unique_lock<std::shared_mutex> tex_lock(m_texArr_mutex);
 
-                    m_textureArrays[idx].resource = std::make_unique<Texture2DArray>(name, layout, data, generateMipmap);
+                    m_textureArrays[idx].resource = std::make_unique<glowl::Texture2DArray>(name, layout, data, generateMipmap);
                     m_textureArrays[idx].state = READY;
                 });
 
                 return m_textureArrays[idx].id;
             }
 
-            WeakResource<Texture3D> ResourceManager::createTexture3D(
+            WeakResource<glowl::Texture3D> ResourceManager::createTexture3D(
                 const std::string name,
-                TextureLayout const& layout,
+                glowl::TextureLayout const& layout,
                 GLvoid* data)
             {
                 {
                     std::shared_lock<std::shared_mutex> tex_lock(m_textures_3d_mutex);
                     auto search = m_name_to_textures_3d_idx.find(name);
                     if (search != m_name_to_textures_3d_idx.end())
-                        return WeakResource<Texture3D>(
+                        return WeakResource<glowl::Texture3D>(
                             m_textures_3d[search->second].id,
                             m_textures_3d[search->second].resource.get(),
                             m_textures_3d[search->second].state);
@@ -565,20 +565,20 @@ namespace EngineCore
                 ResourceID rsrc_id = generateResourceID();
 
                 std::unique_lock<std::shared_mutex> lock(m_textures_3d_mutex);
-                m_textures_3d.push_back(Resource<Texture3D>(rsrc_id));
+                m_textures_3d.push_back(Resource<glowl::Texture3D>(rsrc_id));
                 m_id_to_textures_3d_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_textures_3d_idx.insert(std::pair<std::string, size_t>(name, idx));
 
-                m_textures_3d[idx].resource = std::make_unique<Texture3D>(name, layout, data);
+                m_textures_3d[idx].resource = std::make_unique<glowl::Texture3D>(name, layout, data);
                 m_textures_3d[idx].state = READY;
 
-                return WeakResource<Texture3D>(
+                return WeakResource<glowl::Texture3D>(
                     m_textures_3d[idx].id,
                     m_textures_3d[idx].resource.get(),
                     m_textures_3d[idx].state);
             }
 
-            WeakResource<FramebufferObject> ResourceManager::createFramebufferObject(
+            WeakResource<glowl::FramebufferObject> ResourceManager::createFramebufferObject(
                 std::string const& name,
                 uint width,
                 uint height,
@@ -589,7 +589,7 @@ namespace EngineCore
                     std::shared_lock<std::shared_mutex> tex_lock(m_fbo_mutex);
                     auto search = m_name_to_FBO_idx.find(name);
                     if (search != m_name_to_FBO_idx.end())
-                        return WeakResource<FramebufferObject>(
+                        return WeakResource<glowl::FramebufferObject>(
                             m_FBOs[search->second].id,
                             m_FBOs[search->second].resource.get(),
                             m_FBOs[search->second].state
@@ -600,20 +600,20 @@ namespace EngineCore
                 ResourceID rsrc_id = generateResourceID();
 
                 std::unique_lock<std::shared_mutex> lock(m_fbo_mutex);
-                m_FBOs.push_back(Resource<FramebufferObject>(rsrc_id));
+                m_FBOs.push_back(Resource<glowl::FramebufferObject>(rsrc_id));
                 m_id_to_FBO_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_FBO_idx.insert(std::pair<std::string, size_t>(name, idx));
 
-                m_FBOs[idx].resource = std::make_unique<FramebufferObject>(width, height, has_depth, has_stencil);
+                m_FBOs[idx].resource = std::make_unique<glowl::FramebufferObject>(width, height, has_depth, has_stencil);
                 m_FBOs[idx].state = READY;
 
-                return WeakResource<FramebufferObject>(
+                return WeakResource<glowl::FramebufferObject>(
                     m_FBOs[idx].id,
                     m_FBOs[idx].resource.get(),
                     m_FBOs[idx].state);
             }
 
-            WeakResource<BufferObject> ResourceManager::createBufferObject(
+            WeakResource<glowl::BufferObject> ResourceManager::createBufferObject(
                 std::string const& name,
                 GLenum target,
                 GLvoid const* data,
@@ -625,7 +625,7 @@ namespace EngineCore
                     std::shared_lock<std::shared_mutex> tex_lock(m_buffers_mutex);
                     auto search = m_name_to_buffer_idx.find(name);
                     if (search != m_name_to_buffer_idx.end())
-                        return WeakResource<BufferObject>(
+                        return WeakResource<glowl::BufferObject>(
                             m_buffers[search->second].id,
                             m_buffers[search->second].resource.get(),
                             m_buffers[search->second].state
@@ -636,14 +636,14 @@ namespace EngineCore
                 ResourceID rsrc_id = generateResourceID();
 
                 std::unique_lock<std::shared_mutex> lock(m_buffers_mutex);
-                m_buffers.push_back(Resource<BufferObject>(rsrc_id));
+                m_buffers.push_back(Resource<glowl::BufferObject>(rsrc_id));
                 m_id_to_buffer_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_buffer_idx.insert(std::pair<std::string, size_t>(name, idx));
 
-                m_buffers[idx].resource = std::make_unique<BufferObject>(target, data, byte_size, usage);
+                m_buffers[idx].resource = std::make_unique<glowl::BufferObject>(target, data, byte_size, usage);
                 m_buffers[idx].state = READY;
 
-                return WeakResource<BufferObject>(
+                return WeakResource<glowl::BufferObject>(
                     m_buffers[idx].id,
                     m_buffers[idx].resource.get(),
                     m_buffers[idx].state);
@@ -688,13 +688,13 @@ namespace EngineCore
                 m_buffers[idx].resource->bufferSubData(data, byte_size);
             }
 
-            WeakResource<Texture2DArray> ResourceManager::getTexture2DArray(ResourceID id) const
+            WeakResource<glowl::Texture2DArray> ResourceManager::getTexture2DArray(ResourceID id) const
             {
                 std::shared_lock<std::shared_mutex> texArr_lock(m_texArr_mutex);
 
                 auto search = m_id_to_textureArray_idx.find(id.value());
 
-                WeakResource<Texture2DArray> retval(id, nullptr, NOT_READY);
+                WeakResource<glowl::Texture2DArray> retval(id, nullptr, NOT_READY);
 
                 if (search != m_id_to_textureArray_idx.end())
                 {
@@ -706,13 +706,13 @@ namespace EngineCore
                 return retval;
             }
 
-            WeakResource<FramebufferObject> ResourceManager::getFramebufferObject(std::string const& name) const
+            WeakResource<glowl::FramebufferObject> ResourceManager::getFramebufferObject(std::string const& name) const
             {
                 std::shared_lock<std::shared_mutex> fbo_lock(m_fbo_mutex);
 
                 auto search = m_name_to_FBO_idx.find(name);
 
-                WeakResource<FramebufferObject> retval(invalidResourceID(), nullptr, NOT_READY);
+                WeakResource<glowl::FramebufferObject> retval(invalidResourceID(), nullptr, NOT_READY);
 
                 if (search != m_name_to_FBO_idx.end())
                 {

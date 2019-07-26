@@ -130,7 +130,7 @@ namespace ResourceLoading
         return rtn;
     }
 
-    void loadPngImage(const std::string& path, std::vector<unsigned char>& image_data, TextureLayout& image_layout)
+    void loadPngImage(const std::string& path, std::vector<unsigned char>& image_data, glowl::TextureLayout& image_layout)
     {
         // Load file and decode image.
         unsigned int width, height;
@@ -144,7 +144,7 @@ namespace ResourceLoading
         image_layout.type = GL_UNSIGNED_BYTE;
     }
 
-    void loadPpmImage(const std::string& path, std::vector<uint8_t>& image_data, TextureLayout& image_layout)
+    void loadPpmImage(const std::string& path, std::vector<uint8_t>& image_data, glowl::TextureLayout& image_layout)
     {
         unsigned long headerEnd;
         int imgDimX, imgDimY;
@@ -162,7 +162,7 @@ namespace ResourceLoading
         readPpmData(path.c_str(), reinterpret_cast<char*>(image_data.data()), headerEnd, imgDimX, imgDimY);
     }
 
-    void loadPpmImageRGBA(const std::string& path, std::vector<uint8_t>& image_data, TextureLayout& image_layout)
+    void loadPpmImageRGBA(const std::string& path, std::vector<uint8_t>& image_data, glowl::TextureLayout& image_layout)
     {
         unsigned long headerEnd;
         int imgDimX, imgDimY;

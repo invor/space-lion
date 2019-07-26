@@ -317,11 +317,11 @@ namespace EngineCore
                         std::get<3>(mesh_data),
                         0x0004/*GL_TRIANGLES*/);
 
-                    typedef std::pair < std::string, GLSLProgram::ShaderType > ShaderFilename;
+                    typedef std::pair < std::string, glowl::GLSLProgram::ShaderType > ShaderFilename;
 
                     auto shader_names = std::make_shared<std::vector<ShaderFilename>>();
-                    shader_names->push_back({ "../resources/shaders/simple_forward_vert.glsl",GLSLProgram::VertexShader });
-                    shader_names->push_back({ "../resources/shaders/simple_forward_frag.glsl", GLSLProgram::FragmentShader });
+                    shader_names->push_back({ "../resources/shaders/simple_forward_vert.glsl", glowl::GLSLProgram::VertexShader });
+                    shader_names->push_back({ "../resources/shaders/simple_forward_frag.glsl", glowl::GLSLProgram::FragmentShader });
 
                     EngineCore::Graphics::ResourceID shader_rsrc = m_rsrc_mngr.createShaderProgramAsync(
                         identifier_string,
