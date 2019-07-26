@@ -142,6 +142,8 @@ namespace EngineCore
                     glfwSwapBuffers(m_active_window);
                     glfwPollEvents();
                 }
+
+                resource_manager->clearAllResources();
             }
 
             void GraphicsBackend::addSingleExecutionGpuTask(std::function<void()> task)

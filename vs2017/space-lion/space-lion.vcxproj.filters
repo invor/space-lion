@@ -70,9 +70,6 @@
     <Filter Include="Header Files\External\tinygltf">
       <UniqueIdentifier>{926f3eae-8532-4e2d-9a0c-16372445c1b9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\External\glowl">
-      <UniqueIdentifier>{8755da9c-0697-49de-a56e-4182b47149be}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\External\glad">
       <UniqueIdentifier>{8d656974-98ee-46fd-b8ed-4117fbbba707}</UniqueIdentifier>
     </Filter>
@@ -141,9 +138,6 @@
     <ClInclude Include="..\..\src\External\glowl\include\glowl\Mesh.hpp">
       <Filter>Header Files\External\glowl</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\External\glowl\include\glowl\ShaderStorageBufferObject.hpp">
-      <Filter>Header Files\External\glowl</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\External\glowl\include\glowl\Texture.hpp">
       <Filter>Header Files\External\glowl</Filter>
     </ClInclude>
@@ -151,9 +145,6 @@
       <Filter>Header Files\External\glowl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\External\glowl\include\glowl\Texture2DArray.hpp">
-      <Filter>Header Files\External\glowl</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\External\glowl\include\glowl\Texture2DView.hpp">
       <Filter>Header Files\External\glowl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\External\glowl\include\glowl\Texture3D.hpp">
@@ -277,39 +268,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\EngineCore\TaskSchedueler.cpp">
       <Filter>Source Files\EngineCore\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\External\glowl\src\TextureCubemapArray.cpp">
-      <Filter>Source Files\External\glowl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\External\glowl\src\BufferObject.cpp">
-      <Filter>Source Files\External\glowl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\External\glowl\src\FramebufferObject.cpp">
-      <Filter>Source Files\External\glowl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\External\glowl\src\GLSLProgram.cpp">
-      <Filter>Source Files\External\glowl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\External\glowl\src\Mesh.cpp">
-      <Filter>Source Files\External\glowl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\External\glowl\src\ShaderStorageBufferObject.cpp">
-      <Filter>Source Files\External\glowl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\External\glowl\src\Texture2D.cpp">
-      <Filter>Source Files\External\glowl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\External\glowl\src\Texture2DArray.cpp">
-      <Filter>Source Files\External\glowl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\External\glowl\src\Texture2DView.cpp">
-      <Filter>Source Files\External\glowl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\External\glowl\src\Texture3D.cpp">
-      <Filter>Source Files\External\glowl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\External\glowl\src\Texture3DView.cpp">
-      <Filter>Source Files\External\glowl</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\External\glad\src\glad.c">
       <Filter>Source Files\External\glad</Filter>
