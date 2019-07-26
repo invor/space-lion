@@ -152,7 +152,7 @@ namespace EngineCore
             mutable std::mutex m_rsrcID_mutex;
 
             /** Queue for exection of stuff on the render thread. */
-            Utility::MTQueue<std::function<void()>> m_renderThread_tasks;
+            EngineCore::Utility::MTQueue<std::function<void()>> m_renderThread_tasks;
 
             /*
              * The following collections contain all resources that are managed by an instance of a resource manager.
