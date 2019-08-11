@@ -30,6 +30,8 @@ namespace EngineCore
         namespace Utility
         {
             std::shared_ptr<tinygltf::Model> loadGltfModel(std::string const& gltf_filepath);
+
+            std::shared_ptr<tinygltf::Model> loadGLTFModel(std::vector<unsigned char> const & databuffer);
         }
 
         template<typename ResourceManagerType>
@@ -43,7 +45,9 @@ namespace EngineCore
 
             void addComponent(Entity entity, std::string const& gltf_filepath, int gltf_node_idx);
 
-            void importGltfScene(std::string const& gltf_filepath);
+            void importGltfScene(std::string const& gltf_filepath, ResourceID dflt_shader_prgm);
+
+            void importGltfScene(std::string const& gltf_filepath, std::shared_ptr<tinygltf::Model> const& gltf_model, ResourceID dflt_shader_prgm);
 
         private:
             typedef std::shared_ptr<tinygltf::Model> ModelPtr;
@@ -55,7 +59,7 @@ namespace EngineCore
                 int      gltf_node_idx;
             };
 
-            std::unordered_map<std::string,ModelPtr> m_gltf_assets;
+            std::unordered_map<std::string, ModelPtr> m_gltf_assets;
             std::shared_mutex                        m_gltf_assets_mutex;
             std::vector<ComponentData>               m_data;
             std::shared_mutex                        m_data_mutex;
@@ -63,16 +67,19 @@ namespace EngineCore
             ResourceManagerType& m_rsrc_mngr;
             WorldState&          m_world;
 
-            void addComponent(Entity entity, ModelPtr const& model, int gltf_node_idx);
+            void addComponent(Entity entity, ModelPtr const& model, int gltf_node_idx, ResourceID dflt_shader_prgm);
 
             ModelPtr addGltfAsset(std::string const& gltf_filepath);
 
-            void addGltfNode(ModelPtr const& model, int gltf_node_idx, Entity parent_entity);
+            void addGltfAsset(std::string const& gltf_filepath, ModelPtr const& gltf_model);
 
-            typedef std::shared_ptr<GenericVertexLayout>                     VertexLayoutPtr;
-            typedef std::shared_ptr<std::vector<std::vector<unsigned char>>> VertexDataPtr;
-            typedef std::shared_ptr<std::vector<unsigned char>>              IndexDataPtr;
-            typedef unsigned int                                             IndexDataType;
+            void addGltfNode(ModelPtr const& model, int gltf_node_idx, Entity parent_entity, ResourceID dflt_shader_prgm);
+
+            typedef std::shared_ptr<typename ResourceManagerType::VertexLayout> VertexLayoutPtr;
+            typedef std::shared_ptr<std::vector<std::vector<unsigned char>>>    VertexDataPtr;
+            typedef std::shared_ptr<std::vector<unsigned char>>                 IndexDataPtr;
+            typedef typename ResourceManagerType::IndexFormatType               IndexDataType;
+            //typedef unsigned int                                                IndexDataType;
 
             std::tuple<VertexLayoutPtr, VertexDataPtr, IndexDataPtr, IndexDataType>
                 loadMeshPrimitveData(ModelPtr const& model, size_t node_idx, size_t primitive_idx);
@@ -141,7 +148,7 @@ namespace EngineCore
         }
 
         template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::importGltfScene(std::string const& gltf_filepath)
+        inline void GltfAssetComponentManager<ResourceManagerType>::importGltfScene(std::string const& gltf_filepath, ResourceID dflt_shader_prgm)
         {
             auto gltf_model = addGltfAsset(gltf_filepath);
 
@@ -150,13 +157,28 @@ namespace EngineCore
             {
                 for (auto node : scene.nodes)
                 {
-                    addGltfNode(gltf_model, node, m_world.accessEntityManager().invalidEntity());
+                    addGltfNode(gltf_model, node, m_world.accessEntityManager().invalidEntity(), dflt_shader_prgm);
                 }
             }
         }
 
         template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::addGltfNode(ModelPtr const & gltf_model, int gltf_node_idx, Entity parent_entity)
+        inline void GltfAssetComponentManager<ResourceManagerType>::importGltfScene(std::string const& gltf_filepath, std::shared_ptr<tinygltf::Model> const & gltf_model, ResourceID dflt_shader_prgm)
+        {
+            addGltfAsset(gltf_filepath, gltf_model);
+
+            // iterate over nodes of model and add entities+components to world
+            for (auto& scene : gltf_model->scenes)
+            {
+                for (auto node : scene.nodes)
+                {
+                    addGltfNode(gltf_model, node, m_world.accessEntityManager().invalidEntity(), dflt_shader_prgm);
+                }
+            }
+        }
+
+        template<typename ResourceManagerType>
+        inline void GltfAssetComponentManager<ResourceManagerType>::addGltfNode(ModelPtr const & gltf_model, int gltf_node_idx, Entity parent_entity, ResourceID dflt_shader_prgm)
         {
             // add entity
             auto entity = m_world.accessEntityManager().create();
@@ -173,23 +195,23 @@ namespace EngineCore
             }
 
             // add gltf asset component (which in turn add mesh + material)
-            addComponent(entity, gltf_model, gltf_node_idx);
+            addComponent(entity, gltf_model, gltf_node_idx, dflt_shader_prgm);
 
             // traverse children and add gltf nodes recursivly
             for (auto child : gltf_model->nodes[gltf_node_idx].children)
             {
-                addGltfNode(gltf_model, child, entity);
+                addGltfNode(gltf_model, child, entity, dflt_shader_prgm);
             }
         }
 
         template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::addComponent(Entity entity, ModelPtr const& model, int gltf_node_idx)
+        inline void GltfAssetComponentManager<ResourceManagerType>::addComponent(Entity entity, ModelPtr const& model, int gltf_node_idx, ResourceID dflt_shader_prgm)
         {
             {
                 std::unique_lock<std::shared_mutex> lock(m_data_mutex);
 
                 size_t cmp_idx = m_data.size();
-                m_data.push_back({entity,model,gltf_node_idx});
+                m_data.push_back({ entity,model,gltf_node_idx });
                 addIndex(entity.id(), cmp_idx);
             }
 
@@ -270,7 +292,7 @@ namespace EngineCore
                             if (metallic_query->second.TextureIndex() != -1)
                             {
                                 GenericTextureLayout layout;
-                                
+
                                 //model->textures[metallic_query->second.TextureIndex()].
                                 //m_rsrc_mngr.createTexture2DAsync(
                                 //    name,
@@ -308,6 +330,8 @@ namespace EngineCore
                     std::string identifier_string =
                         "ga_" + model->nodes[gltf_node_idx].name + "_n_" + std::to_string(gltf_node_idx) + "_p_" + std::to_string(primitive_idx);
 
+                    auto primitive_topology_type = m_rsrc_mngr.convertGenericPrimitiveTopology(0x0004/*GL_TRIANGLES*/);
+
                     EngineCore::Graphics::ResourceID mesh_rsrc = m_world.accessMeshComponentManager().addComponent(
                         entity,
                         identifier_string,
@@ -315,25 +339,15 @@ namespace EngineCore
                         std::get<2>(mesh_data),
                         std::get<0>(mesh_data),
                         std::get<3>(mesh_data),
-                        0x0004/*GL_TRIANGLES*/);
+                        primitive_topology_type);
 
-                    typedef std::pair < std::string, glowl::GLSLProgram::ShaderType > ShaderFilename;
-
-                    auto shader_names = std::make_shared<std::vector<ShaderFilename>>();
-                    shader_names->push_back({ "../resources/shaders/simple_forward_vert.glsl", glowl::GLSLProgram::VertexShader });
-                    shader_names->push_back({ "../resources/shaders/simple_forward_frag.glsl", glowl::GLSLProgram::FragmentShader });
-
-                    EngineCore::Graphics::ResourceID shader_rsrc = m_rsrc_mngr.createShaderProgramAsync(
-                        identifier_string,
-                        shader_names);
-
-                    m_world.accessMaterialComponentManager().addComponent(entity, material_name, shader_rsrc, base_colour, specular_colour, roughness);
+                    m_world.accessMaterialComponentManager().addComponent(entity, material_name, dflt_shader_prgm, base_colour, specular_colour, roughness);
 
                     size_t mesh_subidx = m_world.accessMeshComponentManager().getIndex(entity).size() - 1;
                     size_t mtl_subidx = m_world.accessMaterialComponentManager().getIndex(entity).size() - 1;;
 
                     //for (int subidx = 0; subidx < component_idxs.size(); ++subidx)
-                    m_world.accessRenderTaskComponentManager().addComponent(entity, mesh_rsrc, mesh_subidx, shader_rsrc, mtl_subidx);
+                    m_world.accessRenderTaskComponentManager().addComponent(entity, mesh_rsrc, mesh_subidx, dflt_shader_prgm, mtl_subidx);
                 }
             }
         }
@@ -346,22 +360,31 @@ namespace EngineCore
 
             {
                 std::unique_lock<std::shared_mutex> lock(m_gltf_assets_mutex);
-                m_gltf_assets.insert(std::make_pair(gltf_filepath,model));
+                m_gltf_assets.insert(std::make_pair(gltf_filepath, model));
             }
 
             return model;
         }
 
         template<typename ResourceManagerType>
+        inline void GltfAssetComponentManager<ResourceManagerType>::addGltfAsset(std::string const & gltf_filepath, ModelPtr const & gltf_model)
+        {
+            {
+                std::unique_lock<std::shared_mutex> lock(m_gltf_assets_mutex);
+                m_gltf_assets.insert(std::make_pair(gltf_filepath, gltf_model));
+            }
+        }
+
+        template<typename ResourceManagerType>
         inline std::tuple<
-            std::shared_ptr<GenericVertexLayout>,
+            std::shared_ptr<typename ResourceManagerType::VertexLayout>,
             std::shared_ptr<std::vector<std::vector<unsigned char>>>,
             std::shared_ptr<std::vector<unsigned char>>,
-            unsigned int> 
+            typename ResourceManagerType::IndexFormatType>
             GltfAssetComponentManager<ResourceManagerType>::loadMeshPrimitveData(ModelPtr const& model, size_t node_idx, size_t primitive_idx)
         {
             if (model == nullptr)
-                return { nullptr,nullptr,nullptr,0 };
+                return { nullptr,nullptr,nullptr, m_rsrc_mngr.convertGenericIndexType(0) };
 
             if (node_idx < model->nodes.size() && model->nodes[node_idx].mesh != -1)
             {
@@ -374,8 +397,8 @@ namespace EngineCore
                     + (indices_accessor.count * indices_accessor.ByteStride(indices_bufferView)));
 
                 auto vertices = std::make_shared<std::vector<std::vector<unsigned char>>>();
-                auto vertex_descriptor = std::make_shared<GenericVertexLayout>();
-                vertex_descriptor->byte_size = 0; //TODO rename byte_size
+                GenericVertexLayout generic_vertex_layout;
+                generic_vertex_layout.byte_size = 0; //TODO rename byte_size
 
                 unsigned int input_slot = 0;
 
@@ -386,9 +409,9 @@ namespace EngineCore
                     auto& vertexAttrib_bufferView = model->bufferViews[vertexAttrib_accessor.bufferView];
                     auto& vertexAttrib_buffer = model->buffers[vertexAttrib_bufferView.buffer];
 
-                    vertex_descriptor->attributes.push_back(
-                        GenericVertexLayout::Attribute(vertexAttrib_accessor.type, vertexAttrib_accessor.componentType,
-                            vertexAttrib_accessor.normalized, static_cast<uint32_t>(vertexAttrib_accessor.byteOffset) ));
+                    generic_vertex_layout.attributes.push_back(
+                        GenericVertexLayout::Attribute(attrib.first, vertexAttrib_accessor.type, vertexAttrib_accessor.componentType,
+                            vertexAttrib_accessor.normalized, static_cast<uint32_t>(vertexAttrib_accessor.byteOffset)));
 
                     vertices->push_back(std::vector<unsigned char>(
                         vertexAttrib_buffer.data.begin() + vertexAttrib_bufferView.byteOffset + vertexAttrib_accessor.byteOffset,
@@ -398,11 +421,14 @@ namespace EngineCore
 
                 }
 
-                return { vertex_descriptor, vertices, indices, indices_accessor.componentType };
+                auto vertex_layout = std::make_shared<typename ResourceManagerType::VertexLayout>(m_rsrc_mngr.convertGenericGltfVertexLayout(generic_vertex_layout));
+                auto index_type = m_rsrc_mngr.convertGenericIndexType(indices_accessor.componentType);
+
+                return { vertex_layout, vertices, indices, index_type };
             }
             else
             {
-                return { nullptr,nullptr,nullptr,0 };
+                return { nullptr,nullptr,nullptr,m_rsrc_mngr.convertGenericIndexType(0) };
             }
         }
     }

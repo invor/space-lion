@@ -9,7 +9,6 @@
 #include "EntityManager.hpp"
 #include "BaseComponentManager.hpp"
 #include "BaseResourceManager.hpp"
-#include "GenericVertexLayout.hpp"
 
 namespace EngineCore
 {
@@ -19,19 +18,23 @@ namespace EngineCore
         class MeshComponentManager : public BaseComponentManager
         {
         public:
+            typedef typename ResourceManagerType::VertexLayout          VertexLayoutType;
+            typedef typename ResourceManagerType::IndexFormatType       IndexFormatType;
+            typedef typename ResourceManagerType::PrimitiveTopologyType PrimitiveTopologyType;
+
             MeshComponentManager(ResourceManagerType* resource_manager) : BaseComponentManager(), m_resource_mngr(resource_manager) {}
             ~MeshComponentManager() = default;
 
-            template<typename VertexContainer,typename IndexContainer>
-                ResourceID addComponent(
-                    Entity const&                                        entity,
-                    std::string const&                                   mesh_description,
-                    std::shared_ptr<std::vector<VertexContainer>> const& vertex_data,
-                    std::shared_ptr<IndexContainer> const&               index_data,
-                    std::shared_ptr<GenericVertexLayout> const&          vertex_layout,
-                    uint32_t const&                                      index_type,
-                    uint32_t const&                                      mesh_type,
-                    bool                                                 store_seperate = false);
+            template<typename VertexContainer, typename IndexContainer>
+            ResourceID addComponent(
+                Entity const&                                        entity,
+                std::string const&                                   mesh_description,
+                std::shared_ptr<std::vector<VertexContainer>> const& vertex_data,
+                std::shared_ptr<IndexContainer> const&               index_data,
+                std::shared_ptr<VertexLayoutType> const&             vertex_layout,
+                IndexFormatType const&                               index_type,
+                PrimitiveTopologyType const&                         mesh_type,
+                bool                                                 store_seperate = false);
 
             std::tuple<uint32_t, uint32_t, uint32_t> getDrawIndexedParams(size_t component_index);
 
@@ -74,13 +77,13 @@ namespace EngineCore
                     indices_allocated(indices_allocated),
                     indices_used(0) {}
 
-                ResourceID          mesh_resource;
-                GenericVertexLayout mesh_vertexLayout;
-                uint32_t            mesh_indexType;
-                size_t              vertices_allocated;
-                size_t              vertices_used;
-                size_t              indices_allocated;
-                size_t              indices_used;
+                ResourceID       mesh_resource;
+                VertexLayoutType mesh_vertexLayout;
+                IndexFormatType  mesh_indexType;
+                size_t           vertices_allocated;
+                size_t           vertices_used;
+                size_t           indices_allocated;
+                size_t           indices_used;
             };
 
             std::vector<ComponentData> m_component_data;
@@ -88,20 +91,19 @@ namespace EngineCore
             mutable std::shared_mutex  m_data_mutex;
 
             ResourceManagerType*       m_resource_mngr;
-
         };
 
         template<typename ResourceManagerType>
-        template<typename VertexContainer,typename IndexContainer>
-            inline ResourceID MeshComponentManager<ResourceManagerType>::addComponent(
-                Entity const&                                        entity,
-                std::string const&                                   mesh_description,
-                std::shared_ptr<std::vector<VertexContainer>> const& vertex_data,
-                std::shared_ptr<IndexContainer> const&               index_data,
-                std::shared_ptr<GenericVertexLayout> const&          vertex_layout,
-                uint32_t const&                                      index_type,
-                uint32_t const&                                      mesh_type,
-                bool                                                 store_seperate)
+        template<typename VertexContainer, typename IndexContainer>
+        inline ResourceID MeshComponentManager<ResourceManagerType>::addComponent(
+            Entity const&                                        entity,
+            std::string const&                                   mesh_description,
+            std::shared_ptr<std::vector<VertexContainer>> const& vertex_data,
+            std::shared_ptr<IndexContainer> const&               index_data,
+            std::shared_ptr<VertexLayoutType> const&             vertex_layout,
+            IndexFormatType const&                               index_type,
+            PrimitiveTopologyType const&                         mesh_type,
+            bool                                                 store_seperate)
         {
             // get vertex buffer data pointers and byte sizes
             size_t vbs_byteSize = 0;
@@ -191,6 +193,7 @@ namespace EngineCore
 
             return it->mesh_resource;
         }
+
 
         template<typename ResourceManagerType>
         inline std::tuple<uint32_t, uint32_t, uint32_t> MeshComponentManager<ResourceManagerType>::getDrawIndexedParams(size_t component_index)
