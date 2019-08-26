@@ -604,7 +604,7 @@ namespace EngineCore
                 m_id_to_FBO_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_FBO_idx.insert(std::pair<std::string, size_t>(name, idx));
 
-                m_FBOs[idx].resource = std::make_unique<glowl::FramebufferObject>(width, height, has_depth, has_stencil);
+                m_FBOs[idx].resource = std::make_unique<glowl::FramebufferObject>(name,width, height, has_depth, has_stencil);
                 m_FBOs[idx].state = READY;
 
                 return WeakResource<glowl::FramebufferObject>(
