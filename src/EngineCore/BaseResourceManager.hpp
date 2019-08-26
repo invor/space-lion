@@ -86,10 +86,6 @@ namespace EngineCore
 
             virtual void clearAllResources() = 0;
 
-            virtual size_t computeIndexByteSize(uint32_t index_type) = 0;
-
-            virtual size_t computeVertexByteSize(GenericVertexLayout const& vertex_layout) = 0;
-
             void executeRenderThreadTasks() {
                 while (!m_renderThread_tasks.empty())
                 {

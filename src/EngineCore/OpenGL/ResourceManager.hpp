@@ -49,6 +49,8 @@ namespace EngineCore
             {
             public:
                 typedef glowl::VertexLayout VertexLayout;
+                typedef GLenum IndexFormatType;
+                typedef GLenum PrimitiveTopologyType;
 
                 ResourceManager() : BaseResourceManager() {}
                 ResourceManager(ResourceManager const & cpy) = delete;
@@ -60,7 +62,7 @@ namespace EngineCore
                 /** Clear lists containing graphics resources */
                 void clearAllResources();
 
-                size_t computeVertexByteSize(GenericVertexLayout const& vertex_layout)
+                size_t computeVertexByteSize(VertexLayout const& vertex_layout)
                 {
                     size_t retval = 0;
 
@@ -72,10 +74,40 @@ namespace EngineCore
                     return retval;
                 }
 
-                size_t computeIndexByteSize(uint32_t index_type)
+                size_t computeIndexByteSize(GLenum index_type)
                 {
-                    return glowl::computeByteSize(static_cast<GLenum>(index_type));
+                    return glowl::computeByteSize(index_type);
                 }
+
+                constexpr IndexFormatType convertGenericIndexType(uint32_t index_type)
+                {
+                    IndexFormatType retval = index_type; // Assuming the "generic" index type to use GL values due to glTF usage
+                    return retval;
+                }
+
+                constexpr PrimitiveTopologyType convertGenericPrimitiveTopology(uint32_t primitive_type)
+                {
+                    PrimitiveTopologyType retval = primitive_type; // Assuming the "generic" primitive type to use GL values due to glTF usage
+                    return retval;
+                }
+
+                /**
+                 * Assuming the "generic" vertex layout to use GL values due to glTF usage
+                 */
+                VertexLayout convertGenericGltfVertexLayout(GenericVertexLayout vertex_layout)
+                {
+                    VertexLayout retval;
+
+                    retval.byte_size = vertex_layout.byte_size;
+
+                    for (auto attrib : vertex_layout.attributes)
+                    {
+                        retval.attributes.emplace_back(VertexLayout::Attribute(attrib.size,attrib.type,attrib.normalized,attrib.offset));
+                    }
+
+                    return retval;
+                }
+
 
 #pragma region Create mesh
                 //template<
@@ -92,7 +124,7 @@ namespace EngineCore
                     std::string const& name,
                     size_t vertex_cnt,
                     size_t index_cnt,
-                    std::shared_ptr<GenericVertexLayout> const& vertex_layout,
+                    std::shared_ptr<VertexLayout> const& vertex_layout,
                     GLenum const index_type,
                     GLenum const mesh_type);
 

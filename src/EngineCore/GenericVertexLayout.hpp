@@ -1,6 +1,7 @@
 #ifndef GenericVertexLayout_hpp
 #define GenericVertexLayout_hpp
 
+#include <string>
 #include <vector>
 
 /**
@@ -15,12 +16,16 @@ struct GenericVertexLayout
     struct Attribute
     {
         Attribute(int size, uint32_t type, bool normalized, uint32_t offset)
-            : size(size), type(type), normalized(normalized), offset(offset) {}
+            : semantic_name(""), size(size), type(type), normalized(normalized), offset(offset) {}
 
-        int size;
-        uint32_t type;
-        bool normalized;
-        uint32_t offset;
+        Attribute(std::string const& semantic_name, int size, uint32_t type, bool normalized, uint32_t offset)
+            : semantic_name(semantic_name), size(size), type(type), normalized(normalized), offset(offset) {}
+
+        std::string semantic_name;
+        int         size;
+        uint32_t    type;
+        bool        normalized;
+        uint32_t    offset;
     };
 
     GenericVertexLayout() : byte_size(0), attributes() {}
@@ -29,7 +34,7 @@ struct GenericVertexLayout
     GenericVertexLayout(uint32_t byte_size, std::vector<Attribute>&& attributes)
         : byte_size(byte_size), attributes(attributes) {}
 
-    uint32_t byte_size;
+    uint32_t               byte_size;
     std::vector<Attribute> attributes;
 };
 

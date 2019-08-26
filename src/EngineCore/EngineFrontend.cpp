@@ -124,7 +124,7 @@ namespace EngineCore
                 "demo_plane",
                 std::get<0>(mesh_data),
                 std::get<1>(mesh_data),
-                std::get<2>(mesh_data),
+                std::make_shared<glowl::VertexLayout>(rsrc_mngr.convertGenericGltfVertexLayout(*std::get<2>(mesh_data))),
                 GL_UNSIGNED_INT,
                 GL_TRIANGLES);
 
@@ -170,7 +170,7 @@ namespace EngineCore
             //      gltf_mngr.addComponent(gltf_subobj, "../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", "LeatherParts_low");
             //  }
 
-            gltf_mngr.importGltfScene("../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf");
+            gltf_mngr.importGltfScene("../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", shader_rsrc);
 
 
             /*Entity debug_entity = m_entity_manager.create();
