@@ -11,6 +11,8 @@ namespace EngineCore
         {
             void ResourceManager::clearAllResources()
             {
+                //TODO accquire all locks?
+
                 m_name_to_shader_program_idx.clear();
                 m_name_to_mesh_idx.clear();
                 m_name_to_textures_2d_idx.clear();
@@ -112,8 +114,7 @@ namespace EngineCore
                 m_name_to_shader_program_idx.insert(std::pair<std::string, size_t>(program_name, idx));
 
                 m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>();
-                m_shader_programs[idx].resource->setId(program_name);
-                m_shader_programs[idx].resource->init();
+                m_shader_programs[idx].resource->setDebugLabel(program_name);
 
                 std::string vertex_src;
                 std::string tessellationControl_src;
@@ -214,29 +215,24 @@ namespace EngineCore
                 bool prgm_error = false;
 
                 if (!vertex_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&vertex_src, GL_VERTEX_SHADER);
+                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&vertex_src, glowl::GLSLProgram::VertexShader);
                 if (!fragment_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&fragment_src, GL_FRAGMENT_SHADER);
+                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&fragment_src, glowl::GLSLProgram::FragmentShader);
                 if (!geometry_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&geometry_src, GL_GEOMETRY_SHADER);
+                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&geometry_src, glowl::GLSLProgram::GeometryShader);
                 if (!tessellationControl_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&tessellationControl_src, GL_TESS_CONTROL_SHADER);
+                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&tessellationControl_src, glowl::GLSLProgram::TessellationControl);
                 if (!tessellationEvaluation_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&tessellationEvaluation_src, GL_TESS_EVALUATION_SHADER);
-                /*
-                *	THIS SEEM TO BE OUTDATED IF IT WAS EVER TRUE
-                *	A non-empty compute source string should only happen if all other sources are empty strings.
-                *	I won't check for this though, assuming that nobody - i.e. me - fucked up a compute shader case above.
-                */
+                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&tessellationEvaluation_src, glowl::GLSLProgram::TessellationEvaluation);
                 if (!compute_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&compute_src, GL_COMPUTE_SHADER);
+                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&compute_src, glowl::GLSLProgram::ComputeShader);
 
 
                 prgm_error |= !m_shader_programs[idx].resource->link();
 
                 if (prgm_error)
                 {
-                    std::cout << "Error during shader program creation of \"" << m_shader_programs[idx].resource->getId() << "\"" << std::endl;
+                    std::cout << "Error during shader program creation of \"" << m_shader_programs[idx].resource->getDebugLabel() << "\"" << std::endl;
                     std::cout << m_shader_programs[idx].resource->getLog();
                 }
 
@@ -272,12 +268,10 @@ namespace EngineCore
                     //m_renderThread_tasks.push([this,idx,name,paths]() {
                     m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>();
                     m_shader_programs[idx].state = READY;
-                    m_shader_programs[idx].resource->setId(program_name);
-                    m_shader_programs[idx].resource->init();
+                    m_shader_programs[idx].resource->setDebugLabel(program_name);
 
                     m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>();
-                    m_shader_programs[idx].resource->setId(program_name);
-                    m_shader_programs[idx].resource->init();
+                    m_shader_programs[idx].resource->setDebugLabel(program_name);
 
                     std::string vertex_src;
                     std::string tessellationControl_src;
@@ -378,29 +372,24 @@ namespace EngineCore
                     bool prgm_error = false;
 
                     if (!vertex_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&vertex_src, GL_VERTEX_SHADER);
+                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&vertex_src, glowl::GLSLProgram::VertexShader);
                     if (!fragment_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&fragment_src, GL_FRAGMENT_SHADER);
+                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&fragment_src, glowl::GLSLProgram::FragmentShader);
                     if (!geometry_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&geometry_src, GL_GEOMETRY_SHADER);
+                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&geometry_src, glowl::GLSLProgram::GeometryShader);
                     if (!tessellationControl_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&tessellationControl_src, GL_TESS_CONTROL_SHADER);
+                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&tessellationControl_src, glowl::GLSLProgram::TessellationControl);
                     if (!tessellationEvaluation_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&tessellationEvaluation_src, GL_TESS_EVALUATION_SHADER);
-                    /*
-                    *	THIS SEEM TO BE OUTDATED IF IT WAS EVER TRUE
-                    *	A non-empty compute source string should only happen if all other sources are empty strings.
-                    *	I won't check for this though, assuming that nobody - i.e. me - fucked up a compute shader case above.
-                    */
+                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&tessellationEvaluation_src, glowl::GLSLProgram::TessellationEvaluation);
                     if (!compute_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&compute_src, GL_COMPUTE_SHADER);
+                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&compute_src, glowl::GLSLProgram::ComputeShader);
 
 
                     prgm_error |= !m_shader_programs[idx].resource->link();
 
                     if (prgm_error)
                     {
-                        std::cout << "Error during shader program creation of \"" << m_shader_programs[idx].resource->getId() << "\"" << std::endl;
+                        std::cout << "Error during shader program creation of \"" << m_shader_programs[idx].resource->getDebugLabel() << "\"" << std::endl;
                         std::cout << m_shader_programs[idx].resource->getLog();
                     }
 

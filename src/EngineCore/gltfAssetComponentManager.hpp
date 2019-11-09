@@ -293,7 +293,16 @@ namespace EngineCore
                             {
                                 GenericTextureLayout layout;
 
-                                //model->textures[metallic_query->second.TextureIndex()].
+                                auto& img = model->images[model->textures[metallic_query->second.TextureIndex()].source];
+
+                                layout.width = img.width;
+                                layout.height = img.height;
+                                layout.depth = 1;
+                                layout.type = img.pixel_type;
+                                layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
+
+                                auto APIlayout = m_rsrc_mngr.convertGenericTextureLayout(layout);
+
                                 //m_rsrc_mngr.createTexture2DAsync(
                                 //    name,
                                 //    TextureLayout const& layout,

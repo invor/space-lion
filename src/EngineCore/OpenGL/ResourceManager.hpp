@@ -29,6 +29,7 @@
 /*	Include space-lion headers */
 #include "../BaseResourceManager.hpp"
 #include "../EntityManager.hpp"
+#include "../GenericTextureLayout.hpp"
 #include "../types.hpp"
 
 #define DEBUG_OUTPUT 0
@@ -48,9 +49,10 @@ namespace EngineCore
                 glowl::Texture3D>
             {
             public:
-                typedef glowl::VertexLayout VertexLayout;
-                typedef GLenum IndexFormatType;
-                typedef GLenum PrimitiveTopologyType;
+                typedef glowl::TextureLayout TextureLayout;
+                typedef glowl::VertexLayout  VertexLayout;
+                typedef GLenum               IndexFormatType;
+                typedef GLenum               PrimitiveTopologyType;
 
                 ResourceManager() : BaseResourceManager() {}
                 ResourceManager(ResourceManager const & cpy) = delete;
@@ -108,6 +110,31 @@ namespace EngineCore
                     return retval;
                 }
 
+                TextureLayout convertGenericTextureLayout(GenericTextureLayout texture_layout)
+                {
+                    TextureLayout retval;
+
+                    retval.internal_format = texture_layout.internal_format;
+                    retval.width = texture_layout.width;
+                    retval.height = texture_layout.height;
+                    retval.depth = texture_layout.depth;
+                    retval.format = texture_layout.format;
+                    retval.type = texture_layout.type;
+
+                    retval.levels = texture_layout.levels;
+
+                    for (auto& param : texture_layout.int_parameters)
+                    {
+                        retval.int_parameters.push_back({ param.first,param.second });
+                    }
+
+                    for (auto& param : texture_layout.float_parameters)
+                    {
+                        retval.float_parameters.push_back({ param.first,param.second });
+                    }
+
+                    return retval;
+                }
 
 #pragma region Create mesh
                 //template<
