@@ -7,6 +7,7 @@
 #define MaterialComponentManager_hpp
 
 #include <array>
+#include <unordered_map>
 
 #include "BaseComponentManager.hpp"
 #include "BaseResourceManager.hpp"
@@ -20,6 +21,10 @@ namespace EngineCore
         class MaterialComponentManager : public BaseComponentManager
         {
         public:
+
+            enum TextureSemantic { ALBEDO, NORMAL, SPECULAR, METALLIC_ROUGHNESS, ROUGHNESS };
+
+
             MaterialComponentManager(ResourceManagerType* resource_manager)
                 : BaseComponentManager(), m_resource_manager(resource_manager) {}
             ~MaterialComponentManager() = default;
@@ -87,14 +92,14 @@ namespace EngineCore
                     std::array<float, 4>           albedo_colour,
                     std::array<float, 4>           specular_colour,
                     float                          roughness,
-                    std::vector<ResourceID> const& textures)
+                    std::vector<std::pair<TextureSemantic,ResourceID>> const& textures)
                     : entity(entity),
                     material_name(name),
                     shader_program(shader_program),
                     albedo_colour(albedo_colour),
                     specular_colour(specular_colour),
                     roughness(roughness),
-                    textures(textures)
+                    textures(textures.begin(),textures.end())
                 {}
 
                 Entity                  entity;
@@ -106,7 +111,7 @@ namespace EngineCore
                 std::array<float, 4>    specular_colour;
                 float                   roughness;
 
-                std::vector<ResourceID> textures;
+                std::unordered_multimap<TextureSemantic,ResourceID> textures;
             };
 
             std::vector<ComponentData> m_component_data;
@@ -128,7 +133,7 @@ namespace EngineCore
                 std::array<float, 4>{1.0f, 0.5f, 1.0f, 1.0f},
                 std::array<float, 4>{1.0f, 1.0f, 1.0f, 1.0f},
                 0.8f,
-                std::vector<ResourceID>());
+                std::vector<std::pair<TextureSemantic, ResourceID>>());
         }
 
         template<typename ResourceManagerType>
@@ -147,7 +152,7 @@ namespace EngineCore
                 albedo_colour,
                 specular_colour,
                 roughness,
-                std::vector<ResourceID>());
+                std::vector<std::pair<TextureSemantic, ResourceID>>());
         }
 
         template<typename ResourceManagerType>
@@ -172,7 +177,7 @@ namespace EngineCore
                 albedo_colour,
                 specular_colour,
                 roughness,
-                std::vector<ResourceID>(textures.begin(), textures.end())
+                std::vector<std::pair<TextureSemantic,ResourceID>>(textures.begin(), textures.end())
             ));
         }
 

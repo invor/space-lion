@@ -59,7 +59,7 @@ namespace EngineCore
                 ~ResourceManager() = default;
 
                 /** Returns log string */
-                const std::string& getLog() { return m_resourcelog; }
+                std::string const& getLog() { return m_resourcelog; }
 
                 /** Clear lists containing graphics resources */
                 void clearAllResources();
@@ -206,13 +206,13 @@ namespace EngineCore
                  * \return Returns a pointer to new texture or existing texture if given id already exits
                  */
                 WeakResource<glowl::Texture2D> createTexture2D(
-                    const std::string&   name,
+                    std::string const&   name,
                     glowl::TextureLayout const& layout,
                     GLvoid*              data,
                     bool                 generateMipmap = false);
 
                 ResourceID createTexture2DAsync(
-                    const std::string&   name,
+                    std::string const&   name,
                     glowl::TextureLayout const& layout,
                     GLvoid*              data,
                     bool                 generateMipmap = false
@@ -227,13 +227,13 @@ namespace EngineCore
                 );
 
                 WeakResource<glowl::Texture2DArray> createTexture2DArray(
-                    const std::string& name,
+                    std::string const& name,
                     const glowl::TextureLayout & layout,
                     GLvoid * data,
                     bool generateMipmap = false);
 
                 ResourceID createTexture2DArrayAsync(
-                    const std::string& name,
+                    std::string const& name,
                     const glowl::TextureLayout & layout,
                     GLvoid * data,
                     bool generateMipmap = false);

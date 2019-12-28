@@ -60,9 +60,9 @@ namespace EngineCore
             };
 
             std::unordered_map<std::string, ModelPtr> m_gltf_assets;
-            std::shared_mutex                        m_gltf_assets_mutex;
-            std::vector<ComponentData>               m_data;
-            std::shared_mutex                        m_data_mutex;
+            std::shared_mutex                         m_gltf_assets_mutex;
+            std::vector<ComponentData>                m_data;
+            std::shared_mutex                         m_data_mutex;
 
             ResourceManagerType& m_rsrc_mngr;
             WorldState&          m_world;
@@ -282,57 +282,49 @@ namespace EngineCore
                     if (material_idx != -1)
                     {
                         material_name = model->materials[material_idx].name;
+                        //std::copy_n(model->materials[material_idx].pbrMetallicRoughness.baseColorFactor.begin(),4, base_colour.begin());
+                        metalness = model->materials[material_idx].pbrMetallicRoughness.metallicFactor;
+                        roughness = model->materials[material_idx].pbrMetallicRoughness.roughnessFactor;
 
-                        auto baseColour_query = model->materials[material_idx].values.find("baseColorFactor");
-                        auto metallic_query = model->materials[material_idx].values.find("metallicFactor");
-                        auto roughness_query = model->materials[material_idx].values.find("roughnessQuery");
+                        auto c = model->materials[material_idx].pbrMetallicRoughness.baseColorFactor;
+                        base_colour = {
+                            static_cast<float>(c[0]) * (1.0f - metalness),
+                            static_cast<float>(c[1]) * (1.0f - metalness),
+                            static_cast<float>(c[2]) * (1.0f - metalness),
+                            static_cast<float>(c[3])
+                        };
+                        // assume a specular color value of 0.04 (around plastic) as default value for dielectrics
+                        specular_colour = {
+                            (static_cast<float>(c[0]) * metalness) + 0.04f * (1.0f - metalness),
+                            (static_cast<float>(c[1]) * metalness) + 0.04f * (1.0f - metalness),
+                            (static_cast<float>(c[2]) * metalness) + 0.04f * (1.0f - metalness),
+                            static_cast<float>(c[3])
+                        };
 
-                        if (metallic_query != model->materials[material_idx].values.end()) {
-
-                            if (metallic_query->second.TextureIndex() != -1)
-                            {
-                                GenericTextureLayout layout;
-
-                                auto& img = model->images[model->textures[metallic_query->second.TextureIndex()].source];
-
-                                layout.width = img.width;
-                                layout.height = img.height;
-                                layout.depth = 1;
-                                layout.type = img.pixel_type;
-                                layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
-
-                                auto APIlayout = m_rsrc_mngr.convertGenericTextureLayout(layout);
-
-                                //m_rsrc_mngr.createTexture2DAsync(
-                                //    name,
-                                //    TextureLayout const& layout,
-                                //    GLvoid*              data);
-                            }
-                            else
-                            {
-                                metalness = static_cast<float>(metallic_query->second.Factor());
-                            }
+                        if (model->materials[material_idx].pbrMetallicRoughness.baseColorTexture.index != -1)
+                        {
+                            //TODO base color texture
                         }
 
-                        if (baseColour_query != model->materials[material_idx].values.end()) {
-                            auto c = baseColour_query->second.ColorFactor();
-                            base_colour = {
-                                static_cast<float>(c[0]) * (1.0f - metalness),
-                                static_cast<float>(c[1]) * (1.0f - metalness),
-                                static_cast<float>(c[2]) * (1.0f - metalness),
-                                static_cast<float>(c[3])
-                            };
-                            // assume a specular color value of 0.04 (around plastic) as default value for dielectrics
-                            specular_colour = {
-                                (static_cast<float>(c[0]) * metalness) + 0.04f * (1.0f - metalness),
-                                (static_cast<float>(c[1]) * metalness) + 0.04f * (1.0f - metalness),
-                                (static_cast<float>(c[2]) * metalness) + 0.04f * (1.0f - metalness),
-                                static_cast<float>(c[3])
-                            };
-                        }
+                        if (model->materials[material_idx].pbrMetallicRoughness.metallicRoughnessTexture.index != -1)
+                        {
+                            //TODO metallic roughness texture
+                            GenericTextureLayout layout;
 
-                        if (roughness_query != model->materials[material_idx].values.end()) {
-                            roughness = static_cast<float>(roughness_query->second.Factor());
+                            auto& img = model->images[model->textures[model->materials[material_idx].pbrMetallicRoughness.metallicRoughnessTexture.index].source];
+
+                            layout.width = img.width;
+                            layout.height = img.height;
+                            layout.depth = 1;
+                            layout.type = img.pixel_type;
+                            layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
+
+                            auto APIlayout = m_rsrc_mngr.convertGenericTextureLayout(layout);
+
+                            m_rsrc_mngr.createTexture2DAsync(
+                                material_name + "_metallicRoughness",
+                                APIlayout,
+                                img.image.data());
                         }
                     }
 

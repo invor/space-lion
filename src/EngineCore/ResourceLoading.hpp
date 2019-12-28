@@ -21,9 +21,9 @@ namespace ResourceLoading
     */
     std::string readShaderFile(const char* const path);
 
-    std::array<std::string, 4> parseDecalMaterial(const std::string& material_path);
+    std::array<std::string, 4> parseDecalMaterial(std::string const& material_path);
 
-    void loadPngImage(const std::string& path, std::vector<unsigned char>& image_data, glowl::TextureLayout& image_layout);
+    void loadPngImage(std::string const& path, std::vector<unsigned char>& image_data, glowl::TextureLayout& image_layout);
 
     /**
     * \brief Load image data from a ppm image file into a CPU-side buffer
@@ -31,13 +31,13 @@ namespace ResourceLoading
     * \param image_data Vector for storing the loaded image data
     * \param image_layout Store the layout of the loaded image (i.e. size, channels, bit-depth)
     */
-    void loadPpmImage(const std::string& path, std::vector<uint8_t>& image_data, glowl::TextureLayout& image_layout);
+    void loadPpmImage(std::string const& path, std::vector<uint8_t>& image_data, glowl::TextureLayout& image_layout);
 
     /**
     * Load image data from a ppm image file into padded RGBA format buffer (with alpha=1.0).
     * Required for image load/store, possibly useful for texture compression.
     */
-    void loadPpmImageRGBA(const std::string& path, std::vector<uint8_t>& image_data, glowl::TextureLayout& image_layout);
+    void loadPpmImageRGBA(std::string const& path, std::vector<uint8_t>& image_data, glowl::TextureLayout& image_layout);
 
     /**
     * \brief Read a the header of a ppm image file. Courtesy to the computer vision lecture I attended.

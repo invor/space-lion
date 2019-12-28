@@ -401,7 +401,7 @@ namespace EngineCore
 
 
             WeakResource<glowl::Texture2D> ResourceManager::createTexture2D(
-                const std::string& name,
+                std::string const& name,
                 glowl::TextureLayout const& layout,
                 GLvoid * data,
                 bool generateMipmap)
@@ -434,7 +434,7 @@ namespace EngineCore
             }
 
             ResourceID ResourceManager::createTexture2DAsync(
-                const std::string& name,
+                std::string const& name,
                 glowl::TextureLayout const& layout,
                 GLvoid * data,
                 bool generateMipmap)
@@ -498,7 +498,7 @@ namespace EngineCore
             }
 
             ResourceID ResourceManager::createTexture2DArrayAsync(
-                const std::string& name,
+                std::string const& name,
                 const glowl::TextureLayout & layout,
                 GLvoid * data,
                 bool generateMipmap)
