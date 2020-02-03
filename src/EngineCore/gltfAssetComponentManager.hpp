@@ -18,6 +18,7 @@
 #include "BaseResourceManager.hpp"
 #include "GenericVertexLayout.hpp"
 #include "GenericTextureLayout.hpp"
+#include "MaterialComponentManager.hpp"
 
 struct Entity;
 
@@ -279,6 +280,9 @@ namespace EngineCore
                     float roughness = 0.8f;
                     std::array<float, 4> specular_colour = { 1.0f, 1.0f, 1.0f, 1.0f };
 
+					typedef MaterialComponentManager<ResourceManagerType>::TextureSemantic TextureSemantic;
+					std::vector< std::pair<TextureSemantic,ResourceID>> textures;
+
                     if (material_idx != -1)
                     {
                         material_name = model->materials[material_idx].name;
@@ -303,12 +307,31 @@ namespace EngineCore
 
                         if (model->materials[material_idx].pbrMetallicRoughness.baseColorTexture.index != -1)
                         {
-                            //TODO base color texture
+                            // base color texture (diffuse albedo)
+							GenericTextureLayout layout;
+
+							auto& img = model->images[model->textures[model->materials[material_idx].pbrMetallicRoughness.metallicRoughnessTexture.index].source];
+
+							layout.width = img.width;
+							layout.height = img.height;
+							layout.depth = 1;
+							layout.type = img.pixel_type;
+							layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
+							layout.internal_format = 0x8058;// GL_RGBA8
+
+							auto APIlayout = m_rsrc_mngr.convertGenericTextureLayout(layout);
+
+							auto tx_rsrcID = m_rsrc_mngr.createTexture2DAsync(
+								material_name + "_baseColor",
+								APIlayout,
+								img.image.data());
+
+							textures.emplace_back(std::make_pair(TextureSemantic::ALBEDO, tx_rsrcID));
                         }
 
                         if (model->materials[material_idx].pbrMetallicRoughness.metallicRoughnessTexture.index != -1)
                         {
-                            //TODO metallic roughness texture
+                            // metallic roughness texture
                             GenericTextureLayout layout;
 
                             auto& img = model->images[model->textures[model->materials[material_idx].pbrMetallicRoughness.metallicRoughnessTexture.index].source];
@@ -318,13 +341,16 @@ namespace EngineCore
                             layout.depth = 1;
                             layout.type = img.pixel_type;
                             layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
+                            layout.internal_format = 0x8058;// GL_RGBA8
 
                             auto APIlayout = m_rsrc_mngr.convertGenericTextureLayout(layout);
 
-                            m_rsrc_mngr.createTexture2DAsync(
+                            auto tx_rsrcID = m_rsrc_mngr.createTexture2DAsync(
                                 material_name + "_metallicRoughness",
                                 APIlayout,
                                 img.image.data());
+
+							textures.emplace_back( std::make_pair(TextureSemantic::METALLIC_ROUGHNESS,tx_rsrcID) );
                         }
                     }
 
@@ -342,7 +368,7 @@ namespace EngineCore
                         std::get<3>(mesh_data),
                         primitive_topology_type);
 
-                    m_world.accessMaterialComponentManager().addComponent(entity, material_name, dflt_shader_prgm, base_colour, specular_colour, roughness);
+                    m_world.accessMaterialComponentManager().addComponent(entity, material_name, dflt_shader_prgm, base_colour, specular_colour, roughness, textures);
 
                     size_t mesh_subidx = m_world.accessMeshComponentManager().getIndex(entity).size() - 1;
                     size_t mtl_subidx = m_world.accessMaterialComponentManager().getIndex(entity).size() - 1;;
