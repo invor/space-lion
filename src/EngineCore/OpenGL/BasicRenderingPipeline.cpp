@@ -30,11 +30,17 @@ namespace EngineCore
                     struct StaticMeshParams
                     {
                         Mat4x4 transform;
+
+                        GLuint64 base_color_tx_hndl;
+                        GLuint64 roughnes_tx_hndl;
+                        GLuint64 normal_tx_hndl;
                     };
 
                     // static mesh (shader) params per object per batch
                     std::vector<std::vector<StaticMeshParams>>    static_mesh_params;
                     std::vector<std::vector<DrawElementsCommand>> static_mesh_drawCommands;
+
+                    std::vector<std::vector<WeakResource<glowl::Texture2D>>> tx_rsrc_access_cache;
 
                     Mat4x4 view_matrix;
                     Mat4x4 proj_matrix;
@@ -58,6 +64,7 @@ namespace EngineCore
                     [&frame, &world_state, &resource_mngr](GeomPassData& data, GeomPassResources& resources) {
 
                     auto& cam_mngr = world_state.accessCameraComponentManager();
+                    auto& mtl_mngr = world_state.accessMaterialComponentManager();
                     auto& mesh_mngr = world_state.accessMeshComponentManager();
                     auto& renderTask_mngr = world_state.accessRenderTaskComponentManager();
                     auto& transform_mngr = world_state.accessTransformManager();
@@ -91,6 +98,8 @@ namespace EngineCore
                             data.static_mesh_params.push_back(std::vector<GeomPassData::StaticMeshParams>());
                             data.static_mesh_drawCommands.push_back(std::vector<GeomPassData::DrawElementsCommand>());
 
+                            data.tx_rsrc_access_cache.push_back(std::vector<WeakResource<glowl::Texture2D>>());
+
                             // TODO query batch GPU resources early?
                             GeomPassResources::BatchResources batch_resources;
                             batch_resources.shader_prgm = resource_mngr.getShaderProgramResource(current_prgm);
@@ -100,13 +109,43 @@ namespace EngineCore
                             resources.m_batch_resources.push_back(batch_resources);
                         }
 
-
+                        // gather all per object information
                         GeomPassData::StaticMeshParams params;
                         auto transform_idx = transform_mngr.getIndex(obj.entity);
-                        if (!transform_idx.empty())
-                        {
+                        if (!transform_idx.empty()){
                             params.transform = transform_mngr.getWorldTransformation(transform_idx.front());
                         }
+                        
+                        auto mtl_idx = mtl_mngr.getIndex(obj.entity);
+                        if (!mtl_idx.empty())
+                        {
+                            using TextureSemantic = MaterialComponentManager<ResourceManager>::TextureSemantic;
+                            auto albedo_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::ALBEDO);
+                            auto roughness_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::METALLIC_ROUGHNESS);
+
+                            if (!albedo_textures.empty())
+                            {
+                                auto albedo_tx = resource_mngr.getTexture2DResource(albedo_textures[0]);
+                                
+                                if (albedo_tx.state == READY)
+                                {
+                                    params.base_color_tx_hndl = albedo_tx.resource->getTextureHandle();
+                                    data.tx_rsrc_access_cache.back().push_back(albedo_tx);
+                                }
+                            }
+
+                            if (!roughness_textures.empty())
+                            {
+                                auto roughness_tx = resource_mngr.getTexture2DResource(roughness_textures[0]);
+
+                                if (roughness_tx.state == READY)
+                                {
+                                    params.roughnes_tx_hndl = roughness_tx.resource->getTextureHandle();
+                                    data.tx_rsrc_access_cache.back().push_back(roughness_tx);
+                                }
+                            }
+                        }
+
                         data.static_mesh_params.back().push_back(params);
 
                         // set draw command values
@@ -136,6 +175,15 @@ namespace EngineCore
                         if (batch_resources.geometry.state != READY)
                         {
                             //???
+                        }
+
+                        {
+                            // Try to guarantee texture residency
+                            for (auto& tx_rsrc : data.tx_rsrc_access_cache[batch]) {                                
+                                if(!glIsTextureHandleResidentARB(tx_rsrc.resource->getTextureHandle())){
+                                    tx_rsrc.resource->makeResident();
+                                }
+                            }
                         }
 
                         if (batch_resources.object_params.state != READY)

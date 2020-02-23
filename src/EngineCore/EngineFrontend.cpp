@@ -141,7 +141,7 @@ namespace EngineCore
 
             mtl_mngr.addComponent(cube, "debug_cube_material", shader_rsrc);
 
-            renderTask_mngr.addComponent(cube, mesh_rsrc, 0, shader_rsrc, 0);
+            //renderTask_mngr.addComponent(cube, mesh_rsrc, 0, shader_rsrc, 0);
 
             //Graphics::OpenGL::loadGLTFScene("../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", *m_world_state, rsrc_mngr);
 

@@ -4,6 +4,10 @@
 struct PerDrawData
 {
 	mat4 model_matrix;
+
+	uvec2 base_color_tx_hndl;
+	uvec2 roughness_tx_hndl;
+	uvec2 normal_tx_hndl;
 };
 
 layout(std430, binding = 0) readonly buffer PerDrawDataBuffer { PerDrawData per_draw_data[]; };
@@ -20,11 +24,15 @@ out vec3 position;
 out vec2 uvCoord;
 out mat3 tangent_space_matrix;
 
+flat out int draw_id;
+
 const vec2 quadVertices[4] = { vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0), vec2(1.0, 1.0) };
 const int quadIndices[6] = {3,2,0,0,1,3};
 
 void main()
 {   
+	draw_id = gl_DrawIDARB;
+
 	/*	Construct matrices that use the model matrix*/
 	mat3 normal_matrix = transpose(inverse(mat3(per_draw_data[gl_DrawIDARB].model_matrix)));
 

@@ -81,6 +81,8 @@ namespace EngineCore
                 return m_component_data[idx].roughness;
             }
 
+            std::vector<ResourceID> getTextures(size_t component_idx, TextureSemantic semantic);
+
         private:
 
             struct ComponentData
@@ -153,6 +155,23 @@ namespace EngineCore
                 specular_colour,
                 roughness,
                 std::vector<std::pair<TextureSemantic, ResourceID>>());
+        }
+
+        template<typename ResourceManagerType>
+        inline std::vector<ResourceID> MaterialComponentManager<ResourceManagerType>::getTextures(size_t component_idx, TextureSemantic semantic)
+        {
+            std::vector<ResourceID> retval;
+
+            auto range_query = m_component_data[component_idx].textures.equal_range(semantic);
+
+            if (range_query.first != m_component_data[component_idx].textures.end())
+            {
+                for (auto itr = range_query.first; itr != range_query.second; ++itr){
+                    retval.push_back(itr->second);
+                }
+            }
+
+            return retval;
         }
 
         template<typename ResourceManagerType>
