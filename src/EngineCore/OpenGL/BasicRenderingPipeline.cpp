@@ -122,6 +122,7 @@ namespace EngineCore
                             using TextureSemantic = MaterialComponentManager<ResourceManager>::TextureSemantic;
                             auto albedo_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::ALBEDO);
                             auto roughness_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::METALLIC_ROUGHNESS);
+                            auto normal_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::NORMAL);
 
                             if (!albedo_textures.empty())
                             {
@@ -142,6 +143,17 @@ namespace EngineCore
                                 {
                                     params.roughnes_tx_hndl = roughness_tx.resource->getTextureHandle();
                                     data.tx_rsrc_access_cache.back().push_back(roughness_tx);
+                                }
+                            }
+
+                            if (!normal_textures.empty())
+                            {
+                                auto normal_tx = resource_mngr.getTexture2DResource(normal_textures[0]);
+
+                                if (normal_tx.state == READY)
+                                {
+                                    params.normal_tx_hndl = normal_tx.resource->getTextureHandle();
+                                    data.tx_rsrc_access_cache.back().push_back(normal_tx);
                                 }
                             }
                         }

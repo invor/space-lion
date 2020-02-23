@@ -42,9 +42,9 @@ namespace EngineCore
             GltfAssetComponentManager(ResourceManagerType& rsrc_mngr, WorldState& world);
             ~GltfAssetComponentManager() = default;
 
-            void addComponent(Entity entity, std::string const& gltf_filepath, std::string const& gltf_node_name);
+            void addComponent(Entity entity, std::string const& gltf_filepath, std::string const& gltf_node_name, ResourceID dflt_shader_prgm);
 
-            void addComponent(Entity entity, std::string const& gltf_filepath, int gltf_node_idx);
+            void addComponent(Entity entity, std::string const& gltf_filepath, int gltf_node_idx, ResourceID dflt_shader_prgm);
 
             void importGltfScene(std::string const& gltf_filepath, ResourceID dflt_shader_prgm);
 
@@ -96,7 +96,8 @@ namespace EngineCore
         inline void GltfAssetComponentManager<ResourceManagerType>::addComponent(
             Entity entity,
             std::string const& gltf_filepath,
-            std::string const& gltf_node_name)
+            std::string const& gltf_node_name,
+            ResourceID dflt_shader_prgm)
         {
             ModelPtr model(nullptr);
 
@@ -118,7 +119,7 @@ namespace EngineCore
             {
                 if (model->nodes[i].name == gltf_node_name)
                 {
-                    addComponent(entity, model, i);
+                    addComponent(entity, model, i, dflt_shader_prgm);
                 }
             }
         }
@@ -127,7 +128,8 @@ namespace EngineCore
         inline void GltfAssetComponentManager<ResourceManagerType>::addComponent(
             Entity entity,
             std::string const& gltf_filepath,
-            int gltf_node_idx)
+            int gltf_node_idx,
+            ResourceID dflt_shader_prgm)
         {
             ModelPtr model(nullptr);
 
@@ -145,7 +147,7 @@ namespace EngineCore
                 }
             }
 
-            addComponent(entity, model, gltf_node_idx);
+            addComponent(entity, model, gltf_node_idx, dflt_shader_prgm);
         }
 
         template<typename ResourceManagerType>
@@ -310,7 +312,7 @@ namespace EngineCore
                             // base color texture (diffuse albedo)
 							GenericTextureLayout layout;
 
-							auto& img = model->images[model->textures[model->materials[material_idx].pbrMetallicRoughness.metallicRoughnessTexture.index].source];
+							auto& img = model->images[model->textures[model->materials[material_idx].pbrMetallicRoughness.baseColorTexture.index].source];
 
 							layout.width = img.width;
 							layout.height = img.height;
@@ -351,6 +353,30 @@ namespace EngineCore
                                 img.image.data());
 
 							textures.emplace_back( std::make_pair(TextureSemantic::METALLIC_ROUGHNESS,tx_rsrcID) );
+                        }
+
+                        if (model->materials[material_idx].normalTexture.index != -1)
+                        {
+                            // metallic roughness texture
+                            GenericTextureLayout layout;
+
+                            auto& img = model->images[model->textures[model->materials[material_idx].normalTexture.index].source];
+
+                            layout.width = img.width;
+                            layout.height = img.height;
+                            layout.depth = 1;
+                            layout.type = img.pixel_type;
+                            layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
+                            layout.internal_format = 0x8058;// GL_RGBA8
+
+                            auto APIlayout = m_rsrc_mngr.convertGenericTextureLayout(layout);
+
+                            auto tx_rsrcID = m_rsrc_mngr.createTexture2DAsync(
+                                material_name + "_normal",
+                                APIlayout,
+                                img.image.data());
+
+                            textures.emplace_back(std::make_pair(TextureSemantic::NORMAL, tx_rsrcID));
                         }
                     }
 
