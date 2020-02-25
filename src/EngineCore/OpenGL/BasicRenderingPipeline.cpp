@@ -77,6 +77,8 @@ namespace EngineCore
                     {
                         data.view_matrix = glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx.front()));
                     }
+                    cam_mngr.setAspectRatio(camera_idx, static_cast<float>(frame.m_window_width) / static_cast<float>(frame.m_window_height) );
+                    cam_mngr.updateProjectionMatrix(camera_idx);
                     data.proj_matrix = cam_mngr.getProjectionMatrix(camera_idx);
 
                     // set per object data

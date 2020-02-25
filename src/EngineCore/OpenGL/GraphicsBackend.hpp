@@ -49,6 +49,11 @@ namespace EngineCore
 
                 static void windowSizeCallback(GLFWwindow* window, int width, int height);
                 static void windowCloseCallback(GLFWwindow* window);
+
+                static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+                static void mouseCursorCallback(GLFWwindow* window, double xpos, double ypos);
+                static void mouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+                static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
             };
         }
     }

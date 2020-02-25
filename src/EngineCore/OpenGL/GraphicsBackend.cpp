@@ -203,6 +203,22 @@ namespace EngineCore
             {
 
             }
+
+            void GraphicsBackend::mouseButtonCallback(GLFWwindow * window, int button, int action, int mods)
+            {
+            }
+
+            void GraphicsBackend::mouseCursorCallback(GLFWwindow * window, double xpos, double ypos)
+            {
+            }
+
+            void GraphicsBackend::mouseScrollCallback(GLFWwindow * window, double xoffset, double yoffset)
+            {
+            }
+
+            void GraphicsBackend::keyCallback(GLFWwindow * window, int key, int scancode, int action, int mods)
+            {
+            }
         }
     }
 }
