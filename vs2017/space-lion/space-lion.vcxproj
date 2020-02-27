@@ -141,6 +141,7 @@
     <ClInclude Include="..\..\src\EngineCore\GenericVertexLayout.hpp" />
     <ClInclude Include="..\..\src\EngineCore\GeometryBakery.hpp" />
     <ClInclude Include="..\..\src\EngineCore\gltfAssetComponentManager.hpp" />
+    <ClInclude Include="..\..\src\EngineCore\InputEvent.hpp" />
     <ClInclude Include="..\..\src\EngineCore\MaterialComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\MeshComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\MTQueue.hpp" />

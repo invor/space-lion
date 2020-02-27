@@ -249,6 +249,9 @@
     <ClInclude Include="..\..\src\EngineCore\NameComponentManager.hpp">
       <Filter>Header Files\EngineCore\Common</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\EngineCore\InputEvent.hpp">
+      <Filter>Header Files\EngineCore\Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\EngineCore\EngineFrontend.cpp">
