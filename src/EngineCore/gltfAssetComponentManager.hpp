@@ -451,7 +451,7 @@ namespace EngineCore
 
                 auto vertices = std::make_shared<std::vector<std::vector<unsigned char>>>();
                 GenericVertexLayout generic_vertex_layout;
-                generic_vertex_layout.byte_size = 0; //TODO rename byte_size
+                generic_vertex_layout.strides = { 0 };
 
                 unsigned int input_slot = 0;
 

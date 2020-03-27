@@ -100,9 +100,12 @@ namespace EngineCore
                 {
                     VertexLayout retval;
 
-                    retval.byte_size = vertex_layout.byte_size;
+                    for (auto stride : vertex_layout.strides)
+                    {
+                        retval.strides.emplace_back(stride);
+                    }
 
-                    for (auto attrib : vertex_layout.attributes)
+                    for (auto& attrib : vertex_layout.attributes)
                     {
                         retval.attributes.emplace_back(VertexLayout::Attribute(attrib.size,attrib.type,attrib.normalized,attrib.offset));
                     }

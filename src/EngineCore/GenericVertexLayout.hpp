@@ -28,13 +28,13 @@ struct GenericVertexLayout
         uint32_t    offset;
     };
 
-    GenericVertexLayout() : byte_size(0), attributes() {}
-    GenericVertexLayout(uint32_t byte_size, const std::vector<Attribute>& attributes)
-        : byte_size(byte_size), attributes(attributes) {}
-    GenericVertexLayout(uint32_t byte_size, std::vector<Attribute>&& attributes)
-        : byte_size(byte_size), attributes(attributes) {}
+    GenericVertexLayout() : strides(), attributes() {}
+    GenericVertexLayout(std::vector<uint32_t> const& strides, std::vector<Attribute> const& attributes)
+        : strides(strides), attributes(attributes) {}
+    GenericVertexLayout(std::vector<uint32_t>&& strides, std::vector<Attribute>&& attributes)
+        : strides(strides), attributes(attributes) {}
 
-    uint32_t               byte_size;
+    std::vector<uint32_t>  strides;
     std::vector<Attribute> attributes;
 };
 
@@ -47,13 +47,25 @@ bool operator==(GenericVertexLayout::Attribute const& lhs, GenericVertexLayout::
 inline
 bool operator==(GenericVertexLayout const& lhs, GenericVertexLayout const& rhs)
 {
-    bool rtn = (lhs.byte_size == rhs.byte_size);
+    bool rtn = false;
+    
+    if (lhs.strides.size() == rhs.strides.size())
+    {
+        for (size_t i = 0; i < lhs.strides.size(); ++i)
+        {
+            rtn &= (lhs.strides[i] == rhs.strides[i]);
+        }
+    }
+    else
+    {
+        rtn = false;
+    }
 
     if (lhs.attributes.size() == rhs.attributes.size())
     {
         for (size_t i = 0; i < lhs.attributes.size(); ++i)
         {
-            rtn &= (lhs.attributes == rhs.attributes);
+            rtn &= (lhs.attributes[i] == rhs.attributes[i]);
         }
     }
     else

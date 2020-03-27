@@ -215,17 +215,17 @@ namespace EngineCore
                 bool prgm_error = false;
 
                 if (!vertex_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&vertex_src, glowl::GLSLProgram::VertexShader);
+                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(vertex_src, glowl::GLSLProgram::VertexShader);
                 if (!fragment_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&fragment_src, glowl::GLSLProgram::FragmentShader);
+                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(fragment_src, glowl::GLSLProgram::FragmentShader);
                 if (!geometry_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&geometry_src, glowl::GLSLProgram::GeometryShader);
+                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(geometry_src, glowl::GLSLProgram::GeometryShader);
                 if (!tessellationControl_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&tessellationControl_src, glowl::GLSLProgram::TessellationControl);
+                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(tessellationControl_src, glowl::GLSLProgram::TessellationControl);
                 if (!tessellationEvaluation_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&tessellationEvaluation_src, glowl::GLSLProgram::TessellationEvaluation);
+                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(tessellationEvaluation_src, glowl::GLSLProgram::TessellationEvaluation);
                 if (!compute_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&compute_src, glowl::GLSLProgram::ComputeShader);
+                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(compute_src, glowl::GLSLProgram::ComputeShader);
 
 
                 prgm_error |= !m_shader_programs[idx].resource->link();
@@ -372,17 +372,17 @@ namespace EngineCore
                     bool prgm_error = false;
 
                     if (!vertex_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&vertex_src, glowl::GLSLProgram::VertexShader);
+                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(vertex_src, glowl::GLSLProgram::VertexShader);
                     if (!fragment_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&fragment_src, glowl::GLSLProgram::FragmentShader);
+                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(fragment_src, glowl::GLSLProgram::FragmentShader);
                     if (!geometry_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&geometry_src, glowl::GLSLProgram::GeometryShader);
+                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(geometry_src, glowl::GLSLProgram::GeometryShader);
                     if (!tessellationControl_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&tessellationControl_src, glowl::GLSLProgram::TessellationControl);
+                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(tessellationControl_src, glowl::GLSLProgram::TessellationControl);
                     if (!tessellationEvaluation_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&tessellationEvaluation_src, glowl::GLSLProgram::TessellationEvaluation);
+                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(tessellationEvaluation_src, glowl::GLSLProgram::TessellationEvaluation);
                     if (!compute_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(&compute_src, glowl::GLSLProgram::ComputeShader);
+                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(compute_src, glowl::GLSLProgram::ComputeShader);
 
 
                     prgm_error |= !m_shader_programs[idx].resource->link();
