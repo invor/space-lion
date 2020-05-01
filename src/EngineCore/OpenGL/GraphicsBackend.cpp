@@ -87,6 +87,12 @@ namespace EngineCore
 
                 assert((glGetError() == GL_NO_ERROR));
 
+                {
+                    std::lock_guard<std::mutex> lk(m_window_creation_mutex);
+                    m_window_created = true;
+                }
+                m_winodw_creation_cVar.notify_one();
+
                 double t0, t1 = 0.0;
 
                 while (!glfwWindowShouldClose(m_active_window))
@@ -192,6 +198,12 @@ namespace EngineCore
                 }
 
                 return retval;
+            }
+
+            void GraphicsBackend::waitForWindowCreation()
+            {
+                std::unique_lock<std::mutex> lk(m_window_creation_mutex);
+                m_winodw_creation_cVar.wait(lk, [this] {return m_window_created; });
             }
 
             void GraphicsBackend::windowSizeCallback(GLFWwindow* window, int width, int height)

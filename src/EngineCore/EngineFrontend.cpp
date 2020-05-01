@@ -51,6 +51,9 @@ namespace EngineCore
             auto& transform_mngr = m_world_state->accessTransformManager();
             auto& turntable_mngr = m_world_state->accessTurntableManager();
 
+            // wait for window creation
+            m_graphics_backend->waitForWindowCreation();
+
             // engine update loop
             while (render_exec_status != std::future_status::ready)
             {

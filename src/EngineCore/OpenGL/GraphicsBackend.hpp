@@ -1,6 +1,7 @@
 #ifndef GraphicsBackend_hpp
 #define GraphicsBackend_hpp
 
+#include <condition_variable>
 #include <functional>
 
 #include "../MTQueue.hpp"
@@ -23,7 +24,7 @@ namespace EngineCore
             class GraphicsBackend
             {
             public:
-                GraphicsBackend() : m_active_window(nullptr), m_singleExecution_tasks() {}
+                GraphicsBackend() : m_active_window(nullptr), m_singleExecution_tasks(), m_window_created(false) {}
                 ~GraphicsBackend() = default;
 
                 /** Start and run graphics backend. Returns only after rendering window is closed. */
@@ -34,12 +35,19 @@ namespace EngineCore
 
                 std::pair<int, int> getActiveWindowResolution();
 
+                /** Function blocks until window is created */
+                void waitForWindowCreation();
+
             private:
                 /** Pointer to active window */
                 GLFWwindow* m_active_window;
 
                 /** Thread-safe queue for tasks that have to be executed on the render thread, but only a single time */
                 Utility::MTQueue<std::function<void()>> m_singleExecution_tasks;
+
+                bool m_window_created;
+                std::mutex m_window_creation_mutex;
+                std::condition_variable m_winodw_creation_cVar;
 
                 void processSingleExecutionTasks();
 
