@@ -280,10 +280,10 @@ namespace EngineCore
             (*indices)[33] = 22; (*indices)[34] = 20; (*indices)[35] = 23;
 
             auto layout = std::make_shared<GenericVertexLayout>(GenericVertexLayout({ 0 },
-                {   { 2, 5126 /* GL_FLOAT */, false, 0 },
+                {   { 3, 5126 /* GL_FLOAT */, false, 0 },
                     { 3, 5126 /* GL_FLOAT */, false, 0 },
                     { 4, 5126 /* GL_FLOAT */, false, 0 },
-                    { 3, 5126 /* GL_FLOAT */, false, 0 } })
+                    { 2, 5126 /* GL_FLOAT */, false, 0 } })
             );
 
             auto vertices = std::make_shared< std::vector <std::vector<uint8_t>>>( 

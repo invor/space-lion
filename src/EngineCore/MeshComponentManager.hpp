@@ -69,10 +69,14 @@ namespace EngineCore
             {
                 MeshData(
                     ResourceID mesh_rsrc,
+                    VertexLayoutType mesh_vertexLayout,
+                    IndexFormatType  mesh_indexType,
                     size_t     vertices_allocated,
                     size_t     indices_allocated)
                     : mesh_resource(mesh_rsrc),
                     vertices_allocated(vertices_allocated),
+                    mesh_vertexLayout(mesh_vertexLayout),
+                    mesh_indexType(mesh_indexType),
                     vertices_used(0),
                     indices_allocated(indices_allocated),
                     indices_used(0) {}
@@ -165,7 +169,7 @@ namespace EngineCore
                     index_type,
                     mesh_type);
 
-                m_mesh_data.emplace_back(MeshData(new_mesh, 1000000, 4000000));
+                m_mesh_data.emplace_back(MeshData(new_mesh, *vertex_layout,index_type, 1000000, 4000000));
 
                 it = m_mesh_data.end();
                 --it;

@@ -47,7 +47,7 @@ bool operator==(GenericVertexLayout::Attribute const& lhs, GenericVertexLayout::
 inline
 bool operator==(GenericVertexLayout const& lhs, GenericVertexLayout const& rhs)
 {
-    bool rtn = false;
+    bool rtn = true;
     
     if (lhs.strides.size() == rhs.strides.size())
     {
