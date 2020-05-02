@@ -252,6 +252,9 @@
     <ClInclude Include="..\..\src\EngineCore\InputEvent.hpp">
       <Filter>Header Files\EngineCore\Common</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\External\imgui\examples\imgui_impl_opengl3.h">
+      <Filter>Header Files\External\imgui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\EngineCore\EngineFrontend.cpp">
@@ -343,6 +346,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\EngineCore\NameComponentManager.cpp">
       <Filter>Source Files\EngineCore\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\External\imgui\examples\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\External\imgui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

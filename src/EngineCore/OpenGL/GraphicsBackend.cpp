@@ -5,8 +5,10 @@
 #include "../Frame.hpp"
 #include "ResourceManager.hpp"
 
+#define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <imgui.h>
 #include <examples/imgui_impl_glfw.h>
+#include <examples/imgui_impl_opengl3.h>
 
 #include <glad/glad.h>
 #include <glfw3.h>
@@ -64,15 +66,6 @@ namespace EngineCore
 
                 glfwSetWindowUserPointer(m_active_window, this);
 
-                // Init ImGui, set install_callbacks to false cause I call them myself
-                //IMGUI_CHECKVERSION();
-                ImGui::CreateContext();
-                ImGuiIO& io = ImGui::GetIO(); (void)io;
-                if (!ImGui_ImplGlfw_InitForOpenGL(m_active_window, false))
-                    std::cerr << "Error during imgui init " << std::endl;
-
-                //Controls::setControlCallbacks(m_active_window);
-
                 // Initialize glew
                 //glewExperimental = GL_TRUE;
                 if (!gladLoadGL()) {
@@ -92,6 +85,15 @@ namespace EngineCore
                     m_window_created = true;
                 }
                 m_winodw_creation_cVar.notify_one();
+
+                // Init ImGui, set install_callbacks to false cause I call them myself
+                //IMGUI_CHECKVERSION();
+                ImGui::CreateContext();
+                ImGuiIO& io = ImGui::GetIO(); (void)io;
+                if (!ImGui_ImplGlfw_InitForOpenGL(m_active_window, false))
+                    std::cerr << "Error during imgui init " << std::endl;
+                ImGui_ImplOpenGL3_Init("#version 450");
+                //Controls::setControlCallbacks(m_active_window);
 
                 double t0, t1 = 0.0;
 
@@ -142,6 +144,25 @@ namespace EngineCore
                     gl_err = glGetError();
                     if (gl_err != GL_NO_ERROR)
                         std::cerr << "GL error after execution of frame " << frame.m_frameID << " : " << gl_err << std::endl;
+
+
+                    int width, height;
+                    glfwGetFramebufferSize(m_active_window, &width, &height);
+                    
+                    ImGui_ImplOpenGL3_NewFrame();
+                    ImGui_ImplGlfw_NewFrame();
+                    ImGui::NewFrame();
+                    ImGui::SetNextWindowPos(ImVec2(width - 375.0f, height - 200.0f));
+                    bool p_open = true;
+                    if (!ImGui::Begin("FPS", &p_open, ImVec2(0, 0), 0.3f, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
+                    {
+                        ImGui::End();
+                        return;
+                    }
+                    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                    ImGui::End();
+                    ImGui::Render();
+                    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
                     frame_manager->swapRenderFrame();
 

@@ -91,6 +91,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)..\src\External\glowl\include\glowl;$(SolutionDir)..\src\External\glfw\;$(SolutionDir)..\src\External\glm;$(SolutionDir)..\src\External\glad\include;$(SolutionDir)..\src\External\imgui;$(SolutionDir)..\src\External\;$(SolutionDir)..\src\External\tinygltf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <PreprocessorDefinitions>IMGUI_IMPL_OPENGL_LOADER_GLAD;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)..\src\External\glfw\lib\Debug\</AdditionalLibraryDirectories>
@@ -121,6 +122,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)..\src\External\glowl\include\glowl;$(SolutionDir)..\src\External\glfw\;$(SolutionDir)..\src\External\glm;$(SolutionDir)..\src\External\glad\include;$(SolutionDir)..\src\External\imgui;$(SolutionDir)..\src\External\;$(SolutionDir)..\src\External\tinygltf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <PreprocessorDefinitions>IMGUI_IMPL_OPENGL_LOADER_GLAD;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -175,6 +177,7 @@
     <ClInclude Include="..\..\src\External\glowl\include\glowl\TextureCubemapArray.hpp" />
     <ClInclude Include="..\..\src\External\glowl\include\glowl\VertexLayout.hpp" />
     <ClInclude Include="..\..\src\External\imgui\examples\imgui_impl_glfw.h" />
+    <ClInclude Include="..\..\src\External\imgui\examples\imgui_impl_opengl3.h" />
     <ClInclude Include="..\..\src\External\imgui\imconfig.h" />
     <ClInclude Include="..\..\src\External\imgui\imgui.h" />
     <ClInclude Include="..\..\src\External\imgui\imgui_internal.h" />
@@ -209,6 +212,7 @@
     <ClCompile Include="..\..\src\EngineCore\WorldState.cpp" />
     <ClCompile Include="..\..\src\External\glad\src\glad.c" />
     <ClCompile Include="..\..\src\External\imgui\examples\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\..\src\External\imgui\examples\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\..\src\External\imgui\imgui.cpp" />
     <ClCompile Include="..\..\src\External\imgui\imgui_demo.cpp" />
     <ClCompile Include="..\..\src\External\imgui\imgui_draw.cpp" />
