@@ -285,9 +285,12 @@ namespace EngineCore
 					typedef MaterialComponentManager<ResourceManagerType>::TextureSemantic TextureSemantic;
 					std::vector< std::pair<TextureSemantic,ResourceID>> textures;
 
+                    std::string identifier_string =
+                        "ga_" + model->nodes[gltf_node_idx].name + "_n_" + std::to_string(gltf_node_idx) + "_p_" + std::to_string(primitive_idx);
+
                     if (material_idx != -1)
                     {
-                        material_name = model->materials[material_idx].name;
+                        material_name = model->materials[material_idx].name.empty() ? identifier_string : model->materials[material_idx].name;
                         //std::copy_n(model->materials[material_idx].pbrMetallicRoughness.baseColorFactor.begin(),4, base_colour.begin());
                         metalness = model->materials[material_idx].pbrMetallicRoughness.metallicFactor;
                         roughness = model->materials[material_idx].pbrMetallicRoughness.roughnessFactor;
@@ -380,9 +383,6 @@ namespace EngineCore
                         }
                     }
 
-                    std::string identifier_string =
-                        "ga_" + model->nodes[gltf_node_idx].name + "_n_" + std::to_string(gltf_node_idx) + "_p_" + std::to_string(primitive_idx);
-
                     auto primitive_topology_type = m_rsrc_mngr.convertGenericPrimitiveTopology(0x0004/*GL_TRIANGLES*/);
 
                     EngineCore::Graphics::ResourceID mesh_rsrc = m_world.accessMeshComponentManager().addComponent(
@@ -462,9 +462,10 @@ namespace EngineCore
                     auto& vertexAttrib_bufferView = model->bufferViews[vertexAttrib_accessor.bufferView];
                     auto& vertexAttrib_buffer = model->buffers[vertexAttrib_bufferView.buffer];
 
+                    // Important note!: We ignore the byte offset given by gltf because we reorder vertex data in buffers anyway
                     generic_vertex_layout.attributes.push_back(
                         GenericVertexLayout::Attribute(attrib.first, vertexAttrib_accessor.type, vertexAttrib_accessor.componentType,
-                            vertexAttrib_accessor.normalized, static_cast<uint32_t>(vertexAttrib_accessor.byteOffset)));
+                            vertexAttrib_accessor.normalized, 0 /*static_cast<uint32_t>(vertexAttrib_accessor.byteOffset)*/));
 
                     vertices->push_back(std::vector<unsigned char>(
                         vertexAttrib_buffer.data.begin() + vertexAttrib_bufferView.byteOffset + vertexAttrib_accessor.byteOffset,
