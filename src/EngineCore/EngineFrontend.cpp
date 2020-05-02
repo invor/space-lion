@@ -156,14 +156,7 @@ namespace EngineCore
                   auto gltf_subobj = entity_mngr.create();
                   size_t transform_idx = transform_mngr.addComponent(gltf_subobj, Vec3(0.0, 0.0, 0.0));
                   transform_mngr.setParent(transform_idx, gltf_root);
-                  gltf_mngr.addComponent(gltf_subobj, "../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", "GlassPlastic_low", shader_rsrc);
-              }
-
-              {
-                  auto gltf_subobj = entity_mngr.create();
-                  size_t transform_idx = transform_mngr.addComponent(gltf_subobj, Vec3(0.0, 0.0, 0.0));
-                  transform_mngr.setParent(transform_idx, gltf_root);
-                  gltf_mngr.addComponent(gltf_subobj, "../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", "Lenses_low", shader_rsrc);
+                  gltf_mngr.addComponent(gltf_subobj, "../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", "Hose_low", shader_rsrc);
               }
 
               {
@@ -171,6 +164,13 @@ namespace EngineCore
                   size_t transform_idx = transform_mngr.addComponent(gltf_subobj, Vec3(0.0, 0.0, 0.0));
                   transform_mngr.setParent(transform_idx, gltf_root);
                   gltf_mngr.addComponent(gltf_subobj, "../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", "RubberWood_low", shader_rsrc);
+              }
+
+              {
+                  auto gltf_subobj = entity_mngr.create();
+                  size_t transform_idx = transform_mngr.addComponent(gltf_subobj, Vec3(0.0, 0.0, 0.0));
+                  transform_mngr.setParent(transform_idx, gltf_root);
+                  gltf_mngr.addComponent(gltf_subobj, "../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", "GlassPlastic_low", shader_rsrc);
               }
               
               {
@@ -185,6 +185,13 @@ namespace EngineCore
                   size_t transform_idx = transform_mngr.addComponent(gltf_subobj, Vec3(0.0, 0.0, 0.0));
                   transform_mngr.setParent(transform_idx, gltf_root);
                   gltf_mngr.addComponent(gltf_subobj, "../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", "LeatherParts_low", shader_rsrc);
+              }
+
+              {
+                  auto gltf_subobj = entity_mngr.create();
+                  size_t transform_idx = transform_mngr.addComponent(gltf_subobj, Vec3(0.0, 0.0, 0.0));
+                  transform_mngr.setParent(transform_idx, gltf_root);
+                  gltf_mngr.addComponent(gltf_subobj, "../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", "Lenses_low", shader_rsrc);
               }
 
             //gltf_mngr.importGltfScene("../../glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf", shader_rsrc);
