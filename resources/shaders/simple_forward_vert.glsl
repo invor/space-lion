@@ -8,6 +8,8 @@ struct PerDrawData
 	uvec2 base_color_tx_hndl;
 	uvec2 roughness_tx_hndl;
 	uvec2 normal_tx_hndl;
+
+	uvec2 padding;
 };
 
 layout(std430, binding = 0) readonly buffer PerDrawDataBuffer { PerDrawData per_draw_data[]; };

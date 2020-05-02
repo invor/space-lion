@@ -18,6 +18,7 @@ namespace EngineCore
             {
                 struct GeomPassData
                 {
+#pragma pack(push, 1)
                     struct DrawElementsCommand
                     {
                         GLuint cnt;
@@ -26,6 +27,7 @@ namespace EngineCore
                         GLuint base_vertex;
                         GLuint base_instance;
                     };
+#pragma pack(pop)
 
                     struct StaticMeshParams
                     {
@@ -34,6 +36,8 @@ namespace EngineCore
                         GLuint64 base_color_tx_hndl;
                         GLuint64 roughnes_tx_hndl;
                         GLuint64 normal_tx_hndl;
+
+                        GLuint64 padding;
                     };
 
                     // static mesh (shader) params per object per batch
@@ -285,6 +289,8 @@ namespace EngineCore
                             draw_cnt,
                             0);
                         //glDrawArrays(GL_TRIANGLES, 0, 6);
+
+                        ++batch_idx;
                     }
 
                     //glDisable(GL_CULL_FACE);
