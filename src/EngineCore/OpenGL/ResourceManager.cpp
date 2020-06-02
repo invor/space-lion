@@ -113,9 +113,6 @@ namespace EngineCore
                 m_id_to_shader_program_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_shader_program_idx.insert(std::pair<std::string, size_t>(program_name, idx));
 
-                m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>();
-                m_shader_programs[idx].resource->setDebugLabel(program_name);
-
                 std::string vertex_src;
                 std::string tessellationControl_src;
                 std::string tessellationEvaluation_src;
@@ -133,61 +130,9 @@ namespace EngineCore
                     {
                     case glowl::GLSLProgram::VertexShader:
                         vertex_src = shader_src;
-
-                        {
-                            //TODO Scan vertex shader for input parameters
-                            unsigned int param_idx = 0;
-                            std::string line;
-                            std::istringstream tokenStream(shader_src);
-                            while (std::getline(tokenStream, line, '\n'))
-                            {
-                                std::stringstream ss(line);
-                                std::string token;
-
-                                ss >> token;
-
-                                if (std::strcmp("in", token.c_str()) == 0)
-                                {
-                                    ss >> token; // this should be the data type
-                                    ss >> token; // this should be the variable name
-
-                                    token.erase(token.end() - 1);
-                                    m_shader_programs[idx].resource->bindAttribLocation(param_idx++, token.c_str());
-
-                                    //std::cout<<"Input parameter name: "<<buffer<<std::endl;
-                                }
-                            }
-                        }
-
                         break;
                     case glowl::GLSLProgram::FragmentShader:
                         fragment_src = shader_src;
-
-                        {
-                            // And scan fragment shader for output parameters
-                            unsigned int param_idx = 0;
-                            std::string line;
-                            std::istringstream tokenStream(shader_src);
-                            while (std::getline(tokenStream, line, '\n'))
-                            {
-                                std::stringstream ss(line);
-                                std::string token;
-
-                                ss >> token;
-
-                                if (std::strcmp("in", token.c_str()) == 0)
-                                {
-                                    ss >> token; // this should be the data type
-                                    ss >> token; // this should be the variable name
-
-                                    token.erase(token.end() - 1);
-                                    m_shader_programs[idx].resource->bindFragDataLocation(param_idx++, token.c_str());
-
-                                    //std::cout<<"Input parameter name: "<<buffer<<std::endl;
-                                }
-                            }
-                        }
-
                         break;
                     case glowl::GLSLProgram::GeometryShader:
                         geometry_src = shader_src;
@@ -212,29 +157,87 @@ namespace EngineCore
                     }
                 }
 
-                bool prgm_error = false;
+                std::vector<std::pair<glowl::GLSLProgram::ShaderType, std::string>> shader_srcs;
 
                 if (!vertex_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(vertex_src, glowl::GLSLProgram::VertexShader);
+                    shader_srcs.push_back({ glowl::GLSLProgram::VertexShader,vertex_src });
                 if (!fragment_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(fragment_src, glowl::GLSLProgram::FragmentShader);
+                    shader_srcs.push_back({ glowl::GLSLProgram::FragmentShader,fragment_src });
                 if (!geometry_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(geometry_src, glowl::GLSLProgram::GeometryShader);
+                    shader_srcs.push_back({ glowl::GLSLProgram::GeometryShader,geometry_src });
                 if (!tessellationControl_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(tessellationControl_src, glowl::GLSLProgram::TessellationControl);
+                    shader_srcs.push_back({ glowl::GLSLProgram::TessellationControl,tessellationControl_src });
                 if (!tessellationEvaluation_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(tessellationEvaluation_src, glowl::GLSLProgram::TessellationEvaluation);
+                    shader_srcs.push_back({ glowl::GLSLProgram::TessellationEvaluation, tessellationEvaluation_src });
                 if (!compute_src.empty())
-                    prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(compute_src, glowl::GLSLProgram::ComputeShader);
+                    shader_srcs.push_back({ glowl::GLSLProgram::ComputeShader,compute_src });
 
+                m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>(shader_srcs);
+                m_shader_programs[idx].resource->setDebugLabel(program_name);
 
-                prgm_error |= !m_shader_programs[idx].resource->link();
-
-                if (prgm_error)
+                for (auto& shaders : shader_srcs)
                 {
-                    std::cout << "Error during shader program creation of \"" << m_shader_programs[idx].resource->getDebugLabel() << "\"" << std::endl;
-                    std::cout << m_shader_programs[idx].resource->getLog();
+                    switch (shaders.first)
+                    {
+                    case glowl::GLSLProgram::VertexShader:
+                    {
+                        //TODO Scan vertex shader for input parameters
+                        unsigned int param_idx = 0;
+                        std::string line;
+                        std::istringstream tokenStream(shaders.second);
+                        while (std::getline(tokenStream, line, '\n'))
+                        {
+                            std::stringstream ss(line);
+                            std::string token;
+
+                            ss >> token;
+
+                            if (std::strcmp("in", token.c_str()) == 0)
+                            {
+                                ss >> token; // this should be the data type
+                                ss >> token; // this should be the variable name
+
+                                token.erase(token.end() - 1);
+                                m_shader_programs[idx].resource->bindAttribLocation(param_idx++, token.c_str());
+
+                                //std::cout<<"Input parameter name: "<<buffer<<std::endl;
+                            }
+                        }
+                    }
+                    break;
+                    case glowl::GLSLProgram::FragmentShader:
+                    {
+                        // And scan fragment shader for output parameters
+                        unsigned int param_idx = 0;
+                        std::string line;
+                        std::istringstream tokenStream(shaders.second);
+                        while (std::getline(tokenStream, line, '\n'))
+                        {
+                            std::stringstream ss(line);
+                            std::string token;
+
+                            ss >> token;
+
+                            if (std::strcmp("in", token.c_str()) == 0)
+                            {
+                                ss >> token; // this should be the data type
+                                ss >> token; // this should be the variable name
+
+                                token.erase(token.end() - 1);
+                                m_shader_programs[idx].resource->bindFragDataLocation(param_idx++, token.c_str());
+
+                                //std::cout<<"Input parameter name: "<<buffer<<std::endl;
+                            }
+                        }
+                    }
+                    break;
+                    default:
+                        break;
+                    }
                 }
+
+                std::cout << "Shader program creation log of \"" << m_shader_programs[idx].resource->getDebugLabel() << "\"" << std::endl;
+                std::cout << m_shader_programs[idx].resource->getLog();
 
                 m_shader_programs[idx].state = READY;
 
@@ -266,13 +269,7 @@ namespace EngineCore
 
                 m_renderThread_tasks.push([this, idx, program_name, shader_filenames, additional_cs_defines]() {
                     //m_renderThread_tasks.push([this,idx,name,paths]() {
-                    m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>();
-                    m_shader_programs[idx].state = READY;
-                    m_shader_programs[idx].resource->setDebugLabel(program_name);
-
-                    m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>();
-                    m_shader_programs[idx].resource->setDebugLabel(program_name);
-
+                    
                     std::string vertex_src;
                     std::string tessellationControl_src;
                     std::string tessellationEvaluation_src;
@@ -290,61 +287,9 @@ namespace EngineCore
                         {
                         case glowl::GLSLProgram::VertexShader:
                             vertex_src = shader_src;
-
-                            {
-                                //TODO Scan vertex shader for input parameters
-                                unsigned int param_idx = 0;
-                                std::string line;
-                                std::istringstream tokenStream(shader_src);
-                                while (std::getline(tokenStream, line, '\n'))
-                                {
-                                    std::stringstream ss(line);
-                                    std::string token;
-
-                                    ss >> token;
-
-                                    if (std::strcmp("in", token.c_str()) == 0)
-                                    {
-                                        ss >> token; // this should be the data type
-                                        ss >> token; // this should be the variable name
-
-                                        token.erase(token.end() - 1);
-                                        m_shader_programs[idx].resource->bindAttribLocation(param_idx++, token.c_str());
-
-                                        //std::cout<<"Input parameter name: "<<buffer<<std::endl;
-                                    }
-                                }
-                            }
-
                             break;
                         case glowl::GLSLProgram::FragmentShader:
                             fragment_src = shader_src;
-
-                            {
-                                // And scan fragment shader for output parameters
-                                unsigned int param_idx = 0;
-                                std::string line;
-                                std::istringstream tokenStream(shader_src);
-                                while (std::getline(tokenStream, line, '\n'))
-                                {
-                                    std::stringstream ss(line);
-                                    std::string token;
-
-                                    ss >> token;
-
-                                    if (std::strcmp("in", token.c_str()) == 0)
-                                    {
-                                        ss >> token; // this should be the data type
-                                        ss >> token; // this should be the variable name
-
-                                        token.erase(token.end() - 1);
-                                        m_shader_programs[idx].resource->bindFragDataLocation(param_idx++, token.c_str());
-
-                                        //std::cout<<"Input parameter name: "<<buffer<<std::endl;
-                                    }
-                                }
-                            }
-
                             break;
                         case glowl::GLSLProgram::GeometryShader:
                             geometry_src = shader_src;
@@ -369,29 +314,89 @@ namespace EngineCore
                         }
                     }
 
-                    bool prgm_error = false;
+                    std::vector<std::pair<glowl::GLSLProgram::ShaderType, std::string>> shader_srcs;
 
                     if (!vertex_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(vertex_src, glowl::GLSLProgram::VertexShader);
+                        shader_srcs.push_back({ glowl::GLSLProgram::VertexShader,vertex_src });
                     if (!fragment_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(fragment_src, glowl::GLSLProgram::FragmentShader);
+                        shader_srcs.push_back({ glowl::GLSLProgram::FragmentShader,fragment_src });
                     if (!geometry_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(geometry_src, glowl::GLSLProgram::GeometryShader);
+                        shader_srcs.push_back({ glowl::GLSLProgram::GeometryShader,geometry_src });
                     if (!tessellationControl_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(tessellationControl_src, glowl::GLSLProgram::TessellationControl);
+                        shader_srcs.push_back({ glowl::GLSLProgram::TessellationControl,tessellationControl_src });
                     if (!tessellationEvaluation_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(tessellationEvaluation_src, glowl::GLSLProgram::TessellationEvaluation);
+                        shader_srcs.push_back({ glowl::GLSLProgram::TessellationEvaluation, tessellationEvaluation_src });
                     if (!compute_src.empty())
-                        prgm_error |= !m_shader_programs[idx].resource->compileShaderFromString(compute_src, glowl::GLSLProgram::ComputeShader);
+                        shader_srcs.push_back({ glowl::GLSLProgram::ComputeShader,compute_src });
+
+                    m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>(shader_srcs);
+                    m_shader_programs[idx].state = READY;
+                    m_shader_programs[idx].resource->setDebugLabel(program_name);
 
 
-                    prgm_error |= !m_shader_programs[idx].resource->link();
-
-                    if (prgm_error)
+                    for (auto& shaders : shader_srcs)
                     {
-                        std::cout << "Error during shader program creation of \"" << m_shader_programs[idx].resource->getDebugLabel() << "\"" << std::endl;
-                        std::cout << m_shader_programs[idx].resource->getLog();
+                        switch (shaders.first)
+                        {
+                        case glowl::GLSLProgram::VertexShader:
+                            {
+                                //TODO Scan vertex shader for input parameters
+                                unsigned int param_idx = 0;
+                                std::string line;
+                                std::istringstream tokenStream(shaders.second);
+                                while (std::getline(tokenStream, line, '\n'))
+                                {
+                                    std::stringstream ss(line);
+                                    std::string token;
+
+                                    ss >> token;
+
+                                    if (std::strcmp("in", token.c_str()) == 0)
+                                    {
+                                        ss >> token; // this should be the data type
+                                        ss >> token; // this should be the variable name
+
+                                        token.erase(token.end() - 1);
+                                        m_shader_programs[idx].resource->bindAttribLocation(param_idx++, token.c_str());
+
+                                        //std::cout<<"Input parameter name: "<<buffer<<std::endl;
+                                    }
+                                }
+                            }
+                            break;
+                        case glowl::GLSLProgram::FragmentShader:
+                            {
+                                // And scan fragment shader for output parameters
+                                unsigned int param_idx = 0;
+                                std::string line;
+                                std::istringstream tokenStream(shaders.second);
+                                while (std::getline(tokenStream, line, '\n'))
+                                {
+                                    std::stringstream ss(line);
+                                    std::string token;
+
+                                    ss >> token;
+
+                                    if (std::strcmp("in", token.c_str()) == 0)
+                                    {
+                                        ss >> token; // this should be the data type
+                                        ss >> token; // this should be the variable name
+
+                                        token.erase(token.end() - 1);
+                                        m_shader_programs[idx].resource->bindFragDataLocation(param_idx++, token.c_str());
+
+                                        //std::cout<<"Input parameter name: "<<buffer<<std::endl;
+                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                        }
                     }
+
+                    std::cout << "Shader program creation log of \"" << m_shader_programs[idx].resource->getDebugLabel() << "\"" << std::endl;
+                    std::cout << m_shader_programs[idx].resource->getLog();
 
                     m_shader_programs[idx].state = READY;
                 });

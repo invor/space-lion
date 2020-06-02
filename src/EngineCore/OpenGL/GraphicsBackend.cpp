@@ -152,9 +152,9 @@ namespace EngineCore
                     ImGui_ImplOpenGL3_NewFrame();
                     ImGui_ImplGlfw_NewFrame();
                     ImGui::NewFrame();
-                    ImGui::SetNextWindowPos(ImVec2(width - 375.0f, height - 200.0f));
+                    ImGui::SetNextWindowPos(ImVec2(width - 375.0f, height - 100.0f));
                     bool p_open = true;
-                    if (!ImGui::Begin("FPS", &p_open, ImVec2(0, 0), 0.3f, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
+                    if (!ImGui::Begin("FPS", &p_open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
                     {
                         ImGui::End();
                         return;
