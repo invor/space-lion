@@ -6,6 +6,8 @@
 
 #include "../MTQueue.hpp"
 
+#include "../InputEvent.hpp"
+
 struct GLFWwindow;
 
 namespace EngineCore
@@ -38,6 +40,14 @@ namespace EngineCore
                 /** Function blocks until window is created */
                 void waitForWindowCreation();
 
+                void addInputActionContext(Common::InputActionContext const& context);
+
+                void removeInputActionContext(std::string const& context_name);
+
+                void setInputActionContextActive(std::string const& context_name);
+
+                void setInputActionContextInactive(std::string const& context_name);
+
             private:
                 /** Pointer to active window */
                 GLFWwindow* m_active_window;
@@ -48,6 +58,9 @@ namespace EngineCore
                 bool m_window_created;
                 std::mutex m_window_creation_mutex;
                 std::condition_variable m_winodw_creation_cVar;
+
+                // List of input contexts
+                std::list<Common::InputActionContext> m_input_action_contexts;
 
                 void processSingleExecutionTasks();
 
