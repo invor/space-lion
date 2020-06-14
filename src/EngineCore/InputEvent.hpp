@@ -9,7 +9,74 @@ namespace EngineCore
     {
         namespace Input
         {
+            // Enumeration of all hardware parts that can be used for input
+            enum HardwarePart
+            {
 
+                // Mouse buttons
+                MOUSE_BUTTON_1,
+                MOUSE_BUTTON_2,
+                MOUSE_BUTTON_3,
+                MOUSE_BUTTON_4,
+                MOUSE_BUTTON_5,
+                MOUSE_BUTTON_6,
+                MOUSE_BUTTON_7,
+                MOUSE_BUTTON_8,
+                MOUSE_BUTTON_LAST = MOUSE_BUTTON_8,
+                MOUSE_BUTTON_LEFT = MOUSE_BUTTON_1,
+                MOUSE_BUTTON_RIGHT = MOUSE_BUTTON_2,
+                MOUSE_BUTTON_MIDDLE = MOUSE_BUTTON_3,
+
+                // Joystick
+                JOYSTICK_1,
+                JOYSTICK_2,
+                JOYSTICK_3,
+                JOYSTICK_4,
+                JOYSTICK_5,
+                JOYSTICK_6,
+                JOYSTICK_7,
+                JOYSTICK_8,
+                JOYSTICK_9,
+                JOYSTICK_10,
+                JOYSTICK_11,
+                JOYSTICK_12,
+                JOYSTICK_13,
+                JOYSTICK_14,
+                JOYSTICK_15,
+                JOYSTICK_16,
+                JOYSTICK_LAST = JOYSTICK_16,
+
+                // Gamepad buttons
+                GAMEPAD_BUTTON_A               ,
+                GAMEPAD_BUTTON_B               ,
+                GAMEPAD_BUTTON_X               ,
+                GAMEPAD_BUTTON_Y               ,
+                GAMEPAD_BUTTON_LEFT_BUMPER     ,
+                GAMEPAD_BUTTON_RIGHT_BUMPER    ,
+                GAMEPAD_BUTTON_BACK            ,
+                GAMEPAD_BUTTON_START           ,
+                GAMEPAD_BUTTON_GUIDE           ,
+                GAMEPAD_BUTTON_LEFT_THUMB      ,
+                GAMEPAD_BUTTON_RIGHT_THUMB     ,
+                GAMEPAD_BUTTON_DPAD_UP         ,
+                GAMEPAD_BUTTON_DPAD_RIGHT      ,
+                GAMEPAD_BUTTON_DPAD_DOWN       ,
+                GAMEPAD_BUTTON_DPAD_LEFT       ,
+                GAMEPAD_BUTTON_LAST            = GAMEPAD_BUTTON_DPAD_LEFT,
+                GAMEPAD_BUTTON_CROSS           = GAMEPAD_BUTTON_A,
+                GAMEPAD_BUTTON_CIRCLE          = GAMEPAD_BUTTON_B,
+                GAMEPAD_BUTTON_SQUARE          = GAMEPAD_BUTTON_X,
+                GAMEPAD_BUTTON_TRIANGLE        = GAMEPAD_BUTTON_Y,
+                // Gamepad axes
+                GAMEPAD_AXIS_LEFT_X,
+                GAMEPAD_AXIS_LEFT_Y,
+                GAMEPAD_AXIS_RIGHT_X,
+                GAMEPAD_AXIS_RIGHT_Y,
+                GAMEPAD_AXIS_LEFT_TRIGGER,
+                GAMEPAD_AXIS_RIGHT_TRIGGER,
+                GAMEPAD_AXIS_LAST = GAMEPAD_AXIS_RIGHT_TRIGGER
+
+            };
         }
 
         /**
@@ -23,20 +90,12 @@ namespace EngineCore
              */
             enum EventTrigger { PRESS = 1, RELEASE = 2, HOLD = 3, MOVE = 4};
 
-            /**
-             * Specifies hardware part that triggered the event, e.g. key, mouse button, gamepad button etc.
-             */
-            enum EventElement
-            {
-
-            };
-
             typedef float ElementState;
 
             InputEvent();
             ~InputEvent();
 
-            std::tuple<EventElement, EventTrigger, ElementState> m_event_conditions;
+            std::tuple<Input::HardwarePart, EventTrigger, ElementState> m_event_conditions;
 
         };
 
@@ -62,11 +121,6 @@ namespace EngineCore
         struct InputState
         {
             enum EventDevice { KEYBOARD, MOUSE_BUTTON, MOUSE_AXIS, GAMEPAD_BUTTON, GAMEPAD_AXIS };
-
-            enum EventElement
-            {
-
-            };
 
         };
 
