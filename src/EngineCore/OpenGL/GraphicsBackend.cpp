@@ -63,6 +63,7 @@ namespace EngineCore
                 // Register callback functions
                 glfwSetWindowSizeCallback(m_active_window, windowSizeCallback);
                 glfwSetWindowCloseCallback(m_active_window, windowCloseCallback);
+                glfwSetKeyCallback(m_active_window, keyCallback);
 
                 glfwSetWindowUserPointer(m_active_window, this);
 
@@ -227,6 +228,11 @@ namespace EngineCore
                 m_winodw_creation_cVar.wait(lk, [this] {return m_window_created; });
             }
 
+            void GraphicsBackend::addInputActionContext(Common::InputActionContext const& context)
+            {
+                m_input_action_contexts.push_back(context);
+            }
+
             void GraphicsBackend::windowSizeCallback(GLFWwindow* window, int width, int height)
             {
 
@@ -251,6 +257,24 @@ namespace EngineCore
 
             void GraphicsBackend::keyCallback(GLFWwindow * window, int key, int scancode, int action, int mods)
             {
+                auto graphics_backend = reinterpret_cast<GraphicsBackend*>(glfwGetWindowUserPointer(window));
+
+                for (auto& input_context : graphics_backend->m_input_action_contexts)
+                {
+                    if (input_context.m_is_active)
+                    {
+                        for (auto& event_action : input_context.m_event_actions)
+                        {
+                            if (std::get<0>(event_action.m_event) == Common::Input::Device::KEYBOARD &&
+                                std::get<1>(event_action.m_event) == key &&
+                                std::get<2>(event_action.m_event) == action
+                                )
+                            {
+                                event_action.m_action(event_action.m_event);
+                            }
+                        }
+                    }
+                }
             }
         }
     }

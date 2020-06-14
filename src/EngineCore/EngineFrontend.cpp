@@ -8,6 +8,8 @@
 #include "OpenGL/BasicRenderingPipeline.hpp"
 #include "GeometryBakery.hpp"
 
+#include "InputEvent.hpp"
+
 namespace EngineCore
 {
     namespace Common
@@ -41,6 +43,11 @@ namespace EngineCore
             auto t_1 = std::chrono::high_resolution_clock::now();
 
             createDemoScene();
+
+            //TODO inplace construct an input action context to test the new concept
+            InputEventAction evt_action = { {Input::Device::KEYBOARD,Input::KeyboardKeys::KEY_W,Input::EventTrigger::PRESS, 1.0f}, [](InputEvent const& evt) {std::cout << "Event Test"; } };
+            InputActionContext input_context = { "test_input_context", true, {evt_action}, {} };
+            m_graphics_backend->addInputActionContext(input_context);
 
             auto& entity_mngr = m_world_state->accessEntityManager();
             auto& camera_mngr = m_world_state->accessCameraComponentManager();

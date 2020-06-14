@@ -166,6 +166,12 @@ namespace EngineCore
                 MOUSE_BUTTON_MIDDLE    = MOUSE_BUTTON_3
             };
 
+            enum MouseAxes
+            {
+                MOUSE_CURSOR_X         = 0,
+                MOUSE_CURSOR_Y         = 0
+            };
+
             enum JoystickIDs
             {
                 JOYSTICK_1             = 0,
@@ -223,29 +229,26 @@ namespace EngineCore
                 GAMEPAD_AXIS_LAST              = GAMEPAD_AXIS_RIGHT_TRIGGER
             };
 
+            // Helper type to generically use any of the enums aboive
+            typedef int HardwarePart;
+
+            // Helper type for storing the state of a hardware part
+            typedef float HardwareState;
+
+            // Specifies type of event, e.g. key is pressed/released to held down
+            enum EventTrigger { PRESS = 1, RELEASE = 0, HOLD = 2, MOVE = 4 };
         }
 
         /**
          * Self-contained defintion for all sorts of hardware input events that acts as intermediate layer between specific definitions
          * of window/context management and the (game) logic part.
          */
-        struct InputEvent
-        {
-            /**
-             * Specifies type of event, e.g. key is pressed/released to held down
-             */
-            enum EventTrigger { PRESS = 1, RELEASE = 2, HOLD = 3, MOVE = 4};
+        typedef std::tuple< Input::Device, Input::HardwarePart, Input::EventTrigger, Input::HardwareState > InputEvent;
 
-            typedef int HardwarePart;
-
-            typedef float HardwareState;
-
-            InputEvent();
-            ~InputEvent();
-
-            std::tuple< Input::Device,  HardwarePart, EventTrigger, HardwareState > m_event_conditions;
-
-        };
+        /**
+         * Self-contained defintion for input state of one or several devices and keys/buttons/axes.
+         */
+        typedef std::vector<std::tuple<Input::Device, int, float>> InputState;
 
 
         /**
@@ -255,20 +258,8 @@ namespace EngineCore
          */
         struct InputEventAction
         {
-            InputEventAction();
-            ~InputEventAction();
-
             InputEvent                             m_event;
             std::function<void(InputEvent const&)> m_action;
-        };
-
-
-        /**
-         * Self-contained defintion for input state of one or several devices and keys/buttons/axes.
-         */
-        struct InputState
-        {
-
         };
 
         /**
@@ -289,8 +280,8 @@ namespace EngineCore
          */
         struct InputActionContext
         {
-            std::string m_context_name;
-            bool m_is_active;
+            std::string                   m_context_name;
+            bool                          m_is_active;
 
             std::vector<InputEventAction> m_event_actions;
             std::vector<InputStateAction> m_state_actions;
