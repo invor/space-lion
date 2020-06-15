@@ -132,6 +132,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\Editor\CameraController.hpp" />
     <ClInclude Include="..\..\src\EngineCore\AirplanePhysicsComponent.hpp" />
     <ClInclude Include="..\..\src\EngineCore\BaseComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\BaseResourceManager.hpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="..\..\src\External\lodepng\lodepng.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\Editor\CameraController.cpp" />
     <ClCompile Include="..\..\src\EngineCore\AirplanePhysicsComponent.cpp" />
     <ClCompile Include="..\..\src\EngineCore\CameraComponent.cpp" />
     <ClCompile Include="..\..\src\EngineCore\EngineFrontend.cpp" />

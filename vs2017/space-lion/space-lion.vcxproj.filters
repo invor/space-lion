@@ -255,6 +255,9 @@
     <ClInclude Include="..\..\src\External\imgui\examples\imgui_impl_opengl3.h">
       <Filter>Header Files\External\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\Editor\CameraController.hpp">
+      <Filter>Header Files\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\EngineCore\EngineFrontend.cpp">
@@ -349,6 +352,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\External\imgui\examples\imgui_impl_opengl3.cpp">
       <Filter>Source Files\External\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Editor\CameraController.cpp">
+      <Filter>Source Files\Editor</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
