@@ -15,7 +15,8 @@ namespace EngineCore
     namespace Common
     {
         EngineFrontend::EngineFrontend()
-            : m_task_schedueler(std::make_unique<Utility::TaskSchedueler>()),
+            : m_engine_started(false),
+            m_task_schedueler(std::make_unique<Utility::TaskSchedueler>()),
             m_frame_manager(std::make_unique<FrameManager>()),
             m_graphics_backend(std::make_unique<Graphics::OpenGL::GraphicsBackend>()),
             m_resource_manager(std::make_unique<Graphics::OpenGL::ResourceManager>()),
@@ -54,108 +55,22 @@ namespace EngineCore
             auto& turntable_mngr = m_world_state->accessTurntableManager();
 
             // inplace construct an input action context to test the new concept
-
             auto evt_func = [&camera_mngr,&transform_mngr](InputEvent const& evt) {
                 std::cout << "Paying respect to new input system"<<"\n";
             };
-
-            float cursor_x = -1.0, cursor_y = -1.0;
-            bool mouse_right_pressed_last_frame = false;
-            auto cam_ctrl_func = [this,&cursor_x,&cursor_y,&mouse_right_pressed_last_frame,&camera_mngr, &transform_mngr](InputState const& state) {
-
-                uint camera_idx = camera_mngr.getActiveCameraIndex();
-                Entity camera_entity = camera_mngr.getEntity(camera_idx);
-                size_t camera_transform_idx = transform_mngr.getIndex(camera_entity).front();
-
-                auto view_to_world = transform_mngr.getWorldTransformation(camera_transform_idx);
-                auto view_to_world_vec = glm::mat3x3(view_to_world);
-                auto world_to_view_vec = glm::inverse(view_to_world_vec);
-                view_to_world_vec = glm::inverse(view_to_world_vec);
-                view_to_world_vec = glm::transpose(view_to_world_vec);
-                Vec3 cam_forward = view_to_world_vec * Vec3(0.0, 0.0, -1.0);
-                Vec3 cam_right = view_to_world_vec * Vec3(1.0, 0.0, 0.0);
-                Vec3 cam_up = view_to_world_vec * Vec3(0.0, 1.0, 0.0);
-
-                Vec3 world_up_vs = world_to_view_vec * Vec3(0.0, 1.0, 0.0);
-
-                auto dt = static_cast<float>(m_frame_manager->getRenderFrame().m_dt);
-
-                Vec3 movement = Vec3(0.0,0.0,0.0);
-
-                // first hardware part is w key, state value greater 0 shows that key is currently pressed
-                if (std::get<2>(state[0]) > 0.0f)
-                {
-                    movement += static_cast<float>(dt) * cam_forward;
-                }
-                if (std::get<2>(state[1]) > 0.0f)
-                {
-                    movement += -static_cast<float>(dt) * cam_right;
-                }
-                if (std::get<2>(state[2]) > 0.0f)
-                {
-                    movement += -static_cast<float>(dt) * cam_forward;
-                }
-                if (std::get<2>(state[3]) > 0.0f)
-                {
-                    movement += static_cast<float>(dt) * cam_right;
-                }
-
-                transform_mngr.translate(camera_transform_idx, movement);
-
-
-                bool mouse_right_pressed_this_frame = false;
-                if (std::get<2>(state[6]) > 0.0f)
-                {
-                    auto current_cursor_x = std::get<2>(state[4]);
-                    auto current_cursor_y = std::get<2>(state[5]);
-
-                    if (!mouse_right_pressed_last_frame) {
-                        mouse_right_pressed_this_frame = true;
-
-                        cursor_x = current_cursor_x;
-                        cursor_y = current_cursor_y;
-                    }
-
-                    auto dx = current_cursor_x - cursor_x;
-                    auto dy = current_cursor_y - cursor_y;
-
-                    auto rotation = glm::angleAxis(-dx * dt, world_up_vs);
-                    rotation *= glm::angleAxis(-dy * dt, Vec3(1.0, 0.0, 0.0));
-
-                    cursor_x = current_cursor_x;
-                    cursor_y = current_cursor_y;
-
-                    transform_mngr.rotateLocal(camera_transform_idx, rotation);
-
-                    mouse_right_pressed_last_frame = true;
-                }
-                else
-                {
-                    mouse_right_pressed_last_frame = false;
-                }
-
-                
-            };
-
             InputEventAction evt_action = { {Input::Device::KEYBOARD,Input::KeyboardKeys::KEY_F,Input::EventTrigger::PRESS, 1.0f}, evt_func };
-            InputStateAction state_action = { 
-                {
-                    {Input::Device::KEYBOARD,Input::KeyboardKeys::KEY_W, 1.0f},
-                    {Input::Device::KEYBOARD,Input::KeyboardKeys::KEY_A, 1.0f},
-                    {Input::Device::KEYBOARD,Input::KeyboardKeys::KEY_S, 1.0f},
-                    {Input::Device::KEYBOARD,Input::KeyboardKeys::KEY_D, 1.0f},
-
-                    {Input::Device::MOUSE_AXES,Input::MouseAxes::MOUSE_CURSOR_X, 1.0f},
-                    {Input::Device::MOUSE_AXES,Input::MouseAxes::MOUSE_CURSOR_Y, 1.0f},
-                    {Input::Device::MOUSE_BUTTON,Input::MouseButtons::MOUSE_BUTTON_RIGHT, 0.0f}
-                },
-                cam_ctrl_func 
-            };
-            InputActionContext input_context = { "test_input_context", true, {evt_action}, {state_action} };
+            InputActionContext input_context = { "test_input_context", true, {evt_action}, {} };
             m_graphics_backend->addInputActionContext(input_context);
 
             // wait for window creation
             m_graphics_backend->waitForWindowCreation();
+
+            // if everything is up and running, notify whoever is waiting for the engine to start up
+            {
+                std::lock_guard<std::mutex> lk(m_engine_started_mutex);
+                m_engine_started = true;
+            }
+            m_engine_started_cVar.notify_one();
 
             // engine update loop
             while (render_exec_status != std::future_status::ready)
@@ -202,6 +117,27 @@ namespace EngineCore
             }
 
             m_task_schedueler->stop();
+        }
+
+        void EngineFrontend::waitForEngineStarted()
+        {
+            std::unique_lock<std::mutex> lk(m_engine_started_mutex);
+            m_engine_started_cVar.wait(lk, [this] {return m_engine_started; });
+        }
+
+        WorldState & EngineFrontend::accessWorldState()
+        {
+            return (*m_world_state.get());
+        }
+
+        FrameManager & EngineFrontend::accessFrameManager()
+        {
+            return (*m_frame_manager.get());
+        }
+
+        void EngineFrontend::addInputActionContext(InputActionContext const & input_action_context)
+        {
+            m_graphics_backend->addInputActionContext(input_action_context);
         }
 
         void EngineFrontend::createDemoScene()

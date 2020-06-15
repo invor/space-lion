@@ -20,8 +20,29 @@ namespace EngineCore
 
             void startEngine();
 
+            void waitForEngineStarted();
+
+            /**
+             * Grant access to world for the "driving" part of the application, e.g. editor, game, simulation etc.
+             */
+            WorldState& accessWorldState();
+
+            /**
+             * Grant access to frame data for the "driving" part of the application, e.g. editor, game, simulation etc.
+             */
+            FrameManager& accessFrameManager();
+
+            /**
+             * Pass on an input action context to window handling in graphics backend
+             */
+            void addInputActionContext(InputActionContext const& input_action_context);
+
         private:
             void createDemoScene();
+
+            bool m_engine_started;
+            std::mutex m_engine_started_mutex;
+            std::condition_variable m_engine_started_cVar;
 
             /**
              * Simple multi-thread task schedueler.
