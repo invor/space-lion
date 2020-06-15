@@ -239,6 +239,8 @@ namespace EngineCore
             enum EventTrigger { PRESS = 1, RELEASE = 0, HOLD = 2, MOVE = 4 };
         }
 
+        //TODO CONSIDER REMOVING HARDWARE FROM EVENT AND STATE, PASS SEPERATLY TO ACTION
+
         /**
          * Self-contained defintion for all sorts of hardware input events that acts as intermediate layer between specific definitions
          * of window/context management and the (game) logic part.
@@ -248,7 +250,7 @@ namespace EngineCore
         /**
          * Self-contained defintion for input state of one or several devices and keys/buttons/axes.
          */
-        typedef std::vector<std::tuple<Input::Device, int, float>> InputState;
+        typedef std::vector<std::tuple<Input::Device, Input::HardwarePart, Input::HardwareState>> InputState;
 
 
         /**

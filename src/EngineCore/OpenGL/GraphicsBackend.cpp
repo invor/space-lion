@@ -106,6 +106,26 @@ namespace EngineCore
 
                     //std::cout<<"Timestep: "<<dt<<std::endl;
 
+                    for (auto& input_context : m_input_action_contexts)
+                    {
+                        if (input_context.m_is_active)
+                        {
+                            for (auto& state_action : input_context.m_state_actions)
+                            {
+                                for (auto& part : state_action.m_event)
+                                {
+                                    if (std::get<0>(part) == Common::Input::Device::KEYBOARD)
+                                    {
+                                        std::get<2>(part) = glfwGetKey(m_active_window, std::get<1>(part)) == GLFW_PRESS ? 1.0f : 0.0;
+                                    }
+                                }
+
+                                state_action.m_action(state_action.m_event);
+                                
+                            }
+                        }
+                    }
+
                     //Controls::checkKeyStatus(m_active_window, dt);
                     //Controls::checkJoystickStatus(m_active_window, dt);
 

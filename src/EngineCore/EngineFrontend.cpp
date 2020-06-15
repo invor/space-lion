@@ -44,11 +44,6 @@ namespace EngineCore
 
             createDemoScene();
 
-            //TODO inplace construct an input action context to test the new concept
-            InputEventAction evt_action = { {Input::Device::KEYBOARD,Input::KeyboardKeys::KEY_W,Input::EventTrigger::PRESS, 1.0f}, [](InputEvent const& evt) {std::cout << "Event Test"; } };
-            InputActionContext input_context = { "test_input_context", true, {evt_action}, {} };
-            m_graphics_backend->addInputActionContext(input_context);
-
             auto& entity_mngr = m_world_state->accessEntityManager();
             auto& camera_mngr = m_world_state->accessCameraComponentManager();
             auto& mtl_mngr = m_world_state->accessMaterialComponentManager();
@@ -57,6 +52,31 @@ namespace EngineCore
             auto& renderTask_mngr = m_world_state->accessRenderTaskComponentManager();
             auto& transform_mngr = m_world_state->accessTransformManager();
             auto& turntable_mngr = m_world_state->accessTurntableManager();
+
+            // inplace construct an input action context to test the new concept
+
+            auto evt_func = [&camera_mngr,&transform_mngr](InputEvent const& evt) {
+                std::cout << "Paying respect to new input system"<<"\n";
+            };
+
+            auto cam_ctrl_func = [this,&camera_mngr, &transform_mngr](InputState const& state) {
+
+                uint camera_idx = camera_mngr.getActiveCameraIndex();
+                Entity camera_entity = camera_mngr.getEntity(camera_idx);
+                size_t camera_transform_idx = transform_mngr.getIndex(camera_entity).front();
+
+                // first hardware part is w key, state value greater 0 shows that key is currently pressed
+                if (std::get<2>(state[0]) > 0.0f)
+                {
+                    auto dt = m_frame_manager->getRenderFrame().m_dt;
+                    transform_mngr.translate(camera_transform_idx, Vec3(1.0f * dt, 0.0f, 0.0f));
+                }
+            };
+
+            InputEventAction evt_action = { {Input::Device::KEYBOARD,Input::KeyboardKeys::KEY_F,Input::EventTrigger::PRESS, 1.0f}, evt_func };
+            InputStateAction state_action = { {{Input::Device::KEYBOARD,Input::KeyboardKeys::KEY_W, 1.0f}}, cam_ctrl_func };
+            InputActionContext input_context = { "test_input_context", true, {evt_action}, {} };
+            m_graphics_backend->addInputActionContext(input_context);
 
             // wait for window creation
             m_graphics_backend->waitForWindowCreation();
