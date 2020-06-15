@@ -12,8 +12,10 @@ namespace EngineCore
             enum Device 
             { 
                 KEYBOARD, 
-                MOUSE, 
-                GAMEPAD
+                MOUSE_BUTTON,
+                MOUSE_AXES,
+                GAMEPAD_BUTTON,
+                GAMEPAD_AXES
             };
 
             // Enumeration of hardware keys
@@ -169,7 +171,7 @@ namespace EngineCore
             enum MouseAxes
             {
                 MOUSE_CURSOR_X         = 0,
-                MOUSE_CURSOR_Y         = 0
+                MOUSE_CURSOR_Y         = 1
             };
 
             enum JoystickIDs

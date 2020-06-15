@@ -118,6 +118,27 @@ namespace EngineCore
                                     {
                                         std::get<2>(part) = glfwGetKey(m_active_window, std::get<1>(part)) == GLFW_PRESS ? 1.0f : 0.0;
                                     }
+                                    else if(std::get<0>(part) == Common::Input::Device::MOUSE_AXES)
+                                    {
+                                        double x, y;
+                                        glfwGetCursorPos(m_active_window, &x, &y);
+
+                                        if (std::get<1>(part) == Common::Input::MouseAxes::MOUSE_CURSOR_X)
+                                        {
+                                            std::get<2>(part) = x;
+                                        }
+                                        else if (std::get<1>(part) == Common::Input::MouseAxes::MOUSE_CURSOR_Y)
+                                        {
+                                            std::get<2>(part) = y;
+                                        }
+                                    }
+                                    else if (std::get<0>(part) == Common::Input::Device::MOUSE_BUTTON)
+                                    {
+                                        if (std::get<1>(part) == Common::Input::MouseButtons::MOUSE_BUTTON_RIGHT)
+                                        {
+                                            std::get<2>(part) = glfwGetMouseButton(m_active_window, std::get<1>(part)) == GLFW_PRESS ? 1.0f : 0.0f;
+                                        }
+                                    }
                                 }
 
                                 state_action.m_action(state_action.m_event);
