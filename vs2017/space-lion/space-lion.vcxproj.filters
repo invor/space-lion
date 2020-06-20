@@ -258,6 +258,9 @@
     <ClInclude Include="..\..\src\Editor\CameraController.hpp">
       <Filter>Header Files\Editor</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\EngineCore\BSplineComponent.hpp">
+      <Filter>Header Files\EngineCore\Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\EngineCore\EngineFrontend.cpp">
@@ -355,6 +358,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\Editor\CameraController.cpp">
       <Filter>Source Files\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\EngineCore\BSplineComponent.cpp">
+      <Filter>Source Files\EngineCore\Common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

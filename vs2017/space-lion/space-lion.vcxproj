@@ -136,6 +136,7 @@
     <ClInclude Include="..\..\src\EngineCore\AirplanePhysicsComponent.hpp" />
     <ClInclude Include="..\..\src\EngineCore\BaseComponentManager.hpp" />
     <ClInclude Include="..\..\src\EngineCore\BaseResourceManager.hpp" />
+    <ClInclude Include="..\..\src\EngineCore\BSplineComponent.hpp" />
     <ClInclude Include="..\..\src\EngineCore\CameraComponent.hpp" />
     <ClInclude Include="..\..\src\EngineCore\EngineFrontend.hpp" />
     <ClInclude Include="..\..\src\EngineCore\EntityManager.hpp" />
@@ -190,6 +191,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\Editor\CameraController.cpp" />
     <ClCompile Include="..\..\src\EngineCore\AirplanePhysicsComponent.cpp" />
+    <ClCompile Include="..\..\src\EngineCore\BSplineComponent.cpp" />
     <ClCompile Include="..\..\src\EngineCore\CameraComponent.cpp" />
     <ClCompile Include="..\..\src\EngineCore\EngineFrontend.cpp" />
     <ClCompile Include="..\..\src\EngineCore\EntityManager.cpp" />
