@@ -87,8 +87,8 @@ void Editor::Controls::CameraController::controlCameraAction(EngineCore::Common:
             m_cursor_y = current_cursor_y;
         }
 
-        float dx = current_cursor_x - m_cursor_x;
-        float dy = current_cursor_y - m_cursor_y;
+        float dx = static_cast<float>(current_cursor_x - m_cursor_x);
+        float dy = static_cast<float>(current_cursor_y - m_cursor_y);
 
         auto rotation = glm::angleAxis(-dx * dt, world_up_vs);
         rotation *= glm::angleAxis(-dy * dt, Vec3(1.0, 0.0, 0.0));
