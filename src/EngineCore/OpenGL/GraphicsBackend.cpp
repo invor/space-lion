@@ -100,9 +100,29 @@ namespace EngineCore
 
                 while (!glfwWindowShouldClose(m_active_window))
                 {
+                    // Perform single execution tasks
+                    processSingleExecutionTasks();
+
+                    auto gl_err = glGetError();
+                    if (gl_err != GL_NO_ERROR)
+                        std::cerr << "GL error after single exection tasks: " << gl_err << std::endl;
+
+                    // Perform resource manager async tasks
+                    resource_manager->executeRenderThreadTasks();
+
+                    gl_err = glGetError();
+                    if (gl_err != GL_NO_ERROR)
+                        std::cerr << "GL error after resource manager tasks: " << gl_err << std::endl;
+
+                    // Get current frame for rendering
+                    auto& frame = frame_manager->getRenderFrame();
+
                     t0 = t1;
                     t1 = glfwGetTime();
                     double dt = t1 - t0;
+
+                    // TODO dedicated dt for input computations...
+                    frame.m_dt = dt;
 
                     //std::cout<<"Timestep: "<<dt<<std::endl;
 
@@ -118,7 +138,7 @@ namespace EngineCore
                                     {
                                         std::get<2>(part) = glfwGetKey(m_active_window, std::get<1>(part)) == GLFW_PRESS ? 1.0f : 0.0;
                                     }
-                                    else if(std::get<0>(part) == Common::Input::Device::MOUSE_AXES)
+                                    else if (std::get<0>(part) == Common::Input::Device::MOUSE_AXES)
                                     {
                                         double x, y;
                                         glfwGetCursorPos(m_active_window, &x, &y);
@@ -142,30 +162,11 @@ namespace EngineCore
                                 }
 
                                 state_action.m_action(state_action.m_event);
-                                
+
                             }
                         }
                     }
 
-                    //Controls::checkKeyStatus(m_active_window, dt);
-                    //Controls::checkJoystickStatus(m_active_window, dt);
-
-                    // Perform single execution tasks
-                    processSingleExecutionTasks();
-
-                    auto gl_err = glGetError();
-                    if (gl_err != GL_NO_ERROR)
-                        std::cerr << "GL error after single exection tasks: " << gl_err << std::endl;
-
-                    // Perform resource manager async tasks
-                    resource_manager->executeRenderThreadTasks();
-
-                    gl_err = glGetError();
-                    if (gl_err != GL_NO_ERROR)
-                        std::cerr << "GL error after resource manager tasks: " << gl_err << std::endl;
-
-                    // Get current frame for rendering
-                    auto& frame = frame_manager->getRenderFrame();
 
                     // Call buffer phase for each render pass
                     for (auto& render_pass : frame.m_render_passes)
