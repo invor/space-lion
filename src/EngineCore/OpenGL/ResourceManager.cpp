@@ -128,22 +128,22 @@ namespace EngineCore
 
                     switch (shader_filename.second)
                     {
-                    case glowl::GLSLProgram::VertexShader:
+                    case glowl::GLSLProgram::ShaderType::Vertex:
                         vertex_src = shader_src;
                         break;
-                    case glowl::GLSLProgram::FragmentShader:
+                    case glowl::GLSLProgram::ShaderType::Fragment:
                         fragment_src = shader_src;
                         break;
-                    case glowl::GLSLProgram::GeometryShader:
+                    case glowl::GLSLProgram::ShaderType::Geometry:
                         geometry_src = shader_src;
                         break;
-                    case glowl::GLSLProgram::TessellationControl:
+                    case glowl::GLSLProgram::ShaderType::TessControl:
                         tessellationControl_src = shader_src;
                         break;
-                    case glowl::GLSLProgram::TessellationEvaluation:
+                    case glowl::GLSLProgram::ShaderType::TessEvaluation:
                         tessellationEvaluation_src = shader_src;
                         break;
-                    case glowl::GLSLProgram::ComputeShader:
+                    case glowl::GLSLProgram::ShaderType::Compute:
                         compute_src = shader_src;
 
                         cs_define_insertion = compute_src.find("#version"); // find beginning of shader, i.e. version statement
@@ -160,17 +160,17 @@ namespace EngineCore
                 std::vector<std::pair<glowl::GLSLProgram::ShaderType, std::string>> shader_srcs;
 
                 if (!vertex_src.empty())
-                    shader_srcs.push_back({ glowl::GLSLProgram::VertexShader,vertex_src });
+                    shader_srcs.push_back({ glowl::GLSLProgram::Vertex,vertex_src });
                 if (!fragment_src.empty())
-                    shader_srcs.push_back({ glowl::GLSLProgram::FragmentShader,fragment_src });
+                    shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::Fragment,fragment_src });
                 if (!geometry_src.empty())
-                    shader_srcs.push_back({ glowl::GLSLProgram::GeometryShader,geometry_src });
+                    shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::Geometry,geometry_src });
                 if (!tessellationControl_src.empty())
-                    shader_srcs.push_back({ glowl::GLSLProgram::TessellationControl,tessellationControl_src });
+                    shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::TessControl,tessellationControl_src });
                 if (!tessellationEvaluation_src.empty())
-                    shader_srcs.push_back({ glowl::GLSLProgram::TessellationEvaluation, tessellationEvaluation_src });
+                    shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::TessEvaluation, tessellationEvaluation_src });
                 if (!compute_src.empty())
-                    shader_srcs.push_back({ glowl::GLSLProgram::ComputeShader,compute_src });
+                    shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::Compute,compute_src });
 
                 m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>(shader_srcs);
                 m_shader_programs[idx].resource->setDebugLabel(program_name);
@@ -179,7 +179,7 @@ namespace EngineCore
                 {
                     switch (shaders.first)
                     {
-                    case glowl::GLSLProgram::VertexShader:
+                    case glowl::GLSLProgram::Vertex:
                     {
                         //TODO Scan vertex shader for input parameters
                         unsigned int param_idx = 0;
@@ -205,7 +205,7 @@ namespace EngineCore
                         }
                     }
                     break;
-                    case glowl::GLSLProgram::FragmentShader:
+                    case glowl::GLSLProgram::ShaderType::Fragment:
                     {
                         // And scan fragment shader for output parameters
                         unsigned int param_idx = 0;
@@ -237,7 +237,7 @@ namespace EngineCore
                 }
 
                 std::cout << "Shader program creation log of \"" << m_shader_programs[idx].resource->getDebugLabel() << "\"" << std::endl;
-                std::cout << m_shader_programs[idx].resource->getLog();
+                //std::cout << m_shader_programs[idx].resource->getLog();
 
                 m_shader_programs[idx].state = READY;
 
@@ -285,22 +285,22 @@ namespace EngineCore
 
                         switch (shader_filename.second)
                         {
-                        case glowl::GLSLProgram::VertexShader:
+                        case glowl::GLSLProgram::Vertex:
                             vertex_src = shader_src;
                             break;
-                        case glowl::GLSLProgram::FragmentShader:
+                        case glowl::GLSLProgram::ShaderType::Fragment:
                             fragment_src = shader_src;
                             break;
-                        case glowl::GLSLProgram::GeometryShader:
+                        case glowl::GLSLProgram::ShaderType::Geometry:
                             geometry_src = shader_src;
                             break;
-                        case glowl::GLSLProgram::TessellationControl:
+                        case glowl::GLSLProgram::ShaderType::TessControl:
                             tessellationControl_src = shader_src;
                             break;
-                        case glowl::GLSLProgram::TessellationEvaluation:
+                        case glowl::GLSLProgram::ShaderType::TessEvaluation:
                             tessellationEvaluation_src = shader_src;
                             break;
-                        case glowl::GLSLProgram::ComputeShader:
+                        case glowl::GLSLProgram::ShaderType::Compute:
                             compute_src = shader_src;
 
                             cs_define_insertion = compute_src.find("#version"); // find beginning of shader, i.e. version statement
@@ -317,17 +317,17 @@ namespace EngineCore
                     std::vector<std::pair<glowl::GLSLProgram::ShaderType, std::string>> shader_srcs;
 
                     if (!vertex_src.empty())
-                        shader_srcs.push_back({ glowl::GLSLProgram::VertexShader,vertex_src });
+                        shader_srcs.push_back({ glowl::GLSLProgram::Vertex,vertex_src });
                     if (!fragment_src.empty())
-                        shader_srcs.push_back({ glowl::GLSLProgram::FragmentShader,fragment_src });
+                        shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::Fragment,fragment_src });
                     if (!geometry_src.empty())
-                        shader_srcs.push_back({ glowl::GLSLProgram::GeometryShader,geometry_src });
+                        shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::Geometry,geometry_src });
                     if (!tessellationControl_src.empty())
-                        shader_srcs.push_back({ glowl::GLSLProgram::TessellationControl,tessellationControl_src });
+                        shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::TessControl,tessellationControl_src });
                     if (!tessellationEvaluation_src.empty())
-                        shader_srcs.push_back({ glowl::GLSLProgram::TessellationEvaluation, tessellationEvaluation_src });
+                        shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::TessEvaluation, tessellationEvaluation_src });
                     if (!compute_src.empty())
-                        shader_srcs.push_back({ glowl::GLSLProgram::ComputeShader,compute_src });
+                        shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::Compute,compute_src });
 
                     m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>(shader_srcs);
                     m_shader_programs[idx].state = READY;
@@ -338,7 +338,7 @@ namespace EngineCore
                     {
                         switch (shaders.first)
                         {
-                        case glowl::GLSLProgram::VertexShader:
+                        case glowl::GLSLProgram::Vertex:
                             {
                                 //TODO Scan vertex shader for input parameters
                                 unsigned int param_idx = 0;
@@ -364,7 +364,7 @@ namespace EngineCore
                                 }
                             }
                             break;
-                        case glowl::GLSLProgram::FragmentShader:
+                        case glowl::GLSLProgram::ShaderType::Fragment:
                             {
                                 // And scan fragment shader for output parameters
                                 unsigned int param_idx = 0;
@@ -396,7 +396,7 @@ namespace EngineCore
                     }
 
                     std::cout << "Shader program creation log of \"" << m_shader_programs[idx].resource->getDebugLabel() << "\"" << std::endl;
-                    std::cout << m_shader_programs[idx].resource->getLog();
+                    //std::cout << m_shader_programs[idx].resource->getLog();
 
                     m_shader_programs[idx].state = READY;
                 });
