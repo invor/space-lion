@@ -132,11 +132,13 @@ namespace EngineCore
                         {
                             for (auto& state_action : input_context.m_state_actions)
                             {
-                                for (auto& part : state_action.m_event)
+                                std::vector<Common::Input::HardwareState> states;
+
+                                for (auto& part : state_action.m_state_query)
                                 {
                                     if (std::get<0>(part) == Common::Input::Device::KEYBOARD)
                                     {
-                                        std::get<2>(part) = glfwGetKey(m_active_window, std::get<1>(part)) == GLFW_PRESS ? 1.0f : 0.0;
+                                        states.emplace_back( glfwGetKey(m_active_window, std::get<1>(part)) == GLFW_PRESS ? 1.0f : 0.0 );
                                     }
                                     else if (std::get<0>(part) == Common::Input::Device::MOUSE_AXES)
                                     {
@@ -145,23 +147,23 @@ namespace EngineCore
 
                                         if (std::get<1>(part) == Common::Input::MouseAxes::MOUSE_CURSOR_X)
                                         {
-                                            std::get<2>(part) = x;
+                                            states.emplace_back(x);
                                         }
                                         else if (std::get<1>(part) == Common::Input::MouseAxes::MOUSE_CURSOR_Y)
                                         {
-                                            std::get<2>(part) = y;
+                                            states.emplace_back(y);
                                         }
                                     }
                                     else if (std::get<0>(part) == Common::Input::Device::MOUSE_BUTTON)
                                     {
                                         if (std::get<1>(part) == Common::Input::MouseButtons::MOUSE_BUTTON_RIGHT)
                                         {
-                                            std::get<2>(part) = glfwGetMouseButton(m_active_window, std::get<1>(part)) == GLFW_PRESS ? 1.0f : 0.0f;
+                                            states.emplace_back( glfwGetMouseButton(m_active_window, std::get<1>(part)) == GLFW_PRESS ? 1.0f : 0.0f );
                                         }
                                     }
                                 }
 
-                                state_action.m_action(state_action.m_event);
+                                state_action.m_action(state_action.m_state_query, states);
 
                             }
                         }
@@ -270,7 +272,7 @@ namespace EngineCore
                 m_winodw_creation_cVar.wait(lk, [this] {return m_window_created; });
             }
 
-            void GraphicsBackend::addInputActionContext(Common::InputActionContext const& context)
+            void GraphicsBackend::addInputActionContext(Common::Input::InputActionContext const& context)
             {
                 m_input_action_contexts.push_back(context);
             }
@@ -312,7 +314,7 @@ namespace EngineCore
                                 std::get<2>(event_action.m_event) == action
                                 )
                             {
-                                event_action.m_action(event_action.m_event);
+                                event_action.m_action(event_action.m_event,/*TODO map action to meanigful state?*/1.0);
                             }
                         }
                     }

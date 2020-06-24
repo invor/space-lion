@@ -3,23 +3,21 @@
 
 #include <functional>
 
-namespace EngineCore
+namespace EngineCore{
+namespace Common{
+namespace Input
 {
-    namespace Common
-    {
-        namespace Input
-        {
-            enum Device 
-            { 
-                KEYBOARD, 
-                MOUSE_BUTTON,
-                MOUSE_AXES,
-                GAMEPAD_BUTTON,
-                GAMEPAD_AXES
-            };
+    enum Device 
+    { 
+        KEYBOARD, 
+        MOUSE_BUTTON,
+        MOUSE_AXES,
+        GAMEPAD_BUTTON,
+        GAMEPAD_AXES
+    };
 
-            // Enumeration of hardware keys
-            enum KeyboardKeys
+    // Enumeration of hardware keys
+    enum KeyboardKeys
             {
                 // Unknown key...
                 KEY_UNKNOWN            = -1,
@@ -152,7 +150,7 @@ namespace EngineCore
                 KEY_LAST               = KEY_MENU
             };
 
-            enum MouseButtons 
+    enum MouseButtons 
             {
                 MOUSE_BUTTON_1         = 0,
                 MOUSE_BUTTON_2         = 1,
@@ -168,13 +166,13 @@ namespace EngineCore
                 MOUSE_BUTTON_MIDDLE    = MOUSE_BUTTON_3
             };
 
-            enum MouseAxes
+    enum MouseAxes
             {
                 MOUSE_CURSOR_X         = 0,
                 MOUSE_CURSOR_Y         = 1
             };
 
-            enum JoystickIDs
+    enum JoystickIDs
             {
                 JOYSTICK_1             = 0,
                 JOYSTICK_2             = 1,
@@ -195,7 +193,7 @@ namespace EngineCore
                 JOYSTICK_LAST          = JOYSTICK_16
             };
 
-            enum GamepadButtons
+    enum GamepadButtons
             {
                 GAMEPAD_BUTTON_A               = 0,
                 GAMEPAD_BUTTON_B               = 1,
@@ -220,7 +218,7 @@ namespace EngineCore
                 GAMEPAD_BUTTON_TRIANGLE        = GAMEPAD_BUTTON_Y
             };
 
-            enum GamepadAxes
+    enum GamepadAxes
             {
                 GAMEPAD_AXIS_LEFT_X            = 0,
                 GAMEPAD_AXIS_LEFT_Y            = 1,
@@ -231,67 +229,70 @@ namespace EngineCore
                 GAMEPAD_AXIS_LAST              = GAMEPAD_AXIS_RIGHT_TRIGGER
             };
 
-            // Helper type to generically use any of the enums aboive
-            typedef int HardwarePart;
+    // Helper type to generically use any of the enums aboive
+    typedef int HardwarePart;
 
-            // Helper type for storing the state of a hardware part
-            typedef float HardwareState;
+    // Helper type for storing the state of a hardware part
+    typedef float HardwareState;
 
-            // Specifies type of event, e.g. key is pressed/released to held down
-            enum EventTrigger { PRESS = 1, RELEASE = 0, HOLD = 2, MOVE = 4 };
-        }
-
-        //TODO CONSIDER REMOVING HARDWARE FROM EVENT AND STATE, PASS SEPERATLY TO ACTION
-
-        /**
-         * Self-contained defintion for all sorts of hardware input events that acts as intermediate layer between specific definitions
-         * of window/context management and the (game) logic part.
-         */
-        typedef std::tuple< Input::Device, Input::HardwarePart, Input::EventTrigger, Input::HardwareState > InputEvent;
-
-        /**
-         * Self-contained defintion for input state of one or several devices and keys/buttons/axes.
-         */
-        typedef std::vector<std::tuple<Input::Device, Input::HardwarePart, Input::HardwareState>> InputState;
+    // Specifies type of event, e.g. key is pressed/released to held down
+    enum EventTrigger { PRESS = 1, RELEASE = 0, HOLD = 2, MOVE = 4 };
 
 
-        /**
-         * Matches input events to actions (callbacks) that are to be peformed in response to the event.
-         * The (game) logic part should register these as part of an input context into some sort of map datastructure.
-         * Use for actions triggered by a single, specific event such as a single key press
-         */
-        struct InputEventAction
-        {
-            InputEvent                             m_event;
-            std::function<void(InputEvent const&)> m_action;
-        };
+    /**
+     * Self-contained defintion for all sorts of hardware input events that acts as intermediate layer between specific definitions
+     * of window/context management and the (game) logic part.
+     */
+    typedef std::tuple< Device, HardwarePart, EventTrigger > Event;
 
-        /**
-         * Matches (more complex) input states to actions (callbacks) that are to be performed if the given state persists.
-         */
-        struct InputStateAction
-        {
-            InputState                             m_event;
-            std::function<void(InputState const&)> m_action;
-        };
+    /**
+     * Self-contained defintion for input state of one or several devices and keys/buttons/axes.
+     */
+    typedef std::vector<std::tuple<Device, HardwarePart>> HardwareStateQuery;
+
+    typedef std::function<void(Event const&, HardwareState const&)> EventAction;
+
+    typedef std::function<void(HardwareStateQuery const&, std::vector<HardwareState> const&)> StateAction;
 
 
-        /**
-         * A combination of several event-driven and state-driven input actions.
-         * Allows to define and switch between different controls, e.g. camera movement, player movement, etc.
-         * Input events should check with all active input contexts for matching event actions,
-         * while once a frame the input system should iterate all state actions for every active context.
-         */
-        struct InputActionContext
-        {
-            std::string                   m_context_name;
-            bool                          m_is_active;
+    /**
+     * Matches input events to actions (callbacks) that are to be peformed in response to the event.
+     * The (game) logic part should register these as part of an input context into some sort of map datastructure.
+     * Use for actions triggered by a single, specific event such as a single key press
+     */
+    struct EventDrivenAction
+    {
+        Event       m_event;
+        EventAction m_action;
+    };
 
-            std::vector<InputEventAction> m_event_actions;
-            std::vector<InputStateAction> m_state_actions;
-        };
+    /**
+     * Matches (more complex) input states to actions (callbacks) that are to be performed if the given state persists.
+     */
+    struct StateDrivenAction
+    {
+        HardwareStateQuery  m_state_query;
+        StateAction         m_action;
+    };
 
-    }
+
+    /**
+     * A combination of several event-driven and state-driven input actions.
+     * Allows to define and switch between different controls, e.g. camera movement, player movement, etc.
+     * Input events should check with all active input contexts for matching event actions,
+     * while once a frame the input system should iterate all state actions for every active context.
+     */
+    struct InputActionContext
+    {
+        std::string                   m_context_name;
+        bool                          m_is_active;
+
+        std::vector<EventDrivenAction> m_event_actions;
+        std::vector<StateDrivenAction> m_state_actions;
+    };
+
+}
+}
 }
 
 #endif // !InputEvent_hpp

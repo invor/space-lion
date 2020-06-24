@@ -6,18 +6,18 @@ Editor::Controls::CameraController::CameraController(EngineCore::WorldState & wo
     : m_world_state(world_state), m_frame_manager(frame_mngr), m_cursor_x(0.0), m_cursor_y(0.0), m_mouse_right_pressed(false)
 {
 
-    EngineCore::Common::InputStateAction state_action = {
+    EngineCore::Common::Input::StateDrivenAction state_action = {
         {
-            {EngineCore::Common::Input::Device::KEYBOARD,EngineCore::Common::Input::KeyboardKeys::KEY_W, 1.0f},
-            {EngineCore::Common::Input::Device::KEYBOARD,EngineCore::Common::Input::KeyboardKeys::KEY_A, 1.0f},
-            {EngineCore::Common::Input::Device::KEYBOARD,EngineCore::Common::Input::KeyboardKeys::KEY_S, 1.0f},
-            {EngineCore::Common::Input::Device::KEYBOARD,EngineCore::Common::Input::KeyboardKeys::KEY_D, 1.0f},
+            {EngineCore::Common::Input::Device::KEYBOARD,EngineCore::Common::Input::KeyboardKeys::KEY_W},
+            {EngineCore::Common::Input::Device::KEYBOARD,EngineCore::Common::Input::KeyboardKeys::KEY_A},
+            {EngineCore::Common::Input::Device::KEYBOARD,EngineCore::Common::Input::KeyboardKeys::KEY_S},
+            {EngineCore::Common::Input::Device::KEYBOARD,EngineCore::Common::Input::KeyboardKeys::KEY_D},
 
-            {EngineCore::Common::Input::Device::MOUSE_AXES,EngineCore::Common::Input::MouseAxes::MOUSE_CURSOR_X, 1.0f},
-            {EngineCore::Common::Input::Device::MOUSE_AXES,EngineCore::Common::Input::MouseAxes::MOUSE_CURSOR_Y, 1.0f},
-            {EngineCore::Common::Input::Device::MOUSE_BUTTON,EngineCore::Common::Input::MouseButtons::MOUSE_BUTTON_RIGHT, 0.0f}
+            {EngineCore::Common::Input::Device::MOUSE_AXES,EngineCore::Common::Input::MouseAxes::MOUSE_CURSOR_X},
+            {EngineCore::Common::Input::Device::MOUSE_AXES,EngineCore::Common::Input::MouseAxes::MOUSE_CURSOR_Y},
+            {EngineCore::Common::Input::Device::MOUSE_BUTTON,EngineCore::Common::Input::MouseButtons::MOUSE_BUTTON_RIGHT}
         },
-        std::bind(&CameraController::controlCameraAction, this, std::placeholders::_1)
+        std::bind(&CameraController::controlCameraAction, this, std::placeholders::_1, std::placeholders::_2)
     };
 
     m_input_action_context = { "editor_cam_controls", true, {}, {state_action} };
@@ -27,12 +27,12 @@ Editor::Controls::CameraController::~CameraController()
 {
 }
 
-EngineCore::Common::InputActionContext const & Editor::Controls::CameraController::getInputActionContext()
+EngineCore::Common::Input::InputActionContext const & Editor::Controls::CameraController::getInputActionContext()
 {
     return m_input_action_context;
 }
 
-void Editor::Controls::CameraController::controlCameraAction(EngineCore::Common::InputState const & input_state)
+void Editor::Controls::CameraController::controlCameraAction(EngineCore::Common::Input::HardwareStateQuery const & input_hardware, std::vector<EngineCore::Common::Input::HardwareState> states)
 {
     auto& camera_mngr = m_world_state.accessCameraComponentManager();
     auto& transform_mngr = m_world_state.accessTransformManager();
@@ -57,19 +57,19 @@ void Editor::Controls::CameraController::controlCameraAction(EngineCore::Common:
     Vec3 movement = Vec3(0.0, 0.0, 0.0);
 
     // first hardware part is w key, state value greater 0 shows that key is currently pressed
-    if (std::get<2>(input_state[0]) > 0.0f)
+    if (states[0] > 0.0f)
     {
         movement += static_cast<float>(dt) * cam_forward;
     }
-    if (std::get<2>(input_state[1]) > 0.0f)
+    if (states[1] > 0.0f)
     {
         movement += -static_cast<float>(dt) * cam_right;
     }
-    if (std::get<2>(input_state[2]) > 0.0f)
+    if (states[2] > 0.0f)
     {
         movement += -static_cast<float>(dt) * cam_forward;
     }
-    if (std::get<2>(input_state[3]) > 0.0f)
+    if (states[3] > 0.0f)
     {
         movement += static_cast<float>(dt) * cam_right;
     }
@@ -77,10 +77,10 @@ void Editor::Controls::CameraController::controlCameraAction(EngineCore::Common:
     transform_mngr.translate(camera_transform_idx, movement);
 
 
-    if (std::get<2>(input_state[6]) > 0.0f)
+    if (states[6] > 0.0f)
     {
-        auto current_cursor_x = std::get<2>(input_state[4]);
-        auto current_cursor_y = std::get<2>(input_state[5]);
+        auto current_cursor_x = states[4];
+        auto current_cursor_y = states[5];
 
         if (!m_mouse_right_pressed) {
             m_cursor_x = current_cursor_x;

@@ -40,7 +40,7 @@ namespace EngineCore
                 /** Function blocks until window is created */
                 void waitForWindowCreation();
 
-                void addInputActionContext(Common::InputActionContext const& context);
+                void addInputActionContext(Common::Input::InputActionContext const& context);
 
                 void removeInputActionContext(std::string const& context_name);
 
@@ -60,7 +60,7 @@ namespace EngineCore
                 std::condition_variable m_winodw_creation_cVar;
 
                 // List of input contexts
-                std::list<Common::InputActionContext> m_input_action_contexts;
+                std::list<Common::Input::InputActionContext> m_input_action_contexts;
 
                 void processSingleExecutionTasks();
 

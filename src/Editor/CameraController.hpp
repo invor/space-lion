@@ -14,7 +14,7 @@ namespace Controls{
         CameraController(EngineCore::WorldState& world_state, EngineCore::Common::FrameManager& frame_mngr);
         ~CameraController();
 
-        EngineCore::Common::InputActionContext const& getInputActionContext();
+        EngineCore::Common::Input::InputActionContext const& getInputActionContext();
 
     private:
         
@@ -25,7 +25,7 @@ namespace Controls{
         EngineCore::Common::FrameManager& m_frame_manager;
 
         /** Input context used by this controller */
-        EngineCore::Common::InputActionContext m_input_action_context;
+        EngineCore::Common::Input::InputActionContext m_input_action_context;
 
         /** Keep track of mouse cursor x position to compute movement delta over frames */
         double m_cursor_x;
@@ -35,7 +35,7 @@ namespace Controls{
         bool m_mouse_right_pressed;
 
         /** Callback function, i.e. action to take based on a queried input state */
-        void controlCameraAction(EngineCore::Common::InputState const& input_state);
+        void controlCameraAction(EngineCore::Common::Input::HardwareStateQuery const& input_hardware, std::vector<EngineCore::Common::Input::HardwareState> states);
 
     };
 
