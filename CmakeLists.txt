@@ -4,6 +4,9 @@ project(space-lion)
 
 set(CMAKE_CXX_STANDARD 17)
 
+option(USE_GL "Use OpenGL graphics backend" ON)
+option(USE_DX11 "Use DirectX11 graphics backend" OFF)
+
 
 # try adding glowl by its own cmake file
 add_subdirectory(src/External/glowl)
@@ -88,11 +91,11 @@ SET (ENGINECORE_UTILITY_SOURCE_FILES
         src/EngineCore/TaskSchedueler.cpp)
 
 
-add_library(engine-core-gl "")
+add_library(EngineCore "")
 
-target_link_libraries(engine-core-gl PUBLIC glowl)
+target_link_libraries(EngineCore PUBLIC glowl)
 
-target_sources(engine-core-gl
+target_sources(EngineCore
     PRIVATE
         ${ENGINECORE_ANIMATION_HEADER_FILES}
         ${ENGINECORE_ANIMATION_SOURCE_FILES}
@@ -100,8 +103,8 @@ target_sources(engine-core-gl
         ${ENGINECORE_COMMON_SOURCE_FILES}
         ${ENGINECORE_GRAPHICS_HEADER_FILES}
         ${ENGINECORE_GRAPHICS_SOURCE_FILES}
-        ${ENGINECORE_GRAPHICS_GL_HEADER_FILES}
-        ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES}
+        #${ENGINECORE_GRAPHICS_GL_HEADER_FILES}
+        #${ENGINECORE_GRAPHICS_GL_SOURCE_FILES}
         ${ENGINECORE_PHYSICS_HEADER_FILES}
         ${ENGINECORE_PHYSICS_SOURCE_FILES}
         ${ENGINECORE_UTILITY_HEADER_FILES}
@@ -114,29 +117,40 @@ source_group(Common\\Header\ Files FILES ${ENGINECORE_COMMON_HEADER_FILES})
 source_group(Common\\Source\ Files FILES ${ENGINECORE_COMMON_SOURCE_FILES})
 source_group(Graphics\\Header\ Files FILES ${ENGINECORE_GRAPHICS_HEADER_FILES})
 source_group(Graphics\\Source\ Files FILES ${ENGINECORE_GRAPHICS_SOURCE_FILES})
-source_group(Graphics\\OpenGL\\Header\ Files FILES ${ENGINECORE_GRAPHICS_GL_HEADER_FILES})
-source_group(Graphics\\OpenGL\\Source\ Files FILES ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES})
+#source_group(Graphics\\OpenGL\\Header\ Files FILES ${ENGINECORE_GRAPHICS_GL_HEADER_FILES})
+#source_group(Graphics\\OpenGL\\Source\ Files FILES ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES})
 source_group(Physics\\Header\ Files FILES ${ENGINECORE_PHYSICS_HEADER_FILES})
 source_group(Physics\\Source\ Files FILES ${ENGINECORE_PHYSICS_SOURCE_FILES})
 source_group(Utility\\Header\ Files FILES ${ENGINECORE_UTILITY_HEADER_FILES})
 source_group(Utility\\Source\ Files FILES ${ENGINECORE_UTILITY_SOURCE_FILES})
 
 
+if(USE_GL)
 
+target_sources(EngineCore
+    PRIVATE
+        ${ENGINECORE_GRAPHICS_GL_HEADER_FILES}
+        ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES}
+)
+
+source_group(Graphics\\OpenGL\\Header\ Files FILES ${ENGINECORE_GRAPHICS_GL_HEADER_FILES})
+source_group(Graphics\\OpenGL\\Source\ Files FILES ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES})
+
+endif()
 
 
 
 # for now, in place example
-add_executable(example "")
-
-target_sources(example
-    PRIVATE
-        src/EngineCore/main.cpp
-)
-
-target_link_libraries(example PUBLIC engine-core-gl)
-
-target_include_directories(example PUBLIC
-                          "${PROJECT_BINARY_DIR}"
-                          "${PROJECT_SOURCE_DIR}/src/EngineCore"
-                          )
+#add_executable(example "")
+#
+#target_sources(example
+#    PRIVATE
+#        src/EngineCore/main.cpp
+#)
+#
+#target_link_libraries(example PUBLIC EngineCore)
+#
+#target_include_directories(example PUBLIC
+#                          "${PROJECT_BINARY_DIR}"
+#                          "${PROJECT_SOURCE_DIR}/src/EngineCore"
+#                          )
