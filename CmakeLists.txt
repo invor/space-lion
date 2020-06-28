@@ -1,0 +1,142 @@
+cmake_minimum_required(VERSION 3.16)
+
+project(space-lion)
+
+set(CMAKE_CXX_STANDARD 17)
+
+
+# try adding glowl by its own cmake file
+add_subdirectory(src/External/glowl)
+
+
+SET (ENGINECORE_ANIMATION_HEADER_FILES
+        src/EngineCore/TurntableComponentManager.hpp)
+
+SET (ENGINECORE_ANIMATION_SOURCE_FILES
+        src/EngineCore/TurntableComponentManager.cpp)
+
+SET (ENGINECORE_COMMON_HEADER_FILES
+        src/EngineCore/BaseComponentManager.hpp
+        src/EngineCore/BSplineComponent.hpp
+        src/EngineCore/EngineFrontend.hpp
+        src/EngineCore/EntityManager.hpp
+        src/EngineCore/Frame.hpp
+        src/EngineCore/InputEvent.hpp
+        src/EngineCore/NameComponentManager.hpp
+        src/EngineCore/TransformComponentManager.hpp
+        src/EngineCore/WorldState.hpp)
+
+SET (ENGINECORE_COMMON_SOURCE_FILES
+        src/EngineCore/EngineFrontend.cpp
+        src/EngineCore/BSplineComponent.cpp
+        src/EngineCore/EntityManager.cpp
+        src/EngineCore/Frame.cpp
+        src/EngineCore/NameComponentManager.cpp
+        src/EngineCore/TransformComponentManager.cpp
+        src/EngineCore/WorldState.cpp)
+
+SET (ENGINECORE_GRAPHICS_HEADER_FILES
+        src/EngineCore/BaseResourceManager.hpp
+        src/EngineCore/CameraComponent.hpp
+        src/EngineCore/GenericTextureLayout.hpp
+        src/EngineCore/GenericVertexLayout.hpp
+        src/EngineCore/GeometryBakery.hpp
+        src/EngineCore/gltfAssetComponentManager.hpp
+        src/EngineCore/MaterialComponentManager.hpp
+        src/EngineCore/MeshComponentManager.hpp
+        src/EngineCore/PointlightComponent.hpp
+        src/EngineCore/RenderPass.hpp
+        src/EngineCore/RenderTaskComponentManager.hpp
+        src/EngineCore/SunlightComponentManager.hpp)
+
+SET (ENGINECORE_GRAPHICS_SOURCE_FILES
+        src/EngineCore/CameraComponent.cpp
+        src/EngineCore/GeometryBakery.cpp
+        src/EngineCore/gltfAssetComponentManager.cpp
+        src/EngineCore/MaterialComponentManager.cpp
+        src/EngineCore/MeshComponentManager.cpp
+        src/EngineCore/PointlightComponent.cpp
+        src/EngineCore/RenderPass.cpp
+        src/EngineCore/RenderTaskComponentManager.cpp
+        src/EngineCore/SunlightComponentManager.cpp)
+
+SET (ENGINECORE_GRAPHICS_GL_HEADER_FILES
+        src/EngineCore/OpenGL/BasicRenderingPipeline.hpp
+        src/EngineCore/OpenGL/GraphicsBackend.hpp
+        src/EngineCore/OpenGL/ResourceManager.hpp)
+
+SET (ENGINECORE_GRAPHICS_GL_SOURCE_FILES
+        src/EngineCore/OpenGL/BasicRenderingPipeline.cpp
+        src/EngineCore/OpenGL/GraphicsBackend.cpp
+        src/EngineCore/OpenGL/ResourceManager.cpp)
+
+SET (ENGINECORE_PHYSICS_HEADER_FILES
+        src/EngineCore/AirplanePhysicsComponent.hpp)
+
+SET (ENGINECORE_PHYSICS_SOURCE_FILES
+        src/EngineCore/AirplanePhysicsComponent.hpp)
+
+SET (ENGINECORE_UTILITY_HEADER_FILES
+        src/EngineCore/MTQueue.hpp
+        src/EngineCore/ResourceLoading.hpp
+        src/EngineCore/TaskSchedueler.hpp
+        src/EngineCore/types.hpp
+        src/EngineCore/utility.hpp)
+
+SET (ENGINECORE_UTILITY_SOURCE_FILES
+        src/EngineCore/ResourceLoading.cpp
+        src/EngineCore/TaskSchedueler.cpp)
+
+
+add_library(engine-core-gl "")
+
+target_link_libraries(engine-core-gl PUBLIC glowl)
+
+target_sources(engine-core-gl
+    PRIVATE
+        ${ENGINECORE_ANIMATION_HEADER_FILES}
+        ${ENGINECORE_ANIMATION_SOURCE_FILES}
+        ${ENGINECORE_COMMON_HEADER_FILES}
+        ${ENGINECORE_COMMON_SOURCE_FILES}
+        ${ENGINECORE_GRAPHICS_HEADER_FILES}
+        ${ENGINECORE_GRAPHICS_SOURCE_FILES}
+        ${ENGINECORE_GRAPHICS_GL_HEADER_FILES}
+        ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES}
+        ${ENGINECORE_PHYSICS_HEADER_FILES}
+        ${ENGINECORE_PHYSICS_SOURCE_FILES}
+        ${ENGINECORE_UTILITY_HEADER_FILES}
+        ${ENGINECORE_UTILITY_SOURCE_FILES}
+)
+
+source_group(Animation\\Header\ Files FILES ${ENGINECORE_ANIMATION_HEADER_FILES})
+source_group(Animation\\Source\ Files FILES ${ENGINECORE_ANIMATION_SOURCE_FILES})
+source_group(Common\\Header\ Files FILES ${ENGINECORE_COMMON_HEADER_FILES})
+source_group(Common\\Source\ Files FILES ${ENGINECORE_COMMON_SOURCE_FILES})
+source_group(Graphics\\Header\ Files FILES ${ENGINECORE_GRAPHICS_HEADER_FILES})
+source_group(Graphics\\Source\ Files FILES ${ENGINECORE_GRAPHICS_SOURCE_FILES})
+source_group(Graphics\\OpenGL\\Header\ Files FILES ${ENGINECORE_GRAPHICS_GL_HEADER_FILES})
+source_group(Graphics\\OpenGL\\Source\ Files FILES ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES})
+source_group(Physics\\Header\ Files FILES ${ENGINECORE_PHYSICS_HEADER_FILES})
+source_group(Physics\\Source\ Files FILES ${ENGINECORE_PHYSICS_SOURCE_FILES})
+source_group(Utility\\Header\ Files FILES ${ENGINECORE_UTILITY_HEADER_FILES})
+source_group(Utility\\Source\ Files FILES ${ENGINECORE_UTILITY_SOURCE_FILES})
+
+
+
+
+
+
+# for now, in place example
+add_executable(example "")
+
+target_sources(example
+    PRIVATE
+        src/EngineCore/main.cpp
+)
+
+target_link_libraries(example PUBLIC engine-core-gl)
+
+target_include_directories(example PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/src/EngineCore"
+                          )
