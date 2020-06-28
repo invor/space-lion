@@ -24,7 +24,7 @@
 #include <unordered_map>
 #include <shared_mutex>
 
-#include "glowl.h"
+#include <glowl/glowl.h>
 
 /*	Include space-lion headers */
 #include "../BaseResourceManager.hpp"

@@ -95,6 +95,13 @@ add_library(EngineCore "")
 
 target_link_libraries(EngineCore PUBLIC glowl)
 
+target_include_directories(
+        EngineCore PUBLIC
+        "${PROJECT_SOURCE_DIR}/src/EngineCore"
+        "${PROJECT_SOURCE_DIR}/src/External/tinygltf"
+        "${PROJECT_SOURCE_DIR}/src/External/glm"
+        )
+
 target_sources(EngineCore
     PRIVATE
         ${ENGINECORE_ANIMATION_HEADER_FILES}
@@ -137,6 +144,8 @@ source_group(Graphics\\OpenGL\\Header\ Files FILES ${ENGINECORE_GRAPHICS_GL_HEAD
 source_group(Graphics\\OpenGL\\Source\ Files FILES ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES})
 
 endif()
+
+
 
 
 
