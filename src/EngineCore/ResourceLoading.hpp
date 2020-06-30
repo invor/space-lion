@@ -5,10 +5,10 @@
 #include <array>
 #include <vector>
 
-#include <lodepng/lodepng.h>
+#include <lodepng.h>
 
-#include "Mesh.hpp"
-#include "Texture.hpp"
+#include <glowl/Mesh.hpp>
+#include <glowl/Texture.hpp>
 
 struct SimulationState;
 
