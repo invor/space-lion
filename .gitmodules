@@ -13,3 +13,6 @@
 [submodule "src/External/tinygltf"]
 	path = src/External/tinygltf
 	url = https://github.com/syoyo/tinygltf.git
+[submodule "src/External/glfw"]
+	path = src/External/glfw
+	url = https://github.com/glfw/glfw
