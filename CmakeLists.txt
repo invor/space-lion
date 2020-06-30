@@ -7,9 +7,15 @@ set(CMAKE_CXX_STANDARD 17)
 option(USE_GL "Use OpenGL graphics backend" ON)
 option(USE_DX11 "Use DirectX11 graphics backend" OFF)
 
+if(USE_GL)
+
+# try adding glfw by its own cmake file
+add_subdirectory(src/External/glfw)
 
 # try adding glowl by its own cmake file
 add_subdirectory(src/External/glowl)
+
+endif()
 
 
 SET (ENGINECORE_ANIMATION_HEADER_FILES
@@ -77,7 +83,7 @@ SET (ENGINECORE_PHYSICS_HEADER_FILES
         src/EngineCore/AirplanePhysicsComponent.hpp)
 
 SET (ENGINECORE_PHYSICS_SOURCE_FILES
-        src/EngineCore/AirplanePhysicsComponent.hpp)
+        src/EngineCore/AirplanePhysicsComponent.cpp)
 
 SET (ENGINECORE_UTILITY_HEADER_FILES
         src/EngineCore/MTQueue.hpp
@@ -90,6 +96,10 @@ SET (ENGINECORE_UTILITY_SOURCE_FILES
         src/EngineCore/ResourceLoading.cpp
         src/EngineCore/TaskSchedueler.cpp)
 
+SET (EDITOR_FILES
+        src/Editor/CameraController.cpp
+        src/Editor/CameraController.cpp)
+
 
 add_library(EngineCore "")
 
@@ -97,6 +107,7 @@ target_link_libraries(EngineCore PUBLIC glowl)
 
 target_include_directories(
         EngineCore PUBLIC
+        "${PROJECT_SOURCE_DIR}/src/Editor"
         "${PROJECT_SOURCE_DIR}/src/EngineCore"
         "${PROJECT_SOURCE_DIR}/src/External/tinygltf"
         "${PROJECT_SOURCE_DIR}/src/External/glm"
@@ -104,19 +115,20 @@ target_include_directories(
 
 target_sources(EngineCore
     PRIVATE
+        ${EDITOR_FILES}
         ${ENGINECORE_ANIMATION_HEADER_FILES}
         ${ENGINECORE_ANIMATION_SOURCE_FILES}
         ${ENGINECORE_COMMON_HEADER_FILES}
         ${ENGINECORE_COMMON_SOURCE_FILES}
         ${ENGINECORE_GRAPHICS_HEADER_FILES}
         ${ENGINECORE_GRAPHICS_SOURCE_FILES}
-        #${ENGINECORE_GRAPHICS_GL_HEADER_FILES}
-        #${ENGINECORE_GRAPHICS_GL_SOURCE_FILES}
         ${ENGINECORE_PHYSICS_HEADER_FILES}
         ${ENGINECORE_PHYSICS_SOURCE_FILES}
         ${ENGINECORE_UTILITY_HEADER_FILES}
         ${ENGINECORE_UTILITY_SOURCE_FILES}
 )
+
+source_group(Editor FILES ${EDITOR_FILES})
 
 source_group(Animation\\Header\ Files FILES ${ENGINECORE_ANIMATION_HEADER_FILES})
 source_group(Animation\\Source\ Files FILES ${ENGINECORE_ANIMATION_SOURCE_FILES})
@@ -134,18 +146,62 @@ source_group(Utility\\Source\ Files FILES ${ENGINECORE_UTILITY_SOURCE_FILES})
 
 if(USE_GL)
 
+SET (EXTERNAL_GLAD_FILES
+        src/External/glad/include/glad/glad.h
+        src/External/glad/include/KHR/khrplatform.h
+        src/External/glad/src/glad.c
+)
+
+SET (EXTERNAL_IMGUI_FILES
+        src/External/imgui/imconfig.h
+        src/External/imgui/imgui.h
+        src/External/imgui/imgui.cpp
+        src/External/imgui/imgui_demo.cpp
+        src/External/imgui/imgui_draw.cpp
+        src/External/imgui/imgui_widgets.cpp
+        src/External/imgui/examples/imgui_impl_glfw.h
+        src/External/imgui/examples/imgui_impl_glfw.cpp
+        src/External/imgui/examples/imgui_impl_opengl3.h
+        src/External/imgui/examples/imgui_impl_opengl3.cpp
+        src/External/imgui/imstb_rectpack.h
+        src/External/imgui/imstb_textedit.h
+        src/External/imgui/imstb_truetype.h
+)
+
+SET (EXTERNAL_LODEPNG_FILES
+        src/External/lodepng/lodepng.h
+        src/External/lodepng/lodepng.cpp
+)
+
+target_include_directories(
+        EngineCore PUBLIC
+        "${PROJECT_SOURCE_DIR}/src/External/glad/include"
+        "${PROJECT_SOURCE_DIR}/src/External/glfw/include"
+        "${PROJECT_SOURCE_DIR}/src/External/imgui/"
+        "${PROJECT_SOURCE_DIR}/src/External/lodepng/"
+)
+
+target_link_libraries(EngineCore PUBLIC glfw ${GLFW_LIBRARIES})
+
 target_sources(EngineCore
     PRIVATE
         ${ENGINECORE_GRAPHICS_GL_HEADER_FILES}
         ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES}
+        ${EXTERNAL_GLAD_FILES}
+        ${EXTERNAL_IMGUI_FILES}
+        ${EXTERNAL_LODEPNG_FILES}
 )
 
 source_group(Graphics\\OpenGL\\Header\ Files FILES ${ENGINECORE_GRAPHICS_GL_HEADER_FILES})
 source_group(Graphics\\OpenGL\\Source\ Files FILES ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES})
+source_group(External\\glad\\ FILES ${EXTERNAL_GLAD_FILES})
+source_group(External\\imgui\\ FILES ${EXTERNAL_IMGUI_FILES})
+source_group(External\\lodepng\\ FILES ${EXTERNAL_LODEPNG_FILES})
 
 endif()
 
 
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 
 
