@@ -160,7 +160,7 @@ namespace EngineCore
                 std::vector<std::pair<glowl::GLSLProgram::ShaderType, std::string>> shader_srcs;
 
                 if (!vertex_src.empty())
-                    shader_srcs.push_back({ glowl::GLSLProgram::Vertex,vertex_src });
+                    shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::Vertex,vertex_src });
                 if (!fragment_src.empty())
                     shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::Fragment,fragment_src });
                 if (!geometry_src.empty())
@@ -179,7 +179,7 @@ namespace EngineCore
                 {
                     switch (shaders.first)
                     {
-                    case glowl::GLSLProgram::Vertex:
+                    case glowl::GLSLProgram::ShaderType::Vertex:
                     {
                         //TODO Scan vertex shader for input parameters
                         unsigned int param_idx = 0;
@@ -285,7 +285,7 @@ namespace EngineCore
 
                         switch (shader_filename.second)
                         {
-                        case glowl::GLSLProgram::Vertex:
+                        case glowl::GLSLProgram::ShaderType::Vertex:
                             vertex_src = shader_src;
                             break;
                         case glowl::GLSLProgram::ShaderType::Fragment:
@@ -317,7 +317,7 @@ namespace EngineCore
                     std::vector<std::pair<glowl::GLSLProgram::ShaderType, std::string>> shader_srcs;
 
                     if (!vertex_src.empty())
-                        shader_srcs.push_back({ glowl::GLSLProgram::Vertex,vertex_src });
+                        shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::Vertex,vertex_src });
                     if (!fragment_src.empty())
                         shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::Fragment,fragment_src });
                     if (!geometry_src.empty())
@@ -338,7 +338,7 @@ namespace EngineCore
                     {
                         switch (shaders.first)
                         {
-                        case glowl::GLSLProgram::Vertex:
+                        case glowl::GLSLProgram::ShaderType::Vertex:
                             {
                                 //TODO Scan vertex shader for input parameters
                                 unsigned int param_idx = 0;
