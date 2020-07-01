@@ -13,7 +13,7 @@ if(USE_GL)
 add_subdirectory(src/External/glfw)
 
 # try adding glowl by its own cmake file
-add_subdirectory(src/External/glowl)
+add_subdirectory(src/External/glowl EXCLUDE_FROM_ALL)
 
 endif()
 
@@ -101,19 +101,17 @@ SET (EDITOR_FILES
         src/Editor/CameraController.cpp)
 
 
-add_library(EngineCore "")
-
-target_link_libraries(EngineCore PUBLIC glowl)
+add_library(SpaceLion "")
 
 target_include_directories(
-        EngineCore PUBLIC
+        SpaceLion PUBLIC
         "${PROJECT_SOURCE_DIR}/src/Editor"
         "${PROJECT_SOURCE_DIR}/src/EngineCore"
         "${PROJECT_SOURCE_DIR}/src/External/tinygltf"
         "${PROJECT_SOURCE_DIR}/src/External/glm"
         )
 
-target_sources(EngineCore
+target_sources(SpaceLion
     PRIVATE
         ${EDITOR_FILES}
         ${ENGINECORE_ANIMATION_HEADER_FILES}
@@ -129,19 +127,11 @@ target_sources(EngineCore
 )
 
 source_group(Editor FILES ${EDITOR_FILES})
-
-source_group(Animation\\Header\ Files FILES ${ENGINECORE_ANIMATION_HEADER_FILES})
-source_group(Animation\\Source\ Files FILES ${ENGINECORE_ANIMATION_SOURCE_FILES})
-source_group(Common\\Header\ Files FILES ${ENGINECORE_COMMON_HEADER_FILES})
-source_group(Common\\Source\ Files FILES ${ENGINECORE_COMMON_SOURCE_FILES})
-source_group(Graphics\\Header\ Files FILES ${ENGINECORE_GRAPHICS_HEADER_FILES})
-source_group(Graphics\\Source\ Files FILES ${ENGINECORE_GRAPHICS_SOURCE_FILES})
-#source_group(Graphics\\OpenGL\\Header\ Files FILES ${ENGINECORE_GRAPHICS_GL_HEADER_FILES})
-#source_group(Graphics\\OpenGL\\Source\ Files FILES ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES})
-source_group(Physics\\Header\ Files FILES ${ENGINECORE_PHYSICS_HEADER_FILES})
-source_group(Physics\\Source\ Files FILES ${ENGINECORE_PHYSICS_SOURCE_FILES})
-source_group(Utility\\Header\ Files FILES ${ENGINECORE_UTILITY_HEADER_FILES})
-source_group(Utility\\Source\ Files FILES ${ENGINECORE_UTILITY_SOURCE_FILES})
+source_group(EngineCore\\Animation FILES ${ENGINECORE_ANIMATION_SOURCE_FILES} ${ENGINECORE_ANIMATION_HEADER_FILES})
+source_group(EngineCore\\Common FILES ${ENGINECORE_COMMON_HEADER_FILES} ${ENGINECORE_COMMON_SOURCE_FILES})
+source_group(EngineCore\\Graphics FILES ${ENGINECORE_GRAPHICS_HEADER_FILES} ${ENGINECORE_GRAPHICS_SOURCE_FILES})
+source_group(EngineCore\\Physics FILES ${ENGINECORE_PHYSICS_HEADER_FILES} ${ENGINECORE_PHYSICS_SOURCE_FILES})
+source_group(EngineCore\\Utility FILES ${ENGINECORE_UTILITY_HEADER_FILES} ${ENGINECORE_UTILITY_SOURCE_FILES})
 
 
 if(USE_GL)
@@ -173,30 +163,47 @@ SET (EXTERNAL_LODEPNG_FILES
         src/External/lodepng/lodepng.cpp
 )
 
+SET (EXTERNAL_GLOWL_FILES
+        src/External/glowl/include/glowl/BufferObject.hpp
+        src/External/glowl/include/glowl/Exceptions.hpp
+        src/External/glowl/include/glowl/FramebufferObject.hpp
+        src/External/glowl/include/glowl/glowl.h
+        src/External/glowl/include/glowl/GLSLProgram.hpp
+        src/External/glowl/include/glowl/Mesh.hpp
+        src/External/glowl/include/glowl/Texture.hpp
+        src/External/glowl/include/glowl/Texture2D.hpp
+        src/External/glowl/include/glowl/Texture2DArray.hpp
+        src/External/glowl/include/glowl/Texture3D.hpp
+        src/External/glowl/include/glowl/Texture3DView.hpp
+        src/External/glowl/include/glowl/TextureCubemapArray.hpp
+        src/External/glowl/include/glowl/VertexLayout.hpp
+)
+
 target_include_directories(
-        EngineCore PUBLIC
+        SpaceLion PUBLIC
         "${PROJECT_SOURCE_DIR}/src/External/glad/include"
         "${PROJECT_SOURCE_DIR}/src/External/glfw/include"
         "${PROJECT_SOURCE_DIR}/src/External/imgui/"
         "${PROJECT_SOURCE_DIR}/src/External/lodepng/"
 )
 
-target_link_libraries(EngineCore PUBLIC glfw ${GLFW_LIBRARIES})
+target_link_libraries(SpaceLion PUBLIC glowl glfw ${GLFW_LIBRARIES})
 
-target_sources(EngineCore
+target_sources(SpaceLion
     PRIVATE
         ${ENGINECORE_GRAPHICS_GL_HEADER_FILES}
         ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES}
         ${EXTERNAL_GLAD_FILES}
         ${EXTERNAL_IMGUI_FILES}
         ${EXTERNAL_LODEPNG_FILES}
+        ${EXTERNAL_GLOWL_FILES}
 )
 
-source_group(Graphics\\OpenGL\\Header\ Files FILES ${ENGINECORE_GRAPHICS_GL_HEADER_FILES})
-source_group(Graphics\\OpenGL\\Source\ Files FILES ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES})
+source_group(EngineCore\\Graphics\\OpenGL\\Header\ Files FILES ${ENGINECORE_GRAPHICS_GL_HEADER_FILES} ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES})
 source_group(External\\glad\\ FILES ${EXTERNAL_GLAD_FILES})
 source_group(External\\imgui\\ FILES ${EXTERNAL_IMGUI_FILES})
 source_group(External\\lodepng\\ FILES ${EXTERNAL_LODEPNG_FILES})
+source_group(External\\glowl\\ FILES ${EXTERNAL_GLOWL_FILES})
 
 endif()
 
