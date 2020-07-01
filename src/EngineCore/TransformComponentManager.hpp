@@ -36,6 +36,7 @@ namespace EngineCore
             };
 
             Data m_data;
+            std::mutex m_dataAccess_mutex;
 
             void transform(size_t index);
 

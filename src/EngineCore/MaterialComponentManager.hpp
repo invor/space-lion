@@ -160,6 +160,8 @@ namespace EngineCore
         template<typename ResourceManagerType>
         inline std::vector<ResourceID> MaterialComponentManager<ResourceManagerType>::getTextures(size_t component_idx, TextureSemantic semantic)
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_mutex);
+
             std::vector<ResourceID> retval;
 
             auto range_query = m_component_data[component_idx].textures.equal_range(semantic);

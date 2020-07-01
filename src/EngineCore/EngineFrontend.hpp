@@ -32,15 +32,18 @@ namespace Common {
         FrameManager& accessFrameManager();
 
         /**
+         * Grant access to gpu resources for the "driving" part of the application, e.g. editor, game, simulation etc.
+         */
+        Graphics::OpenGL::ResourceManager& accessResourceManager();
+
+        /**
          * Pass on an input action context to window handling in graphics backend
          */
         void addInputActionContext(Input::InputActionContext const& input_action_context);
 
     private:
-        void createDemoScene();
-
-        bool m_engine_started;
-        std::mutex m_engine_started_mutex;
+        bool                    m_engine_started;
+        std::mutex              m_engine_started_mutex;
         std::condition_variable m_engine_started_cVar;
 
         /**

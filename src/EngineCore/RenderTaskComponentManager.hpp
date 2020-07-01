@@ -44,7 +44,7 @@ namespace EngineCore
 
             void addComponent(Entity entity, ResourceID mesh, size_t mesh_component_subidx, ResourceID shader_prgm, size_t mtl_component_subidx, bool visible = true);
 
-            std::vector<Data> const& getComponentData();
+            std::vector<Data> const& getComponentData(); //TODO this is not thread safe, is it?
 
             std::vector<Data> getComponentDataCopy();
 

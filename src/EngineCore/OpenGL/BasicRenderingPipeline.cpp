@@ -74,8 +74,8 @@ namespace EngineCore
                     auto& transform_mngr = world_state.accessTransformManager();
 
                     // set camera matrices
-                    uint camera_idx = cam_mngr.getActiveCameraIndex();
-                    Entity camera_entity = cam_mngr.getEntity(camera_idx);
+                    Entity camera_entity = cam_mngr.getActiveCamera();
+                    auto camera_idx = cam_mngr.getIndex(camera_entity).front();
                     auto camera_transform_idx = transform_mngr.getIndex(camera_entity);
                     if (!camera_transform_idx.empty())
                     {
@@ -86,7 +86,7 @@ namespace EngineCore
                     data.proj_matrix = cam_mngr.getProjectionMatrix(camera_idx);
 
                     // set per object data
-                    auto& objs = renderTask_mngr.getComponentData();
+                    auto objs = renderTask_mngr.getComponentDataCopy();
 
                     ResourceID current_prgm = resource_mngr.invalidResourceID();
                     ResourceID current_mesh = resource_mngr.invalidResourceID();

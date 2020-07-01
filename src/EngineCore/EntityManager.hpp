@@ -63,7 +63,7 @@ public:
      * Get the invalid entity, i.e. the entity with id = max_uint.
      * Useful for functions that return an entity if something goes wrong.
      */
-    Entity invalidEntity() const { return Entity(); }
+    static Entity invalidEntity() { return Entity(); }
 };
 
 #endif

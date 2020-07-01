@@ -32,7 +32,7 @@ namespace EngineCore
             Data m_data;
 
             // TODO move this elsewhere?
-            uint m_active_camera_idx;
+            Entity m_active_camera;
 
         public:
             CameraComponentManager(uint size);
@@ -53,7 +53,7 @@ namespace EngineCore
 
             void setActiveCamera(Entity entity);
 
-            uint getActiveCameraIndex() const;
+            Entity getActiveCamera() const;
 
             Entity getEntity(uint index) const;
 

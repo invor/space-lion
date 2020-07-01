@@ -6,7 +6,7 @@ namespace EngineCore
     namespace Graphics
     {
         CameraComponentManager::CameraComponentManager(uint size)
-            : m_active_camera_idx(0)
+            : m_active_camera(EntityManager::invalidEntity())
         {
             const uint bytes = size * (sizeof(Entity)
                 + 5 * sizeof(float)
@@ -104,12 +104,12 @@ namespace EngineCore
             auto query = getIndex(entity);
 
             if (!query.empty())
-                m_active_camera_idx = static_cast<uint>(query.front());
+                m_active_camera = entity;
         }
 
-        uint CameraComponentManager::getActiveCameraIndex() const
+        Entity CameraComponentManager::getActiveCamera() const
         {
-            return m_active_camera_idx;
+            return m_active_camera;
         }
 
         Entity CameraComponentManager::getEntity(uint index) const

@@ -37,8 +37,13 @@ void Editor::Controls::CameraController::controlCameraAction(EngineCore::Common:
     auto& camera_mngr = m_world_state.accessCameraComponentManager();
     auto& transform_mngr = m_world_state.accessTransformManager();
 
-    uint camera_idx = camera_mngr.getActiveCameraIndex();
-    Entity camera_entity = camera_mngr.getEntity(camera_idx);
+    Entity camera_entity = camera_mngr.getActiveCamera();
+
+    if (camera_entity == EntityManager::invalidEntity())
+    {
+        return;
+    }
+
     size_t camera_transform_idx = transform_mngr.getIndex(camera_entity).front();
 
     auto view_to_world = transform_mngr.getWorldTransformation(camera_transform_idx);
