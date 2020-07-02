@@ -199,7 +199,7 @@ target_sources(SpaceLion
         ${EXTERNAL_GLOWL_FILES}
 )
 
-source_group(EngineCore\\Graphics\\OpenGL\\Header\ Files FILES ${ENGINECORE_GRAPHICS_GL_HEADER_FILES} ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES})
+source_group(EngineCore\\Graphics\\OpenGL FILES ${ENGINECORE_GRAPHICS_GL_HEADER_FILES} ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES})
 source_group(External\\glad\\ FILES ${EXTERNAL_GLAD_FILES})
 source_group(External\\imgui\\ FILES ${EXTERNAL_IMGUI_FILES})
 source_group(External\\lodepng\\ FILES ${EXTERNAL_LODEPNG_FILES})
