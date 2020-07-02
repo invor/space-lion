@@ -22,15 +22,15 @@ namespace EngineCore
             m_resource_manager(std::make_unique<Graphics::OpenGL::ResourceManager>()),
             m_world_state(std::make_unique<WorldState>())
         {
-            m_world_state->registerComponentManager<Physics::AirplanePhysicsComponentManager>(std::make_unique<Physics::AirplanePhysicsComponentManager>(128, *m_world_state.get()));
-            m_world_state->registerComponentManager<Graphics::CameraComponentManager>(std::make_unique<Graphics::CameraComponentManager>(8));
-            m_world_state->registerComponentManager<Graphics::GltfAssetComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique< Graphics::GltfAssetComponentManager<Graphics::OpenGL::ResourceManager>>(*m_resource_manager.get(), *m_world_state.get()));
-            m_world_state->registerComponentManager<Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique< Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>(m_resource_manager.get()));
-            m_world_state->registerComponentManager<Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique< Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>>(m_resource_manager.get()));
-            m_world_state->registerComponentManager<Common::NameComponentManager>(std::make_unique<Common::NameComponentManager>());
-            m_world_state->registerComponentManager<Graphics::RenderTaskComponentManager>(std::make_unique<Graphics::RenderTaskComponentManager>());
-            m_world_state->registerComponentManager<TransformComponentManager>(std::make_unique<TransformComponentManager>(4096));
-            m_world_state->registerComponentManager<Animation::TurntableComponentManager>(std::make_unique<Animation::TurntableComponentManager>(*m_world_state.get()));
+            m_world_state->add<Physics::AirplanePhysicsComponentManager>(std::make_unique<Physics::AirplanePhysicsComponentManager>(128, *m_world_state.get()));
+            m_world_state->add<Graphics::CameraComponentManager>(std::make_unique<Graphics::CameraComponentManager>(8));
+            m_world_state->add<Graphics::GltfAssetComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique< Graphics::GltfAssetComponentManager<Graphics::OpenGL::ResourceManager>>(*m_resource_manager.get(), *m_world_state.get()));
+            m_world_state->add<Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique< Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>(m_resource_manager.get()));
+            m_world_state->add<Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique< Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>>(m_resource_manager.get()));
+            m_world_state->add<Common::NameComponentManager>(std::make_unique<Common::NameComponentManager>());
+            m_world_state->add<Graphics::RenderTaskComponentManager>(std::make_unique<Graphics::RenderTaskComponentManager>());
+            m_world_state->add<TransformComponentManager>(std::make_unique<TransformComponentManager>(4096));
+            m_world_state->add<Animation::TurntableComponentManager>(std::make_unique<Animation::TurntableComponentManager>(*m_world_state.get()));
         }
 
         void EngineFrontend::startEngine()

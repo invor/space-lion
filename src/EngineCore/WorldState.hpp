@@ -18,6 +18,9 @@
 
 namespace EngineCore
 {
+    /**
+     * The state of a world instance. Made up from storage and management of all entities and all components.
+     */
     class WorldState
     {
     public:
@@ -26,31 +29,28 @@ namespace EngineCore
         WorldState() = default;
         ~WorldState() = default;
 
-        EntityManager&                                        accessEntityManager();
+        EntityManager& accessEntityManager();
 
         /**
          *
          */
-        template <typename ComponentType>
-        ComponentType& get() {
-            auto it = m_component_managers.find(getTypeId<ComponentType>());
-            assert(it != m_component_managers.end());
-            return (*(static_cast<ComponentType*>(it->second.get())));
-        }
+        template <typename ComponentManagerType>
+        ComponentManagerType& get();
 
         /**
          *
          */
-        template <class ComponentType>
-        void registerComponentManager(std::unique_ptr<BaseComponentManager> &&value) {
-            m_component_managers.emplace(getTypeId<ComponentType>() , std::forward<std::unique_ptr<BaseComponentManager>>(value) );
-        }
+        template <class ComponentManagerType>
+        void add(std::unique_ptr<BaseComponentManager> &&value);
 
     private:
+        /**
+         * Entity manager for storing and managing all entities of a world.
+         */
         EntityManager m_entity_manager;
 
         /**
-         * Type map, inspired by https://gpfault.net/posts/mapping-types-to-values.txt.html
+         * Type map for flexible storage of all component managers (inspired by https://gpfault.net/posts/mapping-types-to-values.txt.html)
          */
         std::unordered_map<int, std::unique_ptr<BaseComponentManager>> m_component_managers;
 
@@ -65,6 +65,20 @@ namespace EngineCore
 
     inline EntityManager& WorldState::accessEntityManager() {
         return m_entity_manager;
+    }
+
+    template <typename ComponentManagerType>
+    inline ComponentManagerType& WorldState::get()
+    {
+        auto it = m_component_managers.find(getTypeId<ComponentManagerType>());
+        assert(it != m_component_managers.end());
+        return (*(static_cast<ComponentManagerType*>(it->second.get())));
+    }
+
+    template <class ComponentManagerType>
+    inline void WorldState::add(std::unique_ptr<BaseComponentManager> &&value)
+    {
+        m_component_managers.emplace(getTypeId<ComponentManagerType>(), std::forward<std::unique_ptr<BaseComponentManager>>(value));
     }
 
 }
