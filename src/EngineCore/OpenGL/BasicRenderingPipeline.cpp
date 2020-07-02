@@ -67,11 +67,11 @@ namespace EngineCore
                     // data setup phase
                     [&frame, &world_state, &resource_mngr](GeomPassData& data, GeomPassResources& resources) {
 
-                    auto& cam_mngr = world_state.accessCameraComponentManager();
-                    auto& mtl_mngr = world_state.accessMaterialComponentManager();
-                    auto& mesh_mngr = world_state.accessMeshComponentManager();
-                    auto& renderTask_mngr = world_state.accessRenderTaskComponentManager();
-                    auto& transform_mngr = world_state.accessTransformManager();
+                    auto& cam_mngr = world_state.get<CameraComponentManager>();
+                    auto& mtl_mngr = world_state.get<MaterialComponentManager<ResourceManager>>();
+                    auto& mesh_mngr = world_state.get<MeshComponentManager<ResourceManager>> ();
+                    auto& renderTask_mngr = world_state.get<RenderTaskComponentManager>();
+                    auto& transform_mngr = world_state.get<Common::TransformComponentManager>();
 
                     // set camera matrices
                     Entity camera_entity = cam_mngr.getActiveCamera();
@@ -254,12 +254,6 @@ namespace EngineCore
 
                     // bind global resources?
 
-                    if (resources.m_batch_resources.empty())
-                    {
-                        std::cerr << "Well fuck" << std::endl;
-                    }
-
-
                     uint batch_idx = 0;
                     for (auto& batch_resources : resources.m_batch_resources)
                     {
@@ -298,8 +292,20 @@ namespace EngineCore
                     //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
                     auto gl_err = glGetError();
-                    if (gl_err != GL_NO_ERROR)
+                    if (gl_err != GL_NO_ERROR) {
                         std::cerr << "GL error in geometry pass : " << gl_err << std::endl;
+                    }
+
+
+                    ImGui::SetNextWindowPos(ImVec2(frame.m_window_width - 375.0f, frame.m_window_height - 135.0f));
+                    bool p_open = true;
+                    if (!ImGui::Begin("Render Stats", &p_open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
+                    {
+                        ImGui::End();
+                        return;
+                    }
+                    ImGui::Text("# batches (draw calls): %u ", batch_idx);
+                    ImGui::End();
                 }
                 );
             }

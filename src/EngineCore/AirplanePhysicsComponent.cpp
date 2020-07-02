@@ -146,10 +146,12 @@ namespace EngineCore
         {
             std::unique_lock<std::mutex> lock(m_data_mutex);
 
+            auto& transform_mngr = m_world.get<EngineCore::Common::TransformComponentManager>();
+
             for (uint i = 0; i < m_data.used; i++)
             {
-                size_t aircraft_transform_idx = m_world.accessTransformManager().getIndex(m_data.entity[i]).front(); // TODO this is not safe...
-                Quat orientation = m_world.accessTransformManager().getOrientation(aircraft_transform_idx);
+                size_t aircraft_transform_idx = transform_mngr.getIndex(m_data.entity[i]).front(); // TODO this is not safe...
+                Quat orientation = transform_mngr.getOrientation(aircraft_transform_idx);
 
                 Quat qFront = glm::cross(glm::cross(orientation, glm::quat(0.0, 0.0, 0.0, 1.0)), glm::conjugate(orientation));
                 Quat qUp = glm::cross(glm::cross(orientation, glm::quat(0.0, 0.0, 1.0, 0.0)), glm::conjugate(orientation));
@@ -253,8 +255,8 @@ namespace EngineCore
                 orientation *= glm::rotate(glm::quat(), timestep * 7.0f * (m_data.pitch_torque[i]), Vec3(-1.0, 0.0, 0.0)); // pitch
                 orientation *= glm::rotate(glm::quat(), timestep * 3.0f * (m_data.yaw_torque[i]), Vec3(0.0, 1.0, 0.0)); // yaw
 
-                m_world.accessTransformManager().setOrientation(aircraft_transform_idx, orientation);
-                m_world.accessTransformManager().translate(aircraft_transform_idx, m_data.velocity[i] * timestep);
+                transform_mngr.setOrientation(aircraft_transform_idx, orientation);
+                transform_mngr.translate(aircraft_transform_idx, m_data.velocity[i] * timestep);
             }
         }
 

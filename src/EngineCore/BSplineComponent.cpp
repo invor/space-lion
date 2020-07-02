@@ -10,9 +10,9 @@ Vec3 EngineCore::Common::BSplineComponentManager::recursiveDeBoor(size_t idx, ui
 {
 	if (k == 0)
 	{
-		size_t transform_idx = m_world.accessTransformManager().getIndex(m_data[idx].m_control_vertices[i]).front();
-
-		return m_world.accessTransformManager().getPosition(transform_idx);
+        auto& transform_mngr = m_world.get<EngineCore::Common::TransformComponentManager>();
+		size_t transform_idx = transform_mngr.getIndex(m_data[idx].m_control_vertices[i]).front();
+		return transform_mngr.getPosition(transform_idx);
 	}
 	else
 	{
@@ -32,14 +32,16 @@ EngineCore::Common::BSplineComponentManager::BSplineComponentManager(WorldState&
 
 void EngineCore::Common::BSplineComponentManager::addComponent(Entity entity)
 {
+    auto& transform_mngr = m_world.get<EngineCore::Common::TransformComponentManager>();
+
 	size_t idx = m_data.size();
 
 	addIndex(entity.id(), idx);
 
 	Entity cv_0 = m_world.accessEntityManager().create();
-	m_world.accessTransformManager().addComponent(cv_0, Vec3(-1.0, 0.0, 0.0));
+    transform_mngr.addComponent(cv_0, Vec3(-1.0, 0.0, 0.0));
 	Entity cv_1 = m_world.accessEntityManager().create();
-	m_world.accessTransformManager().addComponent(cv_1, Vec3(1.0, 0.0, 0.0));
+    transform_mngr.addComponent(cv_1, Vec3(1.0, 0.0, 0.0));
 
 	m_data.push_back(ComponentData(entity));
 	m_data[idx].m_degree = 1;

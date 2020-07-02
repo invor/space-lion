@@ -26,13 +26,14 @@ void EngineCore::Animation::TurntableComponentManager::animate(double dt)
 
     for (auto& cmp : m_data)
     {
-         auto& transform_mngr = m_world.accessTransformManager();
+        //auto& transform_mngr = m_world.accessTransformManager();
+        auto& transform_mngr = m_world.get<EngineCore::Common::TransformComponentManager>();
 
-         auto query = transform_mngr.getIndex(cmp.entity);
+        auto query = transform_mngr.getIndex(cmp.entity);
 
-         if (!query.empty())
-         {
-             transform_mngr.rotateLocal(query.front(), glm::angleAxis(static_cast<float>(cmp.angle * dt) ,cmp.axis));
-         }
+        if (!query.empty())
+        {
+            transform_mngr.rotateLocal(query.front(), glm::angleAxis(static_cast<float>(cmp.angle * dt) ,cmp.axis));
+        }
     }
 }

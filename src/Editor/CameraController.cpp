@@ -34,8 +34,9 @@ EngineCore::Common::Input::InputActionContext const & Editor::Controls::CameraCo
 
 void Editor::Controls::CameraController::controlCameraAction(EngineCore::Common::Input::HardwareStateQuery const & input_hardware, std::vector<EngineCore::Common::Input::HardwareState> states)
 {
-    auto& camera_mngr = m_world_state.accessCameraComponentManager();
-    auto& transform_mngr = m_world_state.accessTransformManager();
+    auto& camera_mngr = m_world_state.get<EngineCore::Graphics::CameraComponentManager>();
+    //auto& transform_mngr = m_world_state.accessTransformManager();
+    auto& transform_mngr = m_world_state.get<EngineCore::Common::TransformComponentManager>();
 
     Entity camera_entity = camera_mngr.getActiveCamera();
 

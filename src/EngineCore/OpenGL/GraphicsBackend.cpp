@@ -100,6 +100,10 @@ namespace EngineCore
 
                 while (!glfwWindowShouldClose(m_active_window))
                 {
+                    ImGui_ImplOpenGL3_NewFrame();
+                    ImGui_ImplGlfw_NewFrame();
+                    ImGui::NewFrame();
+
                     // Perform single execution tasks
                     processSingleExecutionTasks();
 
@@ -194,9 +198,7 @@ namespace EngineCore
                     int width, height;
                     glfwGetFramebufferSize(m_active_window, &width, &height);
                     
-                    ImGui_ImplOpenGL3_NewFrame();
-                    ImGui_ImplGlfw_NewFrame();
-                    ImGui::NewFrame();
+                    
                     ImGui::SetNextWindowPos(ImVec2(width - 375.0f, height - 100.0f));
                     bool p_open = true;
                     if (!ImGui::Begin("FPS", &p_open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))

@@ -183,6 +183,8 @@ namespace EngineCore
         template<typename ResourceManagerType>
         inline void GltfAssetComponentManager<ResourceManagerType>::addGltfNode(ModelPtr const & gltf_model, int gltf_node_idx, Entity parent_entity, ResourceID dflt_shader_prgm)
         {
+            auto& transform_mngr = m_world.get<EngineCore::Common::TransformComponentManager>();
+
             // add entity
             auto entity = m_world.accessEntityManager().create();
 
@@ -190,11 +192,11 @@ namespace EngineCore
             //m_world.accessNameManager()->addComponent(entity, model->nodes[node].name);
 
             // add transform
-            auto transform_idx = m_world.accessTransformManager().addComponent(entity);
+            auto transform_idx = transform_mngr.addComponent(entity);
 
             if (parent_entity != m_world.accessEntityManager().invalidEntity())
             {
-                m_world.accessTransformManager().setParent(transform_idx, parent_entity);
+                transform_mngr.setParent(transform_idx, parent_entity);
             }
 
             // add gltf asset component (which in turn add mesh + material)
@@ -218,7 +220,12 @@ namespace EngineCore
                 addIndex(entity.id(), cmp_idx);
             }
 
-            size_t transform_idx = m_world.accessTransformManager().getIndex(entity).front();
+            auto& transform_mngr = m_world.get<EngineCore::Common::TransformComponentManager>();
+            auto& mtl_mngr = m_world.get<EngineCore::Graphics::MaterialComponentManager<ResourceManagerType>>();
+            auto& mesh_mngr = m_world.get<EngineCore::Graphics::MeshComponentManager<ResourceManagerType>>();
+            auto& renderTask_mngr = m_world.get<EngineCore::Graphics::RenderTaskComponentManager>();
+
+            size_t transform_idx = transform_mngr.getIndex(entity).front();
 
             if (model->nodes[gltf_node_idx].matrix.size() != 0) // has matrix transform
             {
@@ -231,7 +238,7 @@ namespace EngineCore
                 auto& rotation = model->nodes[gltf_node_idx].rotation;
 
                 if (translation.size() != 0) {
-                    m_world.accessTransformManager().setPosition(
+                    transform_mngr.setPosition(
                         transform_idx,
                         Vec3(static_cast<float>(translation[0]),
                             static_cast<float>(translation[1]),
@@ -239,7 +246,7 @@ namespace EngineCore
                     );
                 }
                 if (scale.size() != 0) {
-                    m_world.accessTransformManager().scale(
+                    transform_mngr.scale(
                         transform_idx,
                         Vec3(static_cast<float>(scale[0]),
                             static_cast<float>(scale[1]),
@@ -247,7 +254,7 @@ namespace EngineCore
                     );
                 }
                 if (rotation.size() != 0) {
-                    m_world.accessTransformManager().setOrientation(
+                    transform_mngr.setOrientation(
                         transform_idx,
                         Quat(static_cast<float>(rotation[0]),
                             static_cast<float>(rotation[1]),
@@ -385,7 +392,7 @@ namespace EngineCore
 
                     auto primitive_topology_type = m_rsrc_mngr.convertGenericPrimitiveTopology(0x0004/*GL_TRIANGLES*/);
 
-                    EngineCore::Graphics::ResourceID mesh_rsrc = m_world.accessMeshComponentManager().addComponent(
+                    EngineCore::Graphics::ResourceID mesh_rsrc = mesh_mngr.addComponent(
                         entity,
                         identifier_string,
                         std::get<1>(mesh_data),
@@ -394,13 +401,13 @@ namespace EngineCore
                         std::get<3>(mesh_data),
                         primitive_topology_type);
 
-                    m_world.accessMaterialComponentManager().addComponent(entity, material_name, dflt_shader_prgm, base_colour, specular_colour, roughness, textures);
+                    mtl_mngr.addComponent(entity, material_name, dflt_shader_prgm, base_colour, specular_colour, roughness, textures);
 
-                    size_t mesh_subidx = m_world.accessMeshComponentManager().getIndex(entity).size() - 1;
-                    size_t mtl_subidx = m_world.accessMaterialComponentManager().getIndex(entity).size() - 1;;
+                    size_t mesh_subidx = mesh_mngr.getIndex(entity).size() - 1;
+                    size_t mtl_subidx = mtl_mngr.getIndex(entity).size() - 1;;
 
                     //for (int subidx = 0; subidx < component_idxs.size(); ++subidx)
-                    m_world.accessRenderTaskComponentManager().addComponent(entity, mesh_rsrc, mesh_subidx, dflt_shader_prgm, mtl_subidx);
+                    renderTask_mngr.addComponent(entity, mesh_rsrc, mesh_subidx, dflt_shader_prgm, mtl_subidx);
                 }
             }
         }

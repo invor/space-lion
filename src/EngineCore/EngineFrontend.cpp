@@ -20,8 +20,17 @@ namespace EngineCore
             m_frame_manager(std::make_unique<FrameManager>()),
             m_graphics_backend(std::make_unique<Graphics::OpenGL::GraphicsBackend>()),
             m_resource_manager(std::make_unique<Graphics::OpenGL::ResourceManager>()),
-            m_world_state(std::make_unique<WorldState>(m_resource_manager.get()))
+            m_world_state(std::make_unique<WorldState>())
         {
+            m_world_state->registerComponentManager<Physics::AirplanePhysicsComponentManager>(std::make_unique<Physics::AirplanePhysicsComponentManager>(128, *m_world_state.get()));
+            m_world_state->registerComponentManager<Graphics::CameraComponentManager>(std::make_unique<Graphics::CameraComponentManager>(8));
+            m_world_state->registerComponentManager<Graphics::GltfAssetComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique< Graphics::GltfAssetComponentManager<Graphics::OpenGL::ResourceManager>>(*m_resource_manager.get(), *m_world_state.get()));
+            m_world_state->registerComponentManager<Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique< Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>(m_resource_manager.get()));
+            m_world_state->registerComponentManager<Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique< Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>>(m_resource_manager.get()));
+            m_world_state->registerComponentManager<Common::NameComponentManager>(std::make_unique<Common::NameComponentManager>());
+            m_world_state->registerComponentManager<Graphics::RenderTaskComponentManager>(std::make_unique<Graphics::RenderTaskComponentManager>());
+            m_world_state->registerComponentManager<TransformComponentManager>(std::make_unique<TransformComponentManager>(4096));
+            m_world_state->registerComponentManager<Animation::TurntableComponentManager>(std::make_unique<Animation::TurntableComponentManager>(*m_world_state.get()));
         }
 
         void EngineFrontend::startEngine()
@@ -44,13 +53,13 @@ namespace EngineCore
             auto t_1 = std::chrono::high_resolution_clock::now();
 
             auto& entity_mngr = m_world_state->accessEntityManager();
-            auto& camera_mngr = m_world_state->accessCameraComponentManager();
-            auto& mtl_mngr = m_world_state->accessMaterialComponentManager();
-            auto& mesh_mngr = m_world_state->accessMeshComponentManager();
+            auto& camera_mngr = m_world_state->get<Graphics::CameraComponentManager>();
+            auto& mtl_mngr = m_world_state->get<Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>();
+            auto& mesh_mngr = m_world_state->get<Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>>();
             auto& rsrc_mngr = (*m_resource_manager);
-            auto& renderTask_mngr = m_world_state->accessRenderTaskComponentManager();
-            auto& transform_mngr = m_world_state->accessTransformManager();
-            auto& turntable_mngr = m_world_state->accessTurntableManager();
+            auto& renderTask_mngr = m_world_state->get<Graphics::RenderTaskComponentManager>();
+            auto& transform_mngr = m_world_state->get<TransformComponentManager>();
+            auto& turntable_mngr = m_world_state->get<Animation::TurntableComponentManager>();
 
             // inplace construct an input action context to test the new concept
             auto evt_func = [&camera_mngr,&transform_mngr](Input::Event const& evt, Input::HardwareState const& state) {
