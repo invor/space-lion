@@ -5,6 +5,7 @@
 #include <future>
 #include <chrono>
 
+#include "AnimationSystems.hpp"
 #include "OpenGL/BasicRenderingPipeline.hpp"
 #include "GeometryBakery.hpp"
 
@@ -30,7 +31,14 @@ namespace EngineCore
             m_world_state->add<Common::NameComponentManager>(std::make_unique<Common::NameComponentManager>());
             m_world_state->add<Graphics::RenderTaskComponentManager>(std::make_unique<Graphics::RenderTaskComponentManager>());
             m_world_state->add<TransformComponentManager>(std::make_unique<TransformComponentManager>(4096));
-            m_world_state->add<Animation::TurntableComponentManager>(std::make_unique<Animation::TurntableComponentManager>(*m_world_state.get()));
+            m_world_state->add<Animation::TurntableComponentManager>(std::make_unique<Animation::TurntableComponentManager>());
+
+            m_world_state->add([](WorldState& world_state, double dt) {
+                    auto& transform_mngr = world_state.get<TransformComponentManager>();
+                    auto& turntable_mngr = world_state.get<Animation::TurntableComponentManager>();
+                    EngineCore::Animation::animateTurntables(transform_mngr,turntable_mngr,dt);
+                }
+            );
         }
 
         void EngineFrontend::startEngine()
@@ -52,14 +60,14 @@ namespace EngineCore
             auto t_0 = std::chrono::high_resolution_clock::now();
             auto t_1 = std::chrono::high_resolution_clock::now();
 
-            auto& entity_mngr = m_world_state->accessEntityManager();
-            auto& camera_mngr = m_world_state->get<Graphics::CameraComponentManager>();
-            auto& mtl_mngr = m_world_state->get<Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>();
-            auto& mesh_mngr = m_world_state->get<Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>>();
-            auto& rsrc_mngr = (*m_resource_manager);
+            auto& entity_mngr     = m_world_state->accessEntityManager();
+            auto& camera_mngr     = m_world_state->get<Graphics::CameraComponentManager>();
+            auto& mtl_mngr        = m_world_state->get<Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>();
+            auto& mesh_mngr       = m_world_state->get<Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>>();
+            auto& rsrc_mngr       = (*m_resource_manager);
             auto& renderTask_mngr = m_world_state->get<Graphics::RenderTaskComponentManager>();
-            auto& transform_mngr = m_world_state->get<TransformComponentManager>();
-            auto& turntable_mngr = m_world_state->get<Animation::TurntableComponentManager>();
+            auto& transform_mngr  = m_world_state->get<TransformComponentManager>();
+            auto& turntable_mngr  = m_world_state->get<Animation::TurntableComponentManager>();
 
             // inplace construct an input action context to test the new concept
             auto evt_func = [&camera_mngr,&transform_mngr](Input::Event const& evt, Input::HardwareState const& state) {
@@ -86,8 +94,19 @@ namespace EngineCore
                 //std::cout << "dt: " << dt << std::endl;
                 t_0 = std::chrono::high_resolution_clock::now();
 
-                //TODO update world
-                turntable_mngr.animate(dt);
+                // update world
+                auto active_systems = m_world_state->getSystems();
+                for (auto& system : active_systems)
+                {
+                    auto& world_state = *m_world_state.get();
+                    m_task_schedueler->submitTask(
+                        [&world_state, dt, system]() {
+                            system(world_state, dt);
+                        }
+                    );
+                }
+
+                // TODO wait for world updates to finish...
 
                 // finalize engine update by creating a new frame
                 Frame new_frame;

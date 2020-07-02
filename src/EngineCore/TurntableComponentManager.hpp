@@ -30,16 +30,14 @@ namespace EngineCore
 
             std::vector<Data> m_data;
             std::mutex        m_dataAccess_mutex;
-                              
-            WorldState&       m_world;
-
+            
         public:
-            TurntableComponentManager(WorldState& world);
+            TurntableComponentManager() = default;
             ~TurntableComponentManager() = default;
 
             void addComponent(Entity entity, float angle, Vec3 axis = Vec3(0.0f,1.0f,0.0f));
 
-            void animate(double dt);
+            std::vector<Data> const& accessComponents();
         };
     }
 }

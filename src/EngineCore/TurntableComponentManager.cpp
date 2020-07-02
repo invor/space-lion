@@ -4,10 +4,6 @@
 #include "types.hpp"
 #include "WorldState.hpp"
 
-EngineCore::Animation::TurntableComponentManager::TurntableComponentManager(WorldState & world)
-    : m_world(world)
-{
-}
 
 void EngineCore::Animation::TurntableComponentManager::addComponent(Entity entity, float angle, Vec3 axis)
 {
@@ -20,20 +16,25 @@ void EngineCore::Animation::TurntableComponentManager::addComponent(Entity entit
     m_data.push_back(Data(entity, angle, axis));
 }
 
-void EngineCore::Animation::TurntableComponentManager::animate(double dt)
+//void EngineCore::Animation::TurntableComponentManager::animate(double dt)
+//{
+//    std::unique_lock<std::mutex> lock(m_dataAccess_mutex);
+//
+//    for (auto& cmp : m_data)
+//    {
+//        //auto& transform_mngr = m_world.accessTransformManager();
+//        auto& transform_mngr = m_world.get<EngineCore::Common::TransformComponentManager>();
+//
+//        auto query = transform_mngr.getIndex(cmp.entity);
+//
+//        if (!query.empty())
+//        {
+//            transform_mngr.rotateLocal(query.front(), glm::angleAxis(static_cast<float>(cmp.angle * dt) ,cmp.axis));
+//        }
+//    }
+//}
+
+std::vector<EngineCore::Animation::TurntableComponentManager::Data> const & EngineCore::Animation::TurntableComponentManager::accessComponents()
 {
-    std::unique_lock<std::mutex> lock(m_dataAccess_mutex);
-
-    for (auto& cmp : m_data)
-    {
-        //auto& transform_mngr = m_world.accessTransformManager();
-        auto& transform_mngr = m_world.get<EngineCore::Common::TransformComponentManager>();
-
-        auto query = transform_mngr.getIndex(cmp.entity);
-
-        if (!query.empty())
-        {
-            transform_mngr.rotateLocal(query.front(), glm::angleAxis(static_cast<float>(cmp.angle * dt) ,cmp.axis));
-        }
-    }
+    return m_data;
 }

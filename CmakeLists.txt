@@ -19,10 +19,12 @@ endif()
 
 
 SET (ENGINECORE_ANIMATION_HEADER_FILES
-        src/EngineCore/TurntableComponentManager.hpp)
+        src/EngineCore/TurntableComponentManager.hpp
+        src/EngineCore/AnimationSystems.hpp)
 
 SET (ENGINECORE_ANIMATION_SOURCE_FILES
-        src/EngineCore/TurntableComponentManager.cpp)
+        src/EngineCore/TurntableComponentManager.cpp
+        src/EngineCore/AnimationSystems.cpp)
 
 SET (ENGINECORE_COMMON_HEADER_FILES
         src/EngineCore/BaseComponentManager.hpp
