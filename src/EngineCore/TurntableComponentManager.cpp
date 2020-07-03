@@ -7,7 +7,7 @@
 
 void EngineCore::Animation::TurntableComponentManager::addComponent(Entity entity, float angle, Vec3 axis)
 {
-    std::unique_lock<std::mutex> lock(m_dataAccess_mutex);
+    std::unique_lock<std::shared_mutex> lock(m_dataAccess_mutex);
 
     uint idx = static_cast<uint>(m_data.size());
 
@@ -34,7 +34,15 @@ void EngineCore::Animation::TurntableComponentManager::addComponent(Entity entit
 //    }
 //}
 
-std::vector<EngineCore::Animation::TurntableComponentManager::Data> const & EngineCore::Animation::TurntableComponentManager::accessComponents()
+std::vector<EngineCore::Animation::TurntableComponentManager::Data> EngineCore::Animation::TurntableComponentManager::getComponentDataCopy()
 {
-    return m_data;
+    std::vector<EngineCore::Animation::TurntableComponentManager::Data> retval;
+
+    {
+        std::shared_lock<std::shared_mutex> lock(m_dataAccess_mutex);
+
+        retval = m_data;
+    }
+
+    return retval;
 }

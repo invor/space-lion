@@ -29,7 +29,7 @@ namespace EngineCore
             };
 
             std::vector<Data> m_data;
-            std::mutex        m_dataAccess_mutex;
+            std::shared_mutex        m_dataAccess_mutex;
             
         public:
             TurntableComponentManager() = default;
@@ -37,7 +37,7 @@ namespace EngineCore
 
             void addComponent(Entity entity, float angle, Vec3 axis = Vec3(0.0f,1.0f,0.0f));
 
-            std::vector<Data> const& accessComponents();
+            std::vector<Data> getComponentDataCopy();
         };
     }
 }

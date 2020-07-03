@@ -22,5 +22,13 @@ std::vector<EngineCore::Graphics::RenderTaskComponentManager::Data> const & Engi
 
 std::vector<EngineCore::Graphics::RenderTaskComponentManager::Data> EngineCore::Graphics::RenderTaskComponentManager::getComponentDataCopy()
 {
-    return m_data;
+    std::vector<EngineCore::Graphics::RenderTaskComponentManager::Data> retval;
+
+    {
+        std::shared_lock<std::shared_mutex> lock(m_data_mutex);
+
+        retval = m_data;
+    }
+
+    return retval;
 }
