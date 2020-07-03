@@ -342,7 +342,7 @@ namespace EngineCore
                 std::vector<VertexContainer> const & vertex_data,
                 IndexContainer const & index_data)
             {
-                std::shared_lock<std::shared_mutex> lock(m_meshes_mutex);
+                std::unique_lock<std::shared_mutex> lock(m_meshes_mutex);
 
                 auto query = m_id_to_mesh_idx.find(rsrc_id.value());
 
@@ -376,13 +376,17 @@ namespace EngineCore
                 m_renderThread_tasks.push(
                     /*std::async(*/[this, rsrc_id, vertex_offset, index_offset, vertex_data, index_data]() {
 
-                    std::shared_lock<std::shared_mutex> lock(m_meshes_mutex);
+                    std::unique_lock<std::shared_mutex> lock(m_meshes_mutex);
 
                     auto query = m_id_to_mesh_idx.find(rsrc_id.value());
 
                     if (query != m_id_to_mesh_idx.end())
                     {
-                        while (!(m_meshes[query->second].state == READY)) {} // TODO somehow do this more efficiently
+                        //while (!(m_meshes[query->second].state == READY)) {} // TODO somehow do this more efficiently
+
+                        if (!(m_meshes[query->second].state == READY)) {
+                            std::cerr << "ResourceManager - failed to update mesh" << std::endl;
+                        }
 
                         VertexLayout vertex_layout = m_meshes[query->second].resource->getVertexLayout();
 
@@ -457,10 +461,11 @@ namespace EngineCore
                             m_buffers[search->second].state);
                 }
 
+                std::unique_lock<std::shared_mutex> lock(m_buffers_mutex);
+
                 size_t idx = m_buffers.size();
                 ResourceID rsrc_id = generateResourceID();
 
-                std::unique_lock<std::shared_mutex> lock(m_buffers_mutex);
                 m_buffers.push_back(Resource<glowl::BufferObject>(rsrc_id));
                 m_id_to_buffer_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_buffer_idx.insert(std::pair<std::string, size_t>(name, idx));

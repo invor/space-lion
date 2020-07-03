@@ -126,6 +126,8 @@ namespace EngineCore
             size_t req_vertex_cnt = vbs_byteSize / vertex_byteSize;
             size_t req_index_cnt = ib_byte_size / index_byteSize;
 
+            std::unique_lock<std::shared_mutex> lock(m_data_mutex);
+
             auto it = m_mesh_data.begin();
             if (!store_seperate)
             {
@@ -153,8 +155,6 @@ namespace EngineCore
             {
                 it = m_mesh_data.end();
             }
-
-            std::unique_lock<std::shared_mutex> lock(m_data_mutex);
 
             // Create a new gpu mesh object if no matching mesh was found
             if (it == m_mesh_data.end())
@@ -202,6 +202,8 @@ namespace EngineCore
         template<typename ResourceManagerType>
         inline std::tuple<uint32_t, uint32_t, uint32_t> MeshComponentManager<ResourceManagerType>::getDrawIndexedParams(size_t component_index)
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_mutex);
+
             ComponentData const& data = m_component_data[component_index];
 
             return { data.indices_cnt, data.first_index, data.base_vertex };

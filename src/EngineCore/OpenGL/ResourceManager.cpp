@@ -51,18 +51,16 @@ namespace EngineCore
                 GLenum const index_type,
                 GLenum const mesh_type)
             {
+                std::unique_lock<std::shared_mutex> lock(m_meshes_mutex);
+
                 size_t idx = m_meshes.size();
                 ResourceID rsrc_id = generateResourceID();
-
-                {
-                    std::unique_lock<std::shared_mutex> lock(m_meshes_mutex);
-                    m_meshes.push_back(Resource<glowl::Mesh>(rsrc_id));
-                    m_id_to_mesh_idx.insert(std::pair<unsigned int, size_t>(m_meshes.back().id.value(), idx));
-                }
+                m_meshes.push_back(Resource<glowl::Mesh>(rsrc_id));
+                m_id_to_mesh_idx.insert(std::pair<unsigned int, size_t>(m_meshes.back().id.value(), idx));                
 
                 m_renderThread_tasks.push([this, idx, vertex_cnt, index_cnt, vertex_layout, index_type, mesh_type]() {
 
-                    std::shared_lock<std::shared_mutex> lock(m_meshes_mutex);
+                    std::unique_lock<std::shared_mutex> lock(m_meshes_mutex);
 
                     // TODO get number of buffer required for vertex layout and compute byte sizes
                     std::vector<void*> vertex_data_ptrs(vertex_layout->attributes.size(), nullptr);
@@ -421,10 +419,11 @@ namespace EngineCore
                             m_textures_2d[search->second].state);
                 }
 
+                std::unique_lock<std::shared_mutex> lock(m_textures_2d_mutex);
+
                 size_t idx = m_textures_2d.size();
                 ResourceID rsrc_id = generateResourceID();
 
-                std::unique_lock<std::shared_mutex> lock(m_textures_2d_mutex);
                 m_textures_2d.push_back(Resource<glowl::Texture2D>(rsrc_id));
                 m_id_to_textures_2d_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_textures_2d_idx.insert(std::pair<std::string, size_t>(name, idx));
@@ -451,10 +450,11 @@ namespace EngineCore
                         return m_textures_2d[search->second].id;
                 }
 
+                std::unique_lock<std::shared_mutex> lock(m_textures_2d_mutex);
+
                 size_t idx = m_textures_2d.size();
                 ResourceID rsrc_id = generateResourceID();
 
-                std::unique_lock<std::shared_mutex> lock(m_textures_2d_mutex);
                 m_textures_2d.push_back(Resource<glowl::Texture2D>(rsrc_id));
                 m_id_to_textures_2d_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_textures_2d_idx.insert(std::pair<std::string, size_t>(name, idx));
@@ -485,10 +485,11 @@ namespace EngineCore
                             m_textureArrays[search->second].state);
                 }
 
+                std::unique_lock<std::shared_mutex> lock(m_texArr_mutex);
+
                 size_t idx = m_textureArrays.size();
                 ResourceID rsrc_id = generateResourceID();
 
-                std::unique_lock<std::shared_mutex> lock(m_texArr_mutex);
                 m_textureArrays.push_back(Resource<glowl::Texture2DArray>(rsrc_id));
                 m_id_to_textureArray_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_textureArray_idx.insert(std::pair<std::string, size_t>(name, idx));
@@ -515,10 +516,11 @@ namespace EngineCore
                         return m_textureArrays[search->second].id;
                 }
 
+                std::unique_lock<std::shared_mutex> lock(m_texArr_mutex);
+
                 size_t idx = m_textureArrays.size();
                 ResourceID rsrc_id = generateResourceID();
 
-                std::unique_lock<std::shared_mutex> lock(m_texArr_mutex);
                 m_textureArrays.push_back(Resource<glowl::Texture2DArray>(rsrc_id));
                 m_id_to_textureArray_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_textureArray_idx.insert(std::pair<std::string, size_t>(name, idx));
@@ -548,10 +550,11 @@ namespace EngineCore
                             m_textures_3d[search->second].state);
                 }
 
+                std::unique_lock<std::shared_mutex> lock(m_textures_3d_mutex);
+
                 size_t idx = m_textures_3d.size();
                 ResourceID rsrc_id = generateResourceID();
 
-                std::unique_lock<std::shared_mutex> lock(m_textures_3d_mutex);
                 m_textures_3d.push_back(Resource<glowl::Texture3D>(rsrc_id));
                 m_id_to_textures_3d_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_textures_3d_idx.insert(std::pair<std::string, size_t>(name, idx));
@@ -583,10 +586,11 @@ namespace EngineCore
                             );
                 }
 
+                std::unique_lock<std::shared_mutex> lock(m_fbo_mutex);
+
                 size_t idx = m_FBOs.size();
                 ResourceID rsrc_id = generateResourceID();
 
-                std::unique_lock<std::shared_mutex> lock(m_fbo_mutex);
                 m_FBOs.push_back(Resource<glowl::FramebufferObject>(rsrc_id));
                 m_id_to_FBO_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_FBO_idx.insert(std::pair<std::string, size_t>(name, idx));
@@ -607,9 +611,8 @@ namespace EngineCore
                 GLsizeiptr byte_size,
                 GLenum usage)
             {
-
                 {
-                    std::shared_lock<std::shared_mutex> tex_lock(m_buffers_mutex);
+                    std::shared_lock<std::shared_mutex> lock(m_buffers_mutex);
                     auto search = m_name_to_buffer_idx.find(name);
                     if (search != m_name_to_buffer_idx.end())
                         return WeakResource<glowl::BufferObject>(
@@ -619,10 +622,11 @@ namespace EngineCore
                             );
                 }
 
+                std::unique_lock<std::shared_mutex> lock(m_buffers_mutex);
+
                 size_t idx = m_buffers.size();
                 ResourceID rsrc_id = generateResourceID();
 
-                std::unique_lock<std::shared_mutex> lock(m_buffers_mutex);
                 m_buffers.push_back(Resource<glowl::BufferObject>(rsrc_id));
                 m_id_to_buffer_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_buffer_idx.insert(std::pair<std::string, size_t>(name, idx));
