@@ -5,7 +5,7 @@ void EngineCore::Animation::animateTurntables(
     EngineCore::Animation::TurntableComponentManager & turntable_mngr,
     double dt)
 {
-    auto& tt_cmps = turntable_mngr.accessComponents();
+    auto tt_cmps = turntable_mngr.getComponentDataCopy();
 
     for (auto& cmp : tt_cmps)
     {
