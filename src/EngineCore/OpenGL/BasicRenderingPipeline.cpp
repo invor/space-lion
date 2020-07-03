@@ -272,10 +272,6 @@ namespace EngineCore
 
                         GLsizei draw_cnt = static_cast<GLsizei>( data.static_mesh_drawCommands[batch_idx].size() );
 
-                        auto gl_err = glGetError();
-                        if (gl_err != GL_NO_ERROR)
-                            std::cerr << "GL error in geometry pass execution - batch "<< batch_idx<<" : " << gl_err << std::endl;
-
                         glMultiDrawElementsIndirect(
                             batch_resources.geometry.resource->getPrimitiveType(),
                             batch_resources.geometry.resource->getIndexType(),
@@ -284,17 +280,18 @@ namespace EngineCore
                             0);
                         //glDrawArrays(GL_TRIANGLES, 0, 6);
 
+                        auto gl_err = glGetError();
+                        if (gl_err != GL_NO_ERROR)
+                            std::cerr << "GL error in geometry pass execution - batch " << batch_idx << " : " << gl_err << std::endl;
+
                         ++batch_idx;
                     }
+
+                    glBindVertexArray(0);
 
                     //glDisable(GL_CULL_FACE);
 
                     //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-                    auto gl_err = glGetError();
-                    if (gl_err != GL_NO_ERROR) {
-                        std::cerr << "GL error in geometry pass : " << gl_err << std::endl;
-                    }
 
 
                     ImGui::SetNextWindowPos(ImVec2(frame.m_window_width - 375.0f, frame.m_window_height - 135.0f));
