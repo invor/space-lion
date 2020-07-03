@@ -30,7 +30,7 @@ namespace EngineCore
             m_world_state->add<Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique< Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>>(m_resource_manager.get()));
             m_world_state->add<Common::NameComponentManager>(std::make_unique<Common::NameComponentManager>());
             m_world_state->add<Graphics::RenderTaskComponentManager>(std::make_unique<Graphics::RenderTaskComponentManager>());
-            m_world_state->add<TransformComponentManager>(std::make_unique<TransformComponentManager>(4096));
+            m_world_state->add<TransformComponentManager>(std::make_unique<TransformComponentManager>(250000));
             m_world_state->add<Animation::TurntableComponentManager>(std::make_unique<Animation::TurntableComponentManager>());
 
             m_world_state->add([](WorldState& world_state, double dt) {
