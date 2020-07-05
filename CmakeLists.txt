@@ -28,6 +28,8 @@ SET (ENGINECORE_ANIMATION_SOURCE_FILES
 
 SET (ENGINECORE_COMMON_HEADER_FILES
         src/EngineCore/BaseComponentManager.hpp
+        src/EngineCore/BaseMultiInstanceComponentManager.hpp
+        src/EngineCore/BaseSingleInstanceComponentManager.hpp
         src/EngineCore/BSplineComponent.hpp
         src/EngineCore/EngineFrontend.hpp
         src/EngineCore/EntityManager.hpp

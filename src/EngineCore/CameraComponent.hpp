@@ -4,14 +4,14 @@
 // forward declartion of Entity
 struct Entity;
 // space-lion includes
-#include "BaseComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager.hpp"
 #include "types.hpp"
 
 namespace EngineCore
 {
     namespace Graphics
     {
-        class CameraComponentManager : public BaseComponentManager
+        class CameraComponentManager : public BaseMultiInstanceComponentManager
         {
         private:
             struct Data

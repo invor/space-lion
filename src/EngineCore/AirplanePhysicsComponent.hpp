@@ -1,7 +1,7 @@
 #ifndef AirplanePhysicsComponent_hpp
 #define AirplanePhysicsComponent_hpp
 
-#include "BaseComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager.hpp"
 #include "types.hpp"
 
 struct Entity;
@@ -13,7 +13,7 @@ namespace EngineCore
     namespace Physics
     {
 
-        class AirplanePhysicsComponentManager : public BaseComponentManager
+        class AirplanePhysicsComponentManager : public BaseMultiInstanceComponentManager
         {
         private:
 
@@ -108,4 +108,5 @@ namespace EngineCore
     }
 
 }
+
 #endif

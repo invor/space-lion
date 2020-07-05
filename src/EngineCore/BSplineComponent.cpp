@@ -11,7 +11,7 @@ Vec3 EngineCore::Common::BSplineComponentManager::recursiveDeBoor(size_t idx, ui
 	if (k == 0)
 	{
         auto& transform_mngr = m_world.get<EngineCore::Common::TransformComponentManager>();
-		size_t transform_idx = transform_mngr.getIndex(m_data[idx].m_control_vertices[i]).front();
+		size_t transform_idx = transform_mngr.getIndex(m_data[idx].m_control_vertices[i]);
 		return transform_mngr.getPosition(transform_idx);
 	}
 	else

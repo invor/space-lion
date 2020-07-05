@@ -2,7 +2,7 @@
 #define PointlightComponent_h
 
 #include "EntityManager.hpp"
-#include "BaseComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager.hpp"
 #include "types.hpp"
 
 namespace EngineCore
@@ -10,7 +10,7 @@ namespace EngineCore
     namespace Graphics
     {
 
-        class PointlightComponentManager : public BaseComponentManager
+        class PointlightComponentManager : public BaseMultiInstanceComponentManager
         {
         private:
             struct Data

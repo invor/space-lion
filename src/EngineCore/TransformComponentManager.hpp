@@ -2,7 +2,7 @@
 #define TransformComponent_h
 
 // space-lion includes
-#include "BaseComponentManager.hpp"
+#include "BaseSingleInstanceComponentManager.hpp"
 #include "EntityManager.hpp"
 #include "types.hpp"
 
@@ -15,7 +15,7 @@ namespace EngineCore
 {
     namespace Common
     {
-        class TransformComponentManager : public BaseComponentManager
+        class TransformComponentManager : public BaseSingleInstanceComponentManager
         {
         private:
             struct Data

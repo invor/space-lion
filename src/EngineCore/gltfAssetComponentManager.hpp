@@ -14,7 +14,7 @@
 
 #include "tiny_gltf.h"
 
-#include "BaseComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager.hpp"
 #include "BaseResourceManager.hpp"
 #include "GenericVertexLayout.hpp"
 #include "GenericTextureLayout.hpp"
@@ -36,7 +36,7 @@ namespace EngineCore
         }
 
         template<typename ResourceManagerType>
-        class GltfAssetComponentManager : public BaseComponentManager
+        class GltfAssetComponentManager : public BaseMultiInstanceComponentManager
         {
         public:
             GltfAssetComponentManager(ResourceManagerType& rsrc_mngr, WorldState& world);
@@ -225,7 +225,7 @@ namespace EngineCore
             auto& mesh_mngr = m_world.get<EngineCore::Graphics::MeshComponentManager<ResourceManagerType>>();
             auto& renderTask_mngr = m_world.get<EngineCore::Graphics::RenderTaskComponentManager>();
 
-            size_t transform_idx = transform_mngr.getIndex(entity).front();
+            size_t transform_idx = transform_mngr.getIndex(entity);
 
             if (model->nodes[gltf_node_idx].matrix.size() != 0) // has matrix transform
             {
@@ -367,7 +367,7 @@ namespace EngineCore
 
                         if (model->materials[material_idx].normalTexture.index != -1)
                         {
-                            // metallic roughness texture
+                            // normal map texture
                             GenericTextureLayout layout;
 
                             auto& img = model->images[model->textures[model->materials[material_idx].normalTexture.index].source];
@@ -407,7 +407,21 @@ namespace EngineCore
                     size_t mtl_subidx = mtl_mngr.getIndex(entity).size() - 1;;
 
                     //for (int subidx = 0; subidx < component_idxs.size(); ++subidx)
-                    renderTask_mngr.addComponent(entity, mesh_rsrc, mesh_subidx, dflt_shader_prgm, mtl_subidx);
+                    renderTask_mngr.addComponent(
+                        entity, 
+                        mesh_rsrc, 
+                        mesh_subidx, 
+                        dflt_shader_prgm, 
+                        mtl_subidx,
+                        transform_mngr.getIndex(entity),
+                        mesh_mngr.getIndex(entity)[mesh_subidx],
+                        mtl_mngr.getIndex(entity)[mtl_subidx]
+                    );
+
+                    // TODO experiment with index caching for better performance...
+                    //renderTask_mngr.getComponentData().back().cached_transform_idx = transform_mngr.getIndex(entity).front();
+                    //renderTask_mngr.getComponentData().back().cached_mesh_idx = mesh_mngr.getIndex(entity)[mesh_subidx];
+                    //renderTask_mngr.getComponentData().back().cached_material_idx = mtl_mngr.getIndex(entity)[mtl_subidx];
                 }
             }
         }

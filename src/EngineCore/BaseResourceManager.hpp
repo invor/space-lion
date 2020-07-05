@@ -43,6 +43,7 @@ namespace EngineCore
             unsigned int m_id;
         };
 
+
         enum ResourceState { NOT_READY, READY, EXPIRED };
 
         /** Non-owning resource struct for more direct reference to resources */
@@ -58,6 +59,7 @@ namespace EngineCore
             ResourceType*	resource;
             ResourceState	state;
         };
+
 
         /** Owning resource struct for internal storage of resources */
         template<typename ResourceType>

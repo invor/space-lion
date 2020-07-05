@@ -6,14 +6,14 @@
 #include <unordered_map>
 #include <vector>
 
-#include "BaseComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager.hpp"
 #include "EntityManager.hpp"
 
 namespace EngineCore
 {
     namespace Common
     {
-        class NameComponentManager : public BaseComponentManager
+        class NameComponentManager : public BaseMultiInstanceComponentManager
         {
         private:
             struct Data

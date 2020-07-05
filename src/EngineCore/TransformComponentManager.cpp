@@ -5,11 +5,11 @@ namespace EngineCore
     namespace Common
     {
         TransformComponentManager::TransformComponentManager()
-            : BaseComponentManager()
+            : BaseSingleInstanceComponentManager()
         {}
 
         TransformComponentManager::TransformComponentManager(size_t size)
-            : BaseComponentManager(), m_data()
+            : BaseSingleInstanceComponentManager(), m_data()
         {
             const size_t bytes = size * (sizeof(Entity)
                 + sizeof(Mat4x4)
@@ -116,8 +116,7 @@ namespace EngineCore
         {
             auto query = getIndex(entity);
 
-            if (!query.empty())
-                translate(query.front(), translation);
+            translate(query, translation);
         }
 
         void TransformComponentManager::translate(size_t index, Vec3 translation)
@@ -185,8 +184,7 @@ namespace EngineCore
         {
             auto query = getIndex(entity);
 
-            if (!query.empty())
-                setPosition(query.front(), position);
+            setPosition(query, position);
         }
 
         void TransformComponentManager::setPosition(size_t index, Vec3 position)
@@ -207,30 +205,29 @@ namespace EngineCore
         {
             auto query = getIndex(parent);
 
-            if (!query.empty())
+
+            size_t parent_idx = query;
+
+            m_data.parent[index] = parent_idx;
+
+            if (m_data.first_child[parent_idx] == parent_idx)
             {
-                size_t parent_idx = query.front();
-
-                m_data.parent[index] = parent_idx;
-
-                if (m_data.first_child[parent_idx] == parent_idx)
-                {
-                    m_data.first_child[parent_idx] = index;
-                }
-                else
-                {
-                    size_t child_idx = m_data.first_child[parent_idx];
-
-                    while (m_data.next_sibling[child_idx] != child_idx)
-                    {
-                        child_idx = m_data.next_sibling[child_idx];
-                    }
-
-                    m_data.next_sibling[child_idx] = index;
-                }
-
-                transform(index);
+                m_data.first_child[parent_idx] = index;
             }
+            else
+            {
+                size_t child_idx = m_data.first_child[parent_idx];
+
+                while (m_data.next_sibling[child_idx] != child_idx)
+                {
+                    child_idx = m_data.next_sibling[child_idx];
+                }
+
+                m_data.next_sibling[child_idx] = index;
+            }
+
+            transform(index);
+            
         }
 
         const Vec3 & TransformComponentManager::getPosition(size_t index) const
@@ -251,14 +248,7 @@ namespace EngineCore
 
             auto query = getIndex(e);
 
-            if (!query.empty())
-            {
-                retval = getWorldPosition(query.front());
-            }
-            else
-            {
-                // TODO issue some kind of warning?
-            }
+            retval = getWorldPosition(query);
 
             return retval;
         }

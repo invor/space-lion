@@ -9,14 +9,14 @@
 #include <set>
 
 #include "EntityManager.hpp"
-#include "BaseComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager.hpp"
 #include "BaseResourceManager.hpp"
 
 namespace EngineCore
 {
     namespace Graphics
     {
-        class RenderTaskComponentManager : public BaseComponentManager
+        class RenderTaskComponentManager : public BaseMultiInstanceComponentManager
         {
         public:
 
@@ -36,15 +36,24 @@ namespace EngineCore
                 size_t     mtl_component_subidx;  //< denotes which of the entity's material components to use for the render task (set to 0 if entity does NOT have multiple material components)
                 bool       visible;               //< used to show/hide object without completely removing render task
 
-                //size_t     cached_transform_idx;
-                //size_t     cached_mesh_idx;
-                //size_t     cached_material_idx;
+                size_t     cached_transform_idx;
+                size_t     cached_mesh_idx;
+                size_t     cached_material_idx;
             };
 
 
-            void addComponent(Entity entity, ResourceID mesh, size_t mesh_component_subidx, ResourceID shader_prgm, size_t mtl_component_subidx, bool visible = true);
+            void addComponent(
+                Entity entity,
+                ResourceID mesh,
+                size_t mesh_component_subidx,
+                ResourceID shader_prgm,
+                size_t mtl_component_subidx,
+                size_t cached_transform_idx,
+                size_t cached_mesh_idx,
+                size_t cached_material_idx,
+                bool visible = true);
 
-            std::vector<Data> const& getComponentData(); //TODO this is not thread safe, is it?
+            std::vector<Data> & getComponentData(); //TODO this is not thread safe, is it?
 
             std::vector<Data> getComponentDataCopy();
 

@@ -9,7 +9,7 @@
 #include <array>
 #include <unordered_map>
 
-#include "BaseComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager.hpp"
 #include "BaseResourceManager.hpp"
 #include "EntityManager.hpp"
 
@@ -18,7 +18,7 @@ namespace EngineCore
     namespace Graphics
     {
         template<typename ResourceManagerType>
-        class MaterialComponentManager : public BaseComponentManager
+        class MaterialComponentManager : public BaseMultiInstanceComponentManager
         {
         public:
 
@@ -26,7 +26,7 @@ namespace EngineCore
 
 
             MaterialComponentManager(ResourceManagerType* resource_manager)
-                : BaseComponentManager(), m_resource_manager(resource_manager) {}
+                : BaseMultiInstanceComponentManager(), m_resource_manager(resource_manager) {}
             ~MaterialComponentManager() = default;
 
 
@@ -81,7 +81,7 @@ namespace EngineCore
                 return m_component_data[idx].roughness;
             }
 
-            std::vector<ResourceID> getTextures(size_t component_idx, TextureSemantic semantic);
+            ResourceID getTextures(size_t component_idx, TextureSemantic semantic);
 
         private:
 
@@ -113,7 +113,9 @@ namespace EngineCore
                 std::array<float, 4>    specular_colour;
                 float                   roughness;
 
-                std::unordered_multimap<TextureSemantic,ResourceID> textures;
+                //std::unordered_multimap<TextureSemantic,ResourceID> textures;
+
+                std::vector<std::pair<TextureSemantic, ResourceID>> textures;
             };
 
             std::vector<ComponentData> m_component_data;
@@ -158,18 +160,31 @@ namespace EngineCore
         }
 
         template<typename ResourceManagerType>
-        inline std::vector<ResourceID> MaterialComponentManager<ResourceManagerType>::getTextures(size_t component_idx, TextureSemantic semantic)
+        inline ResourceID MaterialComponentManager<ResourceManagerType>::getTextures(size_t component_idx, TextureSemantic semantic)
         {
             std::shared_lock<std::shared_mutex> lock(m_data_mutex);
 
-            std::vector<ResourceID> retval;
+            //std::vector<ResourceID> retval;
+            //
+            //auto range_query = m_component_data[component_idx].textures.equal_range(semantic);
+            //
+            //if (range_query.first != m_component_data[component_idx].textures.end())
+            //{
+            //    for (auto itr = range_query.first; itr != range_query.second; ++itr){
+            //        retval.push_back(itr->second);
+            //    }
+            //}
+            //
+            //return retval;
 
-            auto range_query = m_component_data[component_idx].textures.equal_range(semantic);
+            ResourceID retval = ResourceManagerType::invalidResourceID();
 
-            if (range_query.first != m_component_data[component_idx].textures.end())
+            for (auto& tx : m_component_data[component_idx].textures)
             {
-                for (auto itr = range_query.first; itr != range_query.second; ++itr){
-                    retval.push_back(itr->second);
+                if(std::get<0>(tx) == semantic)
+                {
+                    retval = std::get<1>(tx);
+                    break;
                 }
             }
 

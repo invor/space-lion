@@ -3,7 +3,7 @@
 
 struct Entity;
 
-#include "BaseComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager.hpp"
 #include "types.hpp"
 
 namespace EngineCore
@@ -11,7 +11,7 @@ namespace EngineCore
     namespace Graphics
     {
 
-        class SunlightComponentManager : public BaseComponentManager
+        class SunlightComponentManager : public BaseMultiInstanceComponentManager
         {
         private:
             struct Data

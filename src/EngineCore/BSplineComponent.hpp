@@ -3,13 +3,13 @@
 
 #include <unordered_map>
 
-#include "BaseComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager.hpp"
 #include "WorldState.hpp"
 
 namespace EngineCore {
 namespace Common {
 
-	class BSplineComponentManager : public BaseComponentManager
+	class BSplineComponentManager : public BaseMultiInstanceComponentManager
 	{
 	private:
 		typedef Entity ControlVertex;

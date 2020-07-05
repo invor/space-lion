@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "BaseComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager.hpp"
 #include "EntityManager.hpp"
 
 namespace EngineCore
@@ -15,7 +15,7 @@ namespace EngineCore
 
     namespace Animation
     {
-        class TurntableComponentManager : public BaseComponentManager
+        class TurntableComponentManager : public BaseMultiInstanceComponentManager
         {
         private:
             struct Data

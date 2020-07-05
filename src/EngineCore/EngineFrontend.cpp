@@ -60,6 +60,9 @@ namespace EngineCore
             auto t_0 = std::chrono::high_resolution_clock::now();
             auto t_1 = std::chrono::high_resolution_clock::now();
 
+            auto t_2 = std::chrono::high_resolution_clock::now();
+            auto t_3 = std::chrono::high_resolution_clock::now();
+
             auto& entity_mngr     = m_world_state->accessEntityManager();
             auto& camera_mngr     = m_world_state->get<Graphics::CameraComponentManager>();
             auto& mtl_mngr        = m_world_state->get<Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>();
@@ -127,7 +130,7 @@ namespace EngineCore
                 {
                     auto camera_idx = camera_mngr.getIndex(camera_entity).front();
 
-                    size_t camera_transform_idx = transform_mngr.getIndex(camera_entity).front();
+                    size_t camera_transform_idx = transform_mngr.getIndex(camera_entity);
                     new_frame.m_view_matrix = glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx));
                     new_frame.m_projection_matrix = camera_mngr.getProjectionMatrix(camera_idx);
                     new_frame.m_fovy = camera_mngr.getFovy(camera_idx);
@@ -136,7 +139,13 @@ namespace EngineCore
 
                     Frame& update_frame = m_frame_manager->setUpdateFrame(std::move(new_frame));
 
+                    t_2 = std::chrono::high_resolution_clock::now();
                     Graphics::OpenGL::setupBasicForwardRenderingPipeline(update_frame, *m_world_state, *m_resource_manager);
+                    t_3 = std::chrono::high_resolution_clock::now();
+
+                    auto dt2 = std::chrono::duration_cast<std::chrono::duration<double>>(t_3 - t_2).count();
+                    std::cout << "dt: " << dt << std::endl;
+                    std::cout << "dt2: " << dt2 << std::endl;
 
                     m_frame_manager->swapUpdateFrame();
                 }

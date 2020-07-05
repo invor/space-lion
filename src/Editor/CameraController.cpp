@@ -45,7 +45,7 @@ void Editor::Controls::CameraController::controlCameraAction(EngineCore::Common:
         return;
     }
 
-    size_t camera_transform_idx = transform_mngr.getIndex(camera_entity).front();
+    size_t camera_transform_idx = transform_mngr.getIndex(camera_entity);
 
     auto view_to_world = transform_mngr.getWorldTransformation(camera_transform_idx);
     auto view_to_world_vec = glm::mat3x3(view_to_world);
@@ -96,8 +96,8 @@ void Editor::Controls::CameraController::controlCameraAction(EngineCore::Common:
         float dx = static_cast<float>(current_cursor_x - m_cursor_x);
         float dy = static_cast<float>(current_cursor_y - m_cursor_y);
 
-        auto rotation = glm::angleAxis(-dx * dt, world_up_vs);
-        rotation *= glm::angleAxis(-dy * dt, Vec3(1.0, 0.0, 0.0));
+        auto rotation = glm::angleAxis(-dx * 0.001f, world_up_vs);
+        rotation *= glm::angleAxis(-dy * 0.001f, Vec3(1.0, 0.0, 0.0));
 
         m_cursor_x = current_cursor_x;
         m_cursor_y = current_cursor_y;
@@ -110,4 +110,8 @@ void Editor::Controls::CameraController::controlCameraAction(EngineCore::Common:
     {
         m_mouse_right_pressed = false;
     }
+
+    // reduce camera latency by updating current render frame
+
+    m_frame_manager.getRenderFrame().m_view_matrix = glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx));
 }

@@ -7,7 +7,7 @@
 #define MeshComponentManager_hpp
 
 #include "EntityManager.hpp"
-#include "BaseComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager.hpp"
 #include "BaseResourceManager.hpp"
 
 namespace EngineCore
@@ -15,14 +15,14 @@ namespace EngineCore
     namespace Graphics
     {
         template<typename ResourceManagerType>
-        class MeshComponentManager : public BaseComponentManager
+        class MeshComponentManager : public BaseMultiInstanceComponentManager
         {
         public:
             typedef typename ResourceManagerType::VertexLayout          VertexLayoutType;
             typedef typename ResourceManagerType::IndexFormatType       IndexFormatType;
             typedef typename ResourceManagerType::PrimitiveTopologyType PrimitiveTopologyType;
 
-            MeshComponentManager(ResourceManagerType* resource_manager) : BaseComponentManager(), m_resource_mngr(resource_manager) {}
+            MeshComponentManager(ResourceManagerType* resource_manager) : BaseMultiInstanceComponentManager(), m_resource_mngr(resource_manager) {}
             ~MeshComponentManager() = default;
 
             template<typename VertexContainer, typename IndexContainer>

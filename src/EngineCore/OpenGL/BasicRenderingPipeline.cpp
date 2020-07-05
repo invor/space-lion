@@ -77,10 +77,9 @@ namespace EngineCore
                     Entity camera_entity = cam_mngr.getActiveCamera();
                     auto camera_idx = cam_mngr.getIndex(camera_entity).front();
                     auto camera_transform_idx = transform_mngr.getIndex(camera_entity);
-                    if (!camera_transform_idx.empty())
-                    {
-                        data.view_matrix = glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx.front()));
-                    }
+                    
+                    data.view_matrix = glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx));
+                    
                     cam_mngr.setAspectRatio(camera_idx, static_cast<float>(frame.m_window_width) / static_cast<float>(frame.m_window_height) );
                     cam_mngr.updateProjectionMatrix(camera_idx);
                     data.proj_matrix = cam_mngr.getProjectionMatrix(camera_idx);
@@ -117,59 +116,113 @@ namespace EngineCore
 
                         // gather all per object information
                         GeomPassData::StaticMeshParams params;
-                        auto transform_idx = transform_mngr.getIndex(obj.entity);
-                        if (!transform_idx.empty()){
-                            params.transform = transform_mngr.getWorldTransformation(transform_idx.front());
-                        }
+                        //auto transform_idx = transform_mngr.getIndex(obj.entity);
+                        //if (!transform_idx.empty()){
+                        //    params.transform = transform_mngr.getWorldTransformation(transform_idx.front());
+                        //}
+
+                        params.transform = transform_mngr.getWorldTransformation(obj.cached_transform_idx);
+
                         
-                        auto mtl_idx = mtl_mngr.getIndex(obj.entity);
-                        if (!mtl_idx.empty())
+                        //auto mtl_idx = mtl_mngr.getIndex(obj.entity);
+                        //if (!mtl_idx.empty())
                         {
                             using TextureSemantic = MaterialComponentManager<ResourceManager>::TextureSemantic;
-                            auto albedo_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::ALBEDO);
-                            auto roughness_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::METALLIC_ROUGHNESS);
-                            auto normal_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::NORMAL);
+                            //auto albedo_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::ALBEDO);
+                            //auto roughness_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::METALLIC_ROUGHNESS);
+                            //auto normal_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::NORMAL);
 
-                            if (!albedo_textures.empty())
-                            {
-                                auto albedo_tx = resource_mngr.getTexture2DResource(albedo_textures[0]);
-                                
-                                if (albedo_tx.state == READY)
-                                {
-                                    params.base_color_tx_hndl = albedo_tx.resource->getTextureHandle();
-                                    data.tx_rsrc_access_cache.back().push_back(albedo_tx);
-                                }
+                            auto albedo_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::ALBEDO);
+                            auto roughness_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::METALLIC_ROUGHNESS);
+                            auto normal_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::NORMAL);
+
+                            //if (!albedo_textures.empty())
+                            //{
+                            //    auto albedo_tx = resource_mngr.getTexture2DResource(albedo_textures[0]);
+                            //    
+                            //    if (albedo_tx.state == READY)
+                            //    {
+                            //        params.base_color_tx_hndl = albedo_tx.resource->getTextureHandle();
+                            //        data.tx_rsrc_access_cache.back().push_back(albedo_tx);
+                            //    }
+                            //}
+                            //
+                            //if (!roughness_textures.empty())
+                            //{
+                            //    auto roughness_tx = resource_mngr.getTexture2DResource(roughness_textures[0]);
+                            //
+                            //    if (roughness_tx.state == READY)
+                            //    {
+                            //        params.roughnes_tx_hndl = roughness_tx.resource->getTextureHandle();
+                            //        data.tx_rsrc_access_cache.back().push_back(roughness_tx);
+                            //    }
+                            //}
+                            //
+                            //if (!normal_textures.empty())
+                            //{
+                            //    auto normal_tx = resource_mngr.getTexture2DResource(normal_textures[0]);
+                            //
+                            //    if (normal_tx.state == READY)
+                            //    {
+                            //        params.normal_tx_hndl = normal_tx.resource->getTextureHandle();
+                            //        data.tx_rsrc_access_cache.back().push_back(normal_tx);
+                            //    }
+                            //}
+
+                            WeakResource<glowl::Texture2D> albedo_tx;
+                            WeakResource<glowl::Texture2D> roughness_tx;
+                            WeakResource<glowl::Texture2D> normal_tx;
+
+
+                            if (albedo_texture != resource_mngr.invalidResourceID()) {
+                                albedo_tx = resource_mngr.getTexture2DResource(albedo_texture);
+                            }
+                            else {
+                                albedo_tx = resource_mngr.getTexture2DResource("noTexture_baseColor");
                             }
 
-                            if (!roughness_textures.empty())
-                            {
-                                auto roughness_tx = resource_mngr.getTexture2DResource(roughness_textures[0]);
-
-                                if (roughness_tx.state == READY)
-                                {
-                                    params.roughnes_tx_hndl = roughness_tx.resource->getTextureHandle();
-                                    data.tx_rsrc_access_cache.back().push_back(roughness_tx);
-                                }
+                            if (roughness_texture != resource_mngr.invalidResourceID()) {
+                                roughness_tx = resource_mngr.getTexture2DResource(roughness_texture);
+                            }
+                            else {
+                                roughness_tx = resource_mngr.getTexture2DResource("noTexture_metallicRoughness");
                             }
 
-                            if (!normal_textures.empty())
-                            {
-                                auto normal_tx = resource_mngr.getTexture2DResource(normal_textures[0]);
-
-                                if (normal_tx.state == READY)
-                                {
-                                    params.normal_tx_hndl = normal_tx.resource->getTextureHandle();
-                                    data.tx_rsrc_access_cache.back().push_back(normal_tx);
-                                }
+                            if (normal_texture != resource_mngr.invalidResourceID()) {
+                                normal_tx = resource_mngr.getTexture2DResource(normal_texture);
                             }
+                            else {
+                                normal_tx = resource_mngr.getTexture2DResource("noTexture_normalMap");
+                            }
+
+
+                            if (albedo_tx.state == READY)
+                            {
+                                params.base_color_tx_hndl = albedo_tx.resource->getTextureHandle();
+                                data.tx_rsrc_access_cache.back().push_back(albedo_tx);
+                            }
+
+                            if (roughness_tx.state == READY)
+                            {
+                                params.roughnes_tx_hndl = roughness_tx.resource->getTextureHandle();
+                                data.tx_rsrc_access_cache.back().push_back(roughness_tx);
+                            }
+
+                            if (normal_tx.state == READY)
+                            {
+                                params.normal_tx_hndl = normal_tx.resource->getTextureHandle();
+                                data.tx_rsrc_access_cache.back().push_back(normal_tx);
+                            }
+                            
                         }
 
                         data.static_mesh_params.back().push_back(params);
 
                         // set draw command values
                         GeomPassData::DrawElementsCommand draw_command;
-                        auto obj_mesh_idx = mesh_mngr.getIndex(obj.entity);
-                        auto draw_params = mesh_mngr.getDrawIndexedParams(obj_mesh_idx[obj.mesh_component_subidx]);
+                        //auto obj_mesh_idx = mesh_mngr.getIndex(obj.entity);
+                        //auto draw_params = mesh_mngr.getDrawIndexedParams(obj_mesh_idx[obj.mesh_component_subidx]);
+                        auto draw_params = mesh_mngr.getDrawIndexedParams(obj.cached_mesh_idx);
                         draw_command.cnt = std::get<0>(draw_params);
                         draw_command.base_vertex = std::get<2>(draw_params);
                         draw_command.first_idx = std::get<1>(draw_params);
