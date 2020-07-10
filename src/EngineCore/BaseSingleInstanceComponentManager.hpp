@@ -23,7 +23,7 @@ namespace EngineCore
         /// <summary>
         /// Mapping from Entity ID to component index
         /// </summary>
-        std::unordered_map<unsigned int, size_t> m_index_map;
+        std::vector<size_t> m_index_map;
 
         /// <summary>
         /// Mutex for protection of index map add vs read
@@ -34,18 +34,11 @@ namespace EngineCore
         {
             std::unique_lock<std::shared_mutex> index_map_lock(m_index_map_mutex);
 
-            //auto query = m_index_map.find(entity_id);
-            //
-            //if (query != m_index_map.end())
-            //{
-            //    query->second.push_back(index);
-            //}
-            //else
-            //{
-            //    m_index_map.insert({ entity_id, {index} });
-            //}
+            if (m_index_map.size() <= entity_id) {
+                m_index_map.resize(entity_id + 1, (std::numeric_limits<size_t>::max)());
+            }
 
-            m_index_map.insert({ entity_id, index });
+            m_index_map[entity_id] = index;
         }
 
     public:
@@ -68,11 +61,8 @@ namespace EngineCore
 
             size_t retval = (std::numeric_limits<size_t>::max)();
 
-            auto query = m_index_map.find(entity_id);
-
-            if (query != m_index_map.end())
-            {
-                retval = query->second;
+            if (m_index_map.size() > entity_id) {
+                retval = m_index_map[entity_id];
             }
 
             return retval;
