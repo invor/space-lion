@@ -257,9 +257,7 @@ namespace EngineCore
                 WeakResource<glowl::FramebufferObject> createFramebufferObject(
                     std::string const& name,
                     uint width,
-                    uint height,
-                    bool has_depth = false,
-                    bool has_stencil = false);
+                    uint height);
 
                 template<typename Container>
                 WeakResource<glowl::BufferObject> createBufferObject(
