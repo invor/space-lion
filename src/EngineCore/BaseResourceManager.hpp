@@ -103,6 +103,8 @@ namespace EngineCore
 
             WeakResource<ShaderProgram> getShaderProgramResource(ResourceID rsrc_id);
 
+            WeakResource<ShaderProgram> getShaderProgramResource(std::string rsrc_name);
+
             WeakResource<Texture2D> getTexture2DResource(ResourceID rsrc_id);
 
             WeakResource<Texture2D> getTexture2DResource(std::string name);
@@ -255,6 +257,26 @@ namespace EngineCore
             auto query = m_id_to_shader_program_idx.find(rsrc_id.value());
 
             if (query != m_id_to_shader_program_idx.end())
+            {
+                retval = WeakResource<ShaderProgram>(
+                    m_shader_programs[query->second].id,
+                    m_shader_programs[query->second].resource.get(),
+                    m_shader_programs[query->second].state);
+            }
+
+            return retval;
+        }
+
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
+        inline WeakResource<ShaderProgram> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getShaderProgramResource(std::string rsrc_name)
+        {
+            std::shared_lock<std::shared_mutex> lock(m_shader_programs_mutex);
+
+            WeakResource<ShaderProgram> retval(invalidResourceID(), nullptr, NOT_READY);
+
+            auto query = m_name_to_shader_program_idx.find(rsrc_name);
+
+            if (query != m_name_to_shader_program_idx.end())
             {
                 retval = WeakResource<ShaderProgram>(
                     m_shader_programs[query->second].id,

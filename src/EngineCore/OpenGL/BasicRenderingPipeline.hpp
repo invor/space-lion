@@ -16,11 +16,16 @@ namespace EngineCore
                 WorldState&      world_state,
                 ResourceManager& resource_mngr);
 
-            /** Experimenting with new Renderer architecture */
-            void setupBasicRenderingPipeline(
-                Common::Frame&   frame,
-                WorldState&      world_state,
+            void setupBasicDeferredRenderingPipeline(
+                Common::Frame& frame,
+                WorldState& world_state,
                 ResourceManager& resource_mngr);
+
+            /** Experimenting with new Renderer architecture */
+            //void setupBasicRenderingPipeline(
+            //    Common::Frame&   frame,
+            //    WorldState&      world_state,
+            //    ResourceManager& resource_mngr);
         }
     }
 }
