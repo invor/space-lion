@@ -170,7 +170,15 @@ namespace EngineCore
                 if (!compute_src.empty())
                     shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::Compute,compute_src });
 
-                m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>(shader_srcs);
+                try
+                {
+                    m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>(shader_srcs);
+                }
+                catch (glowl::GLSLProgramException const& exc)
+                {
+                    std::cerr<< exc.what() <<std::endl;
+                }
+
                 m_shader_programs[idx].resource->setDebugLabel(program_name);
 
                 for (auto& shaders : shader_srcs)
@@ -327,7 +335,16 @@ namespace EngineCore
                     if (!compute_src.empty())
                         shader_srcs.push_back({ glowl::GLSLProgram::ShaderType::Compute,compute_src });
 
-                    m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>(shader_srcs);
+                    try
+                    {
+                        m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>(shader_srcs);
+                    }
+                    catch (glowl::GLSLProgramException const& exc)
+                    {
+                        std::cerr << exc.what() << std::endl;
+                    }
+
+                    //m_shader_programs[idx].resource = std::make_unique<glowl::GLSLProgram>(shader_srcs);
                     m_shader_programs[idx].state = READY;
                     m_shader_programs[idx].resource->setDebugLabel(program_name);
 

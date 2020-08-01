@@ -434,17 +434,6 @@ namespace EngineCore
                     WeakResource<glowl::BufferObject>      m_sunlights_data;
                 };
 
-                struct CompPassData
-                {
-                    float m_camera_exposure;
-                };
-
-                struct CompPassResources
-                {
-                    WeakResource<glowl::GLSLProgram> m_compositing_prgm;
-                    WeakResource<glowl::Texture2D>   m_lighting_target;
-                };
-
                 // Geometry pass
                 frame.addRenderPass<GeomPassData, GeomPassResources>("GeometryPass",
                     // data setup phase
@@ -652,37 +641,37 @@ namespace EngineCore
                         glEnable(GL_CULL_FACE);
                         glFrontFace(GL_CCW);
                         glEnable(GL_DEPTH_TEST);
-
+                    
                         //glDisable(GL_BLEND);
                         //glDisable(GL_CULL_FACE);
-
+                    
                         resources.m_render_target.resource->bind();
-                        glClearColor(0.2f, 0.2f, 0.2f, 1);
+                        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                         int width = resources.m_render_target.resource->getWidth();
                         int height = resources.m_render_target.resource->getHeight();
                         glViewport(0, 0, width, height);
-
+                    
                         // bind global resources?
-
+                    
                         uint batch_idx = 0;
                         for (auto& batch_resources : resources.m_batch_resources)
                         {
                             if (batch_resources.shader_prgm.state != READY || batch_resources.geometry.state != READY)
                                 continue;
-
+                    
                             batch_resources.shader_prgm.resource->use();
-
+                    
                             batch_resources.shader_prgm.resource->setUniform("view_matrix", data.view_matrix);
                             batch_resources.shader_prgm.resource->setUniform("projection_matrix", data.proj_matrix);
-
+                    
                             batch_resources.object_params.resource->bind(0);
-
+                    
                             batch_resources.draw_commands.resource->bind();
                             batch_resources.geometry.resource->bindVertexArray();
-
+                    
                             GLsizei draw_cnt = static_cast<GLsizei>(data.static_mesh_drawCommands[batch_idx].size());
-
+                    
                             glMultiDrawElementsIndirect(
                                 batch_resources.geometry.resource->getPrimitiveType(),
                                 batch_resources.geometry.resource->getIndexType(),
@@ -690,21 +679,21 @@ namespace EngineCore
                                 draw_cnt,
                                 0);
                             //glDrawArrays(GL_TRIANGLES, 0, 6);
-
+                    
                             auto gl_err = glGetError();
                             if (gl_err != GL_NO_ERROR)
                                 std::cerr << "GL error in geometry pass execution - batch " << batch_idx << " : " << gl_err << std::endl;
-
+                    
                             ++batch_idx;
                         }
-
+                    
                         glBindVertexArray(0);
-
+                    
                         //glDisable(GL_CULL_FACE);
-
+                    
                         //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
+                    
+                    
                         ImGui::SetNextWindowPos(ImVec2(frame.m_window_width - 375.0f, frame.m_window_height - 135.0f));
                         bool p_open = true;
                         if (!ImGui::Begin("Render Stats", &p_open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
@@ -716,7 +705,7 @@ namespace EngineCore
                         ImGui::End();
                     }
                 );
-
+                
                 // Lighting pass
                 frame.addRenderPass<LightingPassData, LightingPassResources>("LightingPass",
                     // data setup phase
@@ -733,7 +722,7 @@ namespace EngineCore
                         data.m_view_matrix = glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx));
                         float fovy = cam_mngr.getFovy(camera_idx);
                         float aspect_ratio = cam_mngr.getAspectRatio(camera_idx);
-                        data.m_aspect_fovy = Vec2();
+                        data.m_aspect_fovy = Vec2(aspect_ratio, fovy);
                         data.m_exposure = cam_mngr.getExposure(camera_idx);
 
                         // gather data from lightsource components
@@ -741,7 +730,7 @@ namespace EngineCore
                         data.m_pointlight_data.reserve(pointlight_cnt);
                         for (int i = 0; i < pointlight_cnt; i++)
                         {
-                            if (/*active*/true)
+                            if (true) // if active
                             {
                                 Vec3 position = transform_mngr.getWorldPosition(pointlight_mngr.getEntity(i));
                                 float intensity = pointlight_mngr.getLumen(i);
@@ -753,7 +742,7 @@ namespace EngineCore
                         data.m_sunlight_data.reserve(sunlight_cnt);
                         for (int i = 0; i < sunlight_cnt; i++)
                         {
-                            if (/*active*/true)
+                            if (true) // if active
                             {
                                 Vec3 position = transform_mngr.getWorldPosition(sunlight_mngr.getEntity(i));
                                 float intensity = sunlight_mngr.getLumen(i);
@@ -770,13 +759,17 @@ namespace EngineCore
                     },
                     // resource setup phase
                     [&world_state, &resource_mngr](LightingPassData& data, LightingPassResources& resources) {
-                        if (resources.m_lighting_prgm.state != READY)
-                        {
-                            resources.m_lighting_prgm = resource_mngr.createShaderProgram("rendering_pipeline_lighting", { {"../resources/shaders/lighting/BRP_simpleLighting_c.glsl",glowl::GLSLProgram::ShaderType::Compute} });
+                        if (resources.m_lighting_prgm.state != READY){
+                            resources.m_lighting_prgm = resource_mngr.createShaderProgram(
+                                "rendering_pipeline_lighting",
+                                //{ {"../space-lion/resources/shaders/lighting/pbrMetallic_lighting_c.glsl", glowl::GLSLProgram::ShaderType::Compute} }
+                                { {"../space-lion/resources/shaders/lighting/pbrMetallic_lighting_c.glsl", glowl::GLSLProgram::ShaderType::Compute} }
+                            );
                         }
-
-                        if (resources.m_GBuffer.state != READY)
+                    
+                        if (resources.m_GBuffer.state != READY) {
                             resources.m_GBuffer = resource_mngr.getFramebufferObject("GBuffer");
+                        }
 
                         if (resources.m_tgt_texture.state == READY)
                         {
@@ -814,13 +807,13 @@ namespace EngineCore
                                 nullptr
                             );
                         }
-
+                    
                         //TODO buffer light data
                         if (resources.m_pointlights_data.state != READY)
                             resources.m_pointlights_data = resource_mngr.createBufferObject("lightingPass_pointlights_data", GL_SHADER_STORAGE_BUFFER, data.m_pointlight_data);
                         else
                             resources.m_pointlights_data.resource->rebuffer(data.m_pointlight_data);
-
+                    
                         if (resources.m_sunlights_data.state != READY)
                             resources.m_sunlights_data = resource_mngr.createBufferObject("lightingPass_sunlights_data", GL_SHADER_STORAGE_BUFFER, data.m_sunlight_data);
                         else
@@ -828,60 +821,78 @@ namespace EngineCore
                     },
                     // execute phase
                     [](LightingPassData const& data, LightingPassResources const& resources) {
-                        // set render target etc
+                          // set render target etc
+                      
+                          resources.m_lighting_prgm.resource->use();
+                      
+                          glActiveTexture(GL_TEXTURE0);
+                          resources.m_GBuffer.resource->bindColorbuffer(0);
+                          glActiveTexture(GL_TEXTURE1);
+                          resources.m_GBuffer.resource->bindColorbuffer(1);
+                          glActiveTexture(GL_TEXTURE2);
+                          resources.m_GBuffer.resource->bindColorbuffer(2);
+                          glActiveTexture(GL_TEXTURE3);
+                          resources.m_GBuffer.resource->bindColorbuffer(3);
+                      
+                          resources.m_lighting_prgm.resource->setUniform("lighting_tx2D", 0);
+                          resources.m_tgt_texture.resource->bindImage(0, GL_WRITE_ONLY);
+                      
+                          //// Bind textures from framebuffer
+                          resources.m_lighting_prgm.resource->setUniform("normal_tx2D", 0);
+                          resources.m_lighting_prgm.resource->setUniform("depth_tx2D", 1);
+                          resources.m_lighting_prgm.resource->setUniform("albedoRGB_tx2D", 2);
+                          resources.m_lighting_prgm.resource->setUniform("metalness_roughness_tx2D", 3);
+                      
+                          //resources.m_lighting_prgm.resource->setUniform("atmosphereRGBA_tx2D", 4);
+                          //resources.m_lighting_prgm.resource->setUniform("oceanRGBA_tx2D", 5);
+                      
+                          //glUniform1i(glGetUniformLocation(resources.m_lighting_prgm.resource->getHandle(), "lighting_tx2D"), 0);
+                          //std::cout << glGetUniformLocation(resources.m_lighting_prgm.resource->getHandle(), "view_matrix") << std::endl;
+                      
+                          // Set information on active camera and screen
+                          resources.m_lighting_prgm.resource->setUniform("view_matrix", data.m_view_matrix);
+                          resources.m_lighting_prgm.resource->setUniform("aspect_fovy", data.m_aspect_fovy);
+                          resources.m_lighting_prgm.resource->setUniform("screen_resolution", Vec2(resources.m_tgt_texture.resource->getWidth(), resources.m_tgt_texture.resource->getHeight()));
+                          resources.m_lighting_prgm.resource->setUniform("exposure", data.m_exposure);
+                      
+                          //	//	// TODO Shadows...
+                          //	//	glActiveTexture(GL_TEXTURE4);
+                          //	//	m_pointlight_shadowmaps->bindTexture();
+                          //	//	m_lighting_prgm->setUniform("pointlight_shadowmaps", 4);
+                          //	
+                          resources.m_lighting_prgm.resource->setUniform("num_pointlights", static_cast<int>(data.m_pointlight_data.size()));
+                          resources.m_lighting_prgm.resource->setUniform("num_suns", static_cast<int>(data.m_sunlight_data.size()));
 
-                        resources.m_lighting_prgm.resource->use();
-
-                        glActiveTexture(GL_TEXTURE0);
-                        resources.m_GBuffer.resource->bindColorbuffer(0);
-                        glActiveTexture(GL_TEXTURE1);
-                        resources.m_GBuffer.resource->bindColorbuffer(1);
-                        glActiveTexture(GL_TEXTURE2);
-                        resources.m_GBuffer.resource->bindColorbuffer(2);
-                        glActiveTexture(GL_TEXTURE3);
-                        resources.m_GBuffer.resource->bindColorbuffer(3);
-
-                        resources.m_lighting_prgm.resource->setUniform("lighting_tx2D", 0);
-                        resources.m_tgt_texture.resource->bindImage(0, GL_WRITE_ONLY);
-
-                        //// Bind textures from framebuffer
-                        resources.m_lighting_prgm.resource->setUniform("normal_tx2D", 0);
-                        resources.m_lighting_prgm.resource->setUniform("depth_tx2D", 1);
-                        resources.m_lighting_prgm.resource->setUniform("albedoRGB_tx2D", 2);
-                        resources.m_lighting_prgm.resource->setUniform("specularRGB_roughness_tx2D", 3);
-
-                        //resources.m_lighting_prgm.resource->setUniform("atmosphereRGBA_tx2D", 4);
-                        //resources.m_lighting_prgm.resource->setUniform("oceanRGBA_tx2D", 5);
-
-                        //glUniform1i(glGetUniformLocation(resources.m_lighting_prgm.resource->getHandle(), "lighting_tx2D"), 0);
-                        //std::cout << glGetUniformLocation(resources.m_lighting_prgm.resource->getHandle(), "view_matrix") << std::endl;
-
-                        // Set information on active camera and screen
-                        resources.m_lighting_prgm.resource->setUniform("view_matrix", data.m_view_matrix);
-                        resources.m_lighting_prgm.resource->setUniform("aspect_fovy", data.m_aspect_fovy);
-                        resources.m_lighting_prgm.resource->setUniform("screen_resolution", Vec2(resources.m_tgt_texture.resource->getWidth(), resources.m_tgt_texture.resource->getHeight()));
-                        resources.m_lighting_prgm.resource->setUniform("exposure", data.m_exposure);
-
-                        //	//	// TODO Shadows...
-                        //	//	glActiveTexture(GL_TEXTURE4);
-                        //	//	m_pointlight_shadowmaps->bindTexture();
-                        //	//	m_lighting_prgm->setUniform("pointlight_shadowmaps", 4);
-                        //	
-                        //	resources.m_lighting_prgm.resource->setUniform("num_suns", static_cast<int>(data.m_sunlight_data.size()));
-
-                        //TODO find out why this generates 1282
-                        glDispatchCompute(
-                            static_cast<GLuint>(std::ceil(static_cast<float>(resources.m_tgt_texture.resource->getWidth()) / 8.0f)),
-                            static_cast<GLuint>(std::ceil(static_cast<float>(resources.m_tgt_texture.resource->getHeight()) / 8.0f)),
-                            1);
-
-                        auto gl_err = glGetError();
-                        if (gl_err != GL_NO_ERROR)
-                            std::cerr << "GL error in lighting pass : " << gl_err << std::endl;
-
-                        glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
+                          resources.m_sunlights_data.resource->bind(1);
+                      
+                          //TODO find out why this generates 1282
+                          glDispatchCompute(
+                              static_cast<GLuint>(std::ceil(static_cast<float>(resources.m_tgt_texture.resource->getWidth()) / 8.0f)),
+                              static_cast<GLuint>(std::ceil(static_cast<float>(resources.m_tgt_texture.resource->getHeight()) / 8.0f)),
+                              1);
+                      
+                          auto gl_err = glGetError();
+                          if (gl_err != GL_NO_ERROR)
+                              std::cerr << "GL error in lighting pass : " << gl_err << std::endl;
+                      
+                          glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
                     }
                 );
+
+
+                struct CompPassData
+                {
+                    float m_camera_exposure;
+                };
+
+                struct CompPassResources
+                {
+                    WeakResource<glowl::GLSLProgram> m_compositing_prgm;
+                    WeakResource<glowl::Texture2D>   m_lighting_target;
+
+                    WeakResource<glowl::FramebufferObject> m_GBuffer;
+                };
+
 
                 // Compositing pass
                 frame.addRenderPass<CompPassData, CompPassResources>("CompositingPass",
@@ -896,31 +907,43 @@ namespace EngineCore
                         data.m_camera_exposure = cam_mngr.getExposure(camera_idx);
 
                         // try to get resources early
-                        resources.m_compositing_prgm = resource_mngr.getShaderProgramResource("rendering_pipeline_lighting");
+                        resources.m_compositing_prgm = resource_mngr.getShaderProgramResource("rendering_pipeline_compositing");
                         resources.m_lighting_target = resource_mngr.getTexture2DResource("lightingPass_target");
+
+                        resources.m_GBuffer = resource_mngr.getFramebufferObject("GBuffer");
                     },
                     // resource setup phase
-                        [&world_state, &resource_mngr](CompPassData& data, CompPassResources& resources) {
+                    [&world_state, &resource_mngr](CompPassData& data, CompPassResources& resources) {
 
                         if (resources.m_compositing_prgm.state != READY)
                         {
                             resources.m_compositing_prgm = resource_mngr.createShaderProgram(
                                 "rendering_pipeline_compositing",
                                 { 
-                                    { "../resources/shaders/genericPostProc_v.glsl", glowl::GLSLProgram::ShaderType::Vertex}, 
-                                    {"../resources/shaders/compositing_f.glsl", glowl::GLSLProgram::ShaderType::Fragment} 
+                                    {"../space-lion/resources/shaders/genericPostProc_v.glsl", glowl::GLSLProgram::ShaderType::Vertex},
+                                    {"../space-lion/resources/shaders/compositing_f.glsl", glowl::GLSLProgram::ShaderType::Fragment} 
                                 }
                             );
                         }
 
                         // try to get resources one more time before rendering (is needed during the first frame but pretty useless afterwards...need to think of sth for this)
-                        if (resources.m_lighting_target.state != READY) { resources.m_lighting_target = resource_mngr.getTexture2DResource("lightingPass_target"); }
+                        if (resources.m_lighting_target.state != READY) {
+                            resources.m_lighting_target = resource_mngr.getTexture2DResource("lightingPass_target"); 
+                        }
+
+                        if (resources.m_GBuffer.state != READY) {
+                            resources.m_GBuffer = resource_mngr.getFramebufferObject("GBuffer");
+                        }
                     },
-                        // execute phase
-                        [&frame](CompPassData const& data, CompPassResources const& resources) {
+                    // execute phase
+                    [&frame](CompPassData const& data, CompPassResources const& resources) {
                         // do tone-mapping, i.e. gamma correction in the most simple case
+                        glDisable(GL_BLEND);
+                        glDisable(GL_DEPTH_TEST);
+                        glDisable(GL_CULL_FACE);
 
                         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                        glClearColor(0.2f, 0.0f, 0.2f, 1);
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                         glViewport(0, 0, frame.m_window_width, frame.m_window_height);
 
@@ -929,6 +952,7 @@ namespace EngineCore
                         glActiveTexture(GL_TEXTURE0);
                         resources.m_compositing_prgm.resource->setUniform("lighting_tx2D", 0);
                         resources.m_lighting_target.resource->bindTexture();
+                        //resources.m_GBuffer.resource->bindColorbuffer(0);
 
                         /*
                         glActiveTexture(GL_TEXTURE1);
@@ -946,9 +970,10 @@ namespace EngineCore
 
                         resources.m_compositing_prgm.resource->setUniform("exposure", data.m_camera_exposure);
 
+                        glBindVertexArray(0);
                         glDrawArrays(GL_TRIANGLES, 0, 6);
                     }
-                    );
+                );
             }
         }
     }

@@ -9,14 +9,16 @@ Description: Vertex shader for solid surfaces in deferred rendering geometry pas
 
 /*	Support handling for up to 128 instances, and reserve a fixed amount of uniforms for it */
 uniform mat4 model_view_matrix[128];
+uniform mat4 view_matrix;
 uniform mat4 projection_matrix;
 
 in vec3 v_position;
 in vec3 v_normal;
 in vec3 v_tangent;
 in vec4 v_colour;
-in vec3 v_bitangent;
 in vec2 v_uvCoord;
+in vec3 v_bitangent;
+//in vec2 v_uvCoord;
 
 out vec3 position;
 out vec2 uvCoord;
@@ -25,12 +27,13 @@ out mat3 tangent_space_matrix;
 void main()
 {   
 	/*	Construct matrices that use the model matrix*/
-	mat3 normal_matrix = transpose(inverse(mat3(model_view_matrix[gl_InstanceID])));
+	// TODO resolve work around with giving access to model matrix in shader
+	mat3 normal_matrix = transpose(inverse(mat3(inverse(view_matrix) * model_view_matrix[gl_InstanceID])));
 
 	/*	Just to be on the safe side, normalize input vectors again */
 	vec3 normal = normalize(v_normal);
 	vec3 tangent = normalize(v_tangent);
-	vec3 bitangent = normalize(v_bitangent);
+	vec3 bitangent = -normalize(v_bitangent);
 	
 	/*	Transform input vectors into view space */
 	normal = normalize(normal_matrix * normal);
@@ -45,6 +48,7 @@ void main()
 	
 	/*	Transform vertex position to view space */
 	position = (model_view_matrix[gl_InstanceID] * vec4(v_position,1.0)).xyz;
+	//position = (view_matrix * vec4(v_position,1.0)).xyz;
 	
 	uvCoord = v_uvCoord;
 	

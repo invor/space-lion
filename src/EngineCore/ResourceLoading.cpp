@@ -9,6 +9,8 @@ namespace ResourceLoading
     {
         std::ifstream inFile(path, std::ios::in);
 
+        //TODO throw exception if file not found
+
         std::ostringstream source;
         while (inFile.good()) {
             int c = inFile.get();

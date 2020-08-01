@@ -8,6 +8,8 @@
 #include "AnimationSystems.hpp"
 #include "OpenGL/BasicRenderingPipeline.hpp"
 #include "GeometryBakery.hpp"
+#include "PointlightComponent.hpp"
+#include "SunlightComponentManager.hpp"
 
 #include "InputEvent.hpp"
 
@@ -29,6 +31,8 @@ namespace EngineCore
             m_world_state->add<Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique< Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>(m_resource_manager.get()));
             m_world_state->add<Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique< Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>>(m_resource_manager.get()));
             m_world_state->add<Common::NameComponentManager>(std::make_unique<Common::NameComponentManager>());
+            m_world_state->add<Graphics::PointlightComponentManager>(std::make_unique<Graphics::PointlightComponentManager>(16000));
+            m_world_state->add<Graphics::SunlightComponentManager>(std::make_unique<Graphics::SunlightComponentManager>(1));
             m_world_state->add<Graphics::RenderTaskComponentManager>(std::make_unique<Graphics::RenderTaskComponentManager>());
             m_world_state->add<TransformComponentManager>(std::make_unique<TransformComponentManager>(250000));
             m_world_state->add<Animation::TurntableComponentManager>(std::make_unique<Animation::TurntableComponentManager>());
@@ -140,12 +144,13 @@ namespace EngineCore
                     Frame& update_frame = m_frame_manager->setUpdateFrame(std::move(new_frame));
 
                     t_2 = std::chrono::high_resolution_clock::now();
-                    Graphics::OpenGL::setupBasicForwardRenderingPipeline(update_frame, *m_world_state, *m_resource_manager);
+                    //Graphics::OpenGL::setupBasicForwardRenderingPipeline(update_frame, *m_world_state, *m_resource_manager);
+                    Graphics::OpenGL::setupBasicDeferredRenderingPipeline(update_frame, *m_world_state, *m_resource_manager);
                     t_3 = std::chrono::high_resolution_clock::now();
 
                     auto dt2 = std::chrono::duration_cast<std::chrono::duration<double>>(t_3 - t_2).count();
-                    std::cout << "dt: " << dt << std::endl;
-                    std::cout << "dt2: " << dt2 << std::endl;
+                    //std::cout << "dt: " << dt << std::endl;
+                    //std::cout << "dt2: " << dt2 << std::endl;
 
                     m_frame_manager->swapUpdateFrame();
                 }

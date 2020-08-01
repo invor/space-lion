@@ -18,5 +18,5 @@ void EngineCore::Animation::animateTurntables(
     auto t_1 = std::chrono::high_resolution_clock::now();
 
     auto dt2 = std::chrono::duration_cast<std::chrono::duration<double>>(t_1 - t_0).count();
-    std::cout << "Animation system computation time: " << dt2 << std::endl;
+    //std::cout << "Animation system computation time: " << dt2 << std::endl;
 }
