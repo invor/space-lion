@@ -47,7 +47,7 @@ namespace EngineCore
                 std::string const & name,
                 size_t vertex_cnt,
                 size_t index_cnt,
-                std::shared_ptr<VertexLayout> const & vertex_layout,
+                std::shared_ptr<std::vector<VertexLayout>> const & vertex_layouts,
                 GLenum const index_type,
                 GLenum const mesh_type)
             {
@@ -58,16 +58,17 @@ namespace EngineCore
                 m_meshes.push_back(Resource<glowl::Mesh>(rsrc_id));
                 m_id_to_mesh_idx.insert(std::pair<unsigned int, size_t>(m_meshes.back().id.value(), idx));                
 
-                m_renderThread_tasks.push([this, idx, vertex_cnt, index_cnt, vertex_layout, index_type, mesh_type]() {
+                m_renderThread_tasks.push([this, idx, vertex_cnt, index_cnt, vertex_layouts, index_type, mesh_type]() {
 
                     std::unique_lock<std::shared_mutex> lock(m_meshes_mutex);
 
                     // TODO get number of buffer required for vertex layout and compute byte sizes
-                    std::vector<void*> vertex_data_ptrs(vertex_layout->attributes.size(), nullptr);
-                    std::vector<size_t> vertex_data_buffer_byte_sizes(vertex_layout->attributes.size());
+                    std::vector<void*> vertex_data_ptrs(vertex_layouts->size(), nullptr);
+                    std::vector<size_t> vertex_data_buffer_byte_sizes(vertex_layouts->size());
 
-                    for (size_t attrib_idx = 0; attrib_idx < vertex_layout->attributes.size(); ++attrib_idx) {
-                        vertex_data_buffer_byte_sizes[attrib_idx] = computeAttributeByteSize(vertex_layout->attributes[attrib_idx]) * vertex_cnt;
+                    for (size_t buffer_idx = 0; buffer_idx < vertex_data_buffer_byte_sizes.size(); ++buffer_idx) 
+                    {
+                        vertex_data_buffer_byte_sizes[buffer_idx] = (*vertex_layouts)[buffer_idx].stride * vertex_cnt;
                     }
 
                     size_t index_data_byte_size = 4 * index_cnt; //TODO support different index formats
@@ -77,7 +78,7 @@ namespace EngineCore
                         vertex_data_buffer_byte_sizes,
                         nullptr,
                         index_data_byte_size,
-                        *vertex_layout,
+                        *vertex_layouts,
                         index_type,
                         GL_DYNAMIC_DRAW,
                         mesh_type);

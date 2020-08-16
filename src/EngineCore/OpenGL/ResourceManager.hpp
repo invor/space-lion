@@ -64,13 +64,14 @@ namespace EngineCore
                 /** Clear lists containing graphics resources */
                 void clearAllResources();
 
-                size_t computeVertexByteSize(VertexLayout const& vertex_layout)
+                size_t computeVertexByteSize(std::vector<VertexLayout> const& vertex_layouts)
                 {
                     size_t retval = 0;
-
-                    for (auto& attr : vertex_layout.attributes) {
-                        //VertexLayout::Attribute ogl_attr(attr.size,attr.type,attr.normalized,attr.offset);
-                        retval += glowl::computeAttributeByteSize({ attr.size,attr.type,attr.normalized, static_cast<GLsizei>(attr.offset) });
+                    for (auto& vertex_layout : vertex_layouts) {
+                        for (auto& attr : vertex_layout.attributes) {
+                            //VertexLayout::Attribute ogl_attr(attr.size,attr.type,attr.normalized,attr.offset);
+                            retval += glowl::computeAttributeByteSize({ attr.size,attr.type,attr.normalized, static_cast<GLsizei>(attr.offset) });
+                        }
                     }
 
                     return retval;
@@ -100,10 +101,7 @@ namespace EngineCore
                 {
                     VertexLayout retval;
 
-                    for (auto stride : vertex_layout.strides)
-                    {
-                        retval.strides.emplace_back(stride);
-                    }
+                    retval.stride = vertex_layout.stride;
 
                     for (auto& attrib : vertex_layout.attributes)
                     {
@@ -154,7 +152,7 @@ namespace EngineCore
                     std::string const& name,
                     size_t vertex_cnt,
                     size_t index_cnt,
-                    std::shared_ptr<VertexLayout> const& vertex_layout,
+                    std::shared_ptr<std::vector<VertexLayout>> const& vertex_layouts,
                     GLenum const index_type,
                     GLenum const mesh_type);
 
@@ -386,17 +384,17 @@ namespace EngineCore
                             std::cerr << "ResourceManager - failed to update mesh" << std::endl;
                         }
 
-                        VertexLayout vertex_layout = m_meshes[query->second].resource->getVertexLayout();
+                        auto const& vertex_layouts = m_meshes[query->second].resource->getVertexLayouts();
 
                         //TODO some sanity checks, such as attrib cnt and mesh size?
 
-                        for (size_t attrib_idx = 0; attrib_idx < vertex_layout.attributes.size(); ++attrib_idx)
+                        for (size_t buffer_idx = 0; buffer_idx < vertex_data->size(); ++buffer_idx)
                         {
-                            size_t attrib_byte_size = glowl::computeAttributeByteSize(vertex_layout.attributes[attrib_idx]);
-                            size_t vertex_buffer_byte_offset = attrib_byte_size * vertex_offset;
+                            size_t stride = vertex_layouts[buffer_idx].stride;
+                            size_t vertex_buffer_byte_offset = stride * vertex_offset;
                             m_meshes[query->second].resource->bufferVertexSubData(
-                                attrib_idx,
-                                (*vertex_data)[attrib_idx],
+                                buffer_idx,
+                                (*vertex_data)[buffer_idx],
                                 vertex_buffer_byte_offset);
                         }
 

@@ -76,11 +76,11 @@ namespace EngineCore
 
             void addGltfNode(ModelPtr const& model, int gltf_node_idx, Entity parent_entity, ResourceID dflt_shader_prgm);
 
-            typedef std::shared_ptr<typename ResourceManagerType::VertexLayout> VertexLayoutPtr;
-            typedef std::shared_ptr<std::vector<std::vector<unsigned char>>>    VertexDataPtr;
-            typedef std::shared_ptr<std::vector<unsigned char>>                 IndexDataPtr;
-            typedef typename ResourceManagerType::IndexFormatType               IndexDataType;
-            //typedef unsigned int                                                IndexDataType;
+            typedef std::shared_ptr<std::vector<typename ResourceManagerType::VertexLayout>> VertexLayoutPtr;
+            typedef std::shared_ptr<std::vector<std::vector<unsigned char>>>                 VertexDataPtr;
+            typedef std::shared_ptr<std::vector<unsigned char>>                              IndexDataPtr;
+            typedef typename ResourceManagerType::IndexFormatType                            IndexDataType;
+            //typedef unsigned int                                                           IndexDataType;
 
             std::tuple<VertexLayoutPtr, VertexDataPtr, IndexDataPtr, IndexDataType>
                 loadMeshPrimitveData(ModelPtr const& model, size_t node_idx, size_t primitive_idx);
@@ -451,7 +451,7 @@ namespace EngineCore
 
         template<typename ResourceManagerType>
         inline std::tuple<
-            std::shared_ptr<typename ResourceManagerType::VertexLayout>,
+            std::shared_ptr<std::vector<typename ResourceManagerType::VertexLayout>>,
             std::shared_ptr<std::vector<std::vector<unsigned char>>>,
             std::shared_ptr<std::vector<unsigned char>>,
             typename ResourceManagerType::IndexFormatType>
@@ -471,8 +471,7 @@ namespace EngineCore
                     + (indices_accessor.count * indices_accessor.ByteStride(indices_bufferView)));
 
                 auto vertices = std::make_shared<std::vector<std::vector<unsigned char>>>();
-                GenericVertexLayout generic_vertex_layout;
-                generic_vertex_layout.strides = { 0 };
+                std::vector<GenericVertexLayout> generic_vertex_layouts;
 
                 unsigned int input_slot = 0;
 
@@ -483,23 +482,32 @@ namespace EngineCore
                     auto& vertexAttrib_bufferView = model->bufferViews[vertexAttrib_accessor.bufferView];
                     auto& vertexAttrib_buffer = model->buffers[vertexAttrib_bufferView.buffer];
 
+                    generic_vertex_layouts.push_back(GenericVertexLayout());
+
                     // Important note!: We ignore the byte offset given by gltf because we reorder vertex data in buffers anyway
-                    generic_vertex_layout.attributes.push_back(
+                    generic_vertex_layouts.back().attributes.push_back(
                         GenericVertexLayout::Attribute(attrib.first, vertexAttrib_accessor.type, vertexAttrib_accessor.componentType,
                             vertexAttrib_accessor.normalized, 0 /*static_cast<uint32_t>(vertexAttrib_accessor.byteOffset)*/));
+
+                    generic_vertex_layouts.back().stride = vertexAttrib_accessor.ByteStride(vertexAttrib_bufferView);
 
                     vertices->push_back(std::vector<unsigned char>(
                         vertexAttrib_buffer.data.begin() + vertexAttrib_bufferView.byteOffset + vertexAttrib_accessor.byteOffset,
                         vertexAttrib_buffer.data.begin() + vertexAttrib_bufferView.byteOffset + vertexAttrib_accessor.byteOffset
                         + (vertexAttrib_accessor.count * vertexAttrib_accessor.ByteStride(vertexAttrib_bufferView)))
                     );
-
                 }
 
-                auto vertex_layout = std::make_shared<typename ResourceManagerType::VertexLayout>(m_rsrc_mngr.convertGenericGltfVertexLayout(generic_vertex_layout));
+                std::shared_ptr<std::vector<typename ResourceManagerType::VertexLayout>> vertex_layouts
+                    = std::make_shared<std::vector<typename ResourceManagerType::VertexLayout>>();
+                for (auto& generic_vertex_layout : generic_vertex_layouts)
+                {
+                    vertex_layouts->push_back(m_rsrc_mngr.convertGenericGltfVertexLayout(generic_vertex_layout));
+                }
+
                 auto index_type = m_rsrc_mngr.convertGenericIndexType(indices_accessor.componentType);
 
-                return { vertex_layout, vertices, indices, index_type };
+                return { vertex_layouts, vertices, indices, index_type };
             }
             else
             {

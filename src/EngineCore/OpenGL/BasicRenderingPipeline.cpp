@@ -799,7 +799,7 @@ namespace EngineCore
                                 GL_FLOAT,
                                 1,
                                 { { GL_TEXTURE_MIN_FILTER, GL_NEAREST },{ GL_TEXTURE_MAG_FILTER, GL_NEAREST } },
-                                { {} }
+                                {}
                             );
                             resources.m_tgt_texture = resource_mngr.createTexture2D(
                                 "lightingPass_target",

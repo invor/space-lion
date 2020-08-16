@@ -27,14 +27,14 @@ namespace EngineCore
 
             template<typename VertexContainer, typename IndexContainer>
             ResourceID addComponent(
-                Entity const&                                        entity,
-                std::string const&                                   mesh_description,
-                std::shared_ptr<std::vector<VertexContainer>> const& vertex_data,
-                std::shared_ptr<IndexContainer> const&               index_data,
-                std::shared_ptr<VertexLayoutType> const&             vertex_layout,
-                IndexFormatType const&                               index_type,
-                PrimitiveTopologyType const&                         mesh_type,
-                bool                                                 store_seperate = false);
+                Entity const&                                         entity,
+                std::string const&                                    mesh_description,
+                std::shared_ptr<std::vector<VertexContainer>> const&  vertex_data,
+                std::shared_ptr<IndexContainer> const&                index_data,
+                std::shared_ptr<std::vector<VertexLayoutType>> const& vertex_layout,
+                IndexFormatType const&                                index_type,
+                PrimitiveTopologyType const&                          mesh_type,
+                bool                                                  store_seperate = false);
 
             std::tuple<uint32_t, uint32_t, uint32_t> getDrawIndexedParams(size_t component_index);
 
@@ -68,26 +68,26 @@ namespace EngineCore
             struct MeshData
             {
                 MeshData(
-                    ResourceID mesh_rsrc,
-                    VertexLayoutType mesh_vertexLayout,
-                    IndexFormatType  mesh_indexType,
-                    size_t     vertices_allocated,
-                    size_t     indices_allocated)
+                    ResourceID                           mesh_rsrc,
+                    std::vector<VertexLayoutType> const& mesh_vertexLayouts,
+                    IndexFormatType                      mesh_indexType,
+                    size_t                               vertices_allocated,
+                    size_t                               indices_allocated)
                     : mesh_resource(mesh_rsrc),
-                    vertices_allocated(vertices_allocated),
-                    mesh_vertexLayout(mesh_vertexLayout),
-                    mesh_indexType(mesh_indexType),
-                    vertices_used(0),
-                    indices_allocated(indices_allocated),
-                    indices_used(0) {}
+                      vertices_allocated(vertices_allocated),
+                      mesh_vertexLayouts(mesh_vertexLayouts),
+                      mesh_indexType(mesh_indexType),
+                      vertices_used(0),
+                      indices_allocated(indices_allocated),
+                      indices_used(0) {}
 
-                ResourceID       mesh_resource;
-                VertexLayoutType mesh_vertexLayout;
-                IndexFormatType  mesh_indexType;
-                size_t           vertices_allocated;
-                size_t           vertices_used;
-                size_t           indices_allocated;
-                size_t           indices_used;
+                ResourceID                    mesh_resource;
+                std::vector<VertexLayoutType> mesh_vertexLayouts;
+                IndexFormatType               mesh_indexType;
+                size_t                        vertices_allocated;
+                size_t                        vertices_used;
+                size_t                        indices_allocated;
+                size_t                        indices_used;
             };
 
             std::vector<ComponentData> m_component_data;
@@ -100,14 +100,14 @@ namespace EngineCore
         template<typename ResourceManagerType>
         template<typename VertexContainer, typename IndexContainer>
         inline ResourceID MeshComponentManager<ResourceManagerType>::addComponent(
-            Entity const&                                        entity,
-            std::string const&                                   mesh_description,
-            std::shared_ptr<std::vector<VertexContainer>> const& vertex_data,
-            std::shared_ptr<IndexContainer> const&               index_data,
-            std::shared_ptr<VertexLayoutType> const&             vertex_layout,
-            IndexFormatType const&                               index_type,
-            PrimitiveTopologyType const&                         mesh_type,
-            bool                                                 store_seperate)
+            Entity const&                                         entity,
+            std::string const&                                    mesh_description,
+            std::shared_ptr<std::vector<VertexContainer>> const&  vertex_data,
+            std::shared_ptr<IndexContainer> const&                index_data,
+            std::shared_ptr<std::vector<VertexLayoutType>> const& vertex_layouts,
+            IndexFormatType const&                                index_type,
+            PrimitiveTopologyType const&                          mesh_type,
+            bool                                                  store_seperate)
         {
             // get vertex buffer data pointers and byte sizes
             size_t vbs_byteSize = 0;
@@ -118,7 +118,7 @@ namespace EngineCore
             size_t ib_byte_size = sizeof(IndexContainer::value_type) * index_data->size();
 
             // get vertex byte size, i.e. bytes used across all vertex buffer by a single vertex
-            size_t vertex_byteSize = m_resource_mngr->computeVertexByteSize(*vertex_layout);
+            size_t vertex_byteSize = m_resource_mngr->computeVertexByteSize(*vertex_layouts);
             // get index byte size, i.e. byte size used by a single index in the index buffer
             size_t index_byteSize = m_resource_mngr->computeIndexByteSize(index_type);
 
@@ -134,8 +134,20 @@ namespace EngineCore
                 // check for existing mesh batch with matching vertex layout and index type and enough available space
                 for (; it != m_mesh_data.end(); ++it)
                 {
-                    bool layout_check = ((*vertex_layout) == it->mesh_vertexLayout);
-                    //TODO check interleaved vs non-interleaved
+                    bool layout_check = true;
+
+                    if (vertex_layouts->size() == it->mesh_vertexLayouts.size())
+                    {
+                        for (size_t i = 0; i < vertex_layouts->size(); ++i)
+                        {
+                            layout_check &= ((*vertex_layouts)[i] == it->mesh_vertexLayouts[i]);
+                        }
+                    }
+                    else
+                    {
+                        layout_check = false;
+                    }
+                    
                     bool idx_type_check = (index_type == it->mesh_indexType);
 
                     if (layout_check && idx_type_check)
@@ -165,11 +177,11 @@ namespace EngineCore
                     mesh_name,
                     1000000,
                     4000000,
-                    vertex_layout,
+                    vertex_layouts,
                     index_type,
                     mesh_type);
 
-                m_mesh_data.emplace_back(MeshData(new_mesh, *vertex_layout,index_type, 1000000, 4000000));
+                m_mesh_data.emplace_back(MeshData(new_mesh, *vertex_layouts, index_type, 1000000, 4000000));
 
                 it = m_mesh_data.end();
                 --it;

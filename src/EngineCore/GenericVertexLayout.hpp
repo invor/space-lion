@@ -28,13 +28,13 @@ struct GenericVertexLayout
         uint32_t    offset;
     };
 
-    GenericVertexLayout() : strides(), attributes() {}
-    GenericVertexLayout(std::vector<uint32_t> const& strides, std::vector<Attribute> const& attributes)
-        : strides(strides), attributes(attributes) {}
-    GenericVertexLayout(std::vector<uint32_t>&& strides, std::vector<Attribute>&& attributes)
-        : strides(strides), attributes(attributes) {}
+    GenericVertexLayout() : stride(0), attributes() {}
+    GenericVertexLayout(uint32_t stride, std::vector<Attribute> const& attributes)
+        : stride(stride), attributes(attributes) {}
+    GenericVertexLayout(uint32_t stride, std::vector<Attribute>&& attributes)
+        : stride(stride), attributes(attributes) {}
 
-    std::vector<uint32_t>  strides;
+    uint32_t               stride;
     std::vector<Attribute> attributes;
 };
 
@@ -49,18 +49,8 @@ bool operator==(GenericVertexLayout const& lhs, GenericVertexLayout const& rhs)
 {
     bool rtn = true;
     
-    if (lhs.strides.size() == rhs.strides.size())
-    {
-        for (size_t i = 0; i < lhs.strides.size(); ++i)
-        {
-            rtn &= (lhs.strides[i] == rhs.strides[i]);
-        }
-    }
-    else
-    {
-        rtn = false;
-    }
-
+    rtn &= lhs.stride == rhs.stride;
+    
     if (lhs.attributes.size() == rhs.attributes.size())
     {
         for (size_t i = 0; i < lhs.attributes.size(); ++i)
