@@ -58,7 +58,7 @@ namespace EngineCore
                 m_meshes.push_back(Resource<glowl::Mesh>(rsrc_id));
                 m_id_to_mesh_idx.insert(std::pair<unsigned int, size_t>(m_meshes.back().id.value(), idx));                
 
-                m_renderThread_tasks.push([this, idx, vertex_cnt, index_cnt, vertex_layouts, index_type, mesh_type]() {
+                m_renderThread_tasks.push([this, idx, name, vertex_cnt, index_cnt, vertex_layouts, index_type, mesh_type]() {
 
                     std::unique_lock<std::shared_mutex> lock(m_meshes_mutex);
 
@@ -73,15 +73,26 @@ namespace EngineCore
 
                     size_t index_data_byte_size = 4 * index_cnt; //TODO support different index formats
 
-                    this->m_meshes[idx].resource = std::make_unique<glowl::Mesh>(
-                        vertex_data_ptrs, //TODO THIS CALLS THE WRONG CONSTRUCTOR
-                        vertex_data_buffer_byte_sizes,
-                        nullptr,
-                        index_data_byte_size,
-                        *vertex_layouts,
-                        index_type,
-                        GL_DYNAMIC_DRAW,
-                        mesh_type);
+                    try
+                    {
+                        this->m_meshes[idx].resource = std::make_unique<glowl::Mesh>(
+                            vertex_data_ptrs, //TODO THIS CALLS THE WRONG CONSTRUCTOR
+                            vertex_data_buffer_byte_sizes,
+                            nullptr,
+                            index_data_byte_size,
+                            *vertex_layouts,
+                            index_type,
+                            GL_DYNAMIC_DRAW,
+                            mesh_type);
+                    }
+                    catch (glowl::MeshException const& e)
+                    {
+                        std::cerr << "Exception ResourceManager::allocateMeshAsync \"" << name << "\" : " << e.what() << std::endl;
+                    }
+                    catch (glowl::BufferObjectException const& e)
+                    {
+                        std::cerr << "Exception ResourceManager::allocateMeshAsync \"" << name << "\" : " << e.what() << std::endl;
+                    }
 
                     this->m_meshes[idx].state = READY;
                 });

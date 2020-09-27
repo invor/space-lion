@@ -283,7 +283,15 @@ namespace EngineCore
                         }
                         else
                         {
-                            batch_resources.draw_commands.resource->rebuffer(data.static_mesh_drawCommands[batch]);
+                            try
+                            {
+                                //batch_resources.draw_commands.resource->rebuffer(data.static_mesh_drawCommands[batch]);
+                                batch_resources.draw_commands.resource->bufferSubData(data.static_mesh_drawCommands[batch]);
+                            }
+                            catch (glowl::BufferObjectException const& e)
+                            {
+                                std::cerr << "Exception in geometry pass resource setup - batch " << batch << " : " << e.what() << std::endl;
+                            }
                         }
 
                         ++batch;
@@ -612,7 +620,14 @@ namespace EngineCore
                             }
                             else
                             {
-                                batch_resources.object_params.resource->rebuffer(data.static_mesh_params[batch]);
+                                try
+                                {
+                                    batch_resources.object_params.resource->rebuffer(data.static_mesh_params[batch]);
+                                }
+                                catch (glowl::BufferObjectException const& e)
+                                {
+                                    std::cerr << "Exception in geometry pass resource setup - batch " << batch << " : " << e.what() << std::endl;
+                                }
                             }
 
                             if (batch_resources.draw_commands.state != READY)
@@ -625,7 +640,15 @@ namespace EngineCore
                             }
                             else
                             {
-                                batch_resources.draw_commands.resource->rebuffer(data.static_mesh_drawCommands[batch]);
+                                try
+                                {
+                                    //batch_resources.draw_commands.resource->rebuffer(data.static_mesh_drawCommands[batch]);
+                                    batch_resources.draw_commands.resource->bufferSubData(data.static_mesh_drawCommands[batch]);
+                                }
+                                catch (glowl::BufferObjectException const& e)
+                                {
+                                    std::cerr << "Exception in geometry pass resource setup - batch " << batch << " : " << e.what() << std::endl;
+                                }
                             }
 
                             ++batch;
@@ -653,6 +676,10 @@ namespace EngineCore
                         glViewport(0, 0, width, height);
                     
                         // bind global resources?
+
+                        auto gl_err = glGetError();
+                        if (gl_err != GL_NO_ERROR)
+                            std::cerr << "GL error in geometry pass execution: " << gl_err << std::endl;
                     
                         uint batch_idx = 0;
                         for (auto& batch_resources : resources.m_batch_resources)
