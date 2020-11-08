@@ -74,11 +74,13 @@ SET (ENGINECORE_GRAPHICS_SOURCE_FILES
         src/EngineCore/SunlightComponentManager.cpp)
 
 SET (ENGINECORE_GRAPHICS_GL_HEADER_FILES
+        src/EngineCore/OpenGL/AtmosphereComponentManager.hpp
         src/EngineCore/OpenGL/BasicRenderingPipeline.hpp
         src/EngineCore/OpenGL/GraphicsBackend.hpp
         src/EngineCore/OpenGL/ResourceManager.hpp)
 
 SET (ENGINECORE_GRAPHICS_GL_SOURCE_FILES
+        src/EngineCore/OpenGL/AtmosphereComponentManager.cpp
         src/EngineCore/OpenGL/BasicRenderingPipeline.cpp
         src/EngineCore/OpenGL/GraphicsBackend.cpp
         src/EngineCore/OpenGL/ResourceManager.cpp)
