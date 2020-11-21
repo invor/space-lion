@@ -597,6 +597,34 @@ namespace EngineCore
                     m_textures_3d[idx].state);
             }
 
+            ResourceID ResourceManager::createTexture3DAsync(const std::string name, glowl::TextureLayout const& layout, GLvoid* data)
+            {
+                {
+                    std::shared_lock<std::shared_mutex> tex_lock(m_textures_3d_mutex);
+                    auto search = m_name_to_textures_3d_idx.find(name);
+                    if (search != m_name_to_textures_3d_idx.end())
+                        return m_textures_3d[search->second].id;
+                }
+
+                std::unique_lock<std::shared_mutex> lock(m_textures_3d_mutex);
+
+                size_t idx = m_textures_3d.size();
+                ResourceID rsrc_id = generateResourceID();
+
+                m_textures_3d.push_back(Resource<glowl::Texture3D>(rsrc_id));
+                m_id_to_textures_3d_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
+                m_name_to_textures_3d_idx.insert(std::pair<std::string, size_t>(name, idx));
+
+                m_renderThread_tasks.push([this, idx, name, layout, data]() {
+                    std::unique_lock<std::shared_mutex> tex_lock(m_texArr_mutex);
+
+                    m_textures_3d[idx].resource = std::make_unique<glowl::Texture3D>(name, layout, data);
+                    m_textures_3d[idx].state = READY;
+                });
+
+                return m_textures_3d[idx].id;
+            }
+
             WeakResource<glowl::FramebufferObject> ResourceManager::createFramebufferObject(
                 std::string const& name,
                 uint width,

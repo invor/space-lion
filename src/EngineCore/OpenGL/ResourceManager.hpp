@@ -252,6 +252,11 @@ namespace EngineCore
                     glowl::TextureLayout const& layout,
                     GLvoid* data);
 
+                ResourceID createTexture3DAsync(
+                    const std::string name,
+                    glowl::TextureLayout const& layout,
+                    GLvoid* data);
+
                 WeakResource<glowl::FramebufferObject> createFramebufferObject(
                     std::string const& name,
                     uint width,
