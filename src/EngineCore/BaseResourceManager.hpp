@@ -109,6 +109,10 @@ namespace EngineCore
 
             WeakResource<Texture2D> getTexture2DResource(std::string name);
 
+            WeakResource<Texture3D> getTexture3DResource(ResourceID rsrc_id);
+
+            WeakResource<Texture3D> getTexture3DResource(std::string name);
+
 
             static ResourceID invalidResourceID() {
                 return ResourceID();
@@ -322,6 +326,46 @@ namespace EngineCore
                     m_textures_2d[query->second].id,
                     m_textures_2d[query->second].resource.get(),
                     m_textures_2d[query->second].state);
+            }
+
+            return retval;
+        }
+
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
+        inline WeakResource<Texture3D> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getTexture3DResource(ResourceID rsrc_id)
+        {
+            std::shared_lock<std::shared_mutex> lock(m_textures_3d_mutex);
+
+            WeakResource<Texture3D> retval(rsrc_id, nullptr, NOT_READY);
+
+            auto query = m_id_to_textures_3d_idx.find(rsrc_id.value());
+
+            if (query != m_id_to_textures_3d_idx.end())
+            {
+                retval = WeakResource<Texture3D>(
+                    m_textures_3d[query->second].id,
+                    m_textures_3d[query->second].resource.get(),
+                    m_textures_3d[query->second].state);
+            }
+
+            return retval;
+        }
+
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
+        inline WeakResource<Texture3D> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getTexture3DResource(std::string name)
+        {
+            std::shared_lock<std::shared_mutex> lock(m_textures_3d_mutex);
+
+            WeakResource<Texture3D> retval(invalidResourceID(), nullptr, NOT_READY);
+
+            auto query = m_name_to_textures_3d_idx.find(name);
+
+            if (query != m_name_to_textures_3d_idx.end())
+            {
+                retval = WeakResource<Texture3D>(
+                    m_textures_3d[query->second].id,
+                    m_textures_3d[query->second].resource.get(),
+                    m_textures_3d[query->second].state);
             }
 
             return retval;

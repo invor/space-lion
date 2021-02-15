@@ -105,7 +105,7 @@ SET (ENGINECORE_UTILITY_SOURCE_FILES
         src/EngineCore/TaskSchedueler.cpp)
 
 SET (EDITOR_FILES
-        src/Editor/CameraController.cpp
+        src/Editor/CameraController.hpp
         src/Editor/CameraController.cpp)
 
 

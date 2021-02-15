@@ -3,8 +3,13 @@
 #include <imgui.h>
 #include <examples/imgui_impl_glfw.h>
 
+#include "CameraComponent.hpp"
+#include "MaterialComponentManager.hpp"
+#include "MeshComponentManager.hpp"
 #include "PointlightComponent.hpp"
+#include "RenderTaskComponentManager.hpp"
 #include "SunlightComponentManager.hpp"
+#include "TransformComponentManager.hpp"
 
 #if  1
 

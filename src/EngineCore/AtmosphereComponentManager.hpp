@@ -31,7 +31,7 @@ namespace Graphics {
             float* h_r;						///< ?
             float* h_m;						///< ?
             float* min_altitude;			///< minimum altitude of the atmosphere
-            float* max_altitude;			///< maximum altitude of the atmosphere
+            float* max_altitude;			///< maximum altitude of the atmosphere<
             ResourceID* transmittance_lut;
             ResourceID* mie_inscatter_lut;
             ResourceID* rayleigh_inscatter_lut;
@@ -66,6 +66,46 @@ namespace Graphics {
             float h_m,
             float min_altitude,
             float max_altitude);
+
+        uint getComponentCount() { return m_data.used; }
+
+        void setBetaR(uint index, Vec3 const& beta_r);
+
+        void setBetaM(uint index, Vec3 const& beta_m);
+
+        void setHR(uint index, float h_r);
+
+        void setHM(uint index, float h_m);
+
+        void setMinAltitude(uint index, float min_altitude);
+
+        void setMaxAltitude(uint index, float max_altitude);
+
+        void setTransmittanceLUT(uint index, ResourceID transmittance_lut);
+
+        void setMieInscatterLUT(uint index, ResourceID mie_inscatter_lut);
+
+        void setRayleighInscatterLUT(uint index, ResourceID rayleigh_inscatter_lut);
+
+        Entity getEntity(uint index) const;
+
+        Vec3 getBetaR(uint index) const;
+
+        Vec3 getBetaM(uint index) const;
+
+        float getHR(uint index) const;
+
+        float getMR(uint index) const;
+
+        float getMinAltitude(uint index) const;
+
+        float getMaxAltitude(uint index) const;
+
+        ResourceID getTransmittanceLUT(uint index);
+
+        ResourceID getMieInscatterLUT(uint index);
+
+        ResourceID getRayleighInscatterLUT(uint index);
     };
 
     template<typename ResourceManagerType>
@@ -174,30 +214,32 @@ namespace Graphics {
         m_data.irradiance_lut[index] = ResourceManagerType::invalidResourceID();
 
         // using GL enum values as default, need to be translated to DX values by DX resource manager
-        uint32_t rgba32f_type = 0x8814;
-        uint32_t rgba_type = 0x1908;
-        uint32_t float_type = 0x1406;
-        uint32_t texture_wrap_s = 0x2802;
-        uint32_t texture_wrap_t = 0x2803;
-        uint32_t texture_wrap_r = 0x8072;
-        uint32_t clamp_to_edge = 0x812F;
-        uint32_t texture_min_filter = 0x2801;
-        uint32_t texture_mag_filter = 0x2800;
-        uint32_t linear = 0x2601;
-
-        GenericTextureLayout transmittance_layout(rgba32f_type, 256, 64, 1, rgba_type, float_type, 1,
-            { std::pair<GLenum,GLenum>(texture_wrap_s,clamp_to_edge),
-            std::pair<GLenum,GLenum>(texture_wrap_t,clamp_to_edge) }, {});
-        m_data.transmittance_lut[index] = m_rsrc_mngr.createTexture2DAsync("transmittance_table_" + m_data.entity[index].id(), transmittance_layout, nullptr);
+        //uint32_t rgba32f_type = 0x8814;
+        //uint32_t rgba_type = 0x1908;
+        //uint32_t float_type = 0x1406;
+        //uint32_t texture_wrap_s = 0x2802;
+        //uint32_t texture_wrap_t = 0x2803;
+        //uint32_t texture_wrap_r = 0x8072;
+        //uint32_t clamp_to_edge = 0x812F;
+        //uint32_t texture_min_filter = 0x2801;
+        //uint32_t texture_mag_filter = 0x2800;
+        //uint32_t linear = 0x2601;
+        //
+        //GenericTextureLayout transmittance_layout(rgba32f_type, 256, 64, 1, rgba_type, float_type, 1,
+        //    { std::pair<GLenum,GLenum>(texture_wrap_s,clamp_to_edge),
+        //    std::pair<GLenum,GLenum>(texture_wrap_t,clamp_to_edge) }, {});
+        //m_data.transmittance_lut[index] = m_rsrc_mngr.createTexture2DAsync("transmittance_table_" + m_data.entity[index].id(), transmittance_layout, nullptr);
+        m_data.transmittance_lut[index] = ResourceID();
         
-        GenericTextureLayout inscatter_layout(rgba32f_type, 256, 128, 32, rgba_type, float_type, 1,
-            { std::pair<GLenum,GLenum>(texture_wrap_s,clamp_to_edge),
-                std::pair<GLenum,GLenum>(texture_wrap_t,clamp_to_edge),
-                std::pair<GLenum,GLenum>(texture_wrap_r,clamp_to_edge),
-                std::pair<GLenum,GLenum>(texture_min_filter,linear),
-                std::pair<GLenum, GLenum>(texture_mag_filter,linear) }, {});
-        m_data.mie_inscatter_lut[index] = m_rsrc_mngr.createTexture3DAsync("mie_inscatter_table_" + m_data.entity[index].id(), inscatter_layout, nullptr);
-        m_data.rayleigh_inscatter_lut[index] = m_rsrc_mngr.createTexture3DAsync("rayleigh_inscatter_table_" + m_data.entity[index].id(), inscatter_layout, nullptr);
+        //GenericTextureLayout inscatter_layout(rgba32f_type, 256, 128, 32, rgba_type, float_type, 1,
+        //    { std::pair<GLenum,GLenum>(texture_wrap_s,clamp_to_edge),
+        //        std::pair<GLenum,GLenum>(texture_wrap_t,clamp_to_edge),
+        //        std::pair<GLenum,GLenum>(texture_wrap_r,clamp_to_edge),
+        //        std::pair<GLenum,GLenum>(texture_min_filter,linear),
+        //        std::pair<GLenum, GLenum>(texture_mag_filter,linear) }, {});
+        //m_data.mie_inscatter_lut[index] = m_rsrc_mngr.createTexture3DAsync("mie_inscatter_table_" + m_data.entity[index].id(), inscatter_layout, nullptr);
+        //m_data.rayleigh_inscatter_lut[index] = m_rsrc_mngr.createTexture3DAsync("rayleigh_inscatter_table_" + m_data.entity[index].id(), inscatter_layout, nullptr);
+        m_data.rayleight_inscatter_lut[index] = ResourceID();
 
         GenericTextureLayout irradiance_layout(rgba32f_type, 256, 64, 1, rgba_type, float_type, 1,
             { std::pair<GLenum,GLenum>(texture_wrap_s,clamp_to_edge),
@@ -208,6 +250,120 @@ namespace Graphics {
         //  GEngineCore::renderingPipeline().addSingleExecutionGpuTask([this, index] { this->computeTransmittance(index); });
         //  GEngineCore::renderingPipeline().addSingleExecutionGpuTask([this, index] { this->computeInscatterSingle(index); });
         //  GEngineCore::renderingPipeline().addSingleExecutionGpuTask([this, index] { this->computeIrradianceSingle(index); });
+    }
+
+    template<typename ResourceManagerType>
+    inline void AtmosphereComponentManager<ResourceManagerType>::setBetaR(uint index, Vec3 const& beta_r)
+    {
+        m_data.beta_r[index] = beta_r;
+    }
+
+    template<typename ResourceManagerType>
+    inline void AtmosphereComponentManager<ResourceManagerType>::setBetaM(uint index, Vec3 const& beta_m)
+    {
+        m_data.beta_m[index] = beta_m;
+    }
+
+    template<typename ResourceManagerType>
+    inline void AtmosphereComponentManager<ResourceManagerType>::setHR(uint index, float h_r)
+    {
+        m_data.h_r[index] = h_r;
+    }
+
+    template<typename ResourceManagerType>
+    inline void AtmosphereComponentManager<ResourceManagerType>::setHM(uint index, float h_m)
+    {
+        m_data.m_r[index] = m_r;
+    }
+
+    template<typename ResourceManagerType>
+    inline void AtmosphereComponentManager<ResourceManagerType>::setMinAltitude(uint index, float min_altitude)
+    {
+        m_data.min_altitude[index] = min_altitude;
+    }
+
+    template<typename ResourceManagerType>
+    inline void AtmosphereComponentManager<ResourceManagerType>::setMaxAltitude(uint index, float max_altitude)
+    {
+        m_data.max_altitude[index] = max_altitude;
+    }
+
+    template<typename ResourceManagerType>
+    inline void AtmosphereComponentManager<ResourceManagerType>::setTransmittanceLUT(uint index, ResourceID transmittance_lut)
+    {
+        m_data.transmittance_lut[index] = transmittance_lut;
+    }
+
+    template<typename ResourceManagerType>
+    inline void AtmosphereComponentManager<ResourceManagerType>::setMieInscatterLUT(uint index, ResourceID mie_inscatter_lut)
+    {
+        m_data.mie_inscatter_lut[index] = mie_inscatter_lut;
+    }
+
+    template<typename ResourceManagerType>
+    inline void AtmosphereComponentManager<ResourceManagerType>::setRayleighInscatterLUT(uint index, ResourceID rayleigh_inscatter_lut)
+    {
+        m_data.rayleigh_inscatter_lut[index] = rayleigh_inscatter_lut;
+    }
+
+    template<typename ResourceManagerType>
+    inline Entity AtmosphereComponentManager<ResourceManagerType>::getEntity(uint index) const
+    {
+        return m_data.entity[index];
+    }
+
+    template<typename ResourceManagerType>
+    inline Vec3 AtmosphereComponentManager<ResourceManagerType>::getBetaR(uint index) const
+    {
+        return m_data.beta_r[index];
+    }
+
+    template<typename ResourceManagerType>
+    inline Vec3 AtmosphereComponentManager<ResourceManagerType>::getBetaM(uint index) const
+    {
+        return m_data.beta_m[index];
+    }
+
+    template<typename ResourceManagerType>
+    inline float AtmosphereComponentManager<ResourceManagerType>::getHR(uint index) const
+    {
+        return m_data.h_r[index];
+    }
+
+    template<typename ResourceManagerType>
+    inline float AtmosphereComponentManager<ResourceManagerType>::getMR(uint index) const
+    {
+        return m_data.h_m[index];
+    }
+
+    template<typename ResourceManagerType>
+    inline float AtmosphereComponentManager<ResourceManagerType>::getMinAltitude(uint index) const
+    {
+        return m_data.min_altitude[index];
+    }
+
+    template<typename ResourceManagerType>
+    inline float AtmosphereComponentManager<ResourceManagerType>::getMaxAltitude(uint index) const
+    {
+        return m_data.max_altitude[index];
+    }
+
+    template<typename ResourceManagerType>
+    inline ResourceID AtmosphereComponentManager<ResourceManagerType>::getTransmittanceLUT(uint index)
+    {
+        return m_data.transmittance_lut[index];
+    }
+
+    template<typename ResourceManagerType>
+    inline ResourceID AtmosphereComponentManager<ResourceManagerType>::getMieInscatterLUT(uint index)
+    {
+        return m_data.mie_inscatter_lut[index];
+    }
+
+    template<typename ResourceManagerType>
+    inline ResourceID AtmosphereComponentManager<ResourceManagerType>::getRayleighInscatterLUT(uint index)
+    {
+        return m_data.rayleigh_inscatter_lut[index];
     }
 
 }

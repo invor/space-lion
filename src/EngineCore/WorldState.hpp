@@ -3,17 +3,8 @@
 
 #include <future>
 
-#include "AirplanePhysicsComponent.hpp"
-#include "CameraComponent.hpp"
+#include "BaseComponentManager.hpp"
 #include "EntityManager.hpp"
-#include "gltfAssetComponentManager.hpp"
-#include "TransformComponentManager.hpp"
-#include "MaterialComponentManager.hpp"
-#include "MeshComponentManager.hpp"
-#include "NameComponentManager.hpp"
-#include "RenderTaskComponentManager.hpp"
-#include "TurntableComponentManager.hpp"
-
 #include "OpenGL/ResourceManager.hpp"
 
 namespace EngineCore

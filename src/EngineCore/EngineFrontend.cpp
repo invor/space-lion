@@ -5,10 +5,17 @@
 #include <future>
 #include <chrono>
 
+#include "AirplanePhysicsComponent.hpp"
+#include "AtmosphereComponentManager.hpp"
 #include "AnimationSystems.hpp"
+#include "CameraComponent.hpp"
 #include "OpenGL/BasicRenderingPipeline.hpp"
 #include "GeometryBakery.hpp"
+#include "gltfAssetComponentManager.hpp"
+#include "MeshComponentManager.hpp"
+#include "NameComponentManager.hpp"
 #include "PointlightComponent.hpp"
+#include "RenderTaskComponentManager.hpp"
 #include "SunlightComponentManager.hpp"
 
 #include "InputEvent.hpp"
@@ -26,6 +33,7 @@ namespace EngineCore
             m_world_state(std::make_unique<WorldState>())
         {
             m_world_state->add<Physics::AirplanePhysicsComponentManager>(std::make_unique<Physics::AirplanePhysicsComponentManager>(128, *m_world_state.get()));
+            m_world_state->add<Graphics::AtmosphereComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique<Graphics::AtmosphereComponentManager<Graphics::OpenGL::ResourceManager>>(8, *m_resource_manager.get() ));
             m_world_state->add<Graphics::CameraComponentManager>(std::make_unique<Graphics::CameraComponentManager>(8));
             m_world_state->add<Graphics::GltfAssetComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique< Graphics::GltfAssetComponentManager<Graphics::OpenGL::ResourceManager>>(*m_resource_manager.get(), *m_world_state.get()));
             m_world_state->add<Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>(std::make_unique< Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>(m_resource_manager.get()));
