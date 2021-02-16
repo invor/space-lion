@@ -148,6 +148,18 @@ namespace EngineCore
                 //	std::shared_ptr<VertexDescriptor> const& vertex_layout,
                 //	D3D_PRIMITIVE_TOPOLOGY const mesh_type);
 
+                template<
+                    typename VertexContainer,
+                    typename IndexContainer>
+                    WeakResource<glowl::Mesh> createMesh(
+                    std::string const& name,
+                    std::vector<VertexContainer> const& vertex_data,
+                    IndexContainer const& index_data,
+                    std::vector<VertexLayout> const& vertex_layouts,
+                    GLenum const index_type,
+                    GLenum const mesh_type
+                );
+
                 ResourceID allocateMeshAsync(
                     std::string const& name,
                     size_t vertex_cnt,
@@ -334,6 +346,49 @@ namespace EngineCore
                 mutable std::shared_mutex m_texCubeArr_mutex;
                 mutable std::shared_mutex m_fbo_mutex;
             };
+
+            template<typename VertexContainer, typename IndexContainer>
+            inline WeakResource<glowl::Mesh> ResourceManager::createMesh(
+                std::string const& name,
+                std::vector<VertexContainer> const& vertex_data,
+                IndexContainer const& index_data,
+                std::vector<VertexLayout> const& vertex_layouts,
+                GLenum const index_type,
+                GLenum const mesh_type)
+            {
+                std::unique_lock<std::shared_mutex> lock(m_meshes_mutex);
+
+                size_t idx = m_meshes.size();
+                ResourceID rsrc_id = generateResourceID();
+                m_meshes.push_back(Resource<glowl::Mesh>(rsrc_id));
+                m_id_to_mesh_idx.insert(std::pair<unsigned int, size_t>(m_meshes.back().id.value(), idx));
+
+                try
+                {
+                    this->m_meshes[idx].resource = std::make_unique<glowl::Mesh>(
+                        vertex_data,
+                        index_data,
+                        vertex_layouts,
+                        index_type,
+                        GL_DYNAMIC_DRAW,
+                        mesh_type);
+                }
+                catch (glowl::MeshException const& e)
+                {
+                    std::cerr << "Exception ResourceManager::createMesh \"" << name << "\" : " << e.what() << std::endl;
+                }
+                catch (glowl::BufferObjectException const& e)
+                {
+                    std::cerr << "Exception ResourceManager::createMesh \"" << name << "\" : " << e.what() << std::endl;
+                }
+
+                this->m_meshes[idx].state = READY;
+
+                return WeakResource<glowl::Mesh>(
+                    m_meshes[idx].id,
+                    m_meshes[idx].resource.get(),
+                    m_meshes[idx].state);
+            }
 
             template<typename VertexContainer, typename IndexContainer>
             inline void ResourceManager::updateMesh(
