@@ -6,7 +6,7 @@ namespace EngineCore
 {
     namespace Graphics
     {
-        std::tuple<VertexData, IndexData, GenericVertexLayout> createTriangle()
+        std::tuple<VertexData, IndexData, VertexDataDescriptor> createTriangle()
         {
             VertexData vertices(3 * 6 * 4); // 3 triangles * 6 float entries * bytesize
             IndexData indices(3);
@@ -35,12 +35,14 @@ namespace EngineCore
 
             indices[0] = 0; indices[1] = 1; indices[2] = 2;
 
-            GenericVertexLayout layout({ 24 }, { GenericVertexLayout::Attribute(5126,3,false,0),GenericVertexLayout::Attribute(5126,3,false,12) });
+            VertexDataDescriptor layout(
+                { GenericVertexLayout(24 , { GenericVertexLayout::Attribute(5126,3,false,0), GenericVertexLayout::Attribute(5126, 3, false, 12) }) }
+            );
 
-            return std::tuple<VertexData, IndexData, GenericVertexLayout>(vertices, indices, layout);
+            return std::tuple<VertexData, IndexData, VertexDataDescriptor>(vertices, indices, layout);
         }
 
-        std::tuple<VertexDataPtr, IndexDataPtr, VertexLayoutPtr> createPlane(float width, float height)
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createPlane(float width, float height)
         {
             struct Vec2
             {
@@ -104,19 +106,21 @@ namespace EngineCore
 
             IndexDataPtr indices = std::make_shared<IndexData>(IndexData{ 0,3,1,3,2,0 });
 
-            VertexLayoutPtr layout = std::make_shared<GenericVertexLayout>(GenericVertexLayout({ 0 }, 
-                {   GenericVertexLayout::Attribute(5126 /*GL_FLOAT*/,3,false,0),
-                    GenericVertexLayout::Attribute(5126,3,false,0),
-                    GenericVertexLayout::Attribute(5126,3,false,0),
-                    GenericVertexLayout::Attribute(5121 /*GL_UNSIGNED_BYTE*/,4,false,0),
-                    GenericVertexLayout::Attribute(5126,2,false,0),
-                    GenericVertexLayout::Attribute(5126,3,false,0) })
+            auto layout = std::make_shared<VertexDataDescriptor>(
+                std::vector<GenericVertexLayout>{
+                    GenericVertexLayout(12, { GenericVertexLayout::Attribute(5126 /*GL_FLOAT*/,3,false,0),
+                        GenericVertexLayout::Attribute(5126,3,false,0),
+                        GenericVertexLayout::Attribute(5126,3,false,0),
+                        GenericVertexLayout::Attribute(5121 /*GL_UNSIGNED_BYTE*/,4,false,0),
+                        GenericVertexLayout::Attribute(5126,2,false,0),
+                        GenericVertexLayout::Attribute(5126,3,false,0) })
+                }
             );
 
-            return std::tuple<VertexDataPtr, IndexDataPtr, VertexLayoutPtr>(vertex_data, indices, layout);
+            return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>(vertex_data, indices, layout);
         }
 
-        std::tuple<VertexDataPtr, IndexDataPtr, VertexLayoutPtr> createBox()
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createBox()
         {
             struct Vec2
             {
@@ -279,21 +283,23 @@ namespace EngineCore
             (*indices)[30] = 20; (*indices)[31] = 22; (*indices)[32] = 21;
             (*indices)[33] = 22; (*indices)[34] = 20; (*indices)[35] = 23;
 
-            auto layout = std::make_shared<GenericVertexLayout>(GenericVertexLayout({ 0 },
-                {   { 3, 5126 /* GL_FLOAT */, false, 0 },
-                    { 3, 5126 /* GL_FLOAT */, false, 0 },
-                    { 4, 5126 /* GL_FLOAT */, false, 0 },
-                    { 2, 5126 /* GL_FLOAT */, false, 0 } })
+            auto layout = std::make_shared<VertexDataDescriptor>(
+                std::vector<GenericVertexLayout>{
+                    GenericVertexLayout( 12, { { 3, 5126 /* GL_FLOAT */, false, 0 } }),
+                    GenericVertexLayout( 12, { { 3, 5126 /* GL_FLOAT */, false, 0 } }),
+                    GenericVertexLayout( 16, { { 4, 5126 /* GL_FLOAT */, false, 0 } }),
+                    GenericVertexLayout(  8, { { 2, 5126 /* GL_FLOAT */, false, 0 } })
+                }
             );
 
             auto vertices = std::make_shared< std::vector <std::vector<uint8_t>>>( 
                 std::vector<std::vector<uint8_t>>{ normals, positions, tangents, uv_coords});
                 //std::vector<std::vector<uint8_t>>{ positions, normals, tangents, colors, uv_coords, bitangents });
 
-            return std::tuple<VertexDataPtr, IndexDataPtr, VertexLayoutPtr>(vertices, indices, layout);
+            return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>(vertices, indices, layout);
         }
 
-        std::tuple<VertexData, IndexData, GenericVertexLayout> createIcoSphere(uint subdivions)
+        std::tuple<VertexData, IndexData, VertexDataDescriptor> createIcoSphere(uint subdivions)
         {
             // Create intial icosahedron
             float x = 0.525731112119133606f;
@@ -383,7 +389,9 @@ namespace EngineCore
                 indices = refined_indices;
             }
 
-            GenericVertexLayout layout({ 24 }, { GenericVertexLayout::Attribute(5126,3,false,0),GenericVertexLayout::Attribute(5126,3,false,12) });
+            VertexDataDescriptor layout(
+                { GenericVertexLayout( 24 , { GenericVertexLayout::Attribute(5126,3,false,0), GenericVertexLayout::Attribute(5126, 3, false, 12) }) }
+            );
 
             // TOOD avoid this copying stuff...
             //VertexData vertex_data(vertices.begin(),vertices.end());
@@ -391,7 +399,7 @@ namespace EngineCore
             //std::copy(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 *4), vertex_data.data());
             VertexData vertex_data(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 * 4));
 
-            return std::tuple<VertexData, IndexData, GenericVertexLayout>(vertex_data, indices, layout);
+            return std::tuple<VertexData, IndexData, VertexDataDescriptor>(vertex_data, indices, layout);
         }
     }
 }
