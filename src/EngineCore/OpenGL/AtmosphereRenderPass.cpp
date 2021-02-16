@@ -204,7 +204,16 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
 
             // get atmosphere proxy mesh
             auto icoSpherGeometry = Graphics::createIcoSphere(5);
-            resources.atmosphere_proxy_mesh = resource_mngr.createMesh("atmosphere_boundingSphere", std::get<0>(icoSpherGeometry), std::get<1>(icoSpherGeometry), std::get<2>(icoSpherGeometry), GL_TRIANGLES).resource;
+            std::vector<glowl::VertexLayout> layout;
+            for (auto& generic_layout : std::get<2>(icoSpherGeometry)) {
+                layout.push_back(resource_mngr.convertGenericGltfVertexLayout(generic_layout));
+            }
+
+            resources.atmosphere_proxy_mesh = resource_mngr.createMesh(
+                "atmosphere_boundingSphere",
+                std::get<0>(icoSpherGeometry),
+                std::get<1>(icoSpherGeometry),
+                layout, GL_UNSIGNED_INT, GL_TRIANGLES);
 
             // check for existing gBuffer
             resources.gBuffer = resource_mngr.getFramebufferObject("GBuffer");
@@ -212,14 +221,13 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
                 // panic?
             }
 
+            // get atmosphere render target
             resources.atmosphere_render_target = resource_mngr.getFramebufferObject("atmosphere_rt");
             if(resources.atmosphere_render_target.state != READY)
             {
                 resources.atmosphere_render_target = resource_mngr.createFramebufferObject("atmosphere_rt", 1600, 900);
                 resources.atmosphere_render_target.resource->createColorAttachment(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
             }
-
-            //TODO get atmosphere render target
         },
         // execute phase
         [&frame, & world_state](AtmospherePassData const& data, AtmospherePassResources const& resources) {
