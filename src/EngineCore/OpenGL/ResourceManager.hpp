@@ -356,12 +356,23 @@ namespace EngineCore
                 GLenum const index_type,
                 GLenum const mesh_type)
             {
+                {
+                    std::shared_lock<std::shared_mutex> lock(m_meshes_mutex);
+                    auto search = m_name_to_mesh_idx.find(name);
+                    if (search != m_name_to_mesh_idx.end())
+                        return WeakResource<glowl::Mesh>(
+                            m_meshes[search->second].id,
+                            m_meshes[search->second].resource.get(),
+                            m_meshes[search->second].state);
+                }
+
                 std::unique_lock<std::shared_mutex> lock(m_meshes_mutex);
 
                 size_t idx = m_meshes.size();
                 ResourceID rsrc_id = generateResourceID();
                 m_meshes.push_back(Resource<glowl::Mesh>(rsrc_id));
                 m_id_to_mesh_idx.insert(std::pair<unsigned int, size_t>(m_meshes.back().id.value(), idx));
+                m_name_to_mesh_idx.insert(std::pair<std::string, size_t>(name, idx));
 
                 try
                 {

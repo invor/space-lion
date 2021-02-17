@@ -36,7 +36,7 @@ namespace EngineCore
             indices[0] = 0; indices[1] = 1; indices[2] = 2;
 
             VertexDataDescriptor layout(
-                { GenericVertexLayout(24 , { GenericVertexLayout::Attribute(5126,3,false,0), GenericVertexLayout::Attribute(5126, 3, false, 12) }) }
+                { GenericVertexLayout(24 , { GenericVertexLayout::Attribute(3, 5126, false,0), GenericVertexLayout::Attribute(3, 5126, false, 12) }) }
             );
 
             return std::tuple<VertexData, IndexData, VertexDataDescriptor>(vertices, indices, layout);
@@ -109,11 +109,11 @@ namespace EngineCore
             auto layout = std::make_shared<VertexDataDescriptor>(
                 std::vector<GenericVertexLayout>{
                     GenericVertexLayout(12, { GenericVertexLayout::Attribute(5126 /*GL_FLOAT*/,3,false,0),
-                        GenericVertexLayout::Attribute(5126,3,false,0),
-                        GenericVertexLayout::Attribute(5126,3,false,0),
-                        GenericVertexLayout::Attribute(5121 /*GL_UNSIGNED_BYTE*/,4,false,0),
-                        GenericVertexLayout::Attribute(5126,2,false,0),
-                        GenericVertexLayout::Attribute(5126,3,false,0) })
+                        GenericVertexLayout::Attribute(3, 5126, false,0),
+                        GenericVertexLayout::Attribute(3, 5126, false,0),
+                        GenericVertexLayout::Attribute(4, 5121, false,0),
+                        GenericVertexLayout::Attribute(2, 5126, false,0),
+                        GenericVertexLayout::Attribute(3, 5126, false,0) })
                 }
             );
 
@@ -390,14 +390,16 @@ namespace EngineCore
             }
 
             VertexDataDescriptor layout(
-                { GenericVertexLayout( 24 , { GenericVertexLayout::Attribute(5126,3,false,0), GenericVertexLayout::Attribute(5126, 3, false, 12) }) }
+                { GenericVertexLayout( 24 , { GenericVertexLayout::Attribute(3,5126,false,0), GenericVertexLayout::Attribute(3, 5126, false, 12) }) }
             );
 
             // TOOD avoid this copying stuff...
             //VertexData vertex_data(vertices.begin(),vertices.end());
             //VertexData vertex_data((vertices.size() * 6)*4);
             //std::copy(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 *4), vertex_data.data());
-            VertexData vertex_data(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 * 4));
+            VertexData vertex_data(
+                { std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 * 4)) }
+            );
 
             return std::tuple<VertexData, IndexData, VertexDataDescriptor>(vertex_data, indices, layout);
         }
