@@ -95,7 +95,7 @@ namespace Graphics {
 
         float getHR(uint index) const;
 
-        float getMR(uint index) const;
+        float getHM(uint index) const;
 
         float getMinAltitude(uint index) const;
 
@@ -229,7 +229,7 @@ namespace Graphics {
         //    { std::pair<GLenum,GLenum>(texture_wrap_s,clamp_to_edge),
         //    std::pair<GLenum,GLenum>(texture_wrap_t,clamp_to_edge) }, {});
         //m_data.transmittance_lut[index] = m_rsrc_mngr.createTexture2DAsync("transmittance_table_" + m_data.entity[index].id(), transmittance_layout, nullptr);
-        m_data.transmittance_lut[index] = ResourceID();
+        m_data.transmittance_lut[index] = m_rsrc_mngr.invalidResourceID();
         
         //GenericTextureLayout inscatter_layout(rgba32f_type, 256, 128, 32, rgba_type, float_type, 1,
         //    { std::pair<GLenum,GLenum>(texture_wrap_s,clamp_to_edge),
@@ -239,12 +239,13 @@ namespace Graphics {
         //        std::pair<GLenum, GLenum>(texture_mag_filter,linear) }, {});
         //m_data.mie_inscatter_lut[index] = m_rsrc_mngr.createTexture3DAsync("mie_inscatter_table_" + m_data.entity[index].id(), inscatter_layout, nullptr);
         //m_data.rayleigh_inscatter_lut[index] = m_rsrc_mngr.createTexture3DAsync("rayleigh_inscatter_table_" + m_data.entity[index].id(), inscatter_layout, nullptr);
-        m_data.rayleight_inscatter_lut[index] = ResourceID();
+        m_data.rayleigh_inscatter_lut[index] = m_rsrc_mngr.invalidResourceID();
 
-        GenericTextureLayout irradiance_layout(rgba32f_type, 256, 64, 1, rgba_type, float_type, 1,
-            { std::pair<GLenum,GLenum>(texture_wrap_s,clamp_to_edge),
-                std::pair<GLenum,GLenum>(texture_wrap_t,clamp_to_edge) }, {});
-        m_data.irradiance_lut[index] = m_rsrc_mngr.createTexture2DAsync("irradience_table_" + m_data.entity[index].id(), irradiance_layout, nullptr);
+        //GenericTextureLayout irradiance_layout(rgba32f_type, 256, 64, 1, rgba_type, float_type, 1,
+        //    { std::pair<GLenum,GLenum>(texture_wrap_s,clamp_to_edge),
+        //        std::pair<GLenum,GLenum>(texture_wrap_t,clamp_to_edge) }, {});
+        //m_data.irradiance_lut[index] = m_rsrc_mngr.createTexture2DAsync("irradience_table_" + m_data.entity[index].id(), irradiance_layout, nullptr);
+        m_data.irradiance_lut[index] = m_rsrc_mngr.invalidResourceID();
 
         // Enqueue GPU tasks for atmosphere computation
         //  GEngineCore::renderingPipeline().addSingleExecutionGpuTask([this, index] { this->computeTransmittance(index); });
@@ -331,7 +332,7 @@ namespace Graphics {
     }
 
     template<typename ResourceManagerType>
-    inline float AtmosphereComponentManager<ResourceManagerType>::getMR(uint index) const
+    inline float AtmosphereComponentManager<ResourceManagerType>::getHM(uint index) const
     {
         return m_data.h_m[index];
     }

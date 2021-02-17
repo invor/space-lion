@@ -79,9 +79,14 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
 
             data.view_matrix = glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx));
 
-            cam_mngr.setAspectRatio(camera_idx, static_cast<float>(frame.m_window_width) / static_cast<float>(frame.m_window_height));
+            //cam_mngr.setAspectRatio(camera_idx, static_cast<float>(frame.m_window_width) / static_cast<float>(frame.m_window_height));
+            cam_mngr.setNear(camera_idx, 1.0f);
+            cam_mngr.setFar(camera_idx, 6800000.0);
             cam_mngr.updateProjectionMatrix(camera_idx);
             data.proj_matrix = cam_mngr.getProjectionMatrix(camera_idx);
+            cam_mngr.setNear(camera_idx, 0.1f);
+            cam_mngr.setFar(camera_idx, 1000.0);
+            cam_mngr.updateProjectionMatrix(camera_idx);
 
             data.camera_position = transform_mngr.getWorldPosition(camera_transform_idx);
 
@@ -96,7 +101,7 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
                         atmosphere_mngr.getBetaR(i),
                         atmosphere_mngr.getBetaM(i),
                         atmosphere_mngr.getHR(i),
-                        atmosphere_mngr.getMR(i),
+                        atmosphere_mngr.getHM(i),
                         atmosphere_mngr.getMinAltitude(i),
                         atmosphere_mngr.getMaxAltitude(i)
                     });
@@ -114,7 +119,7 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
             }
         },
         // resource setup phase
-            [&world_state, &resource_mngr](AtmospherePassData& data, AtmospherePassResources& resources) {
+        [&world_state, &resource_mngr](AtmospherePassData& data, AtmospherePassResources& resources) {
 
             auto& atmosphere_mngr = world_state.get<Graphics::AtmosphereComponentManager<ResourceManager>>();
 
@@ -136,7 +141,7 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
 
                     // compute transmittance
                     {
-                        auto transmittance_prgm = resource_mngr.createShaderProgram("atmosphere_transmittance", { {"../resources/shaders/transmittance_c.glsl",glowl::GLSLProgram::ShaderType::Compute} }).resource;
+                        auto transmittance_prgm = resource_mngr.createShaderProgram("atmosphere_transmittance", { {"../space-lion/resources/shaders/transmittance_c.glsl",glowl::GLSLProgram::ShaderType::Compute} }).resource;
                         
                         transmittance_prgm->use();
                         
@@ -169,7 +174,7 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
                     atmosphere_mngr.setMieInscatterLUT(i, mie_inscatter_lut.id);
                     atmosphere_mngr.setRayleighInscatterLUT(i, rayleigh_inscatter_lut.id);
 
-                    auto inscatter_single_prgm = resource_mngr.createShaderProgram("inscatter_single", { { "../resources/shaders/inscatter_single_c.glsl", glowl::GLSLProgram::ShaderType::Compute } }).resource;
+                    auto inscatter_single_prgm = resource_mngr.createShaderProgram("inscatter_single", { { "../space-lion/resources/shaders/inscatter_single_c.glsl", glowl::GLSLProgram::ShaderType::Compute } }).resource;
                     
                     inscatter_single_prgm->use();
                     
@@ -182,7 +187,6 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
                     glActiveTexture(GL_TEXTURE2);
                     inscatter_single_prgm->setUniform("transmittance_tx2D", 2);
                     transmittance_lut.resource->bindTexture();
-                    glDisable(GL_TEXTURE_2D);
                     
                     inscatter_single_prgm->setUniform("min_altitude", data.atmosphere_data[i].min_altitude);
                     inscatter_single_prgm->setUniform("max_altitude", data.atmosphere_data[i].max_altitude);
@@ -200,7 +204,12 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
             }
 
             // get atmosphere shader
-            resources.atmosphere_prgm = resource_mngr.createShaderProgram("atmosphere", { { "../resources/shaders/atmosphere_v.glsl", glowl::GLSLProgram::ShaderType::Vertex}, {"../resources/shaders/atmosphere_f.glsl", glowl::GLSLProgram::ShaderType::Fragment} });
+            resources.atmosphere_prgm = resource_mngr.createShaderProgram(
+                "atmosphere",
+                { 
+                    { "../space-lion/resources/shaders/atmosphere_v.glsl", glowl::GLSLProgram::ShaderType::Vertex},
+                    {"../space-lion/resources/shaders/atmosphere_f.glsl", glowl::GLSLProgram::ShaderType::Fragment}
+                });
 
             // get atmosphere proxy mesh
             auto icoSpherGeometry = Graphics::createIcoSphere(5);
@@ -208,6 +217,8 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
             for (auto& generic_layout : std::get<2>(icoSpherGeometry)) {
                 layout.push_back(resource_mngr.convertGenericGltfVertexLayout(generic_layout));
             }
+
+            auto err = glGetError();
 
             resources.atmosphere_proxy_mesh = resource_mngr.createMesh(
                 "atmosphere_boundingSphere",
@@ -226,11 +237,24 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
             if(resources.atmosphere_render_target.state != READY)
             {
                 resources.atmosphere_render_target = resource_mngr.createFramebufferObject("atmosphere_rt", 1600, 900);
-                resources.atmosphere_render_target.resource->createColorAttachment(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
+                resources.atmosphere_render_target.resource->createColorAttachment(GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT);
             }
+
+            auto gl_err = glGetError();
+            if (gl_err != GL_NO_ERROR)
+                std::cerr << "GL error in atmosphere pass : " << gl_err << std::endl;
         },
         // execute phase
         [&frame, & world_state](AtmospherePassData const& data, AtmospherePassResources const& resources) {
+
+            glDisable(GL_BLEND);
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);
+
+            resources.atmosphere_render_target.resource->bind();
+            glClearColor(50000.0f, 0.0f, 50000.0f, 1);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glViewport(0, 0, resources.atmosphere_render_target.resource->getWidth(), resources.atmosphere_render_target.resource->getHeight());
             
             glActiveTexture(GL_TEXTURE0);
             resources.gBuffer.resource->bindColorbuffer(1);
@@ -283,6 +307,7 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
                         (sun_position - atmosphere_center).y * (sun_position - atmosphere_center).y +
                         (sun_position - atmosphere_center).z * (sun_position - atmosphere_center).z) - data.atmosphere_data[i].max_altitude;
                     sun_luminance = sun_luminance / (4.0f * 3.14f * std::pow(distance, 2.0f));
+                    //sun_luminance = 1.6 * std::pow(10,9);
 
                     resources.atmosphere_prgm.resource->setUniform(sun_luminance_uniform.c_str(), sun_luminance);
 
@@ -307,6 +332,11 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
             
                 atmosphere_center_uniform = ("atmosphere_center[" + std::to_string(instance_counter) + "]");
                 resources.atmosphere_prgm.resource->setUniform(atmosphere_center_uniform.c_str(), data.atmosphere_data[i].position);
+
+                resources.atmosphere_prgm.resource->setUniform("beta_r", data.atmosphere_data[i].beta_r);
+                resources.atmosphere_prgm.resource->setUniform("beta_m", data.atmosphere_data[i].beta_m);
+                resources.atmosphere_prgm.resource->setUniform("h_m", data.atmosphere_data[i].h_m);
+                resources.atmosphere_prgm.resource->setUniform("h_r", data.atmosphere_data[i].h_r);
             
                 glActiveTexture(GL_TEXTURE1);
                 resources.atmosphere_resources[i].rayleigh_inscatter_lut.resource->bindTexture();

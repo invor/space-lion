@@ -11,6 +11,8 @@
 #include "SunlightComponentManager.hpp"
 #include "TransformComponentManager.hpp"
 
+#include "AtmosphereRenderPass.hpp"
+
 #if  1
 
 namespace EngineCore
@@ -911,6 +913,8 @@ namespace EngineCore
                     }
                 );
 
+                // experimental: insert render pass
+                addAtmosphereRenderPass(frame, world_state, resource_mngr);
 
                 struct CompPassData
                 {
@@ -923,6 +927,8 @@ namespace EngineCore
                     WeakResource<glowl::Texture2D>   m_lighting_target;
 
                     WeakResource<glowl::FramebufferObject> m_GBuffer;
+
+                    WeakResource<glowl::FramebufferObject> atmospher_rt;
                 };
 
 
@@ -943,6 +949,8 @@ namespace EngineCore
                         resources.m_lighting_target = resource_mngr.getTexture2DResource("lightingPass_target");
 
                         resources.m_GBuffer = resource_mngr.getFramebufferObject("GBuffer");
+
+                        resources.atmospher_rt = resource_mngr.getFramebufferObject("atmosphere_rt");
                     },
                     // resource setup phase
                     [&world_state, &resource_mngr](CompPassData& data, CompPassResources& resources) {
@@ -966,6 +974,10 @@ namespace EngineCore
                         if (resources.m_GBuffer.state != READY) {
                             resources.m_GBuffer = resource_mngr.getFramebufferObject("GBuffer");
                         }
+
+                        if (resources.atmospher_rt.state != READY) {
+                            resources.atmospher_rt = resource_mngr.getFramebufferObject("atmosphere_rt");
+                        }
                     },
                     // execute phase
                     [&frame](CompPassData const& data, CompPassResources const& resources) {
@@ -985,6 +997,10 @@ namespace EngineCore
                         resources.m_compositing_prgm.resource->setUniform("lighting_tx2D", 0);
                         resources.m_lighting_target.resource->bindTexture();
                         //resources.m_GBuffer.resource->bindColorbuffer(0);
+
+                        glActiveTexture(GL_TEXTURE1);
+                        resources.m_compositing_prgm.resource->setUniform("atmosphere_tx2D", 1);
+                        resources.atmospher_rt.resource->bindColorbuffer(0);
 
                         /*
                         glActiveTexture(GL_TEXTURE1);

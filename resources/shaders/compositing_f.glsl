@@ -1,7 +1,7 @@
 #version 430
 
 uniform sampler2D lighting_tx2D;
-//uniform sampler2D atmosphere_tx2D;
+uniform sampler2D atmosphere_tx2D;
 //uniform sampler2D ocean_tx2D;
 //uniform sampler2D volume_tx2D;
 
@@ -28,13 +28,13 @@ vec3 Uncharted2Tonemap(vec3 x)
 void main()
 {
     vec4 geometry = texture(lighting_tx2D,uvCoord);
-    //vec4 atmosphere = texture(atmosphere_tx2D,uvCoord);
+    vec4 atmosphere = texture(atmosphere_tx2D,uvCoord);
     //vec4 ocean = texture(ocean_tx2D,uvCoord);
     //vec4 volumetrics = texture(volume_tx2D,uvCoord);
 
     vec4 rgb_depth_linear = vec4(0.0,0.0,0.0,10000.0);
     
-    //rgb_depth_linear = atmosphere;
+    rgb_depth_linear = atmosphere;
 
     if( geometry.a < rgb_depth_linear.a  && geometry.a > 0.001 )
         rgb_depth_linear = geometry;

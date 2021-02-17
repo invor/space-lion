@@ -35,7 +35,7 @@ float intersectAtmosphere(in float altitude, in float cosZenithAngle)
 	vec2 dir = normalize(vec2( sqrt(1.0-square(cosZenithAngle)) , cosZenithAngle ));
 	
 	/* now solve linear equation for line circle intersection */
-	float e = 1.0f; //epsilon value
+	float e = 0.001f; //epsilon value
 	float a = dot(dir,dir);
 	float b = dot(dir,pos);
 	float c = dot(pos,pos) - pow(max_altitude+e,2.0f);
@@ -56,7 +56,8 @@ float computeDensity(in float scaleHeight, in float altitude, in float cosZenith
 	// if ray below horizon return max density
 	float cosHorizon = -sqrt(1.0f - ((min_altitude*min_altitude)/(altitude*altitude)));
 	if(cosZenithAngle < cosHorizon)
-		return 1e9;
+		//return 1e9;
+		return 1000000.0;
 	
 	/*	step-size of the discrete integration */
 	float dx = intersectAtmosphere(altitude,cosZenithAngle) / float(TRANSMITTANCE_INTEGRAL_SAMPLES);
