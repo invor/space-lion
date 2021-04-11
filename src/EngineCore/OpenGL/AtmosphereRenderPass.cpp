@@ -212,9 +212,9 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
                 });
 
             // get atmosphere proxy mesh
-            auto icoSpherGeometry = Graphics::createIcoSphere(5);
+            const auto [icosphere_vertex_data, icosphere_index_data, icosphere_vertex_description] = Graphics::createIcoSphere(5);
             std::vector<glowl::VertexLayout> layout;
-            for (auto& generic_layout : std::get<2>(icoSpherGeometry)) {
+            for (auto& generic_layout : (*icosphere_vertex_description)) {
                 layout.push_back(resource_mngr.convertGenericGltfVertexLayout(generic_layout));
             }
 
@@ -222,8 +222,8 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
 
             resources.atmosphere_proxy_mesh = resource_mngr.createMesh(
                 "atmosphere_boundingSphere",
-                std::get<0>(icoSpherGeometry),
-                std::get<1>(icoSpherGeometry),
+                (*icosphere_vertex_data),
+                (*icosphere_index_data),
                 layout, GL_UNSIGNED_INT, GL_TRIANGLES);
 
             // check for existing gBuffer

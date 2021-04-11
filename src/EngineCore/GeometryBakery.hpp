@@ -41,7 +41,12 @@ namespace EngineCore
         * \param subdivisions Control the subdivions of the sphere
         * \return Returns shared pointer to the mesh
         */
-        std::tuple<VertexData, IndexData, VertexDataDescriptor> createIcoSphere(uint subdivions);
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createIcoSphere(uint subdivions, float radius = 1.0f);
+
+        /**
+        *
+        */
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createBone(float bone_length = 1.0);
     }
 }
 

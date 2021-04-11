@@ -299,11 +299,13 @@ namespace EngineCore
             return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>(vertices, indices, layout);
         }
 
-        std::tuple<VertexData, IndexData, VertexDataDescriptor> createIcoSphere(uint subdivions)
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createIcoSphere(uint subdivions, float radius)
         {
             // Create intial icosahedron
-            float x = 0.525731112119133606f;
-            float z = 0.850650808352039932f;
+            float x = 0.525731112119133606f * radius;
+            float z = 0.850650808352039932f * radius;
+            float nx = 0.525731112119133606f;
+            float nz = 0.850650808352039932f;
 
             struct Vertex_pn
             {
@@ -314,94 +316,196 @@ namespace EngineCore
                 float nx, ny, nz;
             };
 
-            std::vector<Vertex_pn> vertices({ Vertex_pn(-x,0.0f,z,0.0f,0.0f,0.0f),
-                Vertex_pn(x,0.0f,z,0.0f,0.0f,0.0f),
-                Vertex_pn(-x,0.0f,-z,0.0f,0.0f,0.0f),
-                Vertex_pn(x,0.0f,-z,0.0f,0.0f,0.0f),
-                Vertex_pn(0.0f,z,x,0.0f,0.0f,0.0f),
-                Vertex_pn(0.0f,z,-x,0.0f,0.0f,0.0f),
-                Vertex_pn(0.0f,-z,x,0.0f,0.0f,0.0f),
-                Vertex_pn(0.0f,-z,-x,0.0f,0.0f,0.0f),
-                Vertex_pn(z,x,0.0f,0.0f,0.0f,0.0f),
-                Vertex_pn(-z,x,0.0f,0.0f,0.0f,0.0f),
-                Vertex_pn(z,-x,0.0f,0.0f,0.0f,0.0f),
-                Vertex_pn(-z,-x,0.0f,0.0f,0.0f,0.0f) });
-            std::vector<unsigned int> indices({ 0,4,1,	0,9,4,	9,5,4,	4,5,8,	4,8,1,
-                8,10,1,	8,3,10,	5,3,8,	5,2,3,	2,7,3,
-                7,10,3,	7,6,10,	7,11,6,	11,0,6,	0,1,6,
-                6,1,10,	9,0,11,	9,11,2,	9,2,5,	7,2,11 });
+            
+
+            std::vector<Vertex_pn> vertices({ Vertex_pn(-x,0.0f,z,-nx,0.0f,nz),
+                Vertex_pn(x,0.0f,z,nx,0.0f,nz),
+                Vertex_pn(-x,0.0f,-z,-nx,0.0f,-nz),
+                Vertex_pn(x,0.0f,-z,nx,0.0f,-nz),
+                Vertex_pn(0.0f,z,x,0.0f,nz,nx),
+                Vertex_pn(0.0f,z,-x,0.0f,nz,-nx),
+                Vertex_pn(0.0f,-z,x,0.0f,-nz,nx),
+                Vertex_pn(0.0f,-z,-x,0.0f,-nz,-nx),
+                Vertex_pn(z,x,0.0f,nz,nx,0.0f),
+                Vertex_pn(-z,x,0.0f,-nz,nx,0.0f),
+                Vertex_pn(z,-x,0.0f,nz,-nx,0.0f),
+                Vertex_pn(-z,-x,0.0f,-nz,-nx,0.0f) });
+            IndexDataPtr indices = std::make_shared<IndexData>(
+                std::vector<unsigned int>({
+                    0,4,1,	0,9,4,	9,5,4,	4,5,8,	4,8,1,
+                    8,10,1,	8,3,10,	5,3,8,	5,2,3,	2,7,3,
+                    7,10,3,	7,6,10,	7,11,6,	11,0,6,	0,1,6,
+                    6,1,10,	9,0,11,	9,11,2,	9,2,5,	7,2,11 })
+            );
 
             // Subdivide icosahedron
             for (uint subdivs = 0; subdivs < subdivions; subdivs++)
             {
-                std::vector<unsigned int> refined_indices;
-                refined_indices.reserve(indices.size() * 3);
+                IndexDataPtr refined_indices = std::make_shared<IndexData>();
+                refined_indices->reserve(indices->size() * 3);
 
-                for (int i = 0; i < indices.size(); i = i + 3)
+                for (int i = 0; i < indices->size(); i = i + 3)
                 {
-                    unsigned int idx1 = indices[i];
-                    unsigned int idx2 = indices[i + 1];
-                    unsigned int idx3 = indices[i + 2];
+                    unsigned int idx1 = (*indices)[i];
+                    unsigned int idx2 = (*indices)[i + 1];
+                    unsigned int idx3 = (*indices)[i + 2];
 
                     Vec3 newVtx1((vertices[idx1].x + vertices[idx2].x),
                         (vertices[idx1].y + vertices[idx2].y),
                         (vertices[idx1].z + vertices[idx2].z));
                     newVtx1 = glm::normalize(newVtx1);
+                    newVtx1 *= radius;
 
                     Vec3 newVtx2((vertices[idx2].x + vertices[idx3].x),
                         (vertices[idx2].y + vertices[idx3].y),
                         (vertices[idx2].z + vertices[idx3].z));
                     newVtx2 = glm::normalize(newVtx2);
+                    newVtx2 *= radius;
 
                     Vec3 newVtx3((vertices[idx3].x + vertices[idx1].x),
                         (vertices[idx3].y + vertices[idx1].y),
                         (vertices[idx3].z + vertices[idx1].z));
                     newVtx3 = glm::normalize(newVtx3);
+                    newVtx3 *= radius;
+
+                    Vec3 newVtxNrml1((vertices[idx1].nx + vertices[idx2].nx),
+                        (vertices[idx1].ny + vertices[idx2].ny),
+                        (vertices[idx1].nz + vertices[idx2].nz));
+                    newVtxNrml1 = glm::normalize(newVtx1);
+
+                    Vec3 newVtxNrml2((vertices[idx2].nx + vertices[idx3].nx),
+                        (vertices[idx2].ny + vertices[idx3].ny),
+                        (vertices[idx2].nz + vertices[idx3].nz));
+                    newVtxNrml2 = glm::normalize(newVtx2);
+
+                    Vec3 newVtxNrml3((vertices[idx3].nx + vertices[idx1].nx),
+                        (vertices[idx3].ny + vertices[idx1].ny),
+                        (vertices[idx3].nz + vertices[idx1].nz));
+                    newVtxNrml3 = glm::normalize(newVtx3);
 
                     unsigned int newIdx1 = static_cast<uint>(vertices.size());
-                    vertices.push_back(Vertex_pn(newVtx1.x, newVtx1.y, newVtx1.z, 0.0, 0.0, 0.0));
+                    vertices.push_back(Vertex_pn(newVtx1.x, newVtx1.y, newVtx1.z, newVtxNrml1.x, newVtxNrml1.y, newVtxNrml1.z));
 
                     unsigned int newIdx2 = newIdx1 + 1;
-                    vertices.push_back(Vertex_pn(newVtx2.x, newVtx2.y, newVtx2.z, 0.0, 0.0, 0.0));
+                    vertices.push_back(Vertex_pn(newVtx2.x, newVtx2.y, newVtx2.z, newVtxNrml2.x, newVtxNrml2.y, newVtxNrml2.z));
 
                     unsigned int newIdx3 = newIdx2 + 1;
-                    vertices.push_back(Vertex_pn(newVtx3.x, newVtx3.y, newVtx3.z, 0.0, 0.0, 0.0));
+                    vertices.push_back(Vertex_pn(newVtx3.x, newVtx3.y, newVtx3.z, newVtxNrml3.x, newVtxNrml3.y, newVtxNrml3.z));
 
-                    refined_indices.push_back(idx1);
-                    refined_indices.push_back(newIdx1);
-                    refined_indices.push_back(newIdx3);
+                    refined_indices->push_back(idx1);
+                    refined_indices->push_back(newIdx1);
+                    refined_indices->push_back(newIdx3);
 
-                    refined_indices.push_back(newIdx1);
-                    refined_indices.push_back(idx2);
-                    refined_indices.push_back(newIdx2);
+                    refined_indices->push_back(newIdx1);
+                    refined_indices->push_back(idx2);
+                    refined_indices->push_back(newIdx2);
 
-                    refined_indices.push_back(newIdx3);
-                    refined_indices.push_back(newIdx1);
-                    refined_indices.push_back(newIdx2);
+                    refined_indices->push_back(newIdx3);
+                    refined_indices->push_back(newIdx1);
+                    refined_indices->push_back(newIdx2);
 
-                    refined_indices.push_back(newIdx3);
-                    refined_indices.push_back(newIdx2);
-                    refined_indices.push_back(idx3);
+                    refined_indices->push_back(newIdx3);
+                    refined_indices->push_back(newIdx2);
+                    refined_indices->push_back(idx3);
                 }
 
-                indices.clear();
+                indices->clear();
 
                 indices = refined_indices;
             }
 
-            VertexDataDescriptor layout(
-                { GenericVertexLayout( 24 , { GenericVertexLayout::Attribute(3,5126,false,0), GenericVertexLayout::Attribute(3, 5126, false, 12) }) }
-            );
+            auto layout = std::make_shared<VertexDataDescriptor>(std::vector<GenericVertexLayout>{
+                 GenericVertexLayout( 24 , {
+                         GenericVertexLayout::Attribute(3, 5126, false, 0), 
+                         GenericVertexLayout::Attribute(3, 5126, false, 12)
+                     })
+            });
 
             // TOOD avoid this copying stuff...
             //VertexData vertex_data(vertices.begin(),vertices.end());
             //VertexData vertex_data((vertices.size() * 6)*4);
             //std::copy(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 *4), vertex_data.data());
-            VertexData vertex_data(
+            auto vertex_data = std::make_shared<VertexData>(VertexData(
                 { std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 * 4)) }
-            );
+            ));
 
-            return std::tuple<VertexData, IndexData, VertexDataDescriptor>(vertex_data, indices, layout);
+            return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>(vertex_data, indices, layout);
+        }
+
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createBone(float bone_length)
+        {
+            std::vector<float> vertex_positions;
+            std::vector<float> vertex_normals;
+            IndexDataPtr indices = std::make_shared<IndexData>();
+
+            int segments = 8;
+            float radius = 0.05f * bone_length;
+            float height = 1.0f * bone_length;
+            float alpha = std::atan(radius / height);
+
+            //TODO create cone base
+
+
+            // create cone side
+            for (int i = 0; i < segments; ++i) {
+                float x = 0.0f, y = 0.0f, z = 0.0f;
+
+                x = radius * std::sin(static_cast<float>(i) / static_cast<float>(segments) * 2.0f * 3.14159265359f);
+                y = radius * std::cos(static_cast<float>(i) / static_cast<float>(segments) * 2.0f * 3.14159265359f);
+
+                float nx = x, ny = y;
+                float nz = std::tan(alpha) * radius;
+                float nl = std::sqrt(nx * nx + ny * ny + nz * nz);
+
+                vertex_positions.push_back(x);
+                vertex_positions.push_back(y);
+                vertex_positions.push_back(z);
+
+                vertex_normals.push_back(nx / nl);
+                vertex_normals.push_back(ny / nl);
+                vertex_normals.push_back(nz / nl);
+            }
+
+            //TODO cone tip vertices
+            for (int i = 0; i < segments; ++i) {
+                float x = 0.0f, y = 0.0f, z = height;
+
+                float nx = (vertex_normals[i * 3 + 0] + vertex_normals[((i + 1) % segments) * 3 + 0]) / 2.0f;
+                float ny = (vertex_normals[i * 3 + 1] + vertex_normals[((i + 1) % segments) * 3 + 1]) / 2.0f;
+                float nz = (vertex_normals[i * 3 + 2] + vertex_normals[((i + 1) % segments) * 3 + 2]) / 2.0f;
+
+                vertex_positions.push_back(x);
+                vertex_positions.push_back(y);
+                vertex_positions.push_back(z);
+
+                vertex_normals.push_back(nx);
+                vertex_normals.push_back(ny);
+                vertex_normals.push_back(nz);
+            }
+
+            for (uint32_t i = 0; i < segments; ++i) {
+                indices->push_back(i);
+                indices->push_back((i + 1) % segments);
+                indices->push_back(i + segments);
+            }
+
+
+            auto layout = std::make_shared<VertexDataDescriptor>(std::vector<GenericVertexLayout>{
+                    GenericVertexLayout(12 , { GenericVertexLayout::Attribute(3,5126,false,0) }),
+                    GenericVertexLayout(12 , { GenericVertexLayout::Attribute(3,5126,false,0) })
+                });
+
+            // TOOD avoid this copying stuff...
+            //VertexData vertex_data(vertices.begin(),vertices.end());
+            //VertexData vertex_data((vertices.size() * 6)*4);
+            //std::copy(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 *4), vertex_data.data());
+            VertexDataPtr vertex_data = std::make_shared< std::vector<std::vector<uint8_t>>>(std::vector<std::vector<uint8_t>>{
+                    std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertex_positions.data()), reinterpret_cast<uint8_t*>(vertex_positions.data()) + (vertex_positions.size() * 3 * 4)),
+                    std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertex_normals.data()), reinterpret_cast<uint8_t*>(vertex_normals.data()) + (vertex_normals.size() * 3 * 4))
+                });
+
+            return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>(vertex_data, indices, layout);
+
         }
     }
 }
