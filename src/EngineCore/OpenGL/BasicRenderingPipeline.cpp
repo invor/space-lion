@@ -12,6 +12,7 @@
 #include "TransformComponentManager.hpp"
 
 #include "AtmosphereRenderPass.hpp"
+#include "SkinnedMeshRenderPass.hpp"
 
 #if  1
 
@@ -80,7 +81,7 @@ namespace EngineCore
                     auto& cam_mngr = world_state.get<CameraComponentManager>();
                     auto& mtl_mngr = world_state.get<MaterialComponentManager<ResourceManager>>();
                     auto& mesh_mngr = world_state.get<MeshComponentManager<ResourceManager>> ();
-                    auto& renderTask_mngr = world_state.get<RenderTaskComponentManager>();
+                    auto& renderTask_mngr = world_state.get<RenderTaskComponentManager<Graphics::RenderTaskTags::StaticMesh>>();
                     auto& transform_mngr = world_state.get<Common::TransformComponentManager>();
 
                     // set camera matrices
@@ -457,7 +458,7 @@ namespace EngineCore
                         auto& cam_mngr = world_state.get<CameraComponentManager>();
                         auto& mtl_mngr = world_state.get<MaterialComponentManager<ResourceManager>>();
                         auto& mesh_mngr = world_state.get<MeshComponentManager<ResourceManager>>();
-                        auto& renderTask_mngr = world_state.get<RenderTaskComponentManager>();
+                        auto& renderTask_mngr = world_state.get<RenderTaskComponentManager<Graphics::RenderTaskTags::StaticMesh>>();
                         auto& transform_mngr = world_state.get<Common::TransformComponentManager>();
 
                         // set camera matrices
@@ -492,6 +493,10 @@ namespace EngineCore
                                 auto batch_idx = data.static_mesh_params.size();
                                 data.static_mesh_params.push_back(std::vector<GeomPassData::StaticMeshParams>());
                                 data.static_mesh_drawCommands.push_back(std::vector<GeomPassData::DrawElementsCommand>());
+
+                                // potential optimization for large scenes: reserve enough memory beforehand
+                                //data.static_mesh_params.back().reserve(objs.size());
+                                //data.static_mesh_drawCommands.back().reserve(objs.size());
 
                                 data.tx_rsrc_access_cache.push_back(std::vector<WeakResource<glowl::Texture2D>>());
 
@@ -650,7 +655,7 @@ namespace EngineCore
                                 try
                                 {
                                     //batch_resources.draw_commands.resource->rebuffer(data.static_mesh_drawCommands[batch]);
-                                    batch_resources.draw_commands.resource->bufferSubData(data.static_mesh_drawCommands[batch]);
+                                    batch_resources.draw_commands.resource->rebuffer(data.static_mesh_drawCommands[batch]);
                                 }
                                 catch (glowl::BufferObjectException const& e)
                                 {
@@ -739,6 +744,9 @@ namespace EngineCore
                         ImGui::End();
                     }
                 );
+
+                // experimental: insert render pass
+                addSkinnedMeshRenderPass(frame, world_state, resource_mngr);
                 
                 // Lighting pass
                 frame.addRenderPass<LightingPassData, LightingPassResources>("LightingPass",
@@ -930,7 +938,6 @@ namespace EngineCore
 
                     WeakResource<glowl::FramebufferObject> atmospher_rt;
                 };
-
 
                 // Compositing pass
                 frame.addRenderPass<CompPassData, CompPassResources>("CompositingPass",

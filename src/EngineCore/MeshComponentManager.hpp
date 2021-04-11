@@ -175,8 +175,8 @@ namespace EngineCore
 
                 ResourceID new_mesh = m_resource_mngr->allocateMeshAsync(
                     mesh_name,
-                    1000000,
-                    4000000,
+                    15000000,
+                    20000000,
                     vertex_layouts,
                     index_type,
                     mesh_type);

@@ -12,13 +12,17 @@
 #include <unordered_map>
 #include <vector>
 
+#include <glm/gtx/matrix_decompose.hpp>
+
 #include "tiny_gltf.h"
 
 #include "BaseMultiInstanceComponentManager.hpp"
 #include "BaseResourceManager.hpp"
 #include "GenericVertexLayout.hpp"
 #include "GenericTextureLayout.hpp"
+#include "GeometryBakery.hpp"
 #include "MaterialComponentManager.hpp"
+#include "SkinComponentManager.hpp"
 
 struct Entity;
 
@@ -68,13 +72,13 @@ namespace EngineCore
             ResourceManagerType& m_rsrc_mngr;
             WorldState&          m_world;
 
-            void addComponent(Entity entity, ModelPtr const& model, int gltf_node_idx, ResourceID dflt_shader_prgm);
+            void addComponent(Entity entity, ModelPtr const& model, int gltf_node_idx, std::unordered_map<int, Entity> const & node_to_entity, ResourceID dflt_shader_prgm);
 
             ModelPtr addGltfAsset(std::string const& gltf_filepath);
 
             void addGltfAsset(std::string const& gltf_filepath, ModelPtr const& gltf_model);
 
-            void addGltfNode(ModelPtr const& model, int gltf_node_idx, Entity parent_entity, ResourceID dflt_shader_prgm);
+            void addGltfNode(ModelPtr const& model, int gltf_node_idx, Entity parent_entity, std::unordered_map<int, Entity>& node_to_entity, ResourceID dflt_shader_prgm);
 
             typedef std::shared_ptr<std::vector<typename ResourceManagerType::VertexLayout>> VertexLayoutPtr;
             typedef std::shared_ptr<std::vector<std::vector<unsigned char>>>                 VertexDataPtr;
@@ -155,12 +159,15 @@ namespace EngineCore
         {
             auto gltf_model = addGltfAsset(gltf_filepath);
 
+            // helper data structure for tracking entities that are created while traversing gltf scene graph
+            std::unordered_map<int, Entity> node_to_entity;
+
             // iterate over nodes of model and add entities+components to world
             for (auto& scene : gltf_model->scenes)
             {
                 for (auto node : scene.nodes)
                 {
-                    addGltfNode(gltf_model, node, m_world.accessEntityManager().invalidEntity(), dflt_shader_prgm);
+                    addGltfNode(gltf_model, node, m_world.accessEntityManager().invalidEntity(), node_to_entity, dflt_shader_prgm);
                 }
             }
         }
@@ -170,23 +177,32 @@ namespace EngineCore
         {
             addGltfAsset(gltf_filepath, gltf_model);
 
+            // helper data structure for tracking entities that are created while traversing gltf scene graph
+            std::unordered_map<int, Entity> node_to_entity;
+
             // iterate over nodes of model and add entities+components to world
             for (auto& scene : gltf_model->scenes)
             {
                 for (auto node : scene.nodes)
                 {
-                    addGltfNode(gltf_model, node, m_world.accessEntityManager().invalidEntity(), dflt_shader_prgm);
+                    addGltfNode(gltf_model, node, m_world.accessEntityManager().invalidEntity(), node_to_entity, dflt_shader_prgm);
                 }
             }
         }
 
         template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::addGltfNode(ModelPtr const & gltf_model, int gltf_node_idx, Entity parent_entity, ResourceID dflt_shader_prgm)
+        inline void GltfAssetComponentManager<ResourceManagerType>::addGltfNode(
+            ModelPtr const & gltf_model,
+            int gltf_node_idx,
+            Entity parent_entity,
+            std::unordered_map<int, Entity>& node_to_entity,
+            ResourceID dflt_shader_prgm)
         {
             auto& transform_mngr = m_world.get<EngineCore::Common::TransformComponentManager>();
 
             // add entity
             auto entity = m_world.accessEntityManager().create();
+            node_to_entity.insert({gltf_node_idx,entity});
 
             // add name
             //m_world.accessNameManager()->addComponent(entity, model->nodes[node].name);
@@ -199,18 +215,23 @@ namespace EngineCore
                 transform_mngr.setParent(transform_idx, parent_entity);
             }
 
-            // add gltf asset component (which in turn add mesh + material)
-            addComponent(entity, gltf_model, gltf_node_idx, dflt_shader_prgm);
-
             // traverse children and add gltf nodes recursivly
             for (auto child : gltf_model->nodes[gltf_node_idx].children)
             {
-                addGltfNode(gltf_model, child, entity, dflt_shader_prgm);
+                addGltfNode(gltf_model, child, entity, node_to_entity, dflt_shader_prgm);
             }
+
+            // add gltf asset component (which in turn add mesh + material)
+            addComponent(entity, gltf_model, gltf_node_idx, node_to_entity, dflt_shader_prgm);
         }
 
         template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::addComponent(Entity entity, ModelPtr const& model, int gltf_node_idx, ResourceID dflt_shader_prgm)
+        inline void GltfAssetComponentManager<ResourceManagerType>::addComponent(
+            Entity entity,
+            ModelPtr const& model,
+            int gltf_node_idx,
+            std::unordered_map<int, Entity> const& node_to_entity,
+            ResourceID dflt_shader_prgm)
         {
             {
                 std::unique_lock<std::shared_mutex> lock(m_data_mutex);
@@ -223,13 +244,25 @@ namespace EngineCore
             auto& transform_mngr = m_world.get<EngineCore::Common::TransformComponentManager>();
             auto& mtl_mngr = m_world.get<EngineCore::Graphics::MaterialComponentManager<ResourceManagerType>>();
             auto& mesh_mngr = m_world.get<EngineCore::Graphics::MeshComponentManager<ResourceManagerType>>();
-            auto& renderTask_mngr = m_world.get<EngineCore::Graphics::RenderTaskComponentManager>();
+            auto& staticMesh_renderTask_mngr = m_world.get<EngineCore::Graphics::RenderTaskComponentManager<EngineCore::Graphics::RenderTaskTags::StaticMesh>>();
+            auto& skinnedMesh_renderTask_mngr = m_world.get<EngineCore::Graphics::RenderTaskComponentManager<EngineCore::Graphics::RenderTaskTags::SkinnedMesh>>();
+            auto& skin_mngr = m_world.get<EngineCore::Animation::SkinComponentManager>();
 
             size_t transform_idx = transform_mngr.getIndex(entity);
 
             if (model->nodes[gltf_node_idx].matrix.size() != 0) // has matrix transform
             {
-                // TODO
+                glm::mat4 transformation = glm::make_mat4(model->nodes[gltf_node_idx].matrix.data()); // your transformation matrix.
+                glm::vec3 scale;
+                glm::quat rotation;
+                glm::vec3 translation;
+                glm::vec3 skew;
+                glm::vec4 perspective;
+                glm::decompose(transformation, scale, rotation, translation, skew, perspective);
+
+                transform_mngr.setPosition(transform_idx, translation);
+                transform_mngr.scale(transform_idx, scale);
+                transform_mngr.setOrientation(transform_idx, rotation);
             }
             else
             {
@@ -256,12 +289,119 @@ namespace EngineCore
                 if (rotation.size() != 0) {
                     transform_mngr.setOrientation(
                         transform_idx,
-                        Quat(static_cast<float>(rotation[0]),
+                        Quat(static_cast<float>(rotation[3]),
+                            static_cast<float>(rotation[0]),
                             static_cast<float>(rotation[1]),
-                            static_cast<float>(rotation[2]),
-                            static_cast<float>(rotation[3]))
+                            static_cast<float>(rotation[2]))
                     );
                 }
+            }
+
+            if (model->nodes[gltf_node_idx].skin != -1) {
+
+                auto skin = model->skins[model->nodes[gltf_node_idx].skin];
+
+                auto joint_cnt = skin.joints.size();
+
+                std::vector<Entity> joints;
+                joints.reserve(joint_cnt);
+                for (auto joint : skin.joints) {
+                    // add entity
+                    //      auto joint_entity = m_world.accessEntityManager().create();
+                    //      node_to_entity.insert({joint,joint_entity});
+                    // add transform
+                    //      auto transform_idx = transform_mngr.addComponent(joint_entity);
+
+                    auto joint_entity = node_to_entity.find(joint)->second;
+
+                    joints.push_back(joint_entity);
+
+                    {
+                        //////
+                        //
+                        // start debugging skeleton joints
+                        //
+                        //////
+                        auto primitive_topology_type = m_rsrc_mngr.convertGenericPrimitiveTopology(0x0004/*GL_TRIANGLES*/);
+                        const auto [vertex_data, index_data, vertex_description] = Graphics::createIcoSphere(2, 0.005);
+                        auto gl_vertex_desc = std::make_shared<std::vector<glowl::VertexLayout>>();
+                        for (auto const& vertex_layout : (*vertex_description)) {
+                            gl_vertex_desc->push_back(m_rsrc_mngr.convertGenericGltfVertexLayout(vertex_layout));
+                        }
+                        EngineCore::Graphics::ResourceID mesh_rsrc = mesh_mngr.addComponent(
+                            joint_entity,
+                            "skeleton_bone",
+                            vertex_data,
+                            index_data,
+                            gl_vertex_desc,
+                            0x1405,
+                            0x0004);
+
+                        auto bone_shader_names = std::make_shared<std::vector<EngineCore::Graphics::OpenGL::ResourceManager::ShaderFilename>>(
+                            std::initializer_list<EngineCore::Graphics::OpenGL::ResourceManager::ShaderFilename>{
+                                { "../space-lion/resources/shaders/debug/skinned_mesh_bone_v.glsl", glowl::GLSLProgram::ShaderType::Vertex },
+                                { "../space-lion/resources/shaders/debug/skinned_mesh_bone_f.glsl", glowl::GLSLProgram::ShaderType::Fragment }
+                        });
+                        auto bone_shader_rsrc = m_rsrc_mngr.createShaderProgramAsync(
+                            "skeleton_bone_shader",
+                            bone_shader_names
+                        );
+                        using TextureSemantic = Graphics::MaterialComponentManager<ResourceManagerType>::TextureSemantic;
+                        mtl_mngr.addComponent(
+                            joint_entity,
+                            "skeleton_bone",
+                            dflt_shader_prgm,
+                            { 1.0f,0.0f,1.0f,1.0f },
+                            { 1.0f, 1.0f, 1.0f, 1.0f },
+                            0.8f,
+                            std::vector<std::pair<TextureSemantic, ResourceID>>{}
+                        );
+
+                        staticMesh_renderTask_mngr.addComponent(
+                            joint_entity,
+                            mesh_rsrc,
+                            0,
+                            bone_shader_rsrc,
+                            0,
+                            transform_mngr.getIndex(joint_entity),
+                            mesh_mngr.getIndex(joint_entity)[0],
+                            mtl_mngr.getIndex(joint_entity)[0]
+                        );
+                        //////
+                        // end debugging skeleton joints
+                        //////
+                    }
+                }
+
+                // build hierachy in transform manager after all joint nodes are added
+                //  for (auto joint : skin.joints) {
+                //      auto parent_query = node_to_entity.find(joint);
+                //  
+                //      if (parent_query != node_to_entity.end()) {
+                //          for (auto child : model->nodes[joint].children) {
+                //              auto child_query = node_to_entity.find(child);
+                //  
+                //              if (child_query != node_to_entity.end()) {
+                //                  transform_mngr.setParent(transform_mngr.getIndex(child_query->second.id()), parent_query->second);
+                //              }
+                //          }
+                //      }
+                //  }
+
+
+                std::vector<Mat4x4> inverse_bind_matrices(joint_cnt);
+                auto const& matrices_accessor = model->accessors[skin.inverseBindMatrices];
+                auto const& matrices_bufferView = model->bufferViews[matrices_accessor.bufferView];
+                auto const& matrices_buffer = model->buffers[matrices_bufferView.buffer];
+
+                assert((inverse_bind_matrices.size() * sizeof(Mat4x4)) == matrices_bufferView.byteLength);
+
+                std::copy(
+                    matrices_buffer.data.data() + matrices_bufferView.byteOffset,
+                    matrices_buffer.data.data() + matrices_bufferView.byteOffset + matrices_bufferView.byteLength,
+                    reinterpret_cast<uint8_t*>(inverse_bind_matrices.data()));
+
+                skin_mngr.addComponent(entity, joints, inverse_bind_matrices);
             }
 
             if (model->nodes[gltf_node_idx].mesh != -1)
@@ -407,16 +547,30 @@ namespace EngineCore
                     size_t mtl_subidx = mtl_mngr.getIndex(entity).size() - 1;;
 
                     //for (int subidx = 0; subidx < component_idxs.size(); ++subidx)
-                    renderTask_mngr.addComponent(
-                        entity, 
-                        mesh_rsrc, 
-                        mesh_subidx, 
-                        dflt_shader_prgm, 
-                        mtl_subidx,
-                        transform_mngr.getIndex(entity),
-                        mesh_mngr.getIndex(entity)[mesh_subidx],
-                        mtl_mngr.getIndex(entity)[mtl_subidx]
-                    );
+                    if (model->nodes[gltf_node_idx].skin != -1) {
+                        skinnedMesh_renderTask_mngr.addComponent(
+                            entity,
+                            mesh_rsrc,
+                            mesh_subidx,
+                            dflt_shader_prgm,
+                            mtl_subidx,
+                            transform_mngr.getIndex(entity),
+                            mesh_mngr.getIndex(entity)[mesh_subidx],
+                            mtl_mngr.getIndex(entity)[mtl_subidx]
+                        );
+                    }
+                    else {
+                        staticMesh_renderTask_mngr.addComponent(
+                            entity,
+                            mesh_rsrc,
+                            mesh_subidx,
+                            dflt_shader_prgm,
+                            mtl_subidx,
+                            transform_mngr.getIndex(entity),
+                            mesh_mngr.getIndex(entity)[mesh_subidx],
+                            mtl_mngr.getIndex(entity)[mtl_subidx]
+                        );
+                    }
 
                     // TODO experiment with index caching for better performance...
                     //renderTask_mngr.getComponentData().back().cached_transform_idx = transform_mngr.getIndex(entity).front();

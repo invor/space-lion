@@ -20,11 +20,13 @@ endif()
 
 SET (ENGINECORE_ANIMATION_HEADER_FILES
         src/EngineCore/TurntableComponentManager.hpp
-        src/EngineCore/AnimationSystems.hpp)
+        src/EngineCore/AnimationSystems.hpp
+        src/EngineCore/SkinComponentManager.hpp)
 
 SET (ENGINECORE_ANIMATION_SOURCE_FILES
         src/EngineCore/TurntableComponentManager.cpp
-        src/EngineCore/AnimationSystems.cpp)
+        src/EngineCore/AnimationSystems.cpp
+        src/EngineCore/SkinComponentManager.cpp)
 
 SET (ENGINECORE_COMMON_HEADER_FILES
         src/EngineCore/BaseComponentManager.hpp
@@ -79,13 +81,15 @@ SET (ENGINECORE_GRAPHICS_GL_HEADER_FILES
         src/EngineCore/OpenGL/AtmosphereRenderPass.hpp
         src/EngineCore/OpenGL/BasicRenderingPipeline.hpp
         src/EngineCore/OpenGL/GraphicsBackend.hpp
-        src/EngineCore/OpenGL/ResourceManager.hpp)
+        src/EngineCore/OpenGL/ResourceManager.hpp
+        src/EngineCore/OpenGL/SkinnedMeshRenderPass.hpp)
 
 SET (ENGINECORE_GRAPHICS_GL_SOURCE_FILES
         src/EngineCore/OpenGL/AtmosphereRenderPass.cpp
         src/EngineCore/OpenGL/BasicRenderingPipeline.cpp
         src/EngineCore/OpenGL/GraphicsBackend.cpp
-        src/EngineCore/OpenGL/ResourceManager.cpp)
+        src/EngineCore/OpenGL/ResourceManager.cpp
+        src/EngineCOre/OpenGL/SkinnedMeshRenderPass.cpp)
 
 SET (ENGINECORE_PHYSICS_HEADER_FILES
         src/EngineCore/AirplanePhysicsComponent.hpp)

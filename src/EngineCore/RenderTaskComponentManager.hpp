@@ -16,6 +16,11 @@ namespace EngineCore
 {
     namespace Graphics
     {
+        namespace RenderTaskTags{
+            struct StaticMesh {};
+        }
+
+        template<typename TagType>
         class RenderTaskComponentManager : public BaseMultiInstanceComponentManager
         {
         public:
@@ -41,7 +46,6 @@ namespace EngineCore
                 size_t     cached_material_idx;
             };
 
-
             void addComponent(
                 Entity entity,
                 ResourceID mesh,
@@ -62,6 +66,53 @@ namespace EngineCore
             std::vector<Data> m_data; //< store render task sorted by shader and mesh ResourceIDs
             std::shared_mutex m_data_mutex;
         };
+
+
+        template<typename TagType>
+        void RenderTaskComponentManager<TagType>::addComponent(
+            Entity entity,
+            ResourceID mesh,
+            size_t mesh_component_subidx,
+            ResourceID shader_prgm,
+            size_t mtl_component_subidx,
+            size_t cached_transform_idx,
+            size_t cached_mesh_idx,
+            size_t cached_material_idx,
+            bool visible)
+        {
+            std::unique_lock<std::shared_mutex> lock(m_data_mutex);
+
+            addIndex(entity.id(), m_data.size());
+
+            m_data.emplace_back(Data(entity, mesh, mesh_component_subidx, shader_prgm, mtl_component_subidx, visible));
+
+            m_data.back().cached_transform_idx = cached_transform_idx;
+            m_data.back().cached_mesh_idx = cached_mesh_idx;
+            m_data.back().cached_material_idx = cached_material_idx;
+
+            std::sort(m_data.begin(), m_data.end());
+        }
+
+        template<typename TagType>
+        inline std::vector<typename RenderTaskComponentManager<TagType>::Data>& RenderTaskComponentManager<TagType>::getComponentData()
+        {
+            return m_data;
+        }
+
+        template<typename TagType>
+        std::vector<typename RenderTaskComponentManager<TagType>::Data> RenderTaskComponentManager<TagType>::getComponentDataCopy()
+        {
+            std::vector<EngineCore::Graphics::RenderTaskComponentManager<TagType>::Data> retval;
+
+            {
+                std::shared_lock<std::shared_mutex> lock(m_data_mutex);
+
+                retval = m_data;
+            }
+
+            return retval;
+        }
+
 
     }
 }

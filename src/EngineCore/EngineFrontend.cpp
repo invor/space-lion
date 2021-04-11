@@ -17,6 +17,7 @@
 #include "PointlightComponent.hpp"
 #include "RenderTaskComponentManager.hpp"
 #include "SunlightComponentManager.hpp"
+#include "SkinComponentManager.hpp"
 
 #include "InputEvent.hpp"
 
@@ -41,9 +42,11 @@ namespace EngineCore
             m_world_state->add<Common::NameComponentManager>(std::make_unique<Common::NameComponentManager>());
             m_world_state->add<Graphics::PointlightComponentManager>(std::make_unique<Graphics::PointlightComponentManager>(16000));
             m_world_state->add<Graphics::SunlightComponentManager>(std::make_unique<Graphics::SunlightComponentManager>(1));
-            m_world_state->add<Graphics::RenderTaskComponentManager>(std::make_unique<Graphics::RenderTaskComponentManager>());
+            m_world_state->add<Graphics::RenderTaskComponentManager<Graphics::RenderTaskTags::StaticMesh>>(std::make_unique<Graphics::RenderTaskComponentManager<Graphics::RenderTaskTags::StaticMesh>>());
+            m_world_state->add<Graphics::RenderTaskComponentManager<Graphics::RenderTaskTags::SkinnedMesh>>(std::make_unique<Graphics::RenderTaskComponentManager<Graphics::RenderTaskTags::SkinnedMesh>>());
             m_world_state->add<TransformComponentManager>(std::make_unique<TransformComponentManager>(250000));
             m_world_state->add<Animation::TurntableComponentManager>(std::make_unique<Animation::TurntableComponentManager>());
+            m_world_state->add<Animation::SkinComponentManager>(std::make_unique<Animation::SkinComponentManager>());
 
             m_world_state->add([](WorldState& world_state, double dt) {
                     auto& transform_mngr = world_state.get<TransformComponentManager>();
@@ -80,7 +83,7 @@ namespace EngineCore
             auto& mtl_mngr        = m_world_state->get<Graphics::MaterialComponentManager<Graphics::OpenGL::ResourceManager>>();
             auto& mesh_mngr       = m_world_state->get<Graphics::MeshComponentManager<Graphics::OpenGL::ResourceManager>>();
             auto& rsrc_mngr       = (*m_resource_manager);
-            auto& renderTask_mngr = m_world_state->get<Graphics::RenderTaskComponentManager>();
+            auto& renderTask_mngr = m_world_state->get<Graphics::RenderTaskComponentManager<Graphics::RenderTaskTags::StaticMesh>>();
             auto& transform_mngr  = m_world_state->get<TransformComponentManager>();
             auto& turntable_mngr  = m_world_state->get<Animation::TurntableComponentManager>();
 

@@ -62,25 +62,39 @@ namespace EngineCore
 
                     std::unique_lock<std::shared_mutex> lock(m_meshes_mutex);
 
-                    // TODO get number of buffer required for vertex layout and compute byte sizes
-                    std::vector<void*> vertex_data_ptrs(vertex_layouts->size(), nullptr);
-                    std::vector<size_t> vertex_data_buffer_byte_sizes(vertex_layouts->size());
+                    std::vector<std::tuple<void*, size_t, VertexLayout>> vertex_info;
 
-                    for (size_t buffer_idx = 0; buffer_idx < vertex_data_buffer_byte_sizes.size(); ++buffer_idx) 
+                    for (auto const& vertex_layout : *vertex_layouts)
                     {
-                        vertex_data_buffer_byte_sizes[buffer_idx] = (*vertex_layouts)[buffer_idx].stride * vertex_cnt;
+                        vertex_info.push_back({ nullptr , vertex_layout.stride * vertex_cnt , vertex_layout });
                     }
+
+                    // TODO get number of buffer required for vertex layout and compute byte sizes
+                    //std::vector<void*> vertex_data_ptrs(vertex_layouts->size(), nullptr);
+                    //std::vector<size_t> vertex_data_buffer_byte_sizes(vertex_layouts->size());
+                    //
+                    //for (size_t buffer_idx = 0; buffer_idx < vertex_data_buffer_byte_sizes.size(); ++buffer_idx) 
+                    //{
+                    //    vertex_data_buffer_byte_sizes[buffer_idx] = (*vertex_layouts)[buffer_idx].stride * vertex_cnt;
+                    //}
 
                     size_t index_data_byte_size = 4 * index_cnt; //TODO support different index formats
 
                     try
                     {
+                        //this->m_meshes[idx].resource = std::make_unique<glowl::Mesh>(
+                        //    vertex_data_ptrs, //TODO THIS CALLS THE WRONG CONSTRUCTOR
+                        //    vertex_data_buffer_byte_sizes,
+                        //    nullptr,
+                        //    index_data_byte_size,
+                        //    *vertex_layouts,
+                        //    index_type,
+                        //    GL_DYNAMIC_DRAW,
+                        //    mesh_type);
                         this->m_meshes[idx].resource = std::make_unique<glowl::Mesh>(
-                            vertex_data_ptrs, //TODO THIS CALLS THE WRONG CONSTRUCTOR
-                            vertex_data_buffer_byte_sizes,
+                            vertex_info,
                             nullptr,
                             index_data_byte_size,
-                            *vertex_layouts,
                             index_type,
                             GL_DYNAMIC_DRAW,
                             mesh_type);
