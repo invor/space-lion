@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "BaseMultiInstanceComponentManager.hpp"
+#include "BaseSingleInstanceComponentManager.hpp"
 #include "EntityManager.hpp"
 
 namespace EngineCore
@@ -15,7 +15,7 @@ namespace EngineCore
 
     namespace Animation
     {
-        class TurntableComponentManager : public BaseMultiInstanceComponentManager
+        class TurntableComponentManager : public BaseSingleInstanceComponentManager
         {
         private:
             struct Data
@@ -29,7 +29,7 @@ namespace EngineCore
             };
 
             std::vector<Data> m_data;
-            std::shared_mutex        m_dataAccess_mutex;
+            std::shared_mutex m_dataAccess_mutex;
             
         public:
             TurntableComponentManager() = default;

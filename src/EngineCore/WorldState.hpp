@@ -5,7 +5,6 @@
 
 #include "BaseComponentManager.hpp"
 #include "EntityManager.hpp"
-#include "OpenGL/ResourceManager.hpp"
 
 namespace EngineCore
 {
@@ -15,7 +14,6 @@ namespace EngineCore
     class WorldState
     {
     public:
-        typedef Graphics::OpenGL::ResourceManager ResourceManager;
 
         WorldState() = default;
         ~WorldState() = default;
