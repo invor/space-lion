@@ -62,7 +62,8 @@ namespace EngineCore
 
                     std::unique_lock<std::shared_mutex> lock(m_meshes_mutex);
 
-                    std::vector<std::tuple<void*, size_t, VertexLayout>> vertex_info;
+                    //std::vector<std::tuple<void*, size_t, VertexLayout>> vertex_info;
+                    glowl::Mesh::VertexPtrDataList vertex_info;
 
                     for (auto const& vertex_layout : *vertex_layouts)
                     {
@@ -96,8 +97,8 @@ namespace EngineCore
                             nullptr,
                             index_data_byte_size,
                             index_type,
-                            GL_DYNAMIC_DRAW,
-                            mesh_type);
+                            mesh_type,
+                            GL_DYNAMIC_DRAW);
                     }
                     catch (glowl::MeshException const& e)
                     {

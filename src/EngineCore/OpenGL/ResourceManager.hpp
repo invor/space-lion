@@ -378,11 +378,11 @@ namespace EngineCore
                 {
                     this->m_meshes[idx].resource = std::make_unique<glowl::Mesh>(
                         vertex_data,
-                        index_data,
                         vertex_layouts,
+                        index_data,
                         index_type,
-                        GL_DYNAMIC_DRAW,
-                        mesh_type);
+                        mesh_type,
+                        GL_DYNAMIC_DRAW);
                 }
                 catch (glowl::MeshException const& e)
                 {

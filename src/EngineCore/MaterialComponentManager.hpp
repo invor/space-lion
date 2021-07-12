@@ -97,7 +97,7 @@ namespace EngineCore
                     std::vector<std::pair<TextureSemantic,ResourceID>> const& textures)
                     : entity(entity),
                     material_name(name),
-                    shader_program(shader_program),
+                    shader_program(shader_prgm),
                     albedo_colour(albedo_colour),
                     specular_colour(specular_colour),
                     roughness(roughness),

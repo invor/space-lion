@@ -467,6 +467,7 @@ namespace EngineCore
 							layout.width = img.width;
 							layout.height = img.height;
 							layout.depth = 1;
+                            layout.levels = 1;
 							layout.type = img.pixel_type;
 							layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
 							layout.internal_format = 0x8058;// GL_RGBA8
@@ -491,6 +492,7 @@ namespace EngineCore
                             layout.width = img.width;
                             layout.height = img.height;
                             layout.depth = 1;
+                            layout.levels = 1;
                             layout.type = img.pixel_type;
                             layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
                             layout.internal_format = 0x8058;// GL_RGBA8
@@ -515,6 +517,7 @@ namespace EngineCore
                             layout.width = img.width;
                             layout.height = img.height;
                             layout.depth = 1;
+                            layout.levels = 1;
                             layout.type = img.pixel_type;
                             layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
                             layout.internal_format = 0x8058;// GL_RGBA8
