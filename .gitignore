@@ -373,3 +373,4 @@ resources/meshes/*
 resources/materials/*
 !resources/materials/editor
 !resources/materials/templates
+!resources/shaders/debug
