@@ -63,7 +63,8 @@ SET (ENGINECORE_GRAPHICS_HEADER_FILES
         src/EngineCore/PointlightComponent.hpp
         src/EngineCore/RenderPass.hpp
         src/EngineCore/RenderTaskComponentManager.hpp
-        src/EngineCore/SunlightComponentManager.hpp)
+        src/EngineCore/SunlightComponentManager.hpp
+        src/EngineCore/LandscapeBrickComponent.hpp)
 
 SET (ENGINECORE_GRAPHICS_SOURCE_FILES
         src/EngineCore/AtmosphereComponentManager.cpp
@@ -75,7 +76,8 @@ SET (ENGINECORE_GRAPHICS_SOURCE_FILES
         src/EngineCore/PointlightComponent.cpp
         src/EngineCore/RenderPass.cpp
         src/EngineCore/RenderTaskComponentManager.cpp
-        src/EngineCore/SunlightComponentManager.cpp)
+        src/EngineCore/SunlightComponentManager.cpp
+        src/EngineCore/LandscapeBrickComponent.cpp)
 
 SET (ENGINECORE_GRAPHICS_GL_HEADER_FILES
         src/EngineCore/OpenGL/AtmosphereRenderPass.hpp
@@ -184,6 +186,7 @@ SET (EXTERNAL_GLOWL_FILES
         src/External/glowl/include/glowl/Mesh.hpp
         src/External/glowl/include/glowl/Texture.hpp
         src/External/glowl/include/glowl/Texture2D.hpp
+        src/External/glowl/include/glowl/Texture2DView.hpp
         src/External/glowl/include/glowl/Texture2DArray.hpp
         src/External/glowl/include/glowl/Texture3D.hpp
         src/External/glowl/include/glowl/Texture3DView.hpp
