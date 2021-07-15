@@ -8,16 +8,16 @@
 
 #include "../BaseResourceManager.hpp"
 
-#include "Buffer.hpp"
-#include "Mesh.hpp"
+#include <dxowl/Buffer.hpp>
+#include <dxowl/Mesh.hpp>
 #include "../MTQueue.hpp"
-#include "RenderTarget.hpp"
-#include "ShaderProgram.hpp"
-#include "Texture2D.hpp"
-#include "Texture3D.hpp"
-#include "VertexDescriptor.hpp"
+#include <dxowl/RenderTarget.hpp>
+#include <dxowl/ShaderProgram.hpp>
+#include <dxowl/Texture2D.hpp>
+#include <dxowl/Texture3D.hpp>
+#include <dxowl/VertexDescriptor.hpp>
 
-#include "Common/DeviceResources.h"
+#include <d3d11.h>
 
 namespace EngineCore
 {
@@ -26,10 +26,10 @@ namespace EngineCore
 		namespace Dx11
 		{
 
-			class ResourceManager : public BaseResourceManager<Buffer,Mesh,ShaderProgram,Texture2D,Texture3D>
+			class ResourceManager : public BaseResourceManager<dxowl::Buffer, dxowl::Mesh, dxowl::ShaderProgram, dxowl::Texture2D, dxowl::Texture3D>
 			{
             public:
-                typedef VertexDescriptor VertexLayout;
+                typedef dxowl::VertexDescriptor VertexLayout;
                 typedef DXGI_FORMAT IndexFormatType;
                 typedef D3D_PRIMITIVE_TOPOLOGY PrimitiveTopologyType;
 
@@ -223,17 +223,17 @@ namespace EngineCore
 	#pragma endregion
 	
 	#pragma region Create shader program
-				typedef std::pair<std::wstring, ShaderProgram::ShaderType> ShaderFilename;
+				typedef std::pair<std::wstring, dxowl::ShaderProgram::ShaderType> ShaderFilename;
                 std::future<ResourceID> createShaderProgramAsync(
 					std::string const& name,
 					std::shared_ptr<std::vector<ShaderFilename>> const& shader_filenames,
 					std::shared_ptr<VertexDescriptor> const& vertex_layout);
 
-				typedef std::tuple<const void*, size_t, ShaderProgram::ShaderType> ShaderData;
+				typedef std::tuple<const void*, size_t, dxowl::ShaderProgram::ShaderType> ShaderData;
 				ResourceID createShaderProgram(
 					std::string const& name,
 					std::vector<ShaderData> const& shader_bytedata,
-					VertexDescriptor const& vertex_layout);
+					dxowl::VertexDescriptor const& vertex_layout);
 	
 				//std::future<WeakResource<ShaderProgram>> recreateShaderProgram(
 				//	ResourceID const& resource_id,
@@ -252,7 +252,7 @@ namespace EngineCore
 	
 				template<
 					typename TexelDataContainer>
-					WeakResource<Texture2D> createTexture2D(
+					WeakResource<dxowl::Texture2D> createTexture2D(
 						std::string const&                     name,
 						std::vector<TexelDataContainer> const& data,
 						D3D11_TEXTURE2D_DESC const&	           desc,
@@ -275,7 +275,7 @@ namespace EngineCore
 
 				EngineCore::Utility::MTQueue<std::function<void()>> m_renderThread_tasks;
 
-				std::vector<Resource<RenderTarget>>      m_render_targets;
+				std::vector<Resource<dxowl::RenderTarget>>      m_render_targets;
 				std::unordered_map<unsigned int, size_t> m_id_to_renderTarget_idx;
 				std::unordered_map<std::string, size_t>  m_name_to_renderTarget_idx;
 
@@ -425,7 +425,7 @@ namespace EngineCore
 			}
 
 			template<typename TexelDataContainer>
-			inline WeakResource<Texture2D> ResourceManager::createTexture2D(
+			inline WeakResource<dxowl::Texture2D> ResourceManager::createTexture2D(
 				std::string const & name, 
 				std::vector<TexelDataContainer> const & data,
 				D3D11_TEXTURE2D_DESC const & desc, 
@@ -444,14 +444,14 @@ namespace EngineCore
 
 				size_t idx = m_render_targets.size();
 				ResourceID rsrc_id = generateResourceID();
-				m_render_targets.push_back(Resource<RenderTarget>(rsrc_id));
+				m_render_targets.push_back(Resource<dxowl::RenderTarget>(rsrc_id));
 
 				m_id_to_renderTarget_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
 				m_name_to_renderTarget_idx.insert(std::pair<std::string, size_t>(name, idx));
 
 				std::async([this, idx, desc, shdr_rsrc_view, rndr_tgt_view_desc]() {
 
-					this->m_render_targets[idx].resource = std::make_unique<RenderTarget>(
+					this->m_render_targets[idx].resource = std::make_unique<dxowl::RenderTarget>(
 						m_device_resources->GetD3DDevice(),
 						desc,
 						shdr_rsrc_view,

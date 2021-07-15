@@ -17,6 +17,11 @@ add_subdirectory(src/External/glowl EXCLUDE_FROM_ALL)
 
 endif()
 
+if(USE_DX11)
+# try adding dxowl by its own cmake file
+add_subdirectory(src/External/dxowl EXCLUDE_FROM_ALL)
+endif()
+
 
 SET (ENGINECORE_ANIMATION_HEADER_FILES
         src/EngineCore/TurntableComponentManager.hpp
@@ -91,6 +96,14 @@ SET (ENGINECORE_GRAPHICS_GL_SOURCE_FILES
         src/EngineCore/OpenGL/ResourceManager.cpp
         src/EngineCOre/OpenGL/SkinnedMeshRenderPass.cpp)
 
+SET (ENGINECORE_GRAPHICS_DX11_HEADER_FILES
+        src/EngineCore/Dx11/SimpleForwardRenderingPipeline.hpp
+        src/EngineCore/Dx11/ResourceManager.hpp)
+
+SET (ENGINECORE_GRAPHICS_DX11_SOURCE_FILES
+        src/EngineCore/Dx11/SimpleForwardRenderingPipeline.cpp
+        src/EngineCore/Dx11/ResourceManager.cpp)
+
 SET (ENGINECORE_PHYSICS_HEADER_FILES
         src/EngineCore/AirplanePhysicsComponent.hpp)
 
@@ -145,6 +158,17 @@ source_group(EngineCore\\Graphics FILES ${ENGINECORE_GRAPHICS_HEADER_FILES} ${EN
 source_group(EngineCore\\Physics FILES ${ENGINECORE_PHYSICS_HEADER_FILES} ${ENGINECORE_PHYSICS_SOURCE_FILES})
 source_group(EngineCore\\Utility FILES ${ENGINECORE_UTILITY_HEADER_FILES} ${ENGINECORE_UTILITY_SOURCE_FILES})
 
+SET (EXTERNAL_LODEPNG_FILES
+        src/External/lodepng/lodepng.h
+        src/External/lodepng/lodepng.cpp
+)
+
+target_include_directories(
+        SpaceLion PUBLIC
+        "${PROJECT_SOURCE_DIR}/src/External/lodepng/"
+)
+
+source_group(External\\lodepng\\ FILES ${EXTERNAL_LODEPNG_FILES})
 
 if(USE_GL)
 
@@ -168,11 +192,6 @@ SET (EXTERNAL_IMGUI_FILES
         src/External/imgui/imstb_rectpack.h
         src/External/imgui/imstb_textedit.h
         src/External/imgui/imstb_truetype.h
-)
-
-SET (EXTERNAL_LODEPNG_FILES
-        src/External/lodepng/lodepng.h
-        src/External/lodepng/lodepng.cpp
 )
 
 SET (EXTERNAL_GLOWL_FILES
@@ -215,8 +234,33 @@ target_sources(SpaceLion
 source_group(EngineCore\\Graphics\\OpenGL FILES ${ENGINECORE_GRAPHICS_GL_HEADER_FILES} ${ENGINECORE_GRAPHICS_GL_SOURCE_FILES})
 source_group(External\\glad\\ FILES ${EXTERNAL_GLAD_FILES})
 source_group(External\\imgui\\ FILES ${EXTERNAL_IMGUI_FILES})
-source_group(External\\lodepng\\ FILES ${EXTERNAL_LODEPNG_FILES})
 source_group(External\\glowl\\ FILES ${EXTERNAL_GLOWL_FILES})
+
+endif()
+
+if(USE_DX11)
+
+SET (EXTERNAL_DXOWL_FILES
+        src/External/dxowl/include/dxowl/Buffer.hpp
+        src/External/dxowl/include/dxowl/RenderTarget.hpp
+        src/External/dxowl/include/dxowl/ShaderProgram.hpp
+        src/External/dxowl/include/dxowl/Mesh.hpp
+        src/External/dxowl/include/dxowl/Texture2D.hpp
+        src/External/dxowl/include/dxowl/Texture3D.hpp
+        src/External/dxowl/include/dxowl/VertexDescriptor.hpp
+)
+
+target_link_libraries(SpaceLion PUBLIC dxowl)
+
+target_sources(SpaceLion
+    PRIVATE
+        ${ENGINECORE_GRAPHICS_DX11_HEADER_FILES}
+        ${ENGINECORE_GRAPHICS_DX11_SOURCE_FILES}
+        ${EXTERNAL_DXOWL_FILES}
+)
+
+source_group(EngineCore\\Graphics\\DX11 FILES ${ENGINECORE_GRAPHICS_DX11_HEADER_FILES} ${ENGINECORE_GRAPHICS_DX11_SOURCE_FILES})
+source_group(External\\dxowl\\ FILES ${EXTERNAL_DXOWL_FILES})
 
 endif()
 

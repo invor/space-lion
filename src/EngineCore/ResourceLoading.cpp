@@ -132,7 +132,7 @@ namespace ResourceLoading
         return rtn;
     }
 
-    void loadPngImage(std::string const& path, std::vector<unsigned char>& image_data, glowl::TextureLayout& image_layout)
+    void loadPngImage(std::string const& path, std::vector<unsigned char>& image_data, GenericTextureLayout& image_layout)
     {
         // Load file and decode image.
         unsigned int width, height;
@@ -141,12 +141,12 @@ namespace ResourceLoading
         image_layout.width = width;
         image_layout.height = height;
         image_layout.depth = 1;
-        image_layout.internal_format = GL_RGBA8;
-        image_layout.format = GL_RGBA;
-        image_layout.type = GL_UNSIGNED_BYTE;
+        image_layout.internal_format = 0x8058; /*GL_RGBA8*/
+        image_layout.format = 0x1908; /*GL_RGBA*/
+        image_layout.type = 0x1401; /*GL_UNSIGNED_BYTE*/
     }
 
-    void loadPpmImage(std::string const& path, std::vector<uint8_t>& image_data, glowl::TextureLayout& image_layout)
+    void loadPpmImage(std::string const& path, std::vector<uint8_t>& image_data, GenericTextureLayout& image_layout)
     {
         unsigned long headerEnd;
         int imgDimX, imgDimY;
@@ -157,14 +157,14 @@ namespace ResourceLoading
         image_layout.width = imgDimX;
         image_layout.height = imgDimY;
         image_layout.depth = 1;
-        image_layout.internal_format = GL_RGB8;
-        image_layout.format = GL_RGB;
-        image_layout.type = GL_UNSIGNED_BYTE;
+        image_layout.internal_format = 0x8051; /*GL_RGB8*/
+        image_layout.format = 0x1907; /*GL_RGB*/
+        image_layout.type = 0x1401; /*GL_UNSIGNED_BYTE*/
 
         readPpmData(path.c_str(), reinterpret_cast<char*>(image_data.data()), headerEnd, imgDimX, imgDimY);
     }
 
-    void loadPpmImageRGBA(std::string const& path, std::vector<uint8_t>& image_data, glowl::TextureLayout& image_layout)
+    void loadPpmImageRGBA(std::string const& path, std::vector<uint8_t>& image_data, GenericTextureLayout& image_layout)
     {
         unsigned long headerEnd;
         int imgDimX, imgDimY;
@@ -175,9 +175,9 @@ namespace ResourceLoading
         image_layout.width = imgDimX;
         image_layout.height = imgDimY;
         image_layout.depth = 1;
-        image_layout.internal_format = GL_RGBA8;
-        image_layout.format = GL_RGBA;
-        image_layout.type = GL_UNSIGNED_BYTE;
+        image_layout.internal_format = 0x8058; /*GL_RGBA8*/
+        image_layout.format = 0x1908; /*GL_RGBA*/
+        image_layout.type = 0x1401; /*GL_UNSIGNED_BYTE*/
 
         readPpmDataPaddedAlpha(path.c_str(), reinterpret_cast<char*>(image_data.data()), headerEnd, imgDimX, imgDimY);
     }

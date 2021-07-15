@@ -1,7 +1,6 @@
 #include "AtmosphereComponentManager.hpp"
 
 #include "Frame.hpp"
-#include "OpenGL/ResourceManager.hpp"
 
 #include "TransformComponentManager.hpp"
 #include "CameraComponent.hpp"
