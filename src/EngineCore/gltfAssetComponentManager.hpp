@@ -22,7 +22,10 @@
 #include "GenericTextureLayout.hpp"
 #include "GeometryBakery.hpp"
 #include "MaterialComponentManager.hpp"
+#include "MeshComponentManager.hpp"
 #include "SkinComponentManager.hpp"
+#include "RenderTaskComponentManager.hpp"
+#include "TransformComponentManager.hpp"
 
 struct Entity;
 
@@ -346,7 +349,7 @@ namespace EngineCore
                             "skeleton_bone_shader",
                             bone_shader_names
                         );
-                        using TextureSemantic = Graphics::MaterialComponentManager<ResourceManagerType>::TextureSemantic;
+                        using TextureSemantic = typename Graphics::MaterialComponentManager<ResourceManagerType>::TextureSemantic;
                         mtl_mngr.addComponent(
                             joint_entity,
                             "skeleton_bone",

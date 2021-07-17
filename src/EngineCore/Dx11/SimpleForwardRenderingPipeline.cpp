@@ -1,13 +1,12 @@
-#include "pch.h"
 #include "SimpleForwardRenderingPipeline.hpp"
 
 #include "../Frame.hpp"
 #include "ResourceManager.hpp"
 #include "../WorldState.hpp"
 
-#include "Buffer.hpp"
-#include "Mesh.hpp"
-#include "ShaderProgram.hpp"
+#include <dxowl/Buffer.hpp>
+#include <dxowl/Mesh.hpp>
+#include <dxowl/dxowl::ShaderProgram.hpp>
 
 void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
     EngineCore::Common::Frame & frame,
@@ -53,11 +52,11 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 	{
 		struct BatchResources
 		{
-			WeakResource<ShaderProgram>	         shader_prgm;
+			WeakResource<dxowl::ShaderProgram>	         shader_prgm;
 			Microsoft::WRL::ComPtr<ID3D11Buffer> vs_constant_buffer;
 			UINT                                 vs_constant_buffer_offset;
 			UINT                                 vs_constant_buffer_constants;
-			WeakResource<Mesh>                   mesh;
+			WeakResource<dxowl::Mesh>                   mesh;
 
 			unsigned int indices_cnt;
 			unsigned int first_index;
@@ -196,17 +195,17 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 		{
 			if (data.vs_constant_buffer[rt_idx].albedo_colour.w > 0.99f) // opaque obj
 			{
-				WeakResource<ShaderProgram>	shader_prgm = resource_mngr.getShaderProgramResource(data.rt_data[rt_idx].shader_resource);
+				WeakResource<dxowl::ShaderProgram>	shader_prgm = resource_mngr.getShaderProgramResource(data.rt_data[rt_idx].shader_resource);
 
-				WeakResource<Mesh> mesh = resource_mngr.getMeshResource(data.rt_data[rt_idx].mesh_resource);;
+				WeakResource<dxowl::Mesh> mesh = resource_mngr.getMeshResource(data.rt_data[rt_idx].mesh_resource);;
 
 				resources.rt_resources.push_back({ shader_prgm ,vs_constant_buffer, static_cast<UINT>(rt_idx) * 16, 16, mesh, data.rt_data[rt_idx].indices_cnt, data.rt_data[rt_idx].first_index, data.rt_data[rt_idx].base_vertex });
 			}
 			else  // transparent obj
 			{
-				WeakResource<ShaderProgram>	shader_prgm = resource_mngr.getShaderProgramResource(data.rt_data[rt_idx].shader_resource);
+				WeakResource<dxowl::ShaderProgram>	shader_prgm = resource_mngr.getShaderProgramResource(data.rt_data[rt_idx].shader_resource);
 
-				WeakResource<Mesh> mesh = resource_mngr.getMeshResource(data.rt_data[rt_idx].mesh_resource);;
+				WeakResource<dxowl::Mesh> mesh = resource_mngr.getMeshResource(data.rt_data[rt_idx].mesh_resource);;
 
 				resources.transparency_rt_resources.push_back({ shader_prgm ,vs_constant_buffer, static_cast<UINT>(rt_idx) * 16, 16, mesh, data.rt_data[rt_idx].indices_cnt, data.rt_data[rt_idx].first_index, data.rt_data[rt_idx].base_vertex });
 			}
@@ -254,8 +253,8 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 				if(resources.rt_resources[rt_idx].mesh.state == READY
 					&& resources.rt_resources[rt_idx].shader_prgm.state == READY)
 				{
-					Mesh* mesh = resources.rt_resources[rt_idx].mesh.resource;
-					ShaderProgram* shader = resources.rt_resources[rt_idx].shader_prgm.resource;
+					dxowl::Mesh* mesh = resources.rt_resources[rt_idx].mesh.resource;
+					dxowl::ShaderProgram* shader = resources.rt_resources[rt_idx].shader_prgm.resource;
 
 					if (current_mesh.value() != resources.rt_resources[rt_idx].mesh.id.value())
 					{
@@ -342,8 +341,8 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 				if (resources.transparency_rt_resources[rt_idx].mesh.state == READY
 					&& resources.transparency_rt_resources[rt_idx].shader_prgm.state == READY)
 				{
-					Mesh* mesh = resources.transparency_rt_resources[rt_idx].mesh.resource;
-					ShaderProgram* shader = resources.transparency_rt_resources[rt_idx].shader_prgm.resource;
+					dxowl::Mesh* mesh = resources.transparency_rt_resources[rt_idx].mesh.resource;
+					dxowl::ShaderProgram* shader = resources.transparency_rt_resources[rt_idx].shader_prgm.resource;
 
 					if (current_mesh.value() != resources.transparency_rt_resources[rt_idx].mesh.id.value())
 					{

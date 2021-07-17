@@ -19,6 +19,8 @@
 
 #include <d3d11.h>
 
+#include <future>
+
 namespace EngineCore
 {
 	namespace Graphics
@@ -34,12 +36,14 @@ namespace EngineCore
                 typedef D3D_PRIMITIVE_TOPOLOGY PrimitiveTopologyType;
 
 			public:
-				ResourceManager(std::shared_ptr<DX::DeviceResources> const& device_resources);
+				ResourceManager(ID3D11Device* d3d11_device, ID3D11DeviceContext* d3d11_device_context);
 				~ResourceManager() = default;
 	
 				void clearAllResources();
 
-				std::shared_ptr<DX::DeviceResources> getDeviceResources() { return m_device_resources; }
+				ID3D11Device* getD3D11Device() { return m_d3d11_device; }
+
+				ID3D11DeviceContext* getD3D11DeviceContext() { return m_d3d11_device_context; }
 
 				void executeRenderThreadTasks() {
 					while (!m_renderThread_tasks.empty())
@@ -61,16 +65,16 @@ namespace EngineCore
 
                 constexpr size_t computeIndexByteSize(IndexFormatType index_type)
                 {
-                    return computeByteSize(index_type);
+                    return dxowl::computeByteSize(index_type);
                 }
 
-                size_t computeVertexByteSize(VertexDescriptor vertex_layout)
+                size_t computeVertexByteSize(dxowl::VertexDescriptor vertex_layout)
                 {
                     size_t retval = 0;
 
                     for (auto& attrib : vertex_layout.attributes)
                     {
-                        retval += computeAttributeByteSize(attrib);
+                        retval += dxowl::computeAttributeByteSize(attrib);
                     }
 
                     return retval;
@@ -227,7 +231,7 @@ namespace EngineCore
                 std::future<ResourceID> createShaderProgramAsync(
 					std::string const& name,
 					std::shared_ptr<std::vector<ShaderFilename>> const& shader_filenames,
-					std::shared_ptr<VertexDescriptor> const& vertex_layout);
+					std::shared_ptr<dxowl::VertexDescriptor> const& vertex_layout);
 
 				typedef std::tuple<const void*, size_t, dxowl::ShaderProgram::ShaderType> ShaderData;
 				ResourceID createShaderProgram(
@@ -271,13 +275,14 @@ namespace EngineCore
 
 			private:
 
-				std::shared_ptr<DX::DeviceResources> m_device_resources;
+				ID3D11Device* m_d3d11_device;
+				ID3D11DeviceContext* m_d3d11_device_context;
 
 				EngineCore::Utility::MTQueue<std::function<void()>> m_renderThread_tasks;
 
-				std::vector<Resource<dxowl::RenderTarget>>      m_render_targets;
-				std::unordered_map<unsigned int, size_t> m_id_to_renderTarget_idx;
-				std::unordered_map<std::string, size_t>  m_name_to_renderTarget_idx;
+				std::vector<Resource<dxowl::RenderTarget>> m_render_targets;
+				std::unordered_map<unsigned int, size_t>   m_id_to_renderTarget_idx;
+				std::unordered_map<std::string, size_t>    m_name_to_renderTarget_idx;
 
 				mutable std::shared_mutex m_renderTargets_mutex;
 			
@@ -452,7 +457,7 @@ namespace EngineCore
 				std::async([this, idx, desc, shdr_rsrc_view, rndr_tgt_view_desc]() {
 
 					this->m_render_targets[idx].resource = std::make_unique<dxowl::RenderTarget>(
-						m_device_resources->GetD3DDevice(),
+						m_d3d11_device,
 						desc,
 						shdr_rsrc_view,
 						rndr_tgt_view_desc);

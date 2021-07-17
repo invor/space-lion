@@ -1,11 +1,12 @@
-#include "pch.h"
 #include "ResourceManager.hpp"
+
+#include <coroutine>
 
 using namespace EngineCore::Graphics;
 using namespace EngineCore::Graphics::Dx11;
 
-EngineCore::Graphics::Dx11::ResourceManager::ResourceManager(std::shared_ptr<DX::DeviceResources> const& device_resources)
-	: m_device_resources(device_resources)
+EngineCore::Graphics::Dx11::ResourceManager::ResourceManager(ID3D11Device* d3d11_device, ID3D11DeviceContext* d3d11_device_context)
+	: m_d3d11_device(d3d11_device), m_d3d11_device_context(d3d11_device_context)
 {
 }
 
@@ -32,7 +33,7 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::allocateMeshAsync(
 
 	{
 		std::unique_lock<std::shared_mutex> lock(m_meshes_mutex);
-		m_meshes.push_back(Resource<Mesh>(rsrc_id));
+		m_meshes.push_back(Resource<dxowl::Mesh>(rsrc_id));
 		m_id_to_mesh_idx.insert(std::pair<unsigned int, size_t>(m_meshes.back().id.value(), idx));
 	}
 
@@ -42,21 +43,21 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::allocateMeshAsync(
 
         // TODO create DirectX vertex descriptor
         //Graphics::Dx11::VertexDescriptor vertex_descriptor(*vertex_layout);
-        Graphics::Dx11::VertexDescriptor vertex_descriptor = (*vertex_layout);
+        dxowl::VertexDescriptor vertex_descriptor = (*vertex_layout);
 
 		// TODO get number of buffer required for vertex layout and compute byte sizes
 		std::vector<void*> vertex_data_ptrs(vertex_descriptor.attributes.size(), nullptr);
 		std::vector<size_t> vertex_data_buffer_byte_sizes(vertex_descriptor.attributes.size());
 
 		for (size_t attrib_idx = 0; attrib_idx < vertex_descriptor.attributes.size(); ++attrib_idx){
-			vertex_data_buffer_byte_sizes[attrib_idx] = computeAttributeByteSize(vertex_descriptor.attributes[attrib_idx]) * vertex_cnt;
+			vertex_data_buffer_byte_sizes[attrib_idx] = dxowl::computeAttributeByteSize(vertex_descriptor.attributes[attrib_idx]) * vertex_cnt;
 		}
 
 		size_t index_data_byte_size = 4 * index_cnt; //TODO support different index formats
 
 
-		this->m_meshes[idx].resource = std::make_unique<Mesh>(
-			m_device_resources->GetD3DDevice(),
+		this->m_meshes[idx].resource = std::make_unique<dxowl::Mesh>(
+			m_d3d11_device,
 			vertex_data_ptrs,
 			vertex_data_buffer_byte_sizes,
 			nullptr,
@@ -75,8 +76,8 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::allocateMeshAsync(
 //#pragma optimize( "", off )
 std::future<ResourceID> ResourceManager::createShaderProgramAsync(
 	std::string const & name, 
-	std::shared_ptr<std::vector<ShaderFilename>> const& shader_filenames,
-	std::shared_ptr<VertexDescriptor> const& vertex_layout)
+	std::shared_ptr<std::vector<ResourceManager::ShaderFilename>> const& shader_filenames,
+	std::shared_ptr<dxowl::VertexDescriptor> const& vertex_layout)
 {
 	{
 		std::shared_lock<std::shared_mutex> shader_lock(m_shader_programs_mutex);
@@ -96,7 +97,7 @@ std::future<ResourceID> ResourceManager::createShaderProgramAsync(
 
 	{
 		std::unique_lock<std::shared_mutex> shader_lock(m_shader_programs_mutex);
-		m_shader_programs.push_back(Resource<ShaderProgram>(rsrc_id));
+		m_shader_programs.push_back(Resource<dxowl::ShaderProgram>(rsrc_id));
 		m_shader_programs_identifier.push_back(name);
 		m_id_to_shader_program_idx.insert(std::pair<unsigned int, size_t>(m_shader_programs.back().id.value(), idx));
 	}
@@ -118,13 +119,13 @@ std::future<ResourceID> ResourceManager::createShaderProgramAsync(
 		{
 			switch (shader_filename.second)
 			{
-			case ShaderProgram::VertexShader:
+			case dxowl::ShaderProgram::VertexShader:
 				vertex_shader = co_await DX::ReadDataAsync(shader_filename.first);
 				break;
-			case ShaderProgram::PixelShader:
+			case dxowl::ShaderProgram::PixelShader:
 				pixel_shader = co_await DX::ReadDataAsync(shader_filename.first);
 				break;
-			case ShaderProgram::GeometryShader:
+			case dxowl::ShaderProgram::GeometryShader:
 				geometry_shader = co_await DX::ReadDataAsync(shader_filename.first);
 				break;
 			default:
@@ -133,8 +134,8 @@ std::future<ResourceID> ResourceManager::createShaderProgramAsync(
 		}
 		std::unique_lock<std::shared_mutex> shader_lock(cached_rsrc_mngr_ref.m_shader_programs_mutex);
 
-		cached_rsrc_mngr_ref.m_shader_programs[cached_idx].resource = std::make_unique<ShaderProgram>(
-			cached_rsrc_mngr_ref.m_device_resources->GetD3DDevice(),
+		cached_rsrc_mngr_ref.m_shader_programs[cached_idx].resource = std::make_unique<dxowl::ShaderProgram>(
+			cached_rsrc_mngr_ref.getD3D11Device(),
 			*cached_vertex_layout,
 			vertex_shader,
 			geometry_shader,
@@ -149,7 +150,7 @@ std::future<ResourceID> ResourceManager::createShaderProgramAsync(
 ResourceID EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(
 	std::string const & name, 
 	std::vector<ShaderData> const & shader_bytedata, 
-	VertexDescriptor const & vertex_layout)
+	dxowl::VertexDescriptor const & vertex_layout)
 {
 	std::unique_lock<std::shared_mutex> shader_lock(m_shader_programs_mutex);
 
@@ -165,7 +166,7 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(
 
 	size_t idx = m_shader_programs.size();
 	ResourceID rsrc_id = generateResourceID();
-	m_shader_programs.push_back(Resource<ShaderProgram>(rsrc_id));
+	m_shader_programs.push_back(Resource<dxowl::ShaderProgram>(rsrc_id));
 	m_shader_programs_identifier.push_back(name);
 
 	m_id_to_shader_program_idx.insert(std::pair<unsigned int, size_t>(m_shader_programs.back().id.value(), idx));
@@ -178,15 +179,15 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(
 	{
 		switch (std::get<2>(shader_filename))
 		{
-		case ShaderProgram::VertexShader:
+		case dxowl::ShaderProgram::VertexShader:
 			vertex_shader.first = std::get<0>(shader_filename);
 			vertex_shader.second = std::get<1>(shader_filename);
 			break;
-		case ShaderProgram::PixelShader:
+		case dxowl::ShaderProgram::PixelShader:
 			pixel_shader.first = std::get<0>(shader_filename);
 			pixel_shader.second = std::get<1>(shader_filename);
 			break;
-		case ShaderProgram::GeometryShader:
+		case dxowl::ShaderProgram::GeometryShader:
 			geometry_shader.first = std::get<0>(shader_filename);
 			geometry_shader.second = std::get<1>(shader_filename);
 			break;
@@ -195,8 +196,8 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(
 		}
 	}
 
-	m_shader_programs[idx].resource = std::make_unique<ShaderProgram>(
-		m_device_resources->GetD3DDevice(),
+	m_shader_programs[idx].resource = std::make_unique<dxowl::ShaderProgram>(
+		m_d3d11_device,
 		vertex_layout,
 		vertex_shader.first,
 		vertex_shader.second,
