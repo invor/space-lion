@@ -274,7 +274,7 @@ namespace Graphics {
     template<typename ResourceManagerType>
     inline void AtmosphereComponentManager<ResourceManagerType>::setHM(uint index, float h_m)
     {
-        m_data.m_r[index] = m_r;
+        m_data.m_r[index] = h_m;
     }
 
     template<typename ResourceManagerType>

@@ -2,10 +2,50 @@
 
 #include <coroutine>
 
+#include <winrt/Windows.Storage.h>
+
+#include <filesystem>
+#include <fstream>
+
 using namespace EngineCore::Graphics;
 using namespace EngineCore::Graphics::Dx11;
 
-EngineCore::Graphics::Dx11::ResourceManager::ResourceManager(ID3D11Device* d3d11_device, ID3D11DeviceContext* d3d11_device_context)
+namespace {
+	// Function that reads from a binary file asynchronously.
+	//inline std::future<std::vector<byte>> ReadDataAsync(const std::wstring_view& filename)
+	//{
+	//	using namespace winrt::Windows::Storage;
+	//	using namespace winrt::Windows::Storage::Streams;
+	//
+	//	IBuffer fileBuffer = co_await PathIO::ReadBufferAsync(filename);
+	//
+	//	std::vector<byte> returnBuffer;
+	//	returnBuffer.resize(fileBuffer.Length());
+	//	DataReader::FromBuffer(fileBuffer).ReadBytes(winrt::array_view<uint8_t>(returnBuffer));
+	//	co_return returnBuffer;
+	//}
+
+	std::vector<uint8_t> ReadFileBytes(const std::filesystem::path& path) {
+		bool fileExists = false;
+		try {
+			std::ifstream file;
+			file.exceptions(std::ios::failbit | std::ios::badbit);
+			file.open(path, std::ios::binary | std::ios::ate);
+			fileExists = true;
+			// If tellg fails then it will throw an exception instead of returning -1.
+			std::vector<uint8_t> data(static_cast<size_t>(file.tellg()));
+			file.seekg(0, std::ios::beg);
+			file.read(reinterpret_cast<char*>(data.data()), data.size());
+			return data;
+		}
+		catch (const std::ios::failure&) {
+			// The exception only knows that the failbit was set so it doesn't contain anything useful.
+			//throw std::runtime_error(fmt::format("Failed to {} file: {}", fileExists ? "read" : "open", path.string()));
+		}
+	}
+}
+
+EngineCore::Graphics::Dx11::ResourceManager::ResourceManager(ID3D11Device4* d3d11_device, ID3D11DeviceContext4* d3d11_device_context)
 	: m_d3d11_device(d3d11_device), m_d3d11_device_context(d3d11_device_context)
 {
 }
@@ -74,7 +114,8 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::allocateMeshAsync(
 
 // Workaround for co_await code generation with optimizations enabled
 //#pragma optimize( "", off )
-std::future<ResourceID> ResourceManager::createShaderProgramAsync(
+//std::future<ResourceID> ResourceManager::createShaderProgramAsync(
+ResourceID ResourceManager::createShaderProgramAsync(
 	std::string const & name, 
 	std::shared_ptr<std::vector<ResourceManager::ShaderFilename>> const& shader_filenames,
 	std::shared_ptr<dxowl::VertexDescriptor> const& vertex_layout)
@@ -87,7 +128,8 @@ std::future<ResourceID> ResourceManager::createShaderProgramAsync(
 			if (m_shader_programs_identifier[shader_idx] == name)
 			{
 				//TODO check shader input layout
-				co_return m_shader_programs[shader_idx].id;
+				//co_return m_shader_programs[shader_idx].id;
+				return m_shader_programs[shader_idx].id;
 			}
 		}
 	}
@@ -104,7 +146,8 @@ std::future<ResourceID> ResourceManager::createShaderProgramAsync(
 
 	auto& rsrc_mngr_ref = *this;
 
-	co_await std::async([&rsrc_mngr_ref, idx, shader_filenames, vertex_layout]() ->std::future <void> {
+	//co_await std::async([&rsrc_mngr_ref, idx, shader_filenames, vertex_layout]() ->std::future <void> {
+	std::async([&rsrc_mngr_ref, idx, shader_filenames, vertex_layout]() {
 
 		auto& cached_rsrc_mngr_ref = rsrc_mngr_ref;
 		auto cached_idx = idx;
@@ -120,13 +163,16 @@ std::future<ResourceID> ResourceManager::createShaderProgramAsync(
 			switch (shader_filename.second)
 			{
 			case dxowl::ShaderProgram::VertexShader:
-				vertex_shader = co_await DX::ReadDataAsync(shader_filename.first);
+				//vertex_shader = co_await ReadDataAsync(shader_filename.first);
+				vertex_shader = ReadFileBytes(std::filesystem::path(shader_filename.first));
 				break;
 			case dxowl::ShaderProgram::PixelShader:
-				pixel_shader = co_await DX::ReadDataAsync(shader_filename.first);
+				//pixel_shader = co_await ReadDataAsync(shader_filename.first);
+				pixel_shader = ReadFileBytes(std::filesystem::path(shader_filename.first));
 				break;
 			case dxowl::ShaderProgram::GeometryShader:
-				geometry_shader = co_await DX::ReadDataAsync(shader_filename.first);
+				//geometry_shader = co_await ReadDataAsync(shader_filename.first);
+				geometry_shader = ReadFileBytes(std::filesystem::path(shader_filename.first));
 				break;
 			default:
 				break;
@@ -144,7 +190,8 @@ std::future<ResourceID> ResourceManager::createShaderProgramAsync(
 		cached_rsrc_mngr_ref.m_shader_programs[cached_idx].state = READY;
 	});
 
-    co_return m_shader_programs.back().id;
+    //co_return m_shader_programs.back().id;
+	return m_shader_programs.back().id;
 }
 
 ResourceID EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(

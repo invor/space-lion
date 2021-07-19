@@ -13,6 +13,7 @@
 #include <vector>
 
 #include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "tiny_gltf.h"
 
@@ -322,54 +323,55 @@ namespace EngineCore
                     {
                         //////
                         //
+                        // TODO find a cross-API friendly way to do stuff like this
                         // start debugging skeleton joints
                         //
                         //////
-                        auto primitive_topology_type = m_rsrc_mngr.convertGenericPrimitiveTopology(0x0004/*GL_TRIANGLES*/);
-                        const auto [vertex_data, index_data, vertex_description] = Graphics::createIcoSphere(2, 0.005);
-                        auto gl_vertex_desc = std::make_shared<std::vector<glowl::VertexLayout>>();
-                        for (auto const& vertex_layout : (*vertex_description)) {
-                            gl_vertex_desc->push_back(m_rsrc_mngr.convertGenericGltfVertexLayout(vertex_layout));
-                        }
-                        EngineCore::Graphics::ResourceID mesh_rsrc = mesh_mngr.addComponent(
-                            joint_entity,
-                            "skeleton_bone",
-                            vertex_data,
-                            index_data,
-                            gl_vertex_desc,
-                            0x1405,
-                            0x0004);
-
-                        auto bone_shader_names = std::make_shared<std::vector<EngineCore::Graphics::OpenGL::ResourceManager::ShaderFilename>>(
-                            std::initializer_list<EngineCore::Graphics::OpenGL::ResourceManager::ShaderFilename>{
-                                { "../space-lion/resources/shaders/debug/skinned_mesh_bone_v.glsl", glowl::GLSLProgram::ShaderType::Vertex },
-                                { "../space-lion/resources/shaders/debug/skinned_mesh_bone_f.glsl", glowl::GLSLProgram::ShaderType::Fragment }
-                        });
-                        auto bone_shader_rsrc = m_rsrc_mngr.createShaderProgramAsync(
-                            "skeleton_bone_shader",
-                            bone_shader_names
-                        );
-                        using TextureSemantic = typename Graphics::MaterialComponentManager<ResourceManagerType>::TextureSemantic;
-                        mtl_mngr.addComponent(
-                            joint_entity,
-                            "skeleton_bone",
-                            dflt_shader_prgm,
-                            { 1.0f,0.0f,1.0f,1.0f },
-                            { 1.0f, 1.0f, 1.0f, 1.0f },
-                            0.8f,
-                            std::vector<std::pair<TextureSemantic, ResourceID>>{}
-                        );
-
-                        staticMesh_renderTask_mngr.addComponent(
-                            joint_entity,
-                            mesh_rsrc,
-                            0,
-                            bone_shader_rsrc,
-                            0,
-                            transform_mngr.getIndex(joint_entity),
-                            mesh_mngr.getIndex(joint_entity)[0],
-                            mtl_mngr.getIndex(joint_entity)[0]
-                        );
+                        //      auto primitive_topology_type = m_rsrc_mngr.convertGenericPrimitiveTopology(0x0004/*GL_TRIANGLES*/);
+                        //      const auto [vertex_data, index_data, vertex_description] = Graphics::createIcoSphere(2, 0.005);
+                        //      auto gl_vertex_desc = std::make_shared<std::vector<ResourceManagerType::VertexLayout>>();
+                        //      for (auto const& vertex_layout : (*vertex_description)) {
+                        //          gl_vertex_desc->push_back(m_rsrc_mngr.convertGenericGltfVertexLayout(vertex_layout));
+                        //      }
+                        //      EngineCore::Graphics::ResourceID mesh_rsrc = mesh_mngr.addComponent(
+                        //          joint_entity,
+                        //          "skeleton_bone",
+                        //          vertex_data,
+                        //          index_data,
+                        //          gl_vertex_desc,
+                        //          0x1405,
+                        //          0x0004);
+                        //      
+                        //      auto bone_shader_names = std::make_shared<std::vector<EngineCore::Graphics::OpenGL::ResourceManager::ShaderFilename>>(
+                        //          std::initializer_list<EngineCore::Graphics::OpenGL::ResourceManager::ShaderFilename>{
+                        //              { "../space-lion/resources/shaders/debug/skinned_mesh_bone_v.glsl", glowl::GLSLProgram::ShaderType::Vertex },
+                        //              { "../space-lion/resources/shaders/debug/skinned_mesh_bone_f.glsl", glowl::GLSLProgram::ShaderType::Fragment }
+                        //      });
+                        //      auto bone_shader_rsrc = m_rsrc_mngr.createShaderProgramAsync(
+                        //          "skeleton_bone_shader",
+                        //          bone_shader_names
+                        //      );
+                        //      using TextureSemantic = typename Graphics::MaterialComponentManager<ResourceManagerType>::TextureSemantic;
+                        //      mtl_mngr.addComponent(
+                        //          joint_entity,
+                        //          "skeleton_bone",
+                        //          dflt_shader_prgm,
+                        //          { 1.0f,0.0f,1.0f,1.0f },
+                        //          { 1.0f, 1.0f, 1.0f, 1.0f },
+                        //          0.8f,
+                        //          std::vector<std::pair<TextureSemantic, ResourceID>>{}
+                        //      );
+                        //      
+                        //      staticMesh_renderTask_mngr.addComponent(
+                        //          joint_entity,
+                        //          mesh_rsrc,
+                        //          0,
+                        //          bone_shader_rsrc,
+                        //          0,
+                        //          transform_mngr.getIndex(joint_entity),
+                        //          mesh_mngr.getIndex(joint_entity)[0],
+                        //          mtl_mngr.getIndex(joint_entity)[0]
+                        //      );
                         //////
                         // end debugging skeleton joints
                         //////

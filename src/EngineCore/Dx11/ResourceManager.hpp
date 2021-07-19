@@ -17,7 +17,7 @@
 #include <dxowl/Texture3D.hpp>
 #include <dxowl/VertexDescriptor.hpp>
 
-#include <d3d11.h>
+#include <d3d11_4.h>
 
 #include <future>
 
@@ -36,14 +36,14 @@ namespace EngineCore
                 typedef D3D_PRIMITIVE_TOPOLOGY PrimitiveTopologyType;
 
 			public:
-				ResourceManager(ID3D11Device* d3d11_device, ID3D11DeviceContext* d3d11_device_context);
+				ResourceManager(ID3D11Device4* d3d11_device, ID3D11DeviceContext4* d3d11_device_context);
 				~ResourceManager() = default;
 	
 				void clearAllResources();
 
-				ID3D11Device* getD3D11Device() { return m_d3d11_device; }
+				ID3D11Device4* getD3D11Device() { return m_d3d11_device; }
 
-				ID3D11DeviceContext* getD3D11DeviceContext() { return m_d3d11_device_context; }
+				ID3D11DeviceContext4* getD3D11DeviceContext() { return m_d3d11_device_context; }
 
 				void executeRenderThreadTasks() {
 					while (!m_renderThread_tasks.empty())
@@ -228,7 +228,7 @@ namespace EngineCore
 	
 	#pragma region Create shader program
 				typedef std::pair<std::wstring, dxowl::ShaderProgram::ShaderType> ShaderFilename;
-                std::future<ResourceID> createShaderProgramAsync(
+                ResourceID createShaderProgramAsync(
 					std::string const& name,
 					std::shared_ptr<std::vector<ShaderFilename>> const& shader_filenames,
 					std::shared_ptr<dxowl::VertexDescriptor> const& vertex_layout);
@@ -275,8 +275,8 @@ namespace EngineCore
 
 			private:
 
-				ID3D11Device* m_d3d11_device;
-				ID3D11DeviceContext* m_d3d11_device_context;
+				ID3D11Device4* m_d3d11_device;
+				ID3D11DeviceContext4* m_d3d11_device_context;
 
 				EngineCore::Utility::MTQueue<std::function<void()>> m_renderThread_tasks;
 
@@ -325,20 +325,20 @@ namespace EngineCore
 
 				if (query != m_id_to_mesh_idx.end())
 				{
-					VertexDescriptor vertex_layout = m_meshes[query->second].resource->getVertexLayout();
+					dxowl::VertexDescriptor vertex_layout = m_meshes[query->second].resource->getVertexLayout();
 
 					//TODO some sanity checks, such as attrib cnt and mesh size?
 
 					for (int attrib_idx = 0; attrib_idx < vertex_layout.attributes.size(); ++attrib_idx)
 					{
-						size_t attrib_byte_size = computeAttributeByteSize(vertex_layout.attributes[attrib_idx]);
+						size_t attrib_byte_size = dxowl::computeAttributeByteSize(vertex_layout.attributes[attrib_idx]);
 						size_t vertex_buffer_byte_offset = attrib_byte_size * vertex_offset;
-						m_meshes[query->second].resource->loadVertexSubData(m_device_resources, attrib_idx, vertex_buffer_byte_offset, vertex_data[attrib_idx]);
+						m_meshes[query->second].resource->loadVertexSubData(m_d3d11_device_context, attrib_idx, vertex_buffer_byte_offset, vertex_data[attrib_idx]);
 					}
 
-					size_t index_type_byte_size = computeByteSize(m_meshes[query->second].resource->getIndexFormat());
+					size_t index_type_byte_size = dxowl::computeByteSize(m_meshes[query->second].resource->getIndexFormat());
 					size_t index_byte_offset = index_offset * index_type_byte_size;
-					m_meshes[query->second].resource->loadIndexSubdata(m_device_resources, index_byte_offset, index_data);
+					m_meshes[query->second].resource->loadIndexSubdata(m_d3d11_device_context, index_byte_offset, index_data);
 				}
 			}
 
@@ -361,25 +361,25 @@ namespace EngineCore
 					{
 						while (!(m_meshes[query->second].state == READY)) {} // TODO somehow do this more efficiently
 
-						VertexDescriptor vertex_layout = m_meshes[query->second].resource->getVertexLayout();
+						dxowl::VertexDescriptor vertex_layout = m_meshes[query->second].resource->getVertexLayout();
 
 						//TODO some sanity checks, such as attrib cnt and mesh size?
 
 						for (size_t attrib_idx = 0; attrib_idx < vertex_layout.attributes.size(); ++attrib_idx)
 						{
-							size_t attrib_byte_size = computeAttributeByteSize(vertex_layout.attributes[attrib_idx]);
+							size_t attrib_byte_size = dxowl::computeAttributeByteSize(vertex_layout.attributes[attrib_idx]);
 							size_t vertex_buffer_byte_offset = attrib_byte_size * vertex_offset;
 							m_meshes[query->second].resource->loadVertexSubData(
-								m_device_resources->GetD3DDeviceContext(), 
+								m_d3d11_device_context, 
 								attrib_idx, 
 								vertex_buffer_byte_offset,
 								(*vertex_data)[attrib_idx]);
 						}
 
-						size_t index_type_byte_size = computeByteSize(m_meshes[query->second].resource->getIndexFormat());
+						size_t index_type_byte_size = dxowl::computeByteSize(m_meshes[query->second].resource->getIndexFormat());
 						size_t index_byte_offset = index_offset * index_type_byte_size;
 						m_meshes[query->second].resource->loadIndexSubdata(
-							m_device_resources->GetD3DDeviceContext(), 
+							m_d3d11_device_context, 
 							index_byte_offset, 
 							*index_data);
 					}
@@ -398,15 +398,15 @@ namespace EngineCore
 
 				size_t idx = m_textures_2d.size();
 				ResourceID rsrc_id = generateResourceID();
-				m_textures_2d.push_back(Resource<Texture2D>(rsrc_id));
+				m_textures_2d.push_back(Resource<dxowl::Texture2D>(rsrc_id));
 
 				addTextureIndex(rsrc_id.value(), name, idx);
 
 				m_renderThread_tasks.push(
 					[this, idx, data, desc, shdr_rsrc_view]() {
 					
-						this->m_textures_2d[idx].resource = std::make_unique<Texture2D>(
-							m_device_resources->GetD3DDevice(),
+						this->m_textures_2d[idx].resource = std::make_unique<dxowl::Texture2D>(
+							m_d3d11_device,
 							*data,
 							desc,
 							shdr_rsrc_view);
@@ -436,7 +436,7 @@ namespace EngineCore
 				D3D11_TEXTURE2D_DESC const & desc, 
 				D3D11_SHADER_RESOURCE_VIEW_DESC const & shdr_rsrc_view)
 			{
-				return WeakResource<Texture2D>();
+				return WeakResource<dxowl::Texture2D>();
 			}
 
 			inline ResourceID ResourceManager::createRenderTargetAsync(

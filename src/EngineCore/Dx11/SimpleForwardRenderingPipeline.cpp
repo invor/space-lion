@@ -1,12 +1,16 @@
 #include "SimpleForwardRenderingPipeline.hpp"
 
 #include "../Frame.hpp"
+#include "MaterialComponentManager.hpp"
+#include "MeshComponentManager.hpp"
+#include "RenderTaskComponentManager.hpp"
 #include "ResourceManager.hpp"
+#include "TransformComponentManager.hpp"
 #include "../WorldState.hpp"
 
 #include <dxowl/Buffer.hpp>
 #include <dxowl/Mesh.hpp>
-#include <dxowl/dxowl::ShaderProgram.hpp>
+#include <dxowl/ShaderProgram.hpp>
 
 void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
     EngineCore::Common::Frame & frame,
@@ -52,21 +56,22 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 	{
 		struct BatchResources
 		{
-			WeakResource<dxowl::ShaderProgram>	         shader_prgm;
+			WeakResource<dxowl::ShaderProgram>   shader_prgm;
 			Microsoft::WRL::ComPtr<ID3D11Buffer> vs_constant_buffer;
 			UINT                                 vs_constant_buffer_offset;
 			UINT                                 vs_constant_buffer_constants;
-			WeakResource<dxowl::Mesh>                   mesh;
+			WeakResource<dxowl::Mesh>            mesh;
 
 			unsigned int indices_cnt;
 			unsigned int first_index;
 			unsigned int base_vertex;
 		};
 
-		std::shared_ptr<DX::DeviceResources> device_resources;
+		ID3D11Device4* d3d11_device;
+		ID3D11DeviceContext4* d3d11_device_context;
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_state;
 
-		std::shared_ptr<WeakResource<Texture2D>> irradiance_map; //TODO fix this hack..
+		std::shared_ptr<WeakResource<dxowl::Texture2D>> irradiance_map; //TODO fix this hack..
 
 		std::vector<BatchResources> rt_resources;
 
@@ -77,13 +82,15 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 		[&world,&resource_mngr](GeomPassData& data, GeomPassResources& resources)
 	{
 		// obtain access to device resources
-		resources.device_resources = resource_mngr.getDeviceResources();
+		resources.d3d11_device = resource_mngr.getD3D11Device();
+		resources.d3d11_device_context = resource_mngr.getD3D11DeviceContext();
 
-		auto& mesh_mngr = world.accessMeshComponentManager();
-		auto& mtl_mngr = world.accessMaterialComponentManager();
-		auto& transform_mngr = world.accessTransformManager();
+		auto& mesh_mngr = world.get<MeshComponentManager<ResourceManager>>();
+		auto& mtl_mngr = world.get<MaterialComponentManager<ResourceManager>>();
+		auto& transform_mngr = world.get<EngineCore::Common::TransformComponentManager>();
+		auto& renderTask_mngr = world.get<RenderTaskComponentManager<RenderTaskTags::StaticMesh>>();
 
-		std::vector<Graphics::RenderTaskComponentManager::Data> rts = world.accessRenderTaskComponentManager().getComponentData();
+		auto rts = renderTask_mngr.getComponentDataCopy();
 
 		data.vs_constant_buffer.reserve(rts.size());
 		data.rt_data.reserve(rts.size());
@@ -123,10 +130,10 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 			}
 
 			auto transform_idx = transform_mngr.getIndex(rt.entity);
-			if(!transform_idx.empty())
+			if(!transform_idx < (std::numeric_limits<size_t>::max)())
 			{
-				data.vs_constant_buffer.back().transform = XMMatrixTranspose(transform_mngr.getWorldTransformation(transform_idx.front()));
-				data.vs_constant_buffer.back().normal_matrix = XMMatrixTranspose(XMMatrixInverse(nullptr, transform_mngr.getWorldTransformation(transform_idx.front())));
+				data.vs_constant_buffer.back().transform = glm::transpose(transform_mngr.getWorldTransformation(transform_idx));
+				data.vs_constant_buffer.back().normal_matrix = glm::transpose(glm::inverse(transform_mngr.getWorldTransformation(transform_idx)));
 			}
 
 			auto mesh_comp_idx = mesh_mngr.getIndex(rt.entity);
@@ -164,11 +171,11 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 			tex_sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
 
 			// Create the texture sampler state.
-			HRESULT result = resources.device_resources->GetD3DDevice()->CreateSamplerState(&tex_sampler_desc, &(resources.sampler_state));
+			HRESULT result = resources.d3d11_device->CreateSamplerState(&tex_sampler_desc, &(resources.sampler_state));
 		}
 
 		// TODO change to proper name...
-		resources.irradiance_map = std::make_unique<WeakResource<Texture2D>>(resource_mngr.getTexture2DResource("debug_cubemap"));
+		resources.irradiance_map = std::make_unique<WeakResource<dxowl::Texture2D>>(resource_mngr.getTexture2DResource("debug_cubemap"));
 
 		//TODO create constant buffers
 		Microsoft::WRL::ComPtr<ID3D11Buffer> vs_constant_buffer(nullptr);
@@ -181,7 +188,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 			constantBufferData.SysMemSlicePitch = 0;
 			const CD3D11_BUFFER_DESC constantBufferDesc(sizeof(GeomPassData::VSConstantBuffer)*data.vs_constant_buffer.size(), D3D11_BIND_CONSTANT_BUFFER);
 			winrt::check_hresult(
-				resources.device_resources->GetD3DDevice()->CreateBuffer(
+				resources.d3d11_device->CreateBuffer(
 					&constantBufferDesc,
 					&constantBufferData,
 					&vs_constant_buffer
@@ -214,8 +221,8 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 		[&world,&resource_mngr](GeomPassData const& data, GeomPassResources const& resources)
 	{
 		// obtain context for rendering
-		const auto context = resources.device_resources->GetD3DDeviceContext();
-		const auto device = resources.device_resources->GetD3DDevice();
+		const auto context = resources.d3d11_device_context;
+		const auto device = resources.d3d11_device;
 
 		//TODO raise depth buffer resoltion
 		D3D11_RASTERIZER_DESC desc;
