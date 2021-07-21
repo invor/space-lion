@@ -11,7 +11,7 @@ namespace Controls{
     class CameraController
     {
     public:
-        CameraController(EngineCore::WorldState& world_state, EngineCore::Common::FrameManager& frame_mngr);
+        CameraController(EngineCore::WorldState& world_state, EngineCore::Common::FrameManager<EngineCore::Common::Frame>& frame_mngr);
         ~CameraController();
 
         EngineCore::Common::Input::InputActionContext const& getInputActionContext();
@@ -22,7 +22,7 @@ namespace Controls{
         EngineCore::WorldState& m_world_state;
 
         /** Keep a reference (i.e. non-owning) to the frame manager */
-        EngineCore::Common::FrameManager& m_frame_manager;
+        EngineCore::Common::FrameManager<EngineCore::Common::Frame>& m_frame_manager;
 
         /** Input context used by this controller */
         EngineCore::Common::Input::InputActionContext m_input_action_context;

@@ -16,13 +16,31 @@ namespace EngineCore
          * It contains all state -but nothing else- that is required for rendering an output image/frame.
          * TODO: Optimize for GPU upload later on...
          */
-        struct Frame
-        {
-            Frame() : m_frameID(0), m_dt(0.0), m_window_width(0), m_window_height(0) {}
-
+        struct BaseFrame {
             // frame meta-data
-            size_t m_frameID;
-            double m_dt;
+            size_t m_frameID = 0;
+            double m_dt = 0.0;
+
+            // render passes
+            std::vector<Graphics::RenderPass> m_render_passes;
+
+            template<typename T1, typename T2>
+            void addRenderPass(
+                std::string const& pass_description,
+                std::function<void(T1&, T2&)> setup_callback,
+                std::function<void(T1&, T2&)> compile_callback,
+                std::function<void(T1 const&, T2 const&)> execute_callback)
+            {
+                m_render_passes.push_back(
+                    Graphics::RenderPass(pass_description, setup_callback, compile_callback, execute_callback)
+                );
+                m_render_passes.back().setupData();
+            }
+        };
+
+        struct Frame : public BaseFrame
+        {
+            Frame() : m_window_width(0), m_window_height(0) {}
 
             // info on output window
             int m_window_width;
@@ -34,29 +52,13 @@ namespace EngineCore
             float  m_fovy;
             float  m_aspect_ratio;
             float  m_exposure;
-
-            // render passes
-            std::vector<Graphics::RenderPass> m_render_passes;
-
-            template<typename T1, typename T2>
-            void addRenderPass(
-                std::string const& pass_description,
-                std::function<void(T1 &, T2 &)> setup_callback,
-                std::function<void(T1 &, T2 &)> compile_callback,
-                std::function<void(T1 const&, T2 const&)> execute_callback)
-            {
-                m_render_passes.push_back(
-                    Graphics::RenderPass(pass_description, setup_callback,compile_callback,execute_callback)
-                );
-                m_render_passes.back().setupData();
-            }
         };
 
-
+        template<typename FrameType>
         class FrameManager
         {
         private:
-            Frame m_frame_tripleBuffer[3];
+            FrameType m_frame_tripleBuffer[3];
             unsigned int m_render_frame;
             unsigned int m_update_frame;
             unsigned int m_unused_frame;
@@ -70,12 +72,54 @@ namespace EngineCore
 
             void swapUpdateFrame();
 
-            Frame& setUpdateFrame(Frame && new_frame);
+            FrameType& setUpdateFrame(FrameType&& new_frame);
 
-            Frame& getRenderFrame();
+            FrameType& getRenderFrame();
         };
 
+        template<typename FrameType>
+        FrameManager<FrameType>::FrameManager<FrameType>()
+            : m_render_frame(0), m_unused_frame(1), m_update_frame(2)
+        {
 
+        }
+
+        template<typename FrameType>
+        void FrameManager<FrameType>::swapRenderFrame()
+        {
+            std::unique_lock<std::mutex> lock(m_swap_frame_mutex);
+
+            if (m_frame_tripleBuffer[m_unused_frame].m_frameID > m_frame_tripleBuffer[m_render_frame].m_frameID)
+            {
+                unsigned int render_frame = m_render_frame;
+                m_render_frame = m_unused_frame;
+                m_unused_frame = render_frame;
+            }
+        }
+
+        template<typename FrameType>
+        void FrameManager<FrameType>::swapUpdateFrame()
+        {
+            std::unique_lock<std::mutex> lock(m_swap_frame_mutex);
+
+            unsigned int unused_frame = m_unused_frame;
+            m_unused_frame = m_update_frame;
+            m_update_frame = unused_frame;
+        }
+
+        template<typename FrameType>
+        FrameType& FrameManager<FrameType>::setUpdateFrame(FrameType&& new_frame)
+        {
+            m_frame_tripleBuffer[m_update_frame] = new_frame;
+
+            return m_frame_tripleBuffer[m_update_frame];
+        }
+
+        template<typename FrameType>
+        FrameType& FrameManager<FrameType>::getRenderFrame()
+        {
+            return m_frame_tripleBuffer[m_render_frame];
+        }
     }
 }
 

@@ -4,7 +4,7 @@
 #include "../EngineCore/CameraComponent.hpp"
 #include "../EngineCore/TransformComponentManager.hpp"
 
-Editor::Controls::CameraController::CameraController(EngineCore::WorldState & world_state, EngineCore::Common::FrameManager& frame_mngr)
+Editor::Controls::CameraController::CameraController(EngineCore::WorldState & world_state, EngineCore::Common::FrameManager<EngineCore::Common::Frame>& frame_mngr)
     : m_world_state(world_state), m_frame_manager(frame_mngr), m_cursor_x(0.0), m_cursor_y(0.0), m_mouse_right_pressed(false)
 {
 
