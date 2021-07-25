@@ -68,7 +68,7 @@ namespace EngineCore
                     return dxowl::computeByteSize(index_type);
                 }
 
-                size_t computeVertexByteSize(dxowl::VertexDescriptor vertex_layout)
+                size_t computeVertexByteSize(dxowl::VertexDescriptor vertex_layout) const
                 {
                     size_t retval = 0;
 
@@ -77,6 +77,15 @@ namespace EngineCore
                         retval += dxowl::computeAttributeByteSize(attrib);
                     }
 
+                    return retval;
+                }
+
+                size_t computeVertexByteSize(std::vector<dxowl::VertexDescriptor> vertex_layout) const
+                {
+                    size_t retval = 0;
+                    for (auto const& vl : vertex_layout) {
+                        retval += computeVertexByteSize(vl);
+                    }
                     return retval;
                 }
 
@@ -158,20 +167,17 @@ namespace EngineCore
                         if (attrib.semantic_name == "NORMAL" /* TODO: also check if other attribute porperties match, i.e. 3 GL_FLOAT for the normal*/)
                         {
                             retval.attributes.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-                            retval.strides.push_back(12);
                             ++input_slot;
                         }
                         else if (attrib.semantic_name == "POSITION")
                         {
                             retval.attributes.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-                            retval.strides.push_back(12);
                             ++input_slot;
                         }
                         else if (attrib.semantic_name == "COLOR_0")
                         {
                             //TODO float colors ?
                             retval.attributes.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-                            retval.strides.push_back(16);
                             ++input_slot;
                         }
                         else if (attrib.semantic_name == "TEXCOORD_0")
@@ -179,7 +185,6 @@ namespace EngineCore
                             //continue;
                             //TODO float colors ?
                             retval.attributes.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA, 0 });
-                            retval.strides.push_back(8);
                             ++input_slot;
                         }
                         else if (attrib.semantic_name == "TEXCOORD_1")
@@ -187,10 +192,11 @@ namespace EngineCore
                             //continue;
                             //TODO float colors ?
                             retval.attributes.push_back({ "TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA, 0 });
-                            retval.strides.push_back(8);
                             ++input_slot;
                         }
                     }
+
+					retval.stride = vertex_layout.stride;
 
                     return retval;
                 }
@@ -199,8 +205,7 @@ namespace EngineCore
                     std::string const& name,
                     size_t vertex_cnt,
                     size_t index_cnt,
-                    //std::shared_ptr<GenericVertexLayout> const& vertex_layout,
-                    std::shared_ptr<VertexLayout> const& vertex_layout,
+					std::shared_ptr<std::vector<VertexLayout>> const& vertex_layout,
 					DXGI_FORMAT const index_type,
 					D3D_PRIMITIVE_TOPOLOGY const mesh_type);
 
@@ -231,13 +236,13 @@ namespace EngineCore
                 ResourceID createShaderProgramAsync(
 					std::string const& name,
 					std::shared_ptr<std::vector<ShaderFilename>> const& shader_filenames,
-					std::shared_ptr<dxowl::VertexDescriptor> const& vertex_layout);
+					std::shared_ptr<std::vector<dxowl::VertexDescriptor>> const& vertex_layout);
 
 				typedef std::tuple<const void*, size_t, dxowl::ShaderProgram::ShaderType> ShaderData;
 				ResourceID createShaderProgram(
 					std::string const& name,
 					std::vector<ShaderData> const& shader_bytedata,
-					dxowl::VertexDescriptor const& vertex_layout);
+					std::vector<dxowl::VertexDescriptor> const& vertex_layout);
 	
 				//std::future<WeakResource<ShaderProgram>> recreateShaderProgram(
 				//	ResourceID const& resource_id,
@@ -325,15 +330,18 @@ namespace EngineCore
 
 				if (query != m_id_to_mesh_idx.end())
 				{
-					dxowl::VertexDescriptor vertex_layout = m_meshes[query->second].resource->getVertexLayout();
+					std::vector<dxowl::VertexDescriptor> vertex_layout = m_meshes[query->second].resource->getVertexLayout();
 
 					//TODO some sanity checks, such as attrib cnt and mesh size?
 
-					for (int attrib_idx = 0; attrib_idx < vertex_layout.attributes.size(); ++attrib_idx)
-					{
-						size_t attrib_byte_size = dxowl::computeAttributeByteSize(vertex_layout.attributes[attrib_idx]);
-						size_t vertex_buffer_byte_offset = attrib_byte_size * vertex_offset;
-						m_meshes[query->second].resource->loadVertexSubData(m_d3d11_device_context, attrib_idx, vertex_buffer_byte_offset, vertex_data[attrib_idx]);
+					for (size_t vb_idx = 0; vb_idx < vertex_data.size(); ++vb_idx) {
+						size_t attribs_byte_size = computeVertexByteSize(vertex_layout[vb_idx]);
+						size_t vertex_buffer_byte_offset = attribs_byte_size * vertex_offset;
+						m_meshes[query->second].resource->loadVertexSubData(
+							m_d3d11_device_context,
+							vb_idx,
+							vertex_buffer_byte_offset,
+							vertex_data[vb_idx]);
 					}
 
 					size_t index_type_byte_size = dxowl::computeByteSize(m_meshes[query->second].resource->getIndexFormat());
@@ -361,19 +369,18 @@ namespace EngineCore
 					{
 						while (!(m_meshes[query->second].state == READY)) {} // TODO somehow do this more efficiently
 
-						dxowl::VertexDescriptor vertex_layout = m_meshes[query->second].resource->getVertexLayout();
+						std::vector<dxowl::VertexDescriptor> vertex_layout = m_meshes[query->second].resource->getVertexLayout();
 
 						//TODO some sanity checks, such as attrib cnt and mesh size?
 
-						for (size_t attrib_idx = 0; attrib_idx < vertex_layout.attributes.size(); ++attrib_idx)
-						{
-							size_t attrib_byte_size = dxowl::computeAttributeByteSize(vertex_layout.attributes[attrib_idx]);
-							size_t vertex_buffer_byte_offset = attrib_byte_size * vertex_offset;
+						for (size_t vb_idx = 0; vb_idx < vertex_data->size(); ++vb_idx) {
+							size_t attribs_byte_size = computeVertexByteSize(vertex_layout[vb_idx]);
+							size_t vertex_buffer_byte_offset = attribs_byte_size * vertex_offset;
 							m_meshes[query->second].resource->loadVertexSubData(
-								m_d3d11_device_context, 
-								attrib_idx, 
+								m_d3d11_device_context,
+								vb_idx,
 								vertex_buffer_byte_offset,
-								(*vertex_data)[attrib_idx]);
+								(*vertex_data)[vb_idx]);
 						}
 
 						size_t index_type_byte_size = dxowl::computeByteSize(m_meshes[query->second].resource->getIndexFormat());

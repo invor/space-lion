@@ -1,7 +1,5 @@
 #include "ResourceManager.hpp"
 
-#include <coroutine>
-
 #include <winrt/Windows.Storage.h>
 
 #include <filesystem>
@@ -64,7 +62,7 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::allocateMeshAsync(
 	size_t vertex_cnt,
 	size_t index_cnt,
 	//std::shared_ptr<GenericVertexLayout> const & vertex_layout,
-    std::shared_ptr<VertexLayout> const& vertex_layout,
+    std::shared_ptr<std::vector<VertexLayout>> const& vertex_layout,
 	DXGI_FORMAT const index_type,
 	D3D_PRIMITIVE_TOPOLOGY const mesh_type)
 {
@@ -83,14 +81,15 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::allocateMeshAsync(
 
         // TODO create DirectX vertex descriptor
         //Graphics::Dx11::VertexDescriptor vertex_descriptor(*vertex_layout);
-        dxowl::VertexDescriptor vertex_descriptor = (*vertex_layout);
+        std::vector<dxowl::VertexDescriptor> vertex_descriptor = (*vertex_layout);
 
 		// TODO get number of buffer required for vertex layout and compute byte sizes
-		std::vector<void*> vertex_data_ptrs(vertex_descriptor.attributes.size(), nullptr);
-		std::vector<size_t> vertex_data_buffer_byte_sizes(vertex_descriptor.attributes.size());
+		std::vector<void*> vertex_data_ptrs(vertex_descriptor.size(), nullptr);
+		std::vector<size_t> vertex_data_buffer_byte_sizes;
+		vertex_data_buffer_byte_sizes.reserve(vertex_descriptor.size());
 
-		for (size_t attrib_idx = 0; attrib_idx < vertex_descriptor.attributes.size(); ++attrib_idx){
-			vertex_data_buffer_byte_sizes[attrib_idx] = dxowl::computeAttributeByteSize(vertex_descriptor.attributes[attrib_idx]) * vertex_cnt;
+		for (auto const& vl : vertex_descriptor){
+			vertex_data_buffer_byte_sizes.push_back(computeVertexByteSize(vl) * vertex_cnt);
 		}
 
 		size_t index_data_byte_size = 4 * index_cnt; //TODO support different index formats
@@ -118,7 +117,7 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::allocateMeshAsync(
 ResourceID ResourceManager::createShaderProgramAsync(
 	std::string const & name, 
 	std::shared_ptr<std::vector<ResourceManager::ShaderFilename>> const& shader_filenames,
-	std::shared_ptr<dxowl::VertexDescriptor> const& vertex_layout)
+	std::shared_ptr<std::vector<dxowl::VertexDescriptor>> const& vertex_layout)
 {
 	{
 		std::shared_lock<std::shared_mutex> shader_lock(m_shader_programs_mutex);
@@ -197,7 +196,7 @@ ResourceID ResourceManager::createShaderProgramAsync(
 ResourceID EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(
 	std::string const & name, 
 	std::vector<ShaderData> const & shader_bytedata, 
-	dxowl::VertexDescriptor const & vertex_layout)
+	std::vector<dxowl::VertexDescriptor> const & vertex_layout)
 {
 	std::unique_lock<std::shared_mutex> shader_lock(m_shader_programs_mutex);
 
