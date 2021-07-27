@@ -5,6 +5,8 @@
 #include <filesystem>
 #include <fstream>
 
+#include "ResourceLoading.hpp"
+
 using namespace EngineCore::Graphics;
 using namespace EngineCore::Graphics::Dx11;
 
@@ -22,25 +24,6 @@ namespace {
 	//	DataReader::FromBuffer(fileBuffer).ReadBytes(winrt::array_view<uint8_t>(returnBuffer));
 	//	co_return returnBuffer;
 	//}
-
-	std::vector<uint8_t> ReadFileBytes(const std::filesystem::path& path) {
-		bool fileExists = false;
-		try {
-			std::ifstream file;
-			file.exceptions(std::ios::failbit | std::ios::badbit);
-			file.open(path, std::ios::binary | std::ios::ate);
-			fileExists = true;
-			// If tellg fails then it will throw an exception instead of returning -1.
-			std::vector<uint8_t> data(static_cast<size_t>(file.tellg()));
-			file.seekg(0, std::ios::beg);
-			file.read(reinterpret_cast<char*>(data.data()), data.size());
-			return data;
-		}
-		catch (const std::ios::failure&) {
-			// The exception only knows that the failbit was set so it doesn't contain anything useful.
-			//throw std::runtime_error(fmt::format("Failed to {} file: {}", fileExists ? "read" : "open", path.string()));
-		}
-	}
 }
 
 EngineCore::Graphics::Dx11::ResourceManager::ResourceManager(ID3D11Device4* d3d11_device, ID3D11DeviceContext4* d3d11_device_context)
@@ -163,15 +146,15 @@ ResourceID ResourceManager::createShaderProgramAsync(
 			{
 			case dxowl::ShaderProgram::VertexShader:
 				//vertex_shader = co_await ReadDataAsync(shader_filename.first);
-				vertex_shader = ReadFileBytes(std::filesystem::path(shader_filename.first));
+				vertex_shader = Utility::ReadFileBytes(std::filesystem::path(shader_filename.first));
 				break;
 			case dxowl::ShaderProgram::PixelShader:
 				//pixel_shader = co_await ReadDataAsync(shader_filename.first);
-				pixel_shader = ReadFileBytes(std::filesystem::path(shader_filename.first));
+				pixel_shader = Utility::ReadFileBytes(std::filesystem::path(shader_filename.first));
 				break;
 			case dxowl::ShaderProgram::GeometryShader:
 				//geometry_shader = co_await ReadDataAsync(shader_filename.first);
-				geometry_shader = ReadFileBytes(std::filesystem::path(shader_filename.first));
+				geometry_shader = Utility::ReadFileBytes(std::filesystem::path(shader_filename.first));
 				break;
 			default:
 				break;

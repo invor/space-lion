@@ -232,7 +232,7 @@ namespace EngineCore
 	#pragma endregion
 	
 	#pragma region Create shader program
-				typedef std::pair<std::wstring, dxowl::ShaderProgram::ShaderType> ShaderFilename;
+				typedef std::pair<std::string, dxowl::ShaderProgram::ShaderType> ShaderFilename;
                 ResourceID createShaderProgramAsync(
 					std::string const& name,
 					std::shared_ptr<std::vector<ShaderFilename>> const& shader_filenames,
