@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#include "../Frame.hpp"
 #include "ResourceManager.hpp"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
@@ -19,7 +18,7 @@ namespace EngineCore
     {
         namespace OpenGL
         {
-            void GraphicsBackend::run(ResourceManager* resource_manager, Common::FrameManager* frame_manager)
+            void GraphicsBackend::run(ResourceManager* resource_manager, Common::FrameManager<Common::Frame>* frame_manager)
             {
                 // Initialize GLFW
                 if (!glfwInit())
@@ -117,6 +116,8 @@ namespace EngineCore
                     gl_err = glGetError();
                     if (gl_err != GL_NO_ERROR)
                         std::cerr << "GL error after resource manager tasks: " << gl_err << std::endl;
+
+                    // TODO try getting update for render frame ?
 
                     // Get current frame for rendering
                     auto& frame = frame_manager->getRenderFrame();

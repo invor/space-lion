@@ -4,18 +4,20 @@
 #include <condition_variable>
 #include <functional>
 
-#include "../MTQueue.hpp"
-
-#include "../InputEvent.hpp"
+#include "Frame.hpp"
+#include "MTQueue.hpp"
+#include "InputEvent.hpp"
 
 struct GLFWwindow;
 
 namespace EngineCore
 {
-    namespace Common
-    {
-        class FrameManager;
-    }
+    //namespace Common
+    //{
+    //    struct Frame;
+    //    template<>
+    //    class FrameManager<typename Frame>;
+    //}
 
     namespace Graphics
     {
@@ -30,7 +32,7 @@ namespace EngineCore
                 ~GraphicsBackend() = default;
 
                 /** Start and run graphics backend. Returns only after rendering window is closed. */
-                void run(ResourceManager* resource_manager, Common::FrameManager* frame_manager);
+                void run(ResourceManager* resource_manager, Common::FrameManager<Common::Frame>* frame_manager);
 
                 /** Add a task to the graphics backend that only has to be executed once */
                 void addSingleExecutionGpuTask(std::function<void()> task);

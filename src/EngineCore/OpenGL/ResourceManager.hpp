@@ -415,18 +415,17 @@ namespace EngineCore
 
                 if (query != m_id_to_mesh_idx.end())
                 {
-                    VertexLayout vertex_layout = m_meshes[query->second].resource->getVertexLayout();
+                    std::vector<VertexLayout> vertex_layouts = m_meshes[query->second].resource->getVertexLayouts();
 
                     //TODO some sanity checks, such as attrib cnt and mesh size?
 
-                    for (int attrib_idx = 0; attrib_idx < vertex_layout.attributes.size(); ++attrib_idx)
+                    for (int vbo_idx = 0; vbo_idx < vertex_layouts.size(); ++vbo_idx)
                     {
-                        size_t attrib_byte_size = computeAttributeByteSize(vertex_layout.attributes[attrib_idx]);
-                        size_t vertex_buffer_byte_offset = attrib_byte_size * vertex_offset;
-                        m_meshes[query->second].resource->bufferVertexSubData(attrib_idx, vertex_data[attrib_idx], vertex_buffer_byte_offset);
+                        size_t vertex_buffer_byte_offset = vertex_layouts[vbo_idx].stride * vertex_offset;
+                        m_meshes[query->second].resource->bufferVertexSubData(vbo_idx, vertex_data[vbo_idx], vertex_buffer_byte_offset);
                     }
 
-                    size_t index_type_byte_size = computeByteSize(m_meshes[query->second].resource->getIndexFormat());
+                    size_t index_type_byte_size = computeIndexByteSize(m_meshes[query->second].resource->getIndexType());
                     size_t index_byte_offset = index_offset * index_type_byte_size;
                     m_meshes[query->second].resource->bufferIndexSubData(index_data, index_byte_offset);
                 }

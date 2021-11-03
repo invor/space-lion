@@ -78,7 +78,7 @@ namespace EngineCore
         };
 
         template<typename FrameType>
-        FrameManager<FrameType>::FrameManager<FrameType>()
+        FrameManager<FrameType>::FrameManager()
             : m_render_frame(0), m_unused_frame(1), m_update_frame(2)
         {
 
