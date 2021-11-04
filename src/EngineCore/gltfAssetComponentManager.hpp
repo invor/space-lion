@@ -84,11 +84,11 @@ namespace EngineCore
 
             void addGltfNode(ModelPtr const& model, int gltf_node_idx, Entity parent_entity, std::unordered_map<int, Entity>& node_to_entity, ResourceID dflt_shader_prgm);
 
-            typedef std::shared_ptr<std::vector<typename ResourceManagerType::VertexLayout>> VertexLayoutPtr;
-            typedef std::shared_ptr<std::vector<std::vector<unsigned char>>>                 VertexDataPtr;
-            typedef std::shared_ptr<std::vector<unsigned char>>                              IndexDataPtr;
-            typedef typename ResourceManagerType::IndexFormatType                            IndexDataType;
-            //typedef unsigned int                                                           IndexDataType;
+            typedef std::shared_ptr<std::vector<GenericVertexLayout>>        VertexLayoutPtr;
+            typedef std::shared_ptr<std::vector<std::vector<unsigned char>>> VertexDataPtr;
+            typedef std::shared_ptr<std::vector<unsigned char>>              IndexDataPtr;
+            //typedef typename ResourceManagerType::IndexFormatType            IndexDataType;
+            typedef uint32_t                                                 IndexDataType;
 
             std::tuple<VertexLayoutPtr, VertexDataPtr, IndexDataPtr, IndexDataType>
                 loadMeshPrimitveData(ModelPtr const& model, size_t node_idx, size_t primitive_idx);
@@ -427,6 +427,109 @@ namespace EngineCore
 
                     auto mesh_data = loadMeshPrimitveData(model, gltf_node_idx, primitive_idx);
 
+                    // check mesh data for tangents, compute tangents if not available but normals+uvs are given
+                    bool has_tangents = false;
+                    bool has_normals = false;
+                    bool has_uvs = false;
+                    int position_data_idx = -1;
+                    int normal_data_idx = -1;
+                    int uv_data_idx = -1;
+                    int tangent_data_idx = -1;
+
+                    int curr_idx = 0;
+                    for (auto& generic_vertex_layout : (*(std::get<0>(mesh_data))) )
+                    {
+                        for (auto& attrib : generic_vertex_layout.attributes) {
+                            // note: because gltf data is reordered during loading, we know here that there is only one attribute per layout
+                            if (attrib.semantic_name == "POSITION")
+                            {
+                                position_data_idx = curr_idx;
+                            }
+                            else if(attrib.semantic_name == "NORMAL")
+                            {
+                                has_normals = true;
+                                normal_data_idx = curr_idx;
+                            }
+                            else if (attrib.semantic_name == "TEXCOORD_0")
+                            {
+                                has_uvs = true;
+                                uv_data_idx = curr_idx;
+                            }
+                            else if (attrib.semantic_name == "TANGENT")
+                            {
+                                has_tangents = true;
+                                tangent_data_idx = curr_idx;
+                            }
+                        }
+                        ++curr_idx;
+                    }
+
+                    if ( (!has_tangents) && has_normals && has_uvs)
+                    {
+                    
+                        // add data buffer and layout entry for tangents
+                        {
+                            auto it = std::get<1>(mesh_data)->insert(std::get<1>(mesh_data)->begin()+2,std::vector<unsigned char>());
+                            it->resize( ((*std::get<1>(mesh_data))[position_data_idx].size()/3) * 4); //TODO: proper getByteSize for generic layout
+                        }
+
+                        {
+                            auto it = std::get<0>(mesh_data)->insert(std::get<0>(mesh_data)->begin()+2,GenericVertexLayout());
+                            it->stride = 4 * 4;
+                            it->attributes.push_back(
+                                GenericVertexLayout::Attribute("TANGENT",4, 5126 ,false, 0 /*static_cast<uint32_t>(vertexAttrib_accessor.byteOffset)*/));
+                        }
+
+                        //TODO handle insertion of vertex layout better, i.e. decouple shader ordering from layout ordering...
+                        curr_idx = 0;
+                        for (auto& generic_vertex_layout : (*(std::get<0>(mesh_data))))
+                        {
+                            for (auto& attrib : generic_vertex_layout.attributes) {
+                                // note: because gltf data is reordered during loading, we know here that there is only one attribute per layout
+                                if (attrib.semantic_name == "POSITION")
+                                {
+                                    position_data_idx = curr_idx;
+                                }
+                                else if (attrib.semantic_name == "NORMAL")
+                                {
+                                    normal_data_idx = curr_idx;
+                                }
+                                else if (attrib.semantic_name == "TEXCOORD_0")
+                                {
+                                    uv_data_idx = curr_idx;
+                                }
+                                else if (attrib.semantic_name == "TANGENT")
+                                {
+                                    tangent_data_idx = curr_idx;
+                                }
+                            }
+                            ++curr_idx;
+                        }
+
+                        if (std::get<3>(mesh_data) == 5123) // check whether index type is 16bit (uses GL enums as generic types)
+                        {
+                            makeTangents(
+                                std::get<2>(mesh_data)->size() / 2,
+                                reinterpret_cast<uint16_t*>(std::get<2>(mesh_data)->data()),
+                                reinterpret_cast<glm::vec3*>((*std::get<1>(mesh_data))[position_data_idx].data()),
+                                reinterpret_cast<glm::vec3*>((*std::get<1>(mesh_data))[normal_data_idx].data()),
+                                reinterpret_cast<glm::vec2*>((*std::get<1>(mesh_data))[uv_data_idx].data()),
+                                reinterpret_cast<glm::vec4*>((*std::get<1>(mesh_data))[tangent_data_idx].data())
+                            );
+                        }
+                        else if (std::get<3>(mesh_data) == 5124) // check whether index type is 32bit (uses GL enums as generic types)
+                        {
+                            makeTangents(
+                                std::get<2>(mesh_data)->size() / 2,
+                                reinterpret_cast<uint32_t*>(std::get<2>(mesh_data)->data()),
+                                reinterpret_cast<glm::vec3*>((*std::get<1>(mesh_data))[position_data_idx].data()),
+                                reinterpret_cast<glm::vec3*>((*std::get<1>(mesh_data))[normal_data_idx].data()),
+                                reinterpret_cast<glm::vec2*>((*std::get<1>(mesh_data))[uv_data_idx].data()),
+                                reinterpret_cast<glm::vec4*>((*std::get<1>(mesh_data))[tangent_data_idx].data())
+                            );
+                        }
+                    }
+
                     auto material_idx = model->meshes[model->nodes[gltf_node_idx].mesh].primitives[primitive_idx].material;
                     std::string material_name = "";
                     std::array<float, 4> base_colour = { 1.0f,0.0f,1.0f,1.0f };
@@ -613,14 +716,14 @@ namespace EngineCore
 
         template<typename ResourceManagerType>
         inline std::tuple<
-            std::shared_ptr<std::vector<typename ResourceManagerType::VertexLayout>>,
+            std::shared_ptr<std::vector<GenericVertexLayout>>,
             std::shared_ptr<std::vector<std::vector<unsigned char>>>,
             std::shared_ptr<std::vector<unsigned char>>,
-            typename ResourceManagerType::IndexFormatType>
+            uint32_t> // generic index type
             GltfAssetComponentManager<ResourceManagerType>::loadMeshPrimitveData(ModelPtr const& model, size_t node_idx, size_t primitive_idx)
         {
             if (model == nullptr)
-                return { nullptr,nullptr,nullptr, m_rsrc_mngr.convertGenericIndexType(0) };
+                return { nullptr,nullptr,nullptr, 0 };
 
             if (node_idx < model->nodes.size() && model->nodes[node_idx].mesh != -1)
             {
@@ -633,7 +736,7 @@ namespace EngineCore
                     + (indices_accessor.count * indices_accessor.ByteStride(indices_bufferView)));
 
                 auto vertices = std::make_shared<std::vector<std::vector<unsigned char>>>();
-                std::vector<GenericVertexLayout> generic_vertex_layouts;
+                std::shared_ptr<std::vector<GenericVertexLayout>> generic_vertex_layouts = std::make_shared<std::vector<GenericVertexLayout>>();
 
                 unsigned int input_slot = 0;
 
@@ -644,14 +747,14 @@ namespace EngineCore
                     auto& vertexAttrib_bufferView = model->bufferViews[vertexAttrib_accessor.bufferView];
                     auto& vertexAttrib_buffer = model->buffers[vertexAttrib_bufferView.buffer];
 
-                    generic_vertex_layouts.push_back(GenericVertexLayout());
+                    generic_vertex_layouts->push_back(GenericVertexLayout());
 
                     // Important note!: We ignore the byte offset given by gltf because we reorder vertex data in buffers anyway
-                    generic_vertex_layouts.back().attributes.push_back(
+                    generic_vertex_layouts->back().attributes.push_back(
                         GenericVertexLayout::Attribute(attrib.first, vertexAttrib_accessor.type, vertexAttrib_accessor.componentType,
                             vertexAttrib_accessor.normalized, 0 /*static_cast<uint32_t>(vertexAttrib_accessor.byteOffset)*/));
 
-                    generic_vertex_layouts.back().stride = vertexAttrib_accessor.ByteStride(vertexAttrib_bufferView);
+                    generic_vertex_layouts->back().stride = vertexAttrib_accessor.ByteStride(vertexAttrib_bufferView);
 
                     vertices->push_back(std::vector<unsigned char>(
                         vertexAttrib_buffer.data.begin() + vertexAttrib_bufferView.byteOffset + vertexAttrib_accessor.byteOffset,
@@ -660,16 +763,9 @@ namespace EngineCore
                     );
                 }
 
-                std::shared_ptr<std::vector<typename ResourceManagerType::VertexLayout>> vertex_layouts
-                    = std::make_shared<std::vector<typename ResourceManagerType::VertexLayout>>();
-                for (auto& generic_vertex_layout : generic_vertex_layouts)
-                {
-                    vertex_layouts->push_back(m_rsrc_mngr.convertGenericGltfVertexLayout(generic_vertex_layout));
-                }
+                auto index_type = static_cast<uint32_t>(indices_accessor.componentType);
 
-                auto index_type = m_rsrc_mngr.convertGenericIndexType(indices_accessor.componentType);
-
-                return { vertex_layouts, vertices, indices, index_type };
+                return { generic_vertex_layouts, vertices, indices, index_type };
             }
             else
             {

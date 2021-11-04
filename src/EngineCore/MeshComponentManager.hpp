@@ -27,14 +27,14 @@ namespace EngineCore
 
             template<typename VertexContainer, typename IndexContainer>
             ResourceID addComponent(
-                Entity const&                                         entity,
-                std::string const&                                    mesh_description,
-                std::shared_ptr<std::vector<VertexContainer>> const&  vertex_data,
-                std::shared_ptr<IndexContainer> const&                index_data,
-                std::shared_ptr<std::vector<VertexLayoutType>> const& vertex_layout,
-                IndexFormatType const&                                index_type,
-                PrimitiveTopologyType const&                          mesh_type,
-                bool                                                  store_seperate = false);
+                Entity const&                                            entity,
+                std::string const&                                       mesh_description,
+                std::shared_ptr<std::vector<VertexContainer>> const&     vertex_data,
+                std::shared_ptr<IndexContainer> const&                   index_data,
+                std::shared_ptr<std::vector<GenericVertexLayout>> const& generic_vertex_layouts,
+                uint32_t const&                                          generic_index_type,
+                PrimitiveTopologyType const&                             mesh_type,
+                bool                                                     store_seperate = false);
 
             std::tuple<uint32_t, uint32_t, uint32_t> getDrawIndexedParams(size_t component_index);
 
@@ -100,15 +100,24 @@ namespace EngineCore
         template<typename ResourceManagerType>
         template<typename VertexContainer, typename IndexContainer>
         inline ResourceID MeshComponentManager<ResourceManagerType>::addComponent(
-            Entity const&                                         entity,
-            std::string const&                                    mesh_description,
-            std::shared_ptr<std::vector<VertexContainer>> const&  vertex_data,
-            std::shared_ptr<IndexContainer> const&                index_data,
-            std::shared_ptr<std::vector<VertexLayoutType>> const& vertex_layouts,
-            IndexFormatType const&                                index_type,
-            PrimitiveTopologyType const&                          mesh_type,
-            bool                                                  store_seperate)
+            Entity const&                                            entity,
+            std::string const&                                       mesh_description,
+            std::shared_ptr<std::vector<VertexContainer>> const&     vertex_data,
+            std::shared_ptr<IndexContainer> const&                   index_data,
+            std::shared_ptr<std::vector<GenericVertexLayout>> const& generic_vertex_layouts,
+            uint32_t const&                                          generic_index_type,
+            PrimitiveTopologyType const&                             mesh_type,
+            bool                                                     store_seperate)
         {
+            // convert generic vertex and index descriptions to API-sepecific data types
+            std::shared_ptr<std::vector<typename ResourceManagerType::VertexLayout>> vertex_layouts
+                = std::make_shared<std::vector<typename ResourceManagerType::VertexLayout>>();
+            for (auto& generic_vertex_layout : (*generic_vertex_layouts))
+            {
+                vertex_layouts->push_back(m_resource_mngr->convertGenericGltfVertexLayout(generic_vertex_layout));
+            }
+            auto index_type = m_resource_mngr->convertGenericIndexType(generic_index_type);
+
             // get vertex buffer data pointers and byte sizes
             size_t vbs_byteSize = 0;
             for (auto& vb : (*vertex_data)) {
