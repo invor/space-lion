@@ -154,7 +154,7 @@ void lightPixel(in ivec2 pixel_coords)
 	vec3 position = normalize( vec3( vec2(tan(aspect_fovy.y/2.0) * aspect_fovy.x,tan(aspect_fovy.y/2.0)) * ((normalized_pixel_coords*2.0)-1.0),-1.0) ) * depth;
 	position = (inverse(view_matrix) * vec4(position,1.0)).xyz;
 
-	vec3 specular_color = albedo * metallicRoughness.r;
+	vec3 specular_color = (albedo * metallicRoughness.r) + ((1.0 - metallicRoughness.r) * vec3(0.04));
 	vec3 albedo_color = albedo * (1.0 - metallicRoughness.r);
 	float roughness = metallicRoughness.g;
 
