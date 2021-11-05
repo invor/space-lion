@@ -469,41 +469,43 @@ namespace EngineCore
                     
                         // add data buffer and layout entry for tangents
                         {
-                            auto it = std::get<1>(mesh_data)->insert(std::get<1>(mesh_data)->begin()+2,std::vector<unsigned char>());
-                            it->resize( ((*std::get<1>(mesh_data))[position_data_idx].size()/3) * 4); //TODO: proper getByteSize for generic layout
-                        }
-
-                        {
-                            auto it = std::get<0>(mesh_data)->insert(std::get<0>(mesh_data)->begin()+2,GenericVertexLayout());
+                            auto it = std::get<0>(mesh_data)->insert(std::get<0>(mesh_data)->begin() + 2, GenericVertexLayout());
                             it->stride = 4 * 4;
                             it->attributes.push_back(
-                                GenericVertexLayout::Attribute("TANGENT",4, 5126 ,false, 0 /*static_cast<uint32_t>(vertexAttrib_accessor.byteOffset)*/));
+                                GenericVertexLayout::Attribute("TANGENT", 4, 5126, false, 0 /*static_cast<uint32_t>(vertexAttrib_accessor.byteOffset)*/));
                         }
 
-                        //TODO handle insertion of vertex layout better, i.e. decouple shader ordering from layout ordering...
-                        curr_idx = 0;
-                        for (auto& generic_vertex_layout : (*(std::get<0>(mesh_data))))
                         {
-                            for (auto& attrib : generic_vertex_layout.attributes) {
-                                // note: because gltf data is reordered during loading, we know here that there is only one attribute per layout
-                                if (attrib.semantic_name == "POSITION")
-                                {
-                                    position_data_idx = curr_idx;
+                            auto it = std::get<1>(mesh_data)->insert(std::get<1>(mesh_data)->begin()+2,std::vector<unsigned char>());
+
+                            //TODO handle insertion of vertex layout better, i.e. decouple shader ordering from layout ordering...
+                            curr_idx = 0;
+                            for (auto& generic_vertex_layout : (*(std::get<0>(mesh_data))))
+                            {
+                                for (auto& attrib : generic_vertex_layout.attributes) {
+                                    // note: because gltf data is reordered during loading, we know here that there is only one attribute per layout
+                                    if (attrib.semantic_name == "POSITION")
+                                    {
+                                        position_data_idx = curr_idx;
+                                    }
+                                    else if (attrib.semantic_name == "NORMAL")
+                                    {
+                                        normal_data_idx = curr_idx;
+                                    }
+                                    else if (attrib.semantic_name == "TEXCOORD_0")
+                                    {
+                                        uv_data_idx = curr_idx;
+                                    }
+                                    else if (attrib.semantic_name == "TANGENT")
+                                    {
+                                        tangent_data_idx = curr_idx;
+                                    }
                                 }
-                                else if (attrib.semantic_name == "NORMAL")
-                                {
-                                    normal_data_idx = curr_idx;
-                                }
-                                else if (attrib.semantic_name == "TEXCOORD_0")
-                                {
-                                    uv_data_idx = curr_idx;
-                                }
-                                else if (attrib.semantic_name == "TANGENT")
-                                {
-                                    tangent_data_idx = curr_idx;
-                                }
+                                ++curr_idx;
                             }
-                            ++curr_idx;
+
+
+                            it->resize( ((*std::get<1>(mesh_data))[position_data_idx].size()/3) * 4); //TODO: proper getByteSize for generic layout
                         }
 
                         if (std::get<3>(mesh_data) == 5123) // check whether index type is 16bit (uses GL enums as generic types)
@@ -580,12 +582,30 @@ namespace EngineCore
 							layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
 							layout.internal_format = 0x8058;// GL_RGBA8
 
+                            layout.int_parameters = {
+                                {
+                                    0x2801,// GL_TEXTURE_MIN_FILTER
+                                    0x2703 //GL_LINEAR_MIPMAP_LINEAR
+                                },
+                                {
+                                    0x2800, //GL_TEXTURE_MAG_FILTER
+                                    0x2601 //GL_LINEAR
+                                } 
+                            };
+                            layout.float_parameters = {
+                                {
+                                    0x84FE, //GL_TEXTURE_MAX_ANISOTROPY_EXT
+                                    8.0f
+                                }
+                            };
+
 							auto APIlayout = m_rsrc_mngr.convertGenericTextureLayout(layout);
 
 							auto tx_rsrcID = m_rsrc_mngr.createTexture2DAsync(
 								material_name + "_baseColor",
 								APIlayout,
-								img.image.data());
+								img.image.data(),
+                                true);
 
 							textures.emplace_back(std::make_pair(TextureSemantic::ALBEDO, tx_rsrcID));
                         }
@@ -605,12 +625,30 @@ namespace EngineCore
                             layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
                             layout.internal_format = 0x8058;// GL_RGBA8
 
+                            layout.int_parameters = {
+                                {
+                                    0x2801,// GL_TEXTURE_MIN_FILTER
+                                    0x2703 //GL_LINEAR_MIPMAP_LINEAR
+                                },
+                                {
+                                    0x2800, //GL_TEXTURE_MAG_FILTER
+                                    0x2601 //GL_LINEAR
+                                }
+                            };
+                            layout.float_parameters = {
+                                {
+                                    0x84FE, //GL_TEXTURE_MAX_ANISOTROPY_EXT
+                                    8.0f
+                                }
+                            };
+
                             auto APIlayout = m_rsrc_mngr.convertGenericTextureLayout(layout);
 
                             auto tx_rsrcID = m_rsrc_mngr.createTexture2DAsync(
                                 material_name + "_metallicRoughness",
                                 APIlayout,
-                                img.image.data());
+                                img.image.data(),
+                                true);
 
 							textures.emplace_back( std::make_pair(TextureSemantic::METALLIC_ROUGHNESS,tx_rsrcID) );
                         }
@@ -630,12 +668,30 @@ namespace EngineCore
                             layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
                             layout.internal_format = 0x8058;// GL_RGBA8
 
+                            layout.int_parameters = {
+                                {
+                                    0x2801,// GL_TEXTURE_MIN_FILTER
+                                    0x2703 //GL_LINEAR_MIPMAP_LINEAR
+                                },
+                                {
+                                    0x2800, //GL_TEXTURE_MAG_FILTER
+                                    0x2601 //GL_LINEAR
+                                }
+                            };
+                            layout.float_parameters = {
+                                {
+                                    0x84FE, //GL_TEXTURE_MAX_ANISOTROPY_EXT
+                                    8.0f
+                                }
+                            };
+
                             auto APIlayout = m_rsrc_mngr.convertGenericTextureLayout(layout);
 
                             auto tx_rsrcID = m_rsrc_mngr.createTexture2DAsync(
                                 material_name + "_normal",
                                 APIlayout,
-                                img.image.data());
+                                img.image.data(),
+                                true);
 
                             textures.emplace_back(std::make_pair(TextureSemantic::NORMAL, tx_rsrcID));
                         }
