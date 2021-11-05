@@ -517,10 +517,10 @@ namespace EngineCore
                                 reinterpret_cast<glm::vec4*>((*std::get<1>(mesh_data))[tangent_data_idx].data())
                             );
                         }
-                        else if (std::get<3>(mesh_data) == 5124) // check whether index type is 32bit (uses GL enums as generic types)
+                        else if (std::get<3>(mesh_data) == 5125) // check whether index type is 32bit (uses GL enums as generic types)
                         {
                             makeTangents(
-                                std::get<2>(mesh_data)->size() / 2,
+                                std::get<2>(mesh_data)->size() / 4,
                                 reinterpret_cast<uint32_t*>(std::get<2>(mesh_data)->data()),
                                 reinterpret_cast<glm::vec3*>((*std::get<1>(mesh_data))[position_data_idx].data()),
                                 reinterpret_cast<glm::vec3*>((*std::get<1>(mesh_data))[normal_data_idx].data()),

@@ -147,7 +147,7 @@ void lightPixel(in ivec2 pixel_coords)
 
 	vec3 normal = (texelFetch(normal_tx2D,pixel_coords,0).xyz) * 2.0 - 1.0;
 	vec3 albedo = texelFetch(albedoRGB_tx2D,pixel_coords,0).rgb;
-	vec2 metallicRoughness = texelFetch(metalness_roughness_tx2D,pixel_coords,0).bg;
+	vec2 metallicRoughness = texelFetch(metalness_roughness_tx2D,pixel_coords,0).rg;
 
 	vec2 normalized_pixel_coords = pixel_coords / screen_resolution;
 
