@@ -35,7 +35,8 @@ namespace Utility {
         }
         catch (const std::ios::failure&) {
             // The exception only knows that the failbit was set so it doesn't contain anything useful.
-            throw std::runtime_error(std::format("Failed to {} file: {}", fileExists ? "read" : "open", path.string()));
+            //throw std::runtime_error(std::format("Failed to {} file: {}", fileExists ? "read" : "open", path.string()));
+            throw std::runtime_error(std::string("Failed to " + std::string(fileExists ? "read" : "open") + " file: " + path.string()));
         }
     }
 
