@@ -129,7 +129,7 @@ namespace EngineCore
             }
             auto index_type = m_resource_mngr->convertGenericIndexType(generic_index_type);
 
-            addComponent(entity, mesh_description, vertex_data, index_data, vertex_layouts, index_type, mesh_type, store_seperate);
+            return addComponent(entity, mesh_description, vertex_data, index_data, vertex_layouts, index_type, mesh_type, store_seperate);
         }
 
         template<typename ResourceManagerType>
