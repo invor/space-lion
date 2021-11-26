@@ -36,6 +36,17 @@ namespace EngineCore
                 PrimitiveTopologyType const&                             mesh_type,
                 bool                                                     store_seperate = false);
 
+            template<typename VertexContainer, typename IndexContainer>
+            ResourceID addComponent(
+                Entity const& entity,
+                std::string const& mesh_description,
+                std::shared_ptr<std::vector<VertexContainer>> const& vertex_data,
+                std::shared_ptr<IndexContainer> const& index_data,
+                std::shared_ptr<std::vector<VertexLayoutType>> const& vertex_layouts,
+                IndexFormatType const& index_type,
+                PrimitiveTopologyType const& mesh_type,
+                bool                                                  store_seperate = false);
+
             std::tuple<uint32_t, uint32_t, uint32_t> getDrawIndexedParams(size_t component_index);
 
         private:
@@ -118,6 +129,21 @@ namespace EngineCore
             }
             auto index_type = m_resource_mngr->convertGenericIndexType(generic_index_type);
 
+            addComponent(entity, mesh_description, vertex_data, index_data, vertex_layouts, index_type, mesh_type, store_seperate);
+        }
+
+        template<typename ResourceManagerType>
+        template<typename VertexContainer, typename IndexContainer>
+        inline ResourceID MeshComponentManager<ResourceManagerType>::addComponent(
+            Entity const& entity,
+            std::string const& mesh_description,
+            std::shared_ptr<std::vector<VertexContainer>> const& vertex_data,
+            std::shared_ptr<IndexContainer> const& index_data,
+            std::shared_ptr<std::vector<VertexLayoutType>> const& vertex_layouts,
+            IndexFormatType const& index_type,
+            PrimitiveTopologyType const& mesh_type,
+            bool store_seperate)
+        {
             // get vertex buffer data pointers and byte sizes
             size_t vbs_byteSize = 0;
             for (auto& vb : (*vertex_data)) {
@@ -156,7 +182,7 @@ namespace EngineCore
                     {
                         layout_check = false;
                     }
-                    
+
                     bool idx_type_check = (index_type == it->mesh_indexType);
 
                     if (layout_check && idx_type_check)
