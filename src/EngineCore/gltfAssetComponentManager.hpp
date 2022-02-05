@@ -58,6 +58,8 @@ namespace EngineCore
 
             void importGltfScene(std::string const& gltf_filepath, std::shared_ptr<tinygltf::Model> const& gltf_model, ResourceID dflt_shader_prgm);
 
+            void clearModelCache();
+
         private:
             typedef std::shared_ptr<tinygltf::Model> ModelPtr;
 
@@ -191,6 +193,22 @@ namespace EngineCore
                 {
                     addGltfNode(gltf_model, node, m_world.accessEntityManager().invalidEntity(), node_to_entity, dflt_shader_prgm);
                 }
+            }
+        }
+
+        template<typename ResourceManagerType>
+        inline void GltfAssetComponentManager<ResourceManagerType>::clearModelCache()
+        {
+            std::unique_lock<std::shared_mutex> data_lock(m_data_mutex);
+            std::unique_lock<std::shared_mutex> assets_lock(m_gltf_assets_mutex);
+
+            for (auto& cmp : m_data)
+            {
+                cmp.gltf_asset_idx.reset();
+            }
+
+            for (auto& asset : m_gltf_assets) {
+                asset.second.reset();
             }
         }
 

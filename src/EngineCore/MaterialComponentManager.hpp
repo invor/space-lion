@@ -94,14 +94,17 @@ namespace EngineCore
                     std::array<float, 4>           albedo_colour,
                     std::array<float, 4>           specular_colour,
                     float                          roughness,
-                    std::vector<std::pair<TextureSemantic,ResourceID>> const& textures)
+                    std::vector<std::pair<TextureSemantic,ResourceID>> const& textures,
+                    bool double_sided = false
+                )
                     : entity(entity),
                     material_name(name),
                     shader_program(shader_prgm),
                     albedo_colour(albedo_colour),
                     specular_colour(specular_colour),
                     roughness(roughness),
-                    textures(textures.begin(),textures.end())
+                    textures(textures.begin(),textures.end()),
+                    double_sided(double_sided)
                 {}
 
                 Entity                  entity;
@@ -116,6 +119,8 @@ namespace EngineCore
                 //std::unordered_multimap<TextureSemantic,ResourceID> textures;
 
                 std::vector<std::pair<TextureSemantic, ResourceID>> textures;
+
+                bool                    double_sided;
             };
 
             std::vector<ComponentData> m_component_data;

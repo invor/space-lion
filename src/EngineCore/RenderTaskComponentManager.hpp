@@ -25,6 +25,26 @@ namespace EngineCore
         {
         public:
 
+            // TODO API-agnostic rendering states
+
+            enum class DepthTestState { 
+                DISABLED,
+                LESS,
+                GREATER
+            };
+
+            enum class BlendState {
+                DISABLED,
+                ADDITIVE,
+                ONE_MINUS_SRC_ALPHA
+            };
+
+            enum class CullingState {
+                DISABLED,
+                BACKFACE,
+                FRONTFACE
+            };
+
             struct Data
             {
                 Data(Entity e, ResourceID mesh, size_t mesh_component_subidx, ResourceID shader_prgm, size_t mtl_component_subidx, bool visible)

@@ -59,6 +59,10 @@ void main()
 		//roughness_tx_value = toLinear(roughness_tx_value);
 	}
 
+	if(albedo_tx_value.a < 0.01){
+		discard;
+	}
+
 	vec2 metallicRoughness = roughness_tx_value.bg;
 
 	depth = length( (view_matrix * vec4(position,1.0)).rgb );

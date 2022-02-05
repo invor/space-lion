@@ -503,6 +503,7 @@ namespace EngineCore
                 m_id_to_textures_2d_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_textures_2d_idx.insert(std::pair<std::string, size_t>(name, idx));
 
+                // TODO data pointer is not thread safe when data is deleted while task is still in flight!
                 m_renderThread_tasks.push([this, idx, name, layout, data, generateMipmap]() {
                     std::unique_lock<std::shared_mutex> tex_lock(m_textures_2d_mutex);
 

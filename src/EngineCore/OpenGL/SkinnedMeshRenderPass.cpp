@@ -79,9 +79,11 @@ void EngineCore::Graphics::OpenGL::addSkinnedMeshRenderPass(Common::Frame& frame
 
             data.view_matrix = glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx));
 
-            cam_mngr.setAspectRatio(camera_idx, static_cast<float>(frame.m_window_width) / static_cast<float>(frame.m_window_height));
-            cam_mngr.updateProjectionMatrix(camera_idx);
-            data.proj_matrix = cam_mngr.getProjectionMatrix(camera_idx);
+            if (frame.m_window_width != 0 && frame.m_window_height != 0) {
+                cam_mngr.setAspectRatio(camera_idx, static_cast<float>(frame.m_window_width) / static_cast<float>(frame.m_window_height));
+                cam_mngr.updateProjectionMatrix(camera_idx);
+                data.proj_matrix = cam_mngr.getProjectionMatrix(camera_idx);
+            }
 
             // check for existing gBuffer
             resources.m_render_target = resource_mngr.getFramebufferObject("GBuffer");
