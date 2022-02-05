@@ -13,8 +13,9 @@ Description: Compute shader for deferred rendering lighting pass.
 
 struct LightProperties 
 {
-	vec3 position;
-	vec3 lumen;
+	vec4 position;
+	vec3 colour;
+	float lumen;
 };
 
 struct SunlightProperties
@@ -54,7 +55,7 @@ vec3 sampleOffsetDirections[20] = vec3[]
 
 float shadowCalculation(in vec3 frag_pos, int idx)
 {
-	vec3 light_pos = pointlights[idx].position;
+	vec3 light_pos = pointlights[idx].position.xyz;
 	vec3 direction = frag_pos - light_pos;
 	float frag_light_dist = length(direction);
 	
@@ -169,12 +170,12 @@ void lightPixel(in ivec2 pixel_coords)
     {
         // after this calculation, position contains a direction
         //lights_view_space.position = normalize( (view_matrix * vec4(lights[i].position,1.0)).xyz - position);
-		vec3 light_direction = normalize(pointlights[i].position - position);
+		vec3 light_direction = normalize(pointlights[i].position.xyz - position);
         
         // Calculate incident light intensity in Luminance (cd/m^2) for point lights.
         // Base light intensity is given in Lumen (lm).
-        float attenuation = pow(length(pointlights[i].position - position),2.0);
-        vec3 light_intensity = pointlights[i].lumen / (4.0 * PI * attenuation);
+        float attenuation = pow(length(pointlights[i].position.xyz - position),2.0);
+        vec3 light_intensity = pointlights[i].colour * pointlights[i].lumen / (4.0 * PI * attenuation);
 
 		//float shadow = shadowCalculation(position,i);
 

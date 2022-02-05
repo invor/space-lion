@@ -382,6 +382,16 @@ namespace EngineCore
 
             void setupBasicDeferredRenderingPipeline(Common::Frame& frame, WorldState& world_state, ResourceManager& resource_mngr)
             {
+                // Experimenting with taging framebuffer color attachements
+                enum class ColorAttachmentSemantic : uint32_t
+                {
+                    Unknown,
+                    COLOR_RGB,
+                    NORMAL_XYZW,
+                    DETPH_A,
+                    SPECULAR_RGB_ROUGHNESS_A,
+                };
+
                 struct GeomPassData
                 {
 #pragma pack(push, 1)
@@ -437,8 +447,14 @@ namespace EngineCore
                     Vec2 m_aspect_fovy;
                     float m_exposure;
 
-                    std::vector<Vec4>	m_pointlight_data; ///< vec3 position, float intensity
-                    std::vector<Vec4>	m_sunlight_data; ///< vec3 position, float intensity
+                    struct PointlightData {
+                        Vec4 position;
+                        Vec3 colour;
+                        float intensity;
+                    };
+
+                    std::vector<PointlightData>	m_pointlight_data; ///< vec3 position, float intensity
+                    std::vector<Vec4>           m_sunlight_data; ///< vec3 position, float intensity
                 };
 
                 struct LightingPassResources
@@ -468,9 +484,11 @@ namespace EngineCore
 
                         data.view_matrix = glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx));
 
-                        cam_mngr.setAspectRatio(camera_idx, static_cast<float>(frame.m_window_width) / static_cast<float>(frame.m_window_height));
-                        cam_mngr.updateProjectionMatrix(camera_idx);
-                        data.proj_matrix = cam_mngr.getProjectionMatrix(camera_idx);
+                        if (frame.m_window_width != 0 && frame.m_window_height != 0) {
+                            cam_mngr.setAspectRatio(camera_idx, static_cast<float>(frame.m_window_width) / static_cast<float>(frame.m_window_height));
+                            cam_mngr.updateProjectionMatrix(camera_idx);
+                            data.proj_matrix = cam_mngr.getProjectionMatrix(camera_idx);
+                        }
 
                         // check for existing gBuffer
                         resources.m_render_target = resource_mngr.getFramebufferObject("GBuffer");
@@ -592,11 +610,11 @@ namespace EngineCore
 
                         if (resources.m_render_target.state != READY)
                         {
-                            resources.m_render_target = resource_mngr.createFramebufferObject("GBuffer", 1600, 900);
-                            resources.m_render_target.resource->createColorAttachment(GL_RGB10_A2, GL_RGBA, GL_UNSIGNED_INT_2_10_10_10_REV);
-                            resources.m_render_target.resource->createColorAttachment(GL_R32F, GL_RED, GL_FLOAT);
-                            resources.m_render_target.resource->createColorAttachment(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
-                            resources.m_render_target.resource->createColorAttachment(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
+                            resources.m_render_target = resource_mngr.createFramebufferObject("GBuffer", 1280, 720);
+                            resources.m_render_target.resource->createColorAttachment(GL_RGB10_A2, GL_RGBA, GL_UNSIGNED_INT_2_10_10_10_REV, ColorAttachmentSemantic::NORMAL_XYZW);
+                            resources.m_render_target.resource->createColorAttachment(GL_R32F, GL_RED, GL_FLOAT, ColorAttachmentSemantic::DETPH_A);
+                            resources.m_render_target.resource->createColorAttachment(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, ColorAttachmentSemantic::COLOR_RGB);
+                            resources.m_render_target.resource->createColorAttachment(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, ColorAttachmentSemantic::SPECULAR_RGB_ROUGHNESS_A);
                         }
 
                         // buffer data to resources
@@ -776,7 +794,8 @@ namespace EngineCore
                             {
                                 Vec3 position = transform_mngr.getWorldPosition(pointlight_mngr.getEntity(i));
                                 float intensity = pointlight_mngr.getLumen(i);
-                                data.m_pointlight_data.push_back(Vec4(position, intensity));
+                                Vec3 colour = pointlight_mngr.getColour(i);
+                                data.m_pointlight_data.push_back({ Vec4(position, 1.0), colour, intensity });
                             }
                         }
 
@@ -866,6 +885,12 @@ namespace EngineCore
                           // set render target etc
                       
                           resources.m_lighting_prgm.resource->use();
+
+                          // experimental check if gBuffer meets expectations (here, of course it will)
+
+                          if (resources.m_GBuffer.resource->getColorAttachmentSemantic<ColorAttachmentSemantic>(0) != ColorAttachmentSemantic::NORMAL_XYZW) {
+                              std::cerr << "Unexpected gBuffer color attachment." << std::endl;
+                          }
                       
                           glActiveTexture(GL_TEXTURE0);
                           resources.m_GBuffer.resource->bindColorbuffer(0);
@@ -905,6 +930,7 @@ namespace EngineCore
                           resources.m_lighting_prgm.resource->setUniform("num_pointlights", static_cast<int>(data.m_pointlight_data.size()));
                           resources.m_lighting_prgm.resource->setUniform("num_suns", static_cast<int>(data.m_sunlight_data.size()));
 
+                          resources.m_pointlights_data.resource->bind(0);
                           resources.m_sunlights_data.resource->bind(1);
                       
                           //TODO find out why this generates 1282
