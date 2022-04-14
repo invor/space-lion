@@ -141,7 +141,7 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
 
                     // compute transmittance
                     {
-                        auto transmittance_prgm = resource_mngr.createShaderProgram("atmosphere_transmittance", { {"../space-lion/resources/shaders/transmittance_c.glsl",glowl::GLSLProgram::ShaderType::Compute} }).resource;
+                        auto transmittance_prgm = resource_mngr.createShaderProgram("atmosphere_transmittance", { {"../space-lion/resources/shaders/sky/transmittance_c.glsl",glowl::GLSLProgram::ShaderType::Compute} }).resource;
                         
                         transmittance_prgm->use();
                         
@@ -174,7 +174,7 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
                     atmosphere_mngr.setMieInscatterLUT(i, mie_inscatter_lut.id);
                     atmosphere_mngr.setRayleighInscatterLUT(i, rayleigh_inscatter_lut.id);
 
-                    auto inscatter_single_prgm = resource_mngr.createShaderProgram("inscatter_single", { { "../space-lion/resources/shaders/inscatter_single_c.glsl", glowl::GLSLProgram::ShaderType::Compute } }).resource;
+                    auto inscatter_single_prgm = resource_mngr.createShaderProgram("inscatter_single", { { "../space-lion/resources/shaders/sky/inscatter_single_c.glsl", glowl::GLSLProgram::ShaderType::Compute } }).resource;
                     
                     inscatter_single_prgm->use();
                     
@@ -207,8 +207,8 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
             resources.atmosphere_prgm = resource_mngr.createShaderProgram(
                 "atmosphere",
                 { 
-                    { "../space-lion/resources/shaders/atmosphere_v.glsl", glowl::GLSLProgram::ShaderType::Vertex},
-                    {"../space-lion/resources/shaders/atmosphere_f.glsl", glowl::GLSLProgram::ShaderType::Fragment}
+                    { "../space-lion/resources/shaders/sky/atmosphere_v.glsl", glowl::GLSLProgram::ShaderType::Vertex},
+                    {"../space-lion/resources/shaders/sky/atmosphere_f.glsl", glowl::GLSLProgram::ShaderType::Fragment}
                 });
 
             // get atmosphere proxy mesh
