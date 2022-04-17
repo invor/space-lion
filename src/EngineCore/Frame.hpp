@@ -17,9 +17,11 @@ namespace EngineCore
          * TODO: Optimize for GPU upload later on...
          */
         struct BaseFrame {
-            // frame meta-data
-            size_t m_frameID = 0;
-            double m_dt = 0.0;
+            size_t m_frameID = 0; ///< frame id assigned to each frame upon creation
+            double m_simulation_dt = 0.0; ///< time elapsed since last frame was created
+
+            size_t m_render_frameID = 0; ///< frame id assigned by graphics backend to processed frames
+            size_t m_render_dt = 0.0; ///< time elapsed since last frame processed by graphics backend
 
             // render passes
             std::vector<Graphics::RenderPass> m_render_passes;

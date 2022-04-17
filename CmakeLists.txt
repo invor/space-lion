@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(space-lion)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 option(USE_GL "Use OpenGL graphics backend" ON)
 option(USE_DX11 "Use DirectX11 graphics backend" OFF)

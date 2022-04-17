@@ -60,7 +60,7 @@ void Editor::Controls::CameraController::controlCameraAction(EngineCore::Common:
 
     Vec3 world_up_vs = world_to_view_vec * Vec3(0.0, 1.0, 0.0);
 
-    auto dt = static_cast<float>(m_frame_manager.getRenderFrame().m_dt);
+    auto dt = static_cast<float>(m_frame_manager.getRenderFrame().m_render_dt);
 
     Vec3 movement = Vec3(0.0, 0.0, 0.0);
 

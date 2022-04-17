@@ -119,8 +119,8 @@ namespace EngineCore
                             // TODO query batch GPU resources early?
                             GeomPassResources::BatchResources batch_resources;
                             batch_resources.shader_prgm = resource_mngr.getShaderProgramResource(current_prgm);
-                            batch_resources.object_params = resource_mngr.getBufferResource( "geomPass_obj_params_" + std::to_string(batch_idx) + "_" + std::to_string( frame.m_frameID % 2) );
-                            batch_resources.draw_commands = resource_mngr.getBufferResource( "geomPass_draw_commands_" + std::to_string(batch_idx) + "_" + std::to_string(frame.m_frameID % 2) );
+                            batch_resources.object_params = resource_mngr.getBufferResource( "geomPass_obj_params_" + std::to_string(batch_idx) + "_" + std::to_string( frame.m_render_frameID % 2) );
+                            batch_resources.draw_commands = resource_mngr.getBufferResource( "geomPass_draw_commands_" + std::to_string(batch_idx) + "_" + std::to_string(frame.m_render_frameID % 2) );
                             batch_resources.geometry = resource_mngr.getMeshResource(current_mesh);
                             resources.m_batch_resources.push_back(batch_resources);
                         }
@@ -271,7 +271,7 @@ namespace EngineCore
                         if (batch_resources.object_params.state != READY)
                         {
                             batch_resources.object_params = resource_mngr.createBufferObject(
-                                "geomPass_obj_params_" + std::to_string(batch) + "_" + std::to_string(frame.m_frameID % 2),
+                                "geomPass_obj_params_" + std::to_string(batch) + "_" + std::to_string(frame.m_render_frameID % 2),
                                 GL_SHADER_STORAGE_BUFFER,
                                 data.static_mesh_params[batch]
                             );
@@ -284,7 +284,7 @@ namespace EngineCore
                         if (batch_resources.draw_commands.state != READY)
                         {
                             batch_resources.draw_commands = resource_mngr.createBufferObject(
-                                "geomPass_draw_commands_" + std::to_string(batch) + "_" + std::to_string(frame.m_frameID % 2),
+                                "geomPass_draw_commands_" + std::to_string(batch) + "_" + std::to_string(frame.m_render_frameID % 2),
                                 GL_DRAW_INDIRECT_BUFFER,
                                 data.static_mesh_drawCommands[batch]
                             );
@@ -521,8 +521,8 @@ namespace EngineCore
                                 // TODO query batch GPU resources early?
                                 GeomPassResources::BatchResources batch_resources;
                                 batch_resources.shader_prgm = resource_mngr.getShaderProgramResource(current_prgm);
-                                batch_resources.object_params = resource_mngr.getBufferResource("geomPass_obj_params_" + std::to_string(batch_idx) + "_" + std::to_string(frame.m_frameID % 2));
-                                batch_resources.draw_commands = resource_mngr.getBufferResource("geomPass_draw_commands_" + std::to_string(batch_idx) + "_" + std::to_string(frame.m_frameID % 2));
+                                //batch_resources.object_params = resource_mngr.getBufferResource("geomPass_obj_params_" + std::to_string(batch_idx) + "_" + std::to_string(frame.m_render_frameID % 2));
+                                //batch_resources.draw_commands = resource_mngr.getBufferResource("geomPass_draw_commands_" + std::to_string(batch_idx) + "_" + std::to_string(frame.m_render_frameID % 2));
                                 batch_resources.geometry = resource_mngr.getMeshResource(current_mesh);
                                 resources.m_batch_resources.push_back(batch_resources);
                             }
@@ -608,6 +608,8 @@ namespace EngineCore
                     // resource setup phase
                     [&frame, &world_state, &resource_mngr](GeomPassData& data, GeomPassResources& resources) {
 
+                        glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
                         if (resources.m_render_target.state != READY)
                         {
                             resources.m_render_target = resource_mngr.createFramebufferObject("GBuffer", 1280, 720);
@@ -643,7 +645,7 @@ namespace EngineCore
                             if (batch_resources.object_params.state != READY)
                             {
                                 batch_resources.object_params = resource_mngr.createBufferObject(
-                                    "geomPass_obj_params_" + std::to_string(batch) + "_" + std::to_string(frame.m_frameID % 2),
+                                    "geomPass_obj_params_" + std::to_string(batch) + "_" + std::to_string(frame.m_render_frameID % 2),
                                     GL_SHADER_STORAGE_BUFFER,
                                     data.static_mesh_params[batch]
                                 );
@@ -663,7 +665,7 @@ namespace EngineCore
                             if (batch_resources.draw_commands.state != READY)
                             {
                                 batch_resources.draw_commands = resource_mngr.createBufferObject(
-                                    "geomPass_draw_commands_" + std::to_string(batch) + "_" + std::to_string(frame.m_frameID % 2),
+                                    "geomPass_draw_commands_" + std::to_string(batch) + "_" + std::to_string(frame.m_render_frameID % 2),
                                     GL_DRAW_INDIRECT_BUFFER,
                                     data.static_mesh_drawCommands[batch]
                                 );
@@ -672,7 +674,6 @@ namespace EngineCore
                             {
                                 try
                                 {
-                                    //batch_resources.draw_commands.resource->rebuffer(data.static_mesh_drawCommands[batch]);
                                     batch_resources.draw_commands.resource->rebuffer(data.static_mesh_drawCommands[batch]);
                                 }
                                 catch (glowl::BufferObjectException const& e)
@@ -690,6 +691,8 @@ namespace EngineCore
                     },
                     // execute phase
                     [&frame](GeomPassData const& data, GeomPassResources const& resources) {
+
+                        glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
                         glEnable(GL_CULL_FACE);
                         glFrontFace(GL_CCW);
@@ -728,7 +731,7 @@ namespace EngineCore
                             batch_resources.geometry.resource->bindVertexArray();
                     
                             GLsizei draw_cnt = static_cast<GLsizei>(data.static_mesh_drawCommands[batch_idx].size());
-                    
+
                             glMultiDrawElementsIndirect(
                                 batch_resources.geometry.resource->getPrimitiveType(),
                                 batch_resources.geometry.resource->getIndexType(),
@@ -738,8 +741,9 @@ namespace EngineCore
                             //glDrawArrays(GL_TRIANGLES, 0, 6);
                     
                             auto gl_err = glGetError();
-                            if (gl_err != GL_NO_ERROR)
+                            if (gl_err != GL_NO_ERROR) {
                                 std::cerr << "GL error in geometry pass execution - batch " << batch_idx << " : " << gl_err << std::endl;
+                            }
                     
                             ++batch_idx;
                         }

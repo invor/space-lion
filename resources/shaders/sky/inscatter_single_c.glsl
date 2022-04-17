@@ -5,8 +5,8 @@
 #define TRANSMITTANCE_INTEGRAL_SAMPLES 20
 
 uniform sampler2D transmittance_tx2D;
-layout(RGBA32F) uniform image3D rayleigh_inscatter_tx3D;
-layout(RGBA32F) uniform image3D mie_inscatter_tx3D;
+layout(rgba32f) uniform image3D rayleigh_inscatter_tx3D;
+layout(rgba32f) uniform image3D mie_inscatter_tx3D;
 
 uniform float min_altitude;
 uniform float max_altitude;

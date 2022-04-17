@@ -41,7 +41,7 @@ float square(in float base)
 	return base*base;
 }
 
-bool intersectAtmosphere(in Ray ray,in out vec2 d)
+bool intersectAtmosphere(in Ray ray, inout vec2 d)
 {
 
 	/*	view ray parameters */
@@ -68,7 +68,7 @@ bool intersectAtmosphere(in Ray ray,in out vec2 d)
 	return true;
 }
 
-bool intersectGround(in Ray ray,in out vec2 d)
+bool intersectGround(in Ray ray, inout vec2 d)
 {
 
 	/*	view ray parameters */

@@ -4,6 +4,12 @@
 
 #include "ResourceManager.hpp"
 
+#ifdef _WIN32
+#include <Windows.h>
+#include <DbgHelp.h>
+#pragma comment(lib, "dbghelp.lib")
+#endif
+
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <imgui.h>
 #include <examples/imgui_impl_glfw.h>
@@ -18,6 +24,245 @@ namespace EngineCore
     {
         namespace OpenGL
         {
+            namespace {
+                /*
+                * BSD 3-Clause License
+                * 
+                * Copyright (c) 2007-2021, MegaMol Dev Team
+                * Copyright (c) 2007-2021, Visualization Research Center (VISUS), University of Stuttgart
+                * All rights reserved.
+                * 
+                * Redistribution and use in source and binary forms, with or without
+                * modification, are permitted provided that the following conditions are met:
+                * 
+                * 1. Redistributions of source code must retain the above copyright notice, this
+                *    list of conditions and the following disclaimer.
+                * 
+                * 2. Redistributions in binary form must reproduce the above copyright notice,
+                *    this list of conditions and the following disclaimer in the documentation
+                *    and/or other materials provided with the distribution.
+                * 
+                * 3. Neither the name of the copyright holder nor the names of its
+                *    contributors may be used to endorse or promote products derived from
+                *    this software without specific prior written permission.
+                * 
+                * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+                * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+                * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+                * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+                * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+                * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+                * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+                * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+                * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+                * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+                * 
+                */
+#ifdef _WIN32
+                static std::string GetStack() {
+                    unsigned int i;
+                    void* stack[100];
+                    unsigned short frames;
+                    SYMBOL_INFO* symbol;
+                    HANDLE process;
+                    std::stringstream output;
+
+                    process = GetCurrentProcess();
+
+                    SymSetOptions(SYMOPT_LOAD_LINES);
+
+                    SymInitialize(process, NULL, TRUE);
+
+                    frames = CaptureStackBackTrace(0, 200, stack, NULL);
+                    symbol = (SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO) + 256 * sizeof(char), 1);
+                    symbol->MaxNameLen = 255;
+                    symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+
+                    for (i = 0; i < frames; i++) {
+                        SymFromAddr(process, (DWORD64)(stack[i]), 0, symbol);
+                        DWORD dwDisplacement;
+                        IMAGEHLP_LINE64 line;
+
+                        line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+                        if (!strstr(symbol->Name, "khr::getStack") && !strstr(symbol->Name, "khr::DebugCallback") &&
+                            SymGetLineFromAddr64(process, (DWORD64)(stack[i]), &dwDisplacement, &line)) {
+
+                            output << "function: " << symbol->Name << " - line: " << line.LineNumber << "\n";
+                        }
+                        if (0 == strcmp(symbol->Name, "main"))
+                            break;
+                    }
+
+                    free(symbol);
+                    return output.str();
+                }
+#endif
+                static std::string get_message_id_name(GLuint id) {
+                    if (id == 0x0500) {
+                        return "GL_INVALID_ENUM";
+                    }
+                    if (id == 0x0501) {
+                        return "GL_INVALID_VALUE";
+                    }
+                    if (id == 0x0502) {
+                        return "GL_INVALID_OPERATION";
+                    }
+                    if (id == 0x0503) {
+                        return "GL_STACK_OVERFLOW";
+                    }
+                    if (id == 0x0504) {
+                        return "GL_STACK_UNDERFLOW";
+                    }
+                    if (id == 0x0505) {
+                        return "GL_OUT_OF_MEMORY";
+                    }
+                    if (id == 0x0506) {
+                        return "GL_INVALID_FRAMEBUFFER_OPERATION";
+                    }
+                    if (id == 0x0507) {
+                        return "GL_CONTEXT_LOST";
+                    }
+                    if (id == 0x8031) {
+                        return "GL_TABLE_TOO_LARGE";
+                    }
+
+                    return std::to_string(id);
+                }
+
+                static void APIENTRY opengl_debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity,
+                    GLsizei length, const GLchar* message, const void* userParam) {
+                    /* Message Sources
+                        Source enum                      Generated by
+                        GL_DEBUG_SOURCE_API              Calls to the OpenGL API
+                        GL_DEBUG_SOURCE_WINDOW_SYSTEM    Calls to a window - system API
+                        GL_DEBUG_SOURCE_SHADER_COMPILER  A compiler for a shading language
+                        GL_DEBUG_SOURCE_THIRD_PARTY      An application associated with OpenGL
+                        GL_DEBUG_SOURCE_APPLICATION      Generated by the user of this application
+                        GL_DEBUG_SOURCE_OTHER            Some source that isn't one of these
+                    */
+                    /* Message Types
+                        Type enum                          Meaning
+                        GL_DEBUG_TYPE_ERROR                An error, typically from the API
+                        GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR  Some behavior marked deprecated has been used
+                        GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR   Something has invoked undefined behavior
+                        GL_DEBUG_TYPE_PORTABILITY          Some functionality the user relies upon is not portable
+                        GL_DEBUG_TYPE_PERFORMANCE          Code has triggered possible performance issues
+                        GL_DEBUG_TYPE_MARKER               Command stream annotation
+                        GL_DEBUG_TYPE_PUSH_GROUP           Group pushing
+                        GL_DEBUG_TYPE_POP_GROUP            foo
+                        GL_DEBUG_TYPE_OTHER                Some type that isn't one of these
+                    */
+                    /* Message Severity
+                        Severity enum                    Meaning
+                        GL_DEBUG_SEVERITY_HIGH           All OpenGL Errors, shader compilation / linking errors, or highly
+                                                         - dangerous undefined behavior
+                        GL_DEBUG_SEVERITY_MEDIUM         Major performance warnings, shader compilation / linking
+                                                         warnings, or the use of deprecated functionality
+                        GL_DEBUG_SEVERITY_LOW            Redundant state change
+                                                         performance warning, or unimportant undefined behavior
+                        GL_DEBUG_SEVERITY_NOTIFICATION   Anything that isn't an
+                                                         error or performance issue.
+                    */
+                    // if (source == GL_DEBUG_SOURCE_API || source == GL_DEBUG_SOURCE_SHADER_COMPILER)
+                    //    if (type == GL_DEBUG_TYPE_ERROR || type == GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR ||
+                    //        type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR)
+                    //        if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM)
+                    //            std::cout << "OpenGL Error: " << message << " (" << get_message_id_name(id) << ")" << std::endl;
+
+                    std::string sourceText, typeText, severityText;
+                    switch (source) {
+                    case GL_DEBUG_SOURCE_API:
+                        sourceText = "API";
+                        break;
+                    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+                        sourceText = "Window System";
+                        break;
+                    case GL_DEBUG_SOURCE_SHADER_COMPILER:
+                        sourceText = "Shader Compiler";
+                        break;
+                    case GL_DEBUG_SOURCE_THIRD_PARTY:
+                        sourceText = "Third Party";
+                        break;
+                    case GL_DEBUG_SOURCE_APPLICATION:
+                        sourceText = "Application";
+                        break;
+                    case GL_DEBUG_SOURCE_OTHER:
+                        sourceText = "Other";
+                        break;
+                    default:
+                        sourceText = "Unknown";
+                        break;
+                    }
+                    switch (type) {
+                    case GL_DEBUG_TYPE_ERROR:
+                        typeText = "Error";
+                        break;
+                    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+                        typeText = "Deprecated Behavior";
+                        break;
+                    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+                        typeText = "Undefined Behavior";
+                        break;
+                    case GL_DEBUG_TYPE_PORTABILITY:
+                        typeText = "Portability";
+                        break;
+                    case GL_DEBUG_TYPE_PERFORMANCE:
+                        typeText = "Performance";
+                        break;
+                    case GL_DEBUG_TYPE_MARKER:
+                        typeText = "Marker";
+                        break;
+                    case GL_DEBUG_TYPE_PUSH_GROUP:
+                        typeText = "Push Group";
+                        break;
+                    case GL_DEBUG_TYPE_POP_GROUP:
+                        typeText = "Pop Group";
+                        break;
+                    case GL_DEBUG_TYPE_OTHER:
+                        typeText = "Other";
+                        break;
+                    default:
+                        typeText = "Unknown";
+                        break;
+                    }
+                    switch (severity) {
+                    case GL_DEBUG_SEVERITY_HIGH:
+                        severityText = "High";
+                        break;
+                    case GL_DEBUG_SEVERITY_MEDIUM:
+                        severityText = "Medium";
+                        break;
+                    case GL_DEBUG_SEVERITY_LOW:
+                        severityText = "Low";
+                        break;
+                    case GL_DEBUG_SEVERITY_NOTIFICATION:
+                        severityText = "Notification";
+                        break;
+                    default:
+                        severityText = "Unknown";
+                        break;
+                    }
+
+                    std::stringstream output;
+                    output << "[" << sourceText << " " << severityText << "] (" << typeText << " " << id << " ["
+                        << get_message_id_name(id) << "]) " << message << std::endl
+                        << "stack trace:" << std::endl;
+#ifdef _WIN32
+                    output << GetStack() << std::endl;
+                    OutputDebugStringA(output.str().c_str());
+#endif
+
+                    if (type == GL_DEBUG_TYPE_ERROR) {
+                        std::cerr << output.str();
+                    }
+                    //else if (type == GL_DEBUG_TYPE_OTHER || type == GL_DEBUG_TYPE_MARKER) {
+                    //}
+                    else {
+                        std::cout << output.str();
+                    }
+                }
+            }
+
             void GraphicsBackend::run(ResourceManager* resource_manager, Common::FrameManager<Common::Frame>* frame_manager)
             {
                 // Initialize GLFW
@@ -29,7 +274,7 @@ namespace EngineCore
                         << "-----\n"
                         << "Error: Couldn't initialize glfw.";
                 }
-
+                glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #if EDITOR_MODE
                 m_active_window = glfwCreateWindow(1600, 900, "Space-Lion", NULL, NULL);
                 //m_active_window = glfwCreateWindow(1920, 1080, "Space-Lion", glfwGetPrimaryMonitor(), NULL);
@@ -80,6 +325,8 @@ namespace EngineCore
 
                 assert((glGetError() == GL_NO_ERROR));
 
+                //glDebugMessageCallback(opengl_debug_message_callback, NULL);
+
                 {
                     std::lock_guard<std::mutex> lk(m_window_creation_mutex);
                     m_window_created = true;
@@ -95,6 +342,7 @@ namespace EngineCore
                 ImGui_ImplOpenGL3_Init("#version 450");
                 //Controls::setControlCallbacks(m_active_window);
 
+                size_t render_frameID = 0;
                 double t0, t1 = 0.0;
 
                 while (!glfwWindowShouldClose(m_active_window))
@@ -121,13 +369,14 @@ namespace EngineCore
 
                     // Get current frame for rendering
                     auto& frame = frame_manager->getRenderFrame();
+                    frame.m_render_frameID = render_frameID++;
 
                     t0 = t1;
                     t1 = glfwGetTime();
                     double dt = t1 - t0;
 
                     // TODO dedicated dt for input computations...
-                    frame.m_dt = dt;
+                    frame.m_render_dt = dt;
 
                     //std::cout<<"Timestep: "<<dt<<std::endl;
 
