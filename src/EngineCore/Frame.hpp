@@ -21,7 +21,7 @@ namespace EngineCore
             double m_simulation_dt = 0.0; ///< time elapsed since last frame was created
 
             size_t m_render_frameID = 0; ///< frame id assigned by graphics backend to processed frames
-            size_t m_render_dt = 0.0; ///< time elapsed since last frame processed by graphics backend
+            double m_render_dt = 0.0; ///< time elapsed since last frame processed by graphics backend
 
             // render passes
             std::vector<Graphics::RenderPass> m_render_passes;

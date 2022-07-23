@@ -518,7 +518,7 @@ namespace EngineCore
 
                                 data.tx_rsrc_access_cache.push_back(std::vector<WeakResource<glowl::Texture2D>>());
 
-                                // TODO query batch GPU resources early?
+                                // TODO query batch GPU resources early? => difficult because at this point it is unclear whether the frame will be rendered and the render frame id is yet unkown
                                 GeomPassResources::BatchResources batch_resources;
                                 batch_resources.shader_prgm = resource_mngr.getShaderProgramResource(current_prgm);
                                 //batch_resources.object_params = resource_mngr.getBufferResource("geomPass_obj_params_" + std::to_string(batch_idx) + "_" + std::to_string(frame.m_render_frameID % 2));
@@ -641,6 +641,10 @@ namespace EngineCore
                                     }
                                 }
                             }
+
+                            // Query double buffered buffers from resource manager
+                            batch_resources.object_params = resource_mngr.getBufferResource("geomPass_obj_params_" + std::to_string(batch) + "_" + std::to_string(frame.m_render_frameID % 2));
+                            batch_resources.draw_commands = resource_mngr.getBufferResource("geomPass_draw_commands_" + std::to_string(batch) + "_" + std::to_string(frame.m_render_frameID % 2));
 
                             if (batch_resources.object_params.state != READY)
                             {

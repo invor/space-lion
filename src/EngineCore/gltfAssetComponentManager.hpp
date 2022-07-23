@@ -497,7 +497,7 @@ namespace EngineCore
                             auto it = std::get<1>(mesh_data)->insert(std::get<1>(mesh_data)->begin()+2,std::vector<unsigned char>());
 
                             //TODO handle insertion of vertex layout better, i.e. decouple shader ordering from layout ordering...
-                            curr_idx = 0;
+                             curr_idx = 0;
                             for (auto& generic_vertex_layout : (*(std::get<0>(mesh_data))))
                             {
                                 for (auto& attrib : generic_vertex_layout.attributes) {
