@@ -212,19 +212,24 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
                 });
 
             // get atmosphere proxy mesh
-            const auto [icosphere_vertex_data, icosphere_index_data, icosphere_vertex_description] = Graphics::createIcoSphere(5);
-            std::vector<glowl::VertexLayout> layout;
-            for (auto& generic_layout : (*icosphere_vertex_description)) {
-                layout.push_back(resource_mngr.convertGenericGltfVertexLayout(generic_layout));
+            resources.atmosphere_proxy_mesh = resource_mngr.getMeshResource(atmosphere_mngr.getProxyMesh());
+            if (resources.atmosphere_proxy_mesh.state != READY) {
+                const auto [icosphere_vertex_data, icosphere_index_data, icosphere_vertex_description] = Graphics::createIcoSphere(5);
+                std::vector<glowl::VertexLayout> layout;
+                for (auto& generic_layout : (*icosphere_vertex_description)) {
+                    layout.push_back(resource_mngr.convertGenericGltfVertexLayout(generic_layout));
+                }
+                
+                auto err = glGetError();
+                
+                resources.atmosphere_proxy_mesh = resource_mngr.createMesh(
+                    "atmosphere_boundingSphere",
+                    (*icosphere_vertex_data),
+                    (*icosphere_index_data),
+                    layout, GL_UNSIGNED_INT, GL_TRIANGLES);
+
+                atmosphere_mngr.setProxyMesh(resources.atmosphere_proxy_mesh.id);
             }
-
-            auto err = glGetError();
-
-            resources.atmosphere_proxy_mesh = resource_mngr.createMesh(
-                "atmosphere_boundingSphere",
-                (*icosphere_vertex_data),
-                (*icosphere_index_data),
-                layout, GL_UNSIGNED_INT, GL_TRIANGLES);
 
             // check for existing gBuffer
             resources.gBuffer = resource_mngr.getFramebufferObject("GBuffer");

@@ -6,6 +6,7 @@
 #include "BaseSingleInstanceComponentManager.hpp"
 #include "BaseResourceManager.hpp"
 #include "EntityManager.hpp"
+#include "GeometryBakery.hpp"
 #include "types.hpp"
 
 namespace EngineCore{
@@ -42,6 +43,8 @@ namespace Graphics {
 
         ResourceManagerType& m_rsrc_mngr;
 
+        ResourceID m_proxy_mesh;
+
         /*****************************************************************
          * Buffer, compute and draw methods (only call from GPU thread!)
          ****************************************************************/
@@ -58,6 +61,10 @@ namespace Graphics {
         ~AtmosphereComponentManager();
 
         void reallocate(uint size);
+
+        void setProxyMesh(ResourceID proxy_mesh);
+
+        ResourceID getProxyMesh();
 
         void addComponent(Entity entity,
             Vec3 beta_r,
@@ -110,7 +117,7 @@ namespace Graphics {
 
     template<typename ResourceManagerType>
     inline AtmosphereComponentManager<ResourceManagerType>::AtmosphereComponentManager(uint size, ResourceManagerType& rsrc_mngr)
-        : m_rsrc_mngr(rsrc_mngr)
+        : m_rsrc_mngr(rsrc_mngr), m_proxy_mesh(ResourceManagerType::invalidResourceID())
     {
         const uint bytes = size * (sizeof(Entity) +
             2 * sizeof(Vec3) +
@@ -183,6 +190,18 @@ namespace Graphics {
         delete m_data.buffer;
 
         m_data = new_data;
+    }
+
+    template<typename ResourceManagerType>
+    inline void AtmosphereComponentManager<ResourceManagerType>::setProxyMesh(ResourceID proxy_mesh)
+    {
+        m_proxy_mesh = proxy_mesh;
+    }
+
+    template<typename ResourceManagerType>
+    inline ResourceID AtmosphereComponentManager<ResourceManagerType>::getProxyMesh()
+    {
+        return m_proxy_mesh;
     }
 
     template<typename ResourceManagerType>
