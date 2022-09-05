@@ -24,7 +24,10 @@ namespace EngineCore
          *
          */
         template <typename ComponentManagerType>
-        ComponentManagerType& get();
+        ComponentManagerType const& get() const;
+
+        template <typename ComponentManagerType>
+        ComponentManagerType & get();
 
         /**
          *
@@ -50,6 +53,8 @@ namespace EngineCore
          * (inspired by https://gpfault.net/posts/mapping-types-to-values.txt.html)
          */
         std::unordered_map<int, std::unique_ptr<BaseComponentManager>> m_component_managers;
+
+        std::shared_mutex m_component_access_mutex;
 
         /** 
          *
@@ -80,9 +85,21 @@ namespace EngineCore
     }
 
     template <typename ComponentManagerType>
+    inline ComponentManagerType const& WorldState::get() const
+    {
+        std::shared_lock<std::shared_mutex> lock(m_component_access_mutex);
+
+        const auto it = m_component_managers.find(getTypeId<ComponentManagerType>());
+        assert(it != m_component_managers.end());
+        return (*(static_cast<ComponentManagerType*>(it->second.get())));
+    }
+
+    template <typename ComponentManagerType>
     inline ComponentManagerType& WorldState::get()
     {
-        auto it = m_component_managers.find(getTypeId<ComponentManagerType>());
+        std::shared_lock<std::shared_mutex> lock(m_component_access_mutex);
+
+        const auto it = m_component_managers.find(getTypeId<ComponentManagerType>());
         assert(it != m_component_managers.end());
         return (*(static_cast<ComponentManagerType*>(it->second.get())));
     }
@@ -90,6 +107,8 @@ namespace EngineCore
     template <class ComponentManagerType>
     inline void WorldState::add(std::unique_ptr<BaseComponentManager> &&component_mngr)
     {
+        std::unique_lock<std::shared_mutex> lock(m_component_access_mutex);
+
         m_component_managers.emplace(
             getTypeId<ComponentManagerType>(), 
             std::forward<std::unique_ptr<BaseComponentManager>>(component_mngr)

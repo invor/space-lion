@@ -63,25 +63,25 @@ namespace EngineCore
                 float                roughness,
                 ResourceIDContainer  textures);
 
-            inline std::array<float, 4> getAlbedoColour(size_t idx) {
+            inline std::array<float, 4> getAlbedoColour(size_t idx) const {
                 std::shared_lock<std::shared_mutex> lock(m_data_mutex);
 
                 return m_component_data[idx].albedo_colour;
             }
 
-            inline std::array<float, 4> getSpecularColour(size_t idx) {
+            inline std::array<float, 4> getSpecularColour(size_t idx) const {
                 std::shared_lock<std::shared_mutex> lock(m_data_mutex);
 
                 return m_component_data[idx].specular_colour;
             }
 
-            inline float getRoughness(size_t idx) {
+            inline float getRoughness(size_t idx) const {
                 std::shared_lock<std::shared_mutex> lock(m_data_mutex);
 
                 return m_component_data[idx].roughness;
             }
 
-            ResourceID getTextures(size_t component_idx, TextureSemantic semantic);
+            ResourceID getTextures(size_t component_idx, TextureSemantic semantic) const;
 
         private:
 
@@ -124,7 +124,7 @@ namespace EngineCore
             };
 
             std::vector<ComponentData> m_component_data;
-            std::shared_mutex          m_data_mutex;
+            mutable std::shared_mutex  m_data_mutex;
 
             ResourceManagerType*       m_resource_manager;
         };
@@ -165,7 +165,7 @@ namespace EngineCore
         }
 
         template<typename ResourceManagerType>
-        inline ResourceID MaterialComponentManager<ResourceManagerType>::getTextures(size_t component_idx, TextureSemantic semantic)
+        inline ResourceID MaterialComponentManager<ResourceManagerType>::getTextures(size_t component_idx, TextureSemantic semantic) const
         {
             std::shared_lock<std::shared_mutex> lock(m_data_mutex);
 

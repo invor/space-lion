@@ -471,11 +471,11 @@ namespace EngineCore
                     // data setup phase
                     [&frame, &world_state, &resource_mngr](GeomPassData& data, GeomPassResources& resources) {
 
-                        auto& cam_mngr = world_state.get<CameraComponentManager>();
-                        auto& mtl_mngr = world_state.get<MaterialComponentManager<ResourceManager>>();
-                        auto& mesh_mngr = world_state.get<MeshComponentManager<ResourceManager>>();
-                        auto& renderTask_mngr = world_state.get<RenderTaskComponentManager<Graphics::RenderTaskTags::StaticMesh>>();
-                        auto& transform_mngr = world_state.get<Common::TransformComponentManager>();
+                        auto & cam_mngr = world_state.get<CameraComponentManager>();
+                        auto const& mtl_mngr = world_state.get<MaterialComponentManager<ResourceManager>>();
+                        auto const& mesh_mngr = world_state.get<MeshComponentManager<ResourceManager>>();
+                        auto const& renderTask_mngr = world_state.get<RenderTaskComponentManager<Graphics::RenderTaskTags::StaticMesh>>();
+                        auto const& transform_mngr = world_state.get<Common::TransformComponentManager>();
 
                         // set camera matrices
                         Entity camera_entity = cam_mngr.getActiveCamera();
@@ -606,7 +606,7 @@ namespace EngineCore
                         }
                     },
                     // resource setup phase
-                    [&frame, &world_state, &resource_mngr](GeomPassData& data, GeomPassResources& resources) {
+                    [&frame, &resource_mngr](GeomPassData& data, GeomPassResources& resources) {
 
                         glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
@@ -779,10 +779,10 @@ namespace EngineCore
                     // data setup phase
                     [&world_state, &resource_mngr](LightingPassData& data, LightingPassResources& resources) {
 
-                        auto& cam_mngr = world_state.get<CameraComponentManager>();
-                        auto& transform_mngr = world_state.get<Common::TransformComponentManager>();
-                        auto& pointlight_mngr = world_state.get<Graphics::PointlightComponentManager>();
-                        auto& sunlight_mngr = world_state.get<Graphics::SunlightComponentManager>();
+                        auto const& cam_mngr = world_state.get<CameraComponentManager>();
+                        auto const& transform_mngr = world_state.get<Common::TransformComponentManager>();
+                        auto const& pointlight_mngr = world_state.get<Graphics::PointlightComponentManager>();
+                        auto const& sunlight_mngr = world_state.get<Graphics::SunlightComponentManager>();
 
                         Entity camera_entity = cam_mngr.getActiveCamera();
                         auto camera_idx = cam_mngr.getIndex(camera_entity).front();
@@ -827,7 +827,7 @@ namespace EngineCore
                         resources.m_sunlights_data = resource_mngr.getBufferResource("lightingPass_sunlights_data");
                     },
                     // resource setup phase
-                    [&world_state, &resource_mngr](LightingPassData& data, LightingPassResources& resources) {
+                    [&resource_mngr](LightingPassData& data, LightingPassResources& resources) {
                         if (resources.m_lighting_prgm.state != READY){
                             resources.m_lighting_prgm = resource_mngr.createShaderProgram(
                                 "rendering_pipeline_lighting",
@@ -978,7 +978,7 @@ namespace EngineCore
                     // data setup phase
                     [&world_state, &resource_mngr](CompPassData& data, CompPassResources& resources) {
 
-                        auto& cam_mngr = world_state.get<CameraComponentManager>();
+                        auto const& cam_mngr = world_state.get<CameraComponentManager>();
 
                         // get data
                         Entity camera_entity = cam_mngr.getActiveCamera();
@@ -994,7 +994,7 @@ namespace EngineCore
                         resources.atmospher_rt = resource_mngr.getFramebufferObject("atmosphere_rt");
                     },
                     // resource setup phase
-                    [&world_state, &resource_mngr](CompPassData& data, CompPassResources& resources) {
+                    [&resource_mngr](CompPassData& data, CompPassResources& resources) {
 
                         if (resources.m_compositing_prgm.state != READY)
                         {

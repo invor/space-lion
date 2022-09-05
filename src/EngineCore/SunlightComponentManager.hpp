@@ -38,7 +38,7 @@ namespace EngineCore
 
             void deleteComonent(Entity entity);
 
-            uint getComponentCount() { return m_data.used; }
+            uint getComponentCount() const { return m_data.used; }
 
             void setColour(uint index, Vec3 colour);
 

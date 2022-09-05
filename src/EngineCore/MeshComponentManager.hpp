@@ -47,7 +47,7 @@ namespace EngineCore
                 PrimitiveTopologyType const& mesh_type,
                 bool                                                  store_seperate = false);
 
-            std::tuple<uint32_t, uint32_t, uint32_t> getDrawIndexedParams(size_t component_index);
+            std::tuple<uint32_t, uint32_t, uint32_t> getDrawIndexedParams(size_t component_index) const;
 
         private:
 
@@ -247,7 +247,7 @@ namespace EngineCore
 
 
         template<typename ResourceManagerType>
-        inline std::tuple<uint32_t, uint32_t, uint32_t> MeshComponentManager<ResourceManagerType>::getDrawIndexedParams(size_t component_index)
+        inline std::tuple<uint32_t, uint32_t, uint32_t> MeshComponentManager<ResourceManagerType>::getDrawIndexedParams(size_t component_index) const
         {
             std::shared_lock<std::shared_mutex> lock(m_data_mutex);
 

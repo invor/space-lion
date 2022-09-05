@@ -37,9 +37,9 @@ namespace EngineCore
 
             void deleteComonent(Entity entity);
 
-            uint getComponentCount();
+            uint getComponentCount() const;
 
-            Entity getEntity(uint index);
+            Entity getEntity(uint index) const;
 
             Vec3 getColour(uint index) const;
 

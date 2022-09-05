@@ -75,12 +75,12 @@ namespace EngineCore
 
         }
 
-        uint PointlightComponentManager::getComponentCount()
+        uint PointlightComponentManager::getComponentCount() const
         {
             return m_data.used;
         }
 
-        Entity PointlightComponentManager::getEntity(uint index)
+        Entity PointlightComponentManager::getEntity(uint index) const
         {
             return m_data.entity[index];
         }

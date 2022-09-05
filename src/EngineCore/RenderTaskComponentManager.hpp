@@ -79,12 +79,12 @@ namespace EngineCore
 
             std::vector<Data> & getComponentData(); //TODO this is not thread safe, is it?
 
-            std::vector<Data> getComponentDataCopy();
+            std::vector<Data> getComponentDataCopy() const;
 
         private:
 
-            std::vector<Data> m_data; //< store render task sorted by shader and mesh ResourceIDs
-            std::shared_mutex m_data_mutex;
+            std::vector<Data>         m_data; //< store render task sorted by shader and mesh ResourceIDs
+            mutable std::shared_mutex m_data_mutex;
         };
 
 
@@ -120,7 +120,7 @@ namespace EngineCore
         }
 
         template<typename TagType>
-        std::vector<typename RenderTaskComponentManager<TagType>::Data> RenderTaskComponentManager<TagType>::getComponentDataCopy()
+        std::vector<typename RenderTaskComponentManager<TagType>::Data> RenderTaskComponentManager<TagType>::getComponentDataCopy() const
         {
             std::vector<EngineCore::Graphics::RenderTaskComponentManager<TagType>::Data> retval;
 
