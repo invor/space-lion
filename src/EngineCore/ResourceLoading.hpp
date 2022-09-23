@@ -6,7 +6,9 @@
 #include <vector>
 #include <filesystem>
 #include <fstream>
+#ifdef UWP
 #include <format>
+#endif //UWP
 
 #include <lodepng.h>
 

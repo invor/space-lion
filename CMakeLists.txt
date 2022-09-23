@@ -10,16 +10,21 @@ option(USE_DX11 "Use DirectX11 graphics backend" OFF)
 if(USE_GL)
 
 # try adding glfw by its own cmake file
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build the GLFW documentation")
+set(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")
 add_subdirectory(src/External/glfw)
 
 # try adding glowl by its own cmake file
+set(GLOWL_OPENGL_INCLUDE "GLAD" CACHE STRING "Choose OpenGL include.")
 add_subdirectory(src/External/glowl EXCLUDE_FROM_ALL)
 
 endif()
 
 if(USE_DX11)
+
 # try adding dxowl by its own cmake file
 add_subdirectory(src/External/dxowl EXCLUDE_FROM_ALL)
+
 endif()
 
 
@@ -68,7 +73,8 @@ SET (ENGINECORE_GRAPHICS_HEADER_FILES
         src/EngineCore/RenderTaskComponentManager.hpp
         src/EngineCore/SunlightComponentManager.hpp
         src/EngineCore/LandscapeFeatureCurveComponent.hpp
-        src/EngineCore/LandscapeBrickComponent.hpp)
+        #src/EngineCore/LandscapeBrickComponent.hpp
+)
 
 SET (ENGINECORE_GRAPHICS_SOURCE_FILES
         src/EngineCore/AtmosphereComponentManager.cpp
@@ -82,12 +88,14 @@ SET (ENGINECORE_GRAPHICS_SOURCE_FILES
         src/EngineCore/RenderTaskComponentManager.cpp
         src/EngineCore/SunlightComponentManager.cpp
         src/EngineCore/LandscapeFeatureCurveComponent.inl
-        src/EngineCore/LandscapeBrickComponent.cpp)
+        #src/EngineCore/LandscapeBrickComponent.inl
+)
 
 SET (ENGINECORE_GRAPHICS_GL_HEADER_FILES
         src/EngineCore/OpenGL/AtmosphereRenderPass.hpp
         src/EngineCore/OpenGL/BasicRenderingPipeline.hpp
         src/EngineCore/OpenGL/GraphicsBackend.hpp
+	#src/EngineCore/OpenGL/LandscapeSystems.hpp
         src/EngineCore/OpenGL/ResourceManager.hpp
         src/EngineCore/OpenGL/SkinnedMeshRenderPass.hpp)
 
@@ -95,8 +103,9 @@ SET (ENGINECORE_GRAPHICS_GL_SOURCE_FILES
         src/EngineCore/OpenGL/AtmosphereRenderPass.cpp
         src/EngineCore/OpenGL/BasicRenderingPipeline.cpp
         src/EngineCore/OpenGL/GraphicsBackend.cpp
+	#src/EngineCore/OpenGL/LandscapeSystems.cpp
         src/EngineCore/OpenGL/ResourceManager.cpp
-        src/EngineCOre/OpenGL/SkinnedMeshRenderPass.cpp)
+        src/EngineCore/OpenGL/SkinnedMeshRenderPass.cpp)
 
 SET (ENGINECORE_GRAPHICS_DX11_HEADER_FILES
         src/EngineCore/Dx11/SimpleForwardRenderingPipeline.hpp

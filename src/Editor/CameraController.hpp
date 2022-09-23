@@ -1,9 +1,9 @@
 #ifndef CameraController_hpp
 #define CameraController_hpp
 
-#include "..\EngineCore\Frame.hpp"
-#include "..\EngineCore\InputEvent.hpp"
-#include "..\EngineCore\WorldState.hpp"
+#include "../EngineCore/Frame.hpp"
+#include "../EngineCore/InputEvent.hpp"
+#include "../EngineCore/WorldState.hpp"
 
 namespace Editor{
 namespace Controls{
