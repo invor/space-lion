@@ -413,14 +413,19 @@ namespace EngineCore
                         GLuint64 roughnes_tx_hndl;
                         GLuint64 normal_tx_hndl;
 
-                        GLuint64 padding;
+                        GLuint64 entity_id; // currently not really needed in GPU memory, but also serves as padding
                     };
 
                     // static mesh (shader) params per object per batch
                     std::vector<std::vector<StaticMeshParams>>    static_mesh_params;
                     std::vector<std::vector<DrawElementsCommand>> static_mesh_drawCommands;
 
-                    std::vector<std::vector<WeakResource<glowl::Texture2D>>> tx_rsrc_access_cache;
+                    struct MaterialTextures {
+                        WeakResource<glowl::Texture2D> albedo_tx;
+                        WeakResource<glowl::Texture2D> roughness_tx;
+                        WeakResource<glowl::Texture2D> normal_tx;
+                    };
+                    std::vector<std::vector<MaterialTextures>> mtl_tx_cache;
 
                     Mat4x4 view_matrix;
                     Mat4x4 proj_matrix;
@@ -516,7 +521,7 @@ namespace EngineCore
                                 //data.static_mesh_params.back().reserve(objs.size());
                                 //data.static_mesh_drawCommands.back().reserve(objs.size());
 
-                                data.tx_rsrc_access_cache.push_back(std::vector<WeakResource<glowl::Texture2D>>());
+                                data.mtl_tx_cache.push_back(std::vector<GeomPassData::MaterialTextures>());
 
                                 // TODO query batch GPU resources early? => difficult because at this point it is unclear whether the frame will be rendered and the render frame id is yet unkown
                                 GeomPassResources::BatchResources batch_resources;
@@ -531,10 +536,10 @@ namespace EngineCore
                             GeomPassData::StaticMeshParams params;
 
                             params.transform = transform_mngr.getWorldTransformation(obj.cached_transform_idx);
+                            params.entity_id = static_cast<GLuint64>(obj.entity.id());
+                            data.static_mesh_params.back().push_back(params);
 
-
-                            //auto mtl_idx = mtl_mngr.getIndex(obj.entity);
-                            //if (!mtl_idx.empty())
+                            // gather material texture resources
                             {
                                 using TextureSemantic = MaterialComponentManager<ResourceManager>::TextureSemantic;
 
@@ -542,11 +547,9 @@ namespace EngineCore
                                 auto roughness_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::METALLIC_ROUGHNESS);
                                 auto normal_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::NORMAL);
 
-
                                 WeakResource<glowl::Texture2D> albedo_tx;
                                 WeakResource<glowl::Texture2D> roughness_tx;
                                 WeakResource<glowl::Texture2D> normal_tx;
-
 
                                 if (albedo_texture != resource_mngr.invalidResourceID()) {
                                     albedo_tx = resource_mngr.getTexture2DResource(albedo_texture);
@@ -569,28 +572,8 @@ namespace EngineCore
                                     normal_tx = resource_mngr.getTexture2DResource("noTexture_normalMap");
                                 }
 
-
-                                if (albedo_tx.state == READY)
-                                {
-                                    params.base_color_tx_hndl = albedo_tx.resource->getTextureHandle();
-                                    data.tx_rsrc_access_cache.back().push_back(albedo_tx);
-                                }
-
-                                if (roughness_tx.state == READY)
-                                {
-                                    params.roughnes_tx_hndl = roughness_tx.resource->getTextureHandle();
-                                    data.tx_rsrc_access_cache.back().push_back(roughness_tx);
-                                }
-
-                                if (normal_tx.state == READY)
-                                {
-                                    params.normal_tx_hndl = normal_tx.resource->getTextureHandle();
-                                    data.tx_rsrc_access_cache.back().push_back(normal_tx);
-                                }
-
+                                data.mtl_tx_cache.back().push_back({ albedo_tx, roughness_tx, normal_tx });
                             }
-
-                            data.static_mesh_params.back().push_back(params);
 
                             // set draw command values
                             GeomPassData::DrawElementsCommand draw_command;
@@ -623,6 +606,38 @@ namespace EngineCore
                         uint batch = 0;
                         for (auto& batch_resources : resources.m_batch_resources)
                         {
+                            for(int obj_idx = 0; obj_idx < data.static_mesh_params[batch].size(); ++obj_idx)
+                            {
+                                WeakResource<glowl::Texture2D> albedo_tx = data.mtl_tx_cache[batch][obj_idx].albedo_tx;
+                                WeakResource<glowl::Texture2D> roughness_tx = data.mtl_tx_cache[batch][obj_idx].roughness_tx;
+                                WeakResource<glowl::Texture2D> normal_tx = data.mtl_tx_cache[batch][obj_idx].normal_tx;
+
+                                if (albedo_tx.state == READY)
+                                {
+                                    data.static_mesh_params[batch][obj_idx].base_color_tx_hndl = albedo_tx.resource->getTextureHandle();
+                                    if (!glIsTextureHandleResidentARB(data.static_mesh_params[batch][obj_idx].base_color_tx_hndl)) {
+                                        albedo_tx.resource->makeResident();
+                                    }
+                                }
+
+                                if (roughness_tx.state == READY)
+                                {
+                                    data.static_mesh_params[batch][obj_idx].roughnes_tx_hndl = roughness_tx.resource->getTextureHandle();
+                                    if (!glIsTextureHandleResidentARB(data.static_mesh_params[batch][obj_idx].roughnes_tx_hndl)) {
+                                        roughness_tx.resource->makeResident();
+                                    }
+                                }
+
+                                if (normal_tx.state == READY)
+                                {
+                                    data.static_mesh_params[batch][obj_idx].normal_tx_hndl = normal_tx.resource->getTextureHandle();
+                                    if (!glIsTextureHandleResidentARB(data.static_mesh_params[batch][obj_idx].normal_tx_hndl)) {
+                                        normal_tx.resource->makeResident();
+                                    }
+                                }
+                            }
+
+
                             if (batch_resources.shader_prgm.state != READY)
                             {
                                 //???
@@ -633,14 +648,6 @@ namespace EngineCore
                                 //???
                             }
 
-                            {
-                                // Try to guarantee texture residency
-                                for (auto& tx_rsrc : data.tx_rsrc_access_cache[batch]) {
-                                    if (!glIsTextureHandleResidentARB(tx_rsrc.resource->getTextureHandle())) {
-                                        tx_rsrc.resource->makeResident();
-                                    }
-                                }
-                            }
 
                             // Query double buffered buffers from resource manager
                             batch_resources.object_params = resource_mngr.getBufferResource("geomPass_obj_params_" + std::to_string(batch) + "_" + std::to_string(frame.m_render_frameID % 2));

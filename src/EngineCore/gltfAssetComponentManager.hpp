@@ -40,7 +40,7 @@ namespace EngineCore
         {
             std::shared_ptr<tinygltf::Model> loadGltfModel(std::string const& gltf_filepath);
 
-            std::shared_ptr<tinygltf::Model> loadGLTFModel(std::vector<unsigned char> const & databuffer);
+            std::shared_ptr<tinygltf::Model> loadGLTFModel(std::vector<unsigned char> const& databuffer);
         }
 
         template<typename ResourceManagerType>
@@ -76,9 +76,9 @@ namespace EngineCore
             std::shared_mutex                         m_data_mutex;
 
             ResourceManagerType& m_rsrc_mngr;
-            WorldState&          m_world;
+            WorldState& m_world;
 
-            void addComponent(Entity entity, ModelPtr const& model, int gltf_node_idx, std::unordered_map<int, Entity> const & node_to_entity, ResourceID dflt_shader_prgm);
+            void addComponent(Entity entity, ModelPtr const& model, int gltf_node_idx, std::unordered_map<int, Entity> const& node_to_entity, ResourceID dflt_shader_prgm);
 
             ModelPtr addGltfAsset(std::string const& gltf_filepath);
 
@@ -97,7 +97,7 @@ namespace EngineCore
         };
 
         template<typename ResourceManagerType>
-        inline GltfAssetComponentManager<ResourceManagerType>::GltfAssetComponentManager(ResourceManagerType & rsrc_mngr, WorldState & world)
+        inline GltfAssetComponentManager<ResourceManagerType>::GltfAssetComponentManager(ResourceManagerType& rsrc_mngr, WorldState& world)
             : m_rsrc_mngr(rsrc_mngr), m_world(world)
         {
         }
@@ -129,7 +129,19 @@ namespace EngineCore
             {
                 if (model->nodes[i].name == gltf_node_name)
                 {
-                    addComponent(entity, model, i, dflt_shader_prgm);
+                    // helper data structure for tracking entities that are created while traversing gltf scene graph
+                    std::unordered_map<int, Entity> node_to_entity;
+
+                    // add entity
+                    node_to_entity.insert({ i, entity });
+
+                    // traverse children and add gltf nodes recursivly
+                    for (auto child : model->nodes[i].children)
+                    {
+                        addGltfNode(model, child, entity, node_to_entity, dflt_shader_prgm);
+                    }
+
+                    addComponent(entity, model, i, node_to_entity, dflt_shader_prgm);
                 }
             }
         }
@@ -179,7 +191,7 @@ namespace EngineCore
         }
 
         template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::importGltfScene(std::string const& gltf_filepath, std::shared_ptr<tinygltf::Model> const & gltf_model, ResourceID dflt_shader_prgm)
+        inline void GltfAssetComponentManager<ResourceManagerType>::importGltfScene(std::string const& gltf_filepath, std::shared_ptr<tinygltf::Model> const& gltf_model, ResourceID dflt_shader_prgm)
         {
             addGltfAsset(gltf_filepath, gltf_model);
 
@@ -214,7 +226,7 @@ namespace EngineCore
 
         template<typename ResourceManagerType>
         inline void GltfAssetComponentManager<ResourceManagerType>::addGltfNode(
-            ModelPtr const & gltf_model,
+            ModelPtr const& gltf_model,
             int gltf_node_idx,
             Entity parent_entity,
             std::unordered_map<int, Entity>& node_to_entity,
@@ -224,7 +236,7 @@ namespace EngineCore
 
             // add entity
             auto entity = m_world.accessEntityManager().create();
-            node_to_entity.insert({gltf_node_idx,entity});
+            node_to_entity.insert({ gltf_node_idx,entity });
 
             // add name
             //m_world.accessNameManager()->addComponent(entity, model->nodes[node].name);
@@ -455,7 +467,7 @@ namespace EngineCore
                     int tangent_data_idx = -1;
 
                     int curr_idx = 0;
-                    for (auto& generic_vertex_layout : (*(std::get<0>(mesh_data))) )
+                    for (auto& generic_vertex_layout : (*(std::get<0>(mesh_data))))
                     {
                         for (auto& attrib : generic_vertex_layout.attributes) {
                             // note: because gltf data is reordered during loading, we know here that there is only one attribute per layout
@@ -463,7 +475,7 @@ namespace EngineCore
                             {
                                 position_data_idx = curr_idx;
                             }
-                            else if(attrib.semantic_name == "NORMAL")
+                            else if (attrib.semantic_name == "NORMAL")
                             {
                                 has_normals = true;
                                 normal_data_idx = curr_idx;
@@ -482,9 +494,9 @@ namespace EngineCore
                         ++curr_idx;
                     }
 
-                    if ( (!has_tangents) && has_normals && has_uvs)
+                    if ((!has_tangents) && has_normals && has_uvs)
                     {
-                    
+
                         // add data buffer and layout entry for tangents
                         {
                             auto it = std::get<0>(mesh_data)->insert(std::get<0>(mesh_data)->begin() + 2, GenericVertexLayout());
@@ -494,10 +506,10 @@ namespace EngineCore
                         }
 
                         {
-                            auto it = std::get<1>(mesh_data)->insert(std::get<1>(mesh_data)->begin()+2,std::vector<unsigned char>());
+                            auto it = std::get<1>(mesh_data)->insert(std::get<1>(mesh_data)->begin() + 2, std::vector<unsigned char>());
 
                             //TODO handle insertion of vertex layout better, i.e. decouple shader ordering from layout ordering...
-                             curr_idx = 0;
+                            curr_idx = 0;
                             for (auto& generic_vertex_layout : (*(std::get<0>(mesh_data))))
                             {
                                 for (auto& attrib : generic_vertex_layout.attributes) {
@@ -523,7 +535,7 @@ namespace EngineCore
                             }
 
 
-                            it->resize( ((*std::get<1>(mesh_data))[position_data_idx].size()/3) * 4); //TODO: proper getByteSize for generic layout
+                            it->resize(((*std::get<1>(mesh_data))[position_data_idx].size() / 3) * 4); //TODO: proper getByteSize for generic layout
                         }
 
                         if (std::get<3>(mesh_data) == 5123) // check whether index type is 16bit (uses GL enums as generic types)
@@ -557,8 +569,8 @@ namespace EngineCore
                     float roughness = 0.8f;
                     std::array<float, 4> specular_colour = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-					typedef MaterialComponentManager<ResourceManagerType>::TextureSemantic TextureSemantic;
-					std::vector< std::pair<TextureSemantic,ResourceID>> textures;
+                    typedef MaterialComponentManager<ResourceManagerType>::TextureSemantic TextureSemantic;
+                    std::vector< std::pair<TextureSemantic, ResourceID>> textures;
 
                     std::string identifier_string =
                         "ga_" + model->nodes[gltf_node_idx].name + "_n_" + std::to_string(gltf_node_idx) + "_p_" + std::to_string(primitive_idx);
@@ -588,17 +600,17 @@ namespace EngineCore
                         if (model->materials[material_idx].pbrMetallicRoughness.baseColorTexture.index != -1)
                         {
                             // base color texture (diffuse albedo)
-							GenericTextureLayout layout;
+                            GenericTextureLayout layout;
 
-							auto& img = model->images[model->textures[model->materials[material_idx].pbrMetallicRoughness.baseColorTexture.index].source];
+                            auto& img = model->images[model->textures[model->materials[material_idx].pbrMetallicRoughness.baseColorTexture.index].source];
 
-							layout.width = img.width;
-							layout.height = img.height;
-							layout.depth = 1;
+                            layout.width = img.width;
+                            layout.height = img.height;
+                            layout.depth = 1;
                             layout.levels = 1;
-							layout.type = img.pixel_type;
-							layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
-							layout.internal_format = 0x8058;// GL_RGBA8
+                            layout.type = img.pixel_type;
+                            layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
+                            layout.internal_format = 0x8058;// GL_RGBA8
 
                             layout.int_parameters = {
                                 {
@@ -608,7 +620,7 @@ namespace EngineCore
                                 {
                                     0x2800, //GL_TEXTURE_MAG_FILTER
                                     0x2601 //GL_LINEAR
-                                } 
+                                }
                             };
                             layout.float_parameters = {
                                 {
@@ -617,15 +629,15 @@ namespace EngineCore
                                 }
                             };
 
-							auto APIlayout = m_rsrc_mngr.convertGenericTextureLayout(layout);
+                            auto APIlayout = m_rsrc_mngr.convertGenericTextureLayout(layout);
 
-							auto tx_rsrcID = m_rsrc_mngr.createTexture2DAsync(
-								material_name + "_baseColor",
-								APIlayout,
-								img.image.data(),
+                            auto tx_rsrcID = m_rsrc_mngr.createTexture2DAsync(
+                                material_name + "_baseColor",
+                                APIlayout,
+                                img.image.data(),
                                 true);
 
-							textures.emplace_back(std::make_pair(TextureSemantic::ALBEDO, tx_rsrcID));
+                            textures.emplace_back(std::make_pair(TextureSemantic::ALBEDO, tx_rsrcID));
                         }
 
                         if (model->materials[material_idx].pbrMetallicRoughness.metallicRoughnessTexture.index != -1)
@@ -668,7 +680,7 @@ namespace EngineCore
                                 img.image.data(),
                                 true);
 
-							textures.emplace_back( std::make_pair(TextureSemantic::METALLIC_ROUGHNESS,tx_rsrcID) );
+                            textures.emplace_back(std::make_pair(TextureSemantic::METALLIC_ROUGHNESS, tx_rsrcID));
                         }
 
                         if (model->materials[material_idx].normalTexture.index != -1)
@@ -767,7 +779,7 @@ namespace EngineCore
 
         template<typename ResourceManagerType>
         inline std::shared_ptr<tinygltf::Model> GltfAssetComponentManager<ResourceManagerType>::addGltfAsset(
-            std::string const & gltf_filepath)
+            std::string const& gltf_filepath)
         {
             auto model = Utility::loadGltfModel(gltf_filepath);
 
@@ -780,7 +792,7 @@ namespace EngineCore
         }
 
         template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::addGltfAsset(std::string const & gltf_filepath, ModelPtr const & gltf_model)
+        inline void GltfAssetComponentManager<ResourceManagerType>::addGltfAsset(std::string const& gltf_filepath, ModelPtr const& gltf_model)
         {
             {
                 std::unique_lock<std::shared_mutex> lock(m_gltf_assets_mutex);
