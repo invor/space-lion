@@ -712,7 +712,7 @@ namespace EngineCore
             }
 
 
-            void ResourceManager::updateBufferObject(
+            WeakResource<glowl::BufferObject> ResourceManager::updateBufferObject(
                 ResourceID id,
                 GLvoid const* data,
                 GLsizeiptr byte_size)
@@ -723,11 +723,11 @@ namespace EngineCore
 
                 if (search != m_id_to_buffer_idx.end())
                 {
-                    updateBufferObject(search->second, data, byte_size);
+                    return updateBufferObject(search->second, data, byte_size);
                 }
             }
 
-            void ResourceManager::updateBufferObject(
+            WeakResource<glowl::BufferObject> ResourceManager::updateBufferObject(
                 std::string const& name,
                 GLvoid const* data,
                 GLsizeiptr byte_size)
@@ -738,16 +738,23 @@ namespace EngineCore
 
                 if (search != m_name_to_buffer_idx.end())
                 {
-                    updateBufferObject(search->second, data, byte_size);
+                    return updateBufferObject(search->second, data, byte_size);
                 }
             }
 
-            void ResourceManager::updateBufferObject(
+            WeakResource<glowl::BufferObject> ResourceManager::updateBufferObject(
                 size_t idx,
                 GLvoid const* data,
                 GLsizeiptr byte_size)
             {
-                m_buffers[idx].resource->bufferSubData(data, byte_size);
+                auto target = m_buffers[idx].resource->getTarget();
+                auto usage = m_buffers[idx].resource->getUsage();
+                m_buffers[idx].resource = std::make_unique<glowl::BufferObject>(target, data, byte_size, usage);
+
+                return WeakResource<glowl::BufferObject>(
+                    m_buffers[idx].id,
+                    m_buffers[idx].resource.get(),
+                    m_buffers[idx].state);
             }
 
             WeakResource<glowl::Texture2DArray> ResourceManager::getTexture2DArray(ResourceID id) const

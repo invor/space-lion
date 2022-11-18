@@ -685,7 +685,8 @@ namespace EngineCore
                             {
                                 try
                                 {
-                                    batch_resources.draw_commands.resource->rebuffer(data.static_mesh_drawCommands[batch]);
+                                    //batch_resources.draw_commands.resource->bufferSubData(data.static_mesh_drawCommands[batch]);
+                                    batch_resources.draw_commands = resource_mngr.updateBufferObject(batch_resources.draw_commands.id, data.static_mesh_drawCommands[batch]);
                                 }
                                 catch (glowl::BufferObjectException const& e)
                                 {

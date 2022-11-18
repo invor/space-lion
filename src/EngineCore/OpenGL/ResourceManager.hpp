@@ -289,24 +289,24 @@ namespace EngineCore
                     GLenum usage = GL_DYNAMIC_DRAW);
 
                 template<typename Container>
-                void updateBufferObject(ResourceID id, Container const& datastorage)
+                WeakResource<glowl::BufferObject> updateBufferObject(ResourceID id, Container const& datastorage)
                 {
-                    updateBufferObject(id, datastorage.data(), static_cast<GLsizeiptr>(datastorage.size() * sizeof(Container::value_type)));
+                    return updateBufferObject(id, datastorage.data(), static_cast<GLsizeiptr>(datastorage.size() * sizeof(Container::value_type)));
                 }
 
                 template<typename Container>
-                void updateBufferObject(std::string const& name, Container const& datastorage)
+                WeakResource<glowl::BufferObject> updateBufferObject(std::string const& name, Container const& datastorage)
                 {
-                    updateBufferObject(name, datastorage.data(), static_cast<GLsizeiptr>(datastorage.size() * sizeof(Container::value_type)));
+                    return updateBufferObject(name, datastorage.data(), static_cast<GLsizeiptr>(datastorage.size() * sizeof(Container::value_type)));
                 }
 
-                void updateBufferObject(
+                WeakResource<glowl::BufferObject> updateBufferObject(
                     ResourceID id,
                     GLvoid const* data,
                     GLsizeiptr byte_size
                 );
 
-                void updateBufferObject(
+                WeakResource<glowl::BufferObject> updateBufferObject(
                     std::string const& name,
                     GLvoid const* data,
                     GLsizeiptr byte_size
@@ -317,7 +317,7 @@ namespace EngineCore
 
             private:
 
-                void updateBufferObject(
+                WeakResource<glowl::BufferObject> updateBufferObject(
                     size_t idx,
                     GLvoid const* data,
                     GLsizeiptr byte_size
