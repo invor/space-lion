@@ -136,6 +136,13 @@ SET (EDITOR_FILES
         src/Editor/CameraController.hpp
         src/Editor/CameraController.cpp)
 
+SET (DX11_VERTEX_SHADER_FILES
+   resources/shaders/hlsl/static_mesh.vertex.hlsl)
+
+SET (DX11_PIXEL_SHADER_FILES
+   resources/shaders/hlsl/forward_pbr.pixel.hlsl)
+
+SET (DX11_SHADER_FILES ${DX11_VERTEX_SHADER_FILES} ${DX11_PIXEL_SHADER_FILES})
 
 add_library(SpaceLion "")
 
@@ -253,6 +260,13 @@ endif()
 
 if(USE_DX11)
 
+set_property(SOURCE ${DX11_SHADER_FILES} PROPERTY VS_SHADER_ENTRYPOINT Main)
+set_property(SOURCE ${DX11_SHADER_FILES} PROPERTY VS_SHADER_MODEL 5.0)
+set_property(SOURCE ${DX11_SHADER_FILES} PROPERTY VS_SHADER_FLAGS /Zi)
+
+set_property(SOURCE ${DX11_VERTEX_SHADER_FILES} PROPERTY VS_SHADER_TYPE Vertex)
+set_property(SOURCE ${DX11_PIXEL_SHADER_FILES} PROPERTY VS_SHADER_TYPE Pixel)
+
 SET (EXTERNAL_DXOWL_FILES
         src/External/dxowl/include/dxowl/Buffer.hpp
         src/External/dxowl/include/dxowl/RenderTarget.hpp
@@ -270,10 +284,12 @@ target_sources(SpaceLion
         ${ENGINECORE_GRAPHICS_DX11_HEADER_FILES}
         ${ENGINECORE_GRAPHICS_DX11_SOURCE_FILES}
         ${EXTERNAL_DXOWL_FILES}
+        ${DX11_SHADER_FILES}
 )
 
 source_group(EngineCore\\Graphics\\DX11 FILES ${ENGINECORE_GRAPHICS_DX11_HEADER_FILES} ${ENGINECORE_GRAPHICS_DX11_SOURCE_FILES})
 source_group(External\\dxowl\\ FILES ${EXTERNAL_DXOWL_FILES})
+source_group(Resources\\Shaders\\ FILES ${DX11_SHADER_FILES})
 
 endif()
 

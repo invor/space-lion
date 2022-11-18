@@ -7,6 +7,7 @@
 #define Dx11ResourceManager_hpp
 
 #include "../BaseResourceManager.hpp"
+#include "GenericTextureLayout.hpp"
 
 #include <dxowl/Buffer.hpp>
 #include <dxowl/Mesh.hpp>
@@ -251,6 +252,29 @@ namespace EngineCore
 	#pragma endregion
 	
 	#pragma region Create 2D textures
+				constexpr DXGI_FORMAT convertInternalFormat(uint32_t internal_format) {
+
+				}
+
+				D3D11_TEXTURE2D_DESC convertGenericTextureLayout(GenericTextureLayout texture_layout)
+				{
+					D3D11_TEXTURE2D_DESC retval;
+					retval.Width = texture_layout.width;
+					retval.Height = texture_layout.height;
+					retval.MipLevels = texture_layout.levels;
+					retval.ArraySize = texture_layout.depth;
+					retval.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+					retval.CPUAccessFlags = 0;
+					retval.SampleDesc.Count = 1;
+					retval.SampleDesc.Quality = 0;
+					retval.Usage = D3D11_USAGE_DEFAULT;
+					retval.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+					retval.CPUAccessFlags = 0;
+					retval.MiscFlags = 0;
+
+					return retval;
+				}
+
 				template<
 					typename TexelDataContainer>
 					ResourceID createTexture2DAsync(
