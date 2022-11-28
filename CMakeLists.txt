@@ -6,6 +6,13 @@ set(CMAKE_CXX_STANDARD 23)
 
 option(USE_GL "Use OpenGL graphics backend" ON)
 option(USE_DX11 "Use DirectX11 graphics backend" OFF)
+# Add compile defintion for UWP via cmake optioon
+option(UWP "Compile for UWP" OFF)
+
+if(UWP)
+add_compile_definitions(_UWP)
+#add_compile_definitions(__cplusplus_winrt)
+endif()
 
 if(USE_GL)
 

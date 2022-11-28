@@ -1,6 +1,7 @@
 #include "SimpleForwardRenderingPipeline.hpp"
 
 #include "../Frame.hpp"
+#include "CameraComponent.hpp"
 #include "MaterialComponentManager.hpp"
 #include "MeshComponentManager.hpp"
 #include "RenderTaskComponentManager.hpp"
@@ -19,6 +20,11 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 {
 	struct GeomPassData
 	{
+		struct ViewProjectionConstantBuffer {
+			Mat4x4 view_projection;
+			Mat4x4 view_inverse;
+		};
+
 		struct VSConstantBuffer
 		{
 			Mat4x4 transform;
@@ -43,6 +49,8 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 
 			ResourceID   shader_resource;
 		};
+
+		ViewProjectionConstantBuffer view_proj_buffer;
 
 		std::vector<VSConstantBuffer> vs_constant_buffer;
 
@@ -69,6 +77,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 
 		ID3D11Device4* d3d11_device;
 		ID3D11DeviceContext4* d3d11_device_context;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> view_proj_buffer;
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_state;
 
 		std::shared_ptr<WeakResource<dxowl::Texture2D>> irradiance_map; //TODO fix this hack..
@@ -79,16 +88,30 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 	};
 
 	frame.addRenderPass<GeomPassData, GeomPassResources>("GeomPass",
-		[&world,&resource_mngr](GeomPassData& data, GeomPassResources& resources)
+		[&frame, &world,&resource_mngr](GeomPassData& data, GeomPassResources& resources)
 	{
 		// obtain access to device resources
 		resources.d3d11_device = resource_mngr.getD3D11Device();
 		resources.d3d11_device_context = resource_mngr.getD3D11DeviceContext();
 
+		auto& cam_mngr = world.get<CameraComponentManager>();
 		auto& mesh_mngr = world.get<MeshComponentManager<ResourceManager>>();
 		auto& mtl_mngr = world.get<MaterialComponentManager<ResourceManager>>();
 		auto& transform_mngr = world.get<EngineCore::Common::TransformComponentManager>();
 		auto& renderTask_mngr = world.get<RenderTaskComponentManager<RenderTaskTags::StaticMesh>>();
+
+		// set camera matrices
+		Entity camera_entity = cam_mngr.getActiveCamera();
+		auto camera_idx = cam_mngr.getIndex(camera_entity).front();
+		auto camera_transform_idx = transform_mngr.getIndex(camera_entity);
+
+		data.view_proj_buffer.view_inverse = glm::transpose(transform_mngr.getWorldTransformation(camera_transform_idx));
+
+		if (frame.m_window_width != 0 && frame.m_window_height != 0) {
+			cam_mngr.setAspectRatio(camera_idx, static_cast<float>(frame.m_window_width) / static_cast<float>(frame.m_window_height));
+			cam_mngr.updateProjectionMatrix(camera_idx);
+			data.view_proj_buffer.view_projection = glm::transpose(cam_mngr.getProjectionMatrix(camera_idx) * glm::inverse(data.view_proj_buffer.view_inverse));
+		}
 
 		auto rts = renderTask_mngr.getComponentDataCopy();
 
@@ -178,6 +201,20 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 		resources.irradiance_map = std::make_unique<WeakResource<dxowl::Texture2D>>(resource_mngr.getTexture2DResource("debug_cubemap"));
 
 		//TODO create constant buffers
+		{
+			D3D11_SUBRESOURCE_DATA constantBufferData = { 0 };
+			constantBufferData.pSysMem = &(data.view_proj_buffer);
+			constantBufferData.SysMemPitch = 0;
+			constantBufferData.SysMemSlicePitch = 0;
+			const CD3D11_BUFFER_DESC constantBufferDesc(sizeof(GeomPassData::ViewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
+			winrt::check_hresult(
+				resources.d3d11_device->CreateBuffer(
+					&constantBufferDesc,
+					&constantBufferData,
+					&resources.view_proj_buffer
+				));
+		}
+
 		Microsoft::WRL::ComPtr<ID3D11Buffer> vs_constant_buffer(nullptr);
 
 		if (data.vs_constant_buffer.size() > 0)
@@ -284,6 +321,25 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 						shader->setGeometryShader(context);
 
 						shader->setPixelShader(context);
+
+						// Apply the view projection constant buffer to shaders
+						UINT offset = 0;
+						UINT constants = 16;
+						context->VSSetConstantBuffers1(
+							1,
+							1,
+							resources.view_proj_buffer.GetAddressOf(),
+							&offset,
+							&constants
+						);
+
+						context->PSSetConstantBuffers1(
+							1,
+							1,
+							resources.view_proj_buffer.GetAddressOf(),
+							&offset,
+							&constants
+						);
 					}
 					
 					// Apply the model constant buffer to the vertex shader.
@@ -304,13 +360,17 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 					);
 
 					// Draw the objects.
-					context->DrawIndexedInstanced(
-						resources.rt_resources[rt_idx].indices_cnt,   // Index count per instance.
-						2,									// Instance count.
+					context->DrawIndexed(resources.rt_resources[rt_idx].indices_cnt,   // Index count per instance.
 						resources.rt_resources[rt_idx].first_index,	// Start index location.
-						resources.rt_resources[rt_idx].base_vertex,	// Base vertex location.
-						0									// Start instance location.
+						resources.rt_resources[rt_idx].base_vertex	// Base vertex location.)
 					);
+					//context->DrawIndexedInstanced(
+					//	resources.rt_resources[rt_idx].indices_cnt,   // Index count per instance.
+					//	1,									// Instance count.
+					//	resources.rt_resources[rt_idx].first_index,	// Start index location.
+					//	resources.rt_resources[rt_idx].base_vertex,	// Base vertex location.
+					//	0									// Start instance location.
+					//);
 				}
 			}
 		}

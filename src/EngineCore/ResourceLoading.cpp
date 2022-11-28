@@ -141,7 +141,7 @@ namespace ResourceLoading
         image_layout.width = width;
         image_layout.height = height;
         image_layout.depth = 1;
-        image_layout.internal_format = 0x8058; /*GL_RGBA8*/
+        image_layout.internal_format = GenericTextureLayout::InternalFormat::RGBA8;// 0x8058; /*GL_RGBA8*/
         image_layout.format = 0x1908; /*GL_RGBA*/
         image_layout.type = 0x1401; /*GL_UNSIGNED_BYTE*/
     }
@@ -157,7 +157,7 @@ namespace ResourceLoading
         image_layout.width = imgDimX;
         image_layout.height = imgDimY;
         image_layout.depth = 1;
-        image_layout.internal_format = 0x8051; /*GL_RGB8*/
+        image_layout.internal_format = GenericTextureLayout::InternalFormat::RGB8;//0x8051; /*GL_RGB8*/
         image_layout.format = 0x1907; /*GL_RGB*/
         image_layout.type = 0x1401; /*GL_UNSIGNED_BYTE*/
 
@@ -175,7 +175,7 @@ namespace ResourceLoading
         image_layout.width = imgDimX;
         image_layout.height = imgDimY;
         image_layout.depth = 1;
-        image_layout.internal_format = 0x8058; /*GL_RGBA8*/
+        image_layout.internal_format = GenericTextureLayout::InternalFormat::RGBA8;//0x8058; /*GL_RGBA8*/
         image_layout.format = 0x1908; /*GL_RGBA*/
         image_layout.type = 0x1401; /*GL_UNSIGNED_BYTE*/
 

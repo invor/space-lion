@@ -111,11 +111,207 @@ namespace EngineCore
                     return retval;
                 }
 
+                constexpr GLenum convertInternalFormat(GenericTextureLayout::InternalFormat internal_format) {
+                    GLenum retval;
+
+                    switch (internal_format)
+                    {
+                    case GenericTextureLayout::InternalFormat::R8:
+                        retval = GL_R8;
+                        break;
+                    case GenericTextureLayout::InternalFormat::R8_SNORM:
+                        retval = GL_R8_SNORM;
+                        break;
+                    case GenericTextureLayout::InternalFormat::R16:
+                        retval = GL_R16;
+                        break;
+                    case GenericTextureLayout::InternalFormat::R16_SNORM:
+                        retval = GL_R16_SNORM;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RG8:
+                        retval = GL_RG8;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RG8_SNORM:
+                        retval = GL_RG8_SNORM;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RG16:
+                        retval = GL_RG16;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RG16_SNORM:
+                        retval = GL_RG16_SNORM;
+                        break;
+                    case GenericTextureLayout::InternalFormat::R3_G3_B2:
+                        retval = GL_R3_G3_B2;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB4:
+                        retval = GL_RGB4;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB5:
+                        retval = GL_RGB5;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB8:
+                        retval = GL_RGB8;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB8_SNORM:
+                        retval = GL_RGB8_SNORM;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB10:
+                        retval = GL_RGB10;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB12:
+                        retval = GL_RGB12;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB16_SNORM:
+                        retval = GL_RGB16_SNORM;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGBA2:
+                        retval = GL_RGBA2;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGBA4:
+                        retval = GL_RGBA4;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB5_A1:
+                        retval = GL_RGB5_A1;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGBA8:
+                        retval = GL_RGBA8;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGBA8_SNORM:
+                        retval = GL_RGBA8_SNORM;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB10_A2:
+                        retval = GL_RGB10_A2;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB10_A2UI:
+                        retval = GL_RGB10_A2UI;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGBA12:
+                        retval = GL_RGBA12;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGBA16:
+                        retval = GL_RGBA16;
+                        break;
+                    case GenericTextureLayout::InternalFormat::SRGB8:
+                        retval = GL_SRGB8;
+                        break;
+                    case GenericTextureLayout::InternalFormat::SRGB8_ALPHA8:
+                        retval = GL_SRGB8_ALPHA8;
+                        break;
+                    case GenericTextureLayout::InternalFormat::R16F:
+                        retval = GL_R16F;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RG16F:
+                        retval = GL_RG16F;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB16F:
+                        retval = GL_RGB16F;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGBA16F:
+                        retval = GL_RGBA16F;
+                        break;
+                    case GenericTextureLayout::InternalFormat::R32F:
+                        retval = GL_R32F;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RG32F:
+                        retval = GL_RG32F;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB32F:
+                        retval = GL_RGB32F;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGBA32F:
+                        retval = GL_RGBA32F;
+                        break;
+                    case GenericTextureLayout::InternalFormat::R11F_G11F_B10F:
+                        retval = GL_R11F_G11F_B10F;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB9_E5:
+                        retval = GL_RGB9_E5;
+                        break;
+                    case GenericTextureLayout::InternalFormat::R8I:
+                        retval = GL_R8I;
+                        break;
+                    case GenericTextureLayout::InternalFormat::R8UI:
+                        retval = GL_R8UI;
+                        break;
+                    case GenericTextureLayout::InternalFormat::R16I:
+                        retval = GL_R16I;
+                        break;
+                    case GenericTextureLayout::InternalFormat::R16UI:
+                        retval = GL_R16UI;
+                        break;
+                    case GenericTextureLayout::InternalFormat::R32I:
+                        retval = GL_R32I;
+                        break;
+                    case GenericTextureLayout::InternalFormat::R32UI:
+                        retval = GL_R32UI;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RG8I:
+                        retval = GL_RG8I;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RG8UI:
+                        retval = GL_RG8UI;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RG16I:
+                        retval = GL_RG16I;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RG16UI:
+                        retval = GL_RG16UI;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RG32I:
+                        retval = GL_RG32I;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RG32UI:
+                        retval = GL_RG32UI;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB8I:
+                        retval = GL_RGB8I;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB8UI:
+                        retval = GL_RGB8UI;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB16I:
+                        retval = GL_RGB16I;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB16UI:
+                        retval = GL_RGB16UI;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB32I:
+                        retval = GL_RGB32I;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGB32UI:
+                        retval = GL_RGB32UI;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGBA8I:
+                        retval = GL_RGBA8I;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGBA8UI:
+                        retval = GL_RGBA8UI;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGBA16I:
+                        retval = GL_RGBA16I;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGBA16UI:
+                        retval = GL_RGBA16UI;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGBA32I:
+                        retval = GL_RGBA32I;
+                        break;
+                    case GenericTextureLayout::InternalFormat::RGBA32UI:
+                        retval = GL_RGBA32UI;
+                        break;
+                    default:
+                        break;
+                    }
+
+                    return retval;
+                }
+
+
                 TextureLayout convertGenericTextureLayout(GenericTextureLayout texture_layout)
                 {
                     TextureLayout retval;
 
-                    retval.internal_format = texture_layout.internal_format;
+                    retval.internal_format = convertInternalFormat(texture_layout.internal_format);
                     retval.width = texture_layout.width;
                     retval.height = texture_layout.height;
                     retval.depth = texture_layout.depth;
