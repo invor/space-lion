@@ -110,7 +110,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 		if (frame.m_window_width != 0 && frame.m_window_height != 0) {
 			cam_mngr.setAspectRatio(camera_idx, static_cast<float>(frame.m_window_width) / static_cast<float>(frame.m_window_height));
 			cam_mngr.updateProjectionMatrix(camera_idx);
-			data.view_proj_buffer.view_projection = glm::transpose(cam_mngr.getProjectionMatrix(camera_idx) * glm::inverse(data.view_proj_buffer.view_inverse));
+			data.view_proj_buffer.view_projection = glm::transpose(cam_mngr.getProjectionMatrix(camera_idx) * glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx)));
 		}
 
 		auto rts = renderTask_mngr.getComponentDataCopy();

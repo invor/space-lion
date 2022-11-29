@@ -175,6 +175,11 @@ namespace EngineCore
                             retval.attributes.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 });
                             ++input_slot;
                         }
+						else if (attrib.semantic_name == "TANGENT" /* TODO: also check if other attribute porperties match, i.e. 3 GL_FLOAT for the normal*/)
+						{
+							retval.attributes.push_back({ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+							++input_slot;
+						}
                         else if (attrib.semantic_name == "POSITION")
                         {
                             retval.attributes.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 });
@@ -445,9 +450,9 @@ namespace EngineCore
 					retval.SampleDesc.Count = 1;
 					retval.SampleDesc.Quality = 0;
 					retval.Usage = D3D11_USAGE_DEFAULT;
-					retval.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+					retval.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 					retval.CPUAccessFlags = 0;
-					retval.MiscFlags = 0;
+					retval.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
 					return retval;
 				}
