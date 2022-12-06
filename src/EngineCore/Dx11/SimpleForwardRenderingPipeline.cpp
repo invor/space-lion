@@ -1,6 +1,6 @@
 #include "SimpleForwardRenderingPipeline.hpp"
 
-#include "../Frame.hpp"
+#include "../Dx11/Dx11Frame.hpp"
 #include "CameraComponent.hpp"
 #include "MaterialComponentManager.hpp"
 #include "MeshComponentManager.hpp"
@@ -14,7 +14,7 @@
 #include <dxowl/ShaderProgram.hpp>
 
 void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
-    EngineCore::Common::Frame & frame,
+    EngineCore::Graphics::Dx11::Frame & frame,
     WorldState& world,
     ResourceManager& resource_mngr)
 {
@@ -255,11 +255,32 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 			}
 		}
 	},
-		[&world,&resource_mngr](GeomPassData const& data, GeomPassResources const& resources)
+		[&frame = std::as_const(frame), &resource_mngr](GeomPassData const& data, GeomPassResources const& resources)
 	{
 		// obtain context for rendering
-		const auto context = resources.d3d11_device_context;
+		const auto device_context = resources.d3d11_device_context;
 		const auto device = resources.d3d11_device;
+
+		// clear render target here
+		{
+			CD3D11_VIEWPORT viewport(
+				0.0, 0.0, (float)frame.m_window_width, (float)frame.m_window_height);
+			device_context->RSSetViewports(1, &viewport);
+
+			auto render_target_view = frame.m_render_target_view;
+			auto depth_stencil_view = frame.m_depth_stencil_view;
+
+			const float clear_color[4] = { 1.0f, 0.2f, 0.4f, 1.0f };
+			const float clear_depth = 1.0f;
+
+			// Clear swapchain and depth buffer. NOTE: This will clear the entire render target view, not just the specified view.
+			device_context->ClearRenderTargetView(render_target_view, clear_color);
+			device_context->ClearDepthStencilView(depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, clear_depth, 0);
+			//device_context->OMSetDepthStencilState(reversedZ ? m_reversedZDepthNoStencilTest.get() : nullptr, 0);
+
+			ID3D11RenderTargetView* renderTargets[] = { render_target_view };
+			device_context->OMSetRenderTargets((UINT)std::size(renderTargets), renderTargets, depth_stencil_view);
+		}
 
 		//TODO raise depth buffer resoltion
 		D3D11_RASTERIZER_DESC desc;
@@ -272,18 +293,18 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizer_state;
 		device->CreateRasterizerState(&desc, &rasterizer_state);
 		
-		context->RSSetState(rasterizer_state.Get());
+		device_context->RSSetState(rasterizer_state.Get());
 
-		context->OMSetDepthStencilState(nullptr, 0);
+		device_context->OMSetDepthStencilState(nullptr, 0);
 
-		context->OMSetBlendState(nullptr, nullptr, UINT_MAX);
+		device_context->OMSetBlendState(nullptr, nullptr, UINT_MAX);
 
 		// Set shader texture resource and sampler state in the pixel shader.
 
 		if (resources.irradiance_map->state == READY)
 		{
-			context->PSSetSamplers(0, 1, resources.sampler_state.GetAddressOf());
-			context->PSSetShaderResources(0, 1, resources.irradiance_map->resource->getShaderResourceView().GetAddressOf());
+			device_context->PSSetSamplers(0, 1, resources.sampler_state.GetAddressOf());
+			device_context->PSSetShaderResources(0, 1, resources.irradiance_map->resource->getShaderResourceView().GetAddressOf());
 		}
 
 		ResourceID current_mesh = resource_mngr.invalidResourceID();
@@ -304,28 +325,28 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 					{
 						current_mesh = resources.rt_resources[rt_idx].mesh.id;
 
-						mesh->setVertexBuffers(context, 0);
-						mesh->setIndexBuffer(context, 0);
+						mesh->setVertexBuffers(device_context, 0);
+						mesh->setIndexBuffer(device_context, 0);
 
-						context->IASetPrimitiveTopology(mesh->getPrimitiveTopology());
+						device_context->IASetPrimitiveTopology(mesh->getPrimitiveTopology());
 					}
 
 					if (current_shader.value() != resources.rt_resources[rt_idx].shader_prgm.id.value())
 					{
 						current_shader = resources.rt_resources[rt_idx].shader_prgm.id;
 
-						shader->setInputLayout(context);
+						shader->setInputLayout(device_context);
 
-						shader->setVertexShader(context);
+						shader->setVertexShader(device_context);
 
-						shader->setGeometryShader(context);
+						shader->setGeometryShader(device_context);
 
-						shader->setPixelShader(context);
+						shader->setPixelShader(device_context);
 
 						// Apply the view projection constant buffer to shaders
 						UINT offset = 0;
 						UINT constants = 16;
-						context->VSSetConstantBuffers1(
+						device_context->VSSetConstantBuffers1(
 							1,
 							1,
 							resources.view_proj_buffer.GetAddressOf(),
@@ -333,7 +354,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 							&constants
 						);
 
-						context->PSSetConstantBuffers1(
+						device_context->PSSetConstantBuffers1(
 							1,
 							1,
 							resources.view_proj_buffer.GetAddressOf(),
@@ -343,7 +364,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 					}
 					
 					// Apply the model constant buffer to the vertex shader.
-					context->VSSetConstantBuffers1(
+					device_context->VSSetConstantBuffers1(
 						0,
 						1,
 						resources.rt_resources[rt_idx].vs_constant_buffer.GetAddressOf(),
@@ -351,7 +372,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 						&resources.rt_resources[rt_idx].vs_constant_buffer_constants
 					);
 
-					context->PSSetConstantBuffers1(
+					device_context->PSSetConstantBuffers1(
 						0,
 						1,
 						resources.rt_resources[rt_idx].vs_constant_buffer.GetAddressOf(),
@@ -360,7 +381,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 					);
 
 					// Draw the objects.
-					context->DrawIndexed(resources.rt_resources[rt_idx].indices_cnt,   // Index count per instance.
+					device_context->DrawIndexed(resources.rt_resources[rt_idx].indices_cnt,   // Index count per instance.
 						resources.rt_resources[rt_idx].first_index,	// Start index location.
 						resources.rt_resources[rt_idx].base_vertex	// Base vertex location.)
 					);
@@ -397,7 +418,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 
 			device->CreateBlendState(&desc, transparency_blend_state.GetAddressOf());
 
-			context->OMSetBlendState(transparency_blend_state.Get(), nullptr, UINT_MAX);
+			device_context->OMSetBlendState(transparency_blend_state.Get(), nullptr, UINT_MAX);
 		}
 
 		// loop over transparent opaque render tasks
@@ -415,27 +436,27 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 					{
 						current_mesh = resources.transparency_rt_resources[rt_idx].mesh.id;
 
-						mesh->setVertexBuffers(context, 0);
-						mesh->setIndexBuffer(context, 0);
+						mesh->setVertexBuffers(device_context, 0);
+						mesh->setIndexBuffer(device_context, 0);
 
-						context->IASetPrimitiveTopology(mesh->getPrimitiveTopology());
+						device_context->IASetPrimitiveTopology(mesh->getPrimitiveTopology());
 					}
 
 					if (current_shader.value() != resources.transparency_rt_resources[rt_idx].shader_prgm.id.value())
 					{
 						current_shader = resources.transparency_rt_resources[rt_idx].shader_prgm.id;
 
-						shader->setInputLayout(context);
+						shader->setInputLayout(device_context);
 
-						shader->setVertexShader(context);
+						shader->setVertexShader(device_context);
 
-						shader->setGeometryShader(context);
+						shader->setGeometryShader(device_context);
 
-						shader->setPixelShader(context);
+						shader->setPixelShader(device_context);
 					}
 
 					// Apply the model constant buffer to the vertex shader.
-					context->VSSetConstantBuffers1(
+					device_context->VSSetConstantBuffers1(
 						0,
 						1,
 						resources.transparency_rt_resources[rt_idx].vs_constant_buffer.GetAddressOf(),
@@ -443,7 +464,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 						&resources.transparency_rt_resources[rt_idx].vs_constant_buffer_constants
 					);
 
-					context->PSSetConstantBuffers1(
+					device_context->PSSetConstantBuffers1(
 						0,
 						1,
 						resources.transparency_rt_resources[rt_idx].vs_constant_buffer.GetAddressOf(),
@@ -452,7 +473,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 					);
 
 					// Draw the objects.
-					context->DrawIndexedInstanced(
+					device_context->DrawIndexedInstanced(
 						resources.transparency_rt_resources[rt_idx].indices_cnt,   // Index count per instance.
 						2,									// Instance count.
 						resources.transparency_rt_resources[rt_idx].first_index,	// Start index location.
@@ -464,7 +485,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 		}
 
 		// clear geometry shader to not confuse other renderings
-		context->GSSetShader(
+		device_context->GSSetShader(
 			nullptr,
 			nullptr,
 			0

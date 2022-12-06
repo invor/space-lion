@@ -113,7 +113,6 @@ namespace EngineCore
 
             WeakResource<Texture3D> getTexture3DResource(std::string name);
 
-
             static ResourceID invalidResourceID() {
                 return ResourceID();
             }

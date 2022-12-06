@@ -115,6 +115,7 @@ SET (ENGINECORE_GRAPHICS_GL_SOURCE_FILES
         src/EngineCore/OpenGL/SkinnedMeshRenderPass.cpp)
 
 SET (ENGINECORE_GRAPHICS_DX11_HEADER_FILES
+        src/EngineCore/Dx11/Dx11Frame.hpp
         src/EngineCore/Dx11/SimpleForwardRenderingPipeline.hpp
         src/EngineCore/Dx11/ResourceManager.hpp)
 
