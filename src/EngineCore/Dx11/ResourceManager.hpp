@@ -162,11 +162,11 @@ namespace EngineCore
                  * Create a DirectX vertex description from the generic vertex layout struct, assuming it contains an
                  * OpenGL-sytle layout description, because is was created from a gltf file
                  */
-                VertexLayout convertGenericGltfVertexLayout(GenericVertexLayout vertex_layout)
+                VertexLayout convertGenericGltfVertexLayout(GenericVertexLayout vertex_layout, UINT base_input_slot = 0)
                 {
                     VertexLayout retval;
 
-                    UINT input_slot = 0;
+					UINT input_slot = base_input_slot;
 
                     for (auto attrib : vertex_layout.attributes)
                     {
@@ -177,7 +177,7 @@ namespace EngineCore
                         }
 						else if (attrib.semantic_name == "TANGENT" /* TODO: also check if other attribute porperties match, i.e. 3 GL_FLOAT for the normal*/)
 						{
-							retval.attributes.push_back({ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+							retval.attributes.push_back({ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 							++input_slot;
 						}
                         else if (attrib.semantic_name == "POSITION")

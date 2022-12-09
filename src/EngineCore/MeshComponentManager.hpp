@@ -123,9 +123,11 @@ namespace EngineCore
             // convert generic vertex and index descriptions to API-sepecific data types
             std::shared_ptr<std::vector<typename ResourceManagerType::VertexLayout>> vertex_layouts
                 = std::make_shared<std::vector<typename ResourceManagerType::VertexLayout>>();
+            unsigned int base_input_slot = 0;
             for (auto& generic_vertex_layout : (*generic_vertex_layouts))
             {
-                vertex_layouts->push_back(m_resource_mngr->convertGenericGltfVertexLayout(generic_vertex_layout));
+                vertex_layouts->push_back(m_resource_mngr->convertGenericGltfVertexLayout(generic_vertex_layout, base_input_slot));
+                ++base_input_slot;
             }
             auto index_type = m_resource_mngr->convertGenericIndexType(generic_index_type);
 
