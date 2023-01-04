@@ -252,7 +252,7 @@ namespace Input
 
     typedef std::function<void(Event const&, HardwareState const&)> EventAction;
 
-    typedef std::function<void(HardwareStateQuery const&, std::vector<HardwareState> const&)> StateAction;
+    typedef std::function<void(HardwareStateQuery const&, std::vector<HardwareState> const&, float)> StateAction;
 
 
     /**
