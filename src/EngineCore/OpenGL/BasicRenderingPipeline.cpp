@@ -6,6 +6,7 @@
 #include "CameraComponent.hpp"
 #include "MaterialComponentManager.hpp"
 #include "MeshComponentManager.hpp"
+#include "OceanRenderPass.hpp"
 #include "PointlightComponent.hpp"
 #include "RenderTaskComponentManager.hpp"
 #include "SunlightComponentManager.hpp"
@@ -966,6 +967,9 @@ namespace EngineCore
                 // experimental: insert render pass
                 addAtmosphereRenderPass(frame, world_state, resource_mngr);
 
+                // experimental: insert render pass
+                addOceanRenderPass(frame, world_state, resource_mngr);
+
                 struct CompPassData
                 {
                     float m_camera_exposure;
@@ -979,6 +983,8 @@ namespace EngineCore
                     WeakResource<glowl::FramebufferObject> m_GBuffer;
 
                     WeakResource<glowl::FramebufferObject> atmospher_rt;
+
+                    WeakResource<glowl::FramebufferObject> ocean_rt;
                 };
 
                 // Compositing pass
@@ -1000,6 +1006,8 @@ namespace EngineCore
                         resources.m_GBuffer = resource_mngr.getFramebufferObject("GBuffer");
 
                         resources.atmospher_rt = resource_mngr.getFramebufferObject("atmosphere_rt");
+
+                        resources.ocean_rt = resource_mngr.getFramebufferObject("ocean_rt");
                     },
                     // resource setup phase
                     [&resource_mngr](CompPassData& data, CompPassResources& resources) {
@@ -1027,6 +1035,10 @@ namespace EngineCore
                         if (resources.atmospher_rt.state != READY) {
                             resources.atmospher_rt = resource_mngr.getFramebufferObject("atmosphere_rt");
                         }
+
+                        if (resources.ocean_rt.state != READY) {
+                            resources.ocean_rt = resource_mngr.getFramebufferObject("ocean_rt");
+                        }
                     },
                     // execute phase
                     [&frame](CompPassData const& data, CompPassResources const& resources) {
@@ -1051,15 +1063,11 @@ namespace EngineCore
                         resources.m_compositing_prgm.resource->setUniform("atmosphere_tx2D", 1);
                         resources.atmospher_rt.resource->bindColorbuffer(0);
 
-                        /*
-                        glActiveTexture(GL_TEXTURE1);
-                        resources.m_compositing_prgm.resource->setUniform("atmosphere_tx2D", 1);
-                        resources.m_atmosphere_target.resource->bindColorbuffer(0);
-
                         glActiveTexture(GL_TEXTURE2);
                         resources.m_compositing_prgm.resource->setUniform("ocean_tx2D", 2);
-                        resources.m_ocean_target.resource->bindColorbuffer(0);
+                        resources.ocean_rt.resource->bindColorbuffer(0);
 
+                        /*
                         glActiveTexture(GL_TEXTURE3);
                         resources.m_compositing_prgm.resource->setUniform("volume_tx2D", 3);
                         resources.m_volume_target.resource->bindColorbuffer(0);

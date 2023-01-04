@@ -208,7 +208,7 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
                 "atmosphere",
                 { 
                     { "../space-lion/resources/shaders/sky/atmosphere_v.glsl", glowl::GLSLProgram::ShaderType::Vertex},
-                    {"../space-lion/resources/shaders/sky/atmosphere_f.glsl", glowl::GLSLProgram::ShaderType::Fragment}
+                    { "../space-lion/resources/shaders/sky/atmosphere_f.glsl", glowl::GLSLProgram::ShaderType::Fragment}
                 });
 
             // get atmosphere proxy mesh

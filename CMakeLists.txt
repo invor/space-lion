@@ -75,6 +75,7 @@ SET (ENGINECORE_GRAPHICS_HEADER_FILES
         src/EngineCore/gltfAssetComponentManager.hpp
         src/EngineCore/MaterialComponentManager.hpp
         src/EngineCore/MeshComponentManager.hpp
+        src/EngineCore/OceanComponent.hpp
         src/EngineCore/PointlightComponent.hpp
         src/EngineCore/RenderPass.hpp
         src/EngineCore/RenderTaskComponentManager.hpp
@@ -90,6 +91,7 @@ SET (ENGINECORE_GRAPHICS_SOURCE_FILES
         src/EngineCore/gltfAssetComponentManager.cpp
         src/EngineCore/MaterialComponentManager.cpp
         src/EngineCore/MeshComponentManager.cpp
+        src/EngineCore/OceanComponent.cpp
         src/EngineCore/PointlightComponent.cpp
         src/EngineCore/RenderPass.cpp
         src/EngineCore/RenderTaskComponentManager.cpp
@@ -103,6 +105,7 @@ SET (ENGINECORE_GRAPHICS_GL_HEADER_FILES
         src/EngineCore/OpenGL/BasicRenderingPipeline.hpp
         src/EngineCore/OpenGL/GraphicsBackend.hpp
 	#src/EngineCore/OpenGL/LandscapeSystems.hpp
+        src/EngineCore/OpenGL/OceanRenderPass.hpp
         src/EngineCore/OpenGL/ResourceManager.hpp
         src/EngineCore/OpenGL/SkinnedMeshRenderPass.hpp)
 
@@ -111,6 +114,7 @@ SET (ENGINECORE_GRAPHICS_GL_SOURCE_FILES
         src/EngineCore/OpenGL/BasicRenderingPipeline.cpp
         src/EngineCore/OpenGL/GraphicsBackend.cpp
 	#src/EngineCore/OpenGL/LandscapeSystems.cpp
+        src/EngineCore/OpenGL/OceanRenderPass.cpp
         src/EngineCore/OpenGL/ResourceManager.cpp
         src/EngineCore/OpenGL/SkinnedMeshRenderPass.cpp)
 

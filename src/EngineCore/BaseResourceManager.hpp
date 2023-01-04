@@ -28,6 +28,8 @@ namespace EngineCore
         */
         struct ResourceID
         {
+            ResourceID() : m_id((std::numeric_limits<unsigned int>::max)()) {}
+
             inline unsigned int value() const { return m_id; }
 
             inline bool operator==(const ResourceID& rhs) const { return m_id == rhs.value(); }
@@ -38,7 +40,6 @@ namespace EngineCore
             template<typename ResourceType>
             friend struct WeakResource;
         private:
-            ResourceID() : m_id((std::numeric_limits<unsigned int>::max)()) {}
             ResourceID(unsigned int id) : m_id(id) {}
             unsigned int m_id;
         };

@@ -171,10 +171,12 @@ namespace EngineCore
                     case glowl::GLSLProgram::ShaderType::Compute:
                         compute_src = shader_src;
 
-                        cs_define_insertion = compute_src.find("#version"); // find beginning of shader, i.e. version statement
-                        cs_define_insertion = compute_src.find("\n", cs_define_insertion); // go to end of that line
-                        cs_define_insertion += 2; // and move to the next line
-                        compute_src.insert(cs_define_insertion, additional_cs_defines);
+                        if (!compute_src.empty()) {
+                            cs_define_insertion = compute_src.find("#version"); // find beginning of shader, i.e. version statement
+                            cs_define_insertion = compute_src.find("\n", cs_define_insertion); // go to end of that line
+                            cs_define_insertion += 2; // and move to the next line
+                            compute_src.insert(cs_define_insertion, additional_cs_defines);
+                        }
 
                         break;
                     default:

@@ -97,7 +97,7 @@ namespace EngineCore
                 /**
                  * Assuming the "generic" vertex layout to use GL values due to glTF usage
                  */
-                VertexLayout convertGenericGltfVertexLayout(GenericVertexLayout vertex_layout)
+                VertexLayout convertGenericGltfVertexLayout(GenericVertexLayout vertex_layout, size_t base_input_slot = 0/* not relevant for GL, comes from DX*/)
                 {
                     VertexLayout retval;
 

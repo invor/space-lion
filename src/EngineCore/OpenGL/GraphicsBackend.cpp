@@ -417,7 +417,7 @@ namespace EngineCore
                                     }
                                 }
 
-                                state_action.m_action(state_action.m_state_query, states);
+                                state_action.m_action(state_action.m_state_query, states, dt);
 
                             }
                         }
