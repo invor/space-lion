@@ -287,9 +287,11 @@ SET (EXTERNAL_IMGUI_FILES
         src/External/imgui/imgui.cpp
         src/External/imgui/imgui_demo.cpp
         src/External/imgui/imgui_draw.cpp
+        src/External/imgui/imgui_internal.h
+        src/External/imgui/imgui_tables.cpp
         src/External/imgui/imgui_widgets.cpp
-        src/External/imgui/examples/imgui_impl_dx11.h
-        src/External/imgui/examples/imgui_impl_dx11.cpp
+        src/External/imgui/backends/imgui_impl_dx11.h
+        src/External/imgui/backends/imgui_impl_dx11.cpp
         src/External/imgui/imstb_rectpack.h
         src/External/imgui/imstb_textedit.h
         src/External/imgui/imstb_truetype.h
