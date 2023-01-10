@@ -18,6 +18,7 @@ namespace EngineCore
     {
         namespace RenderTaskTags{
             struct StaticMesh {};
+            struct Unlit {};
         }
 
         template<typename TagType>

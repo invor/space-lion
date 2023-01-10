@@ -492,6 +492,12 @@ namespace EngineCore
 
 	#pragma endregion
 
+	#pragma region Access resources
+
+				WeakResource<dxowl::RenderTarget> getRenderTarget(std::string const& name) const;
+
+	#pragma endregion
+
 			private:
 
 				ID3D11Device4* m_d3d11_device;
@@ -732,6 +738,24 @@ namespace EngineCore
 				});
 
 				return m_render_targets[idx].id;
+			}
+
+			inline WeakResource<dxowl::RenderTarget> ResourceManager::getRenderTarget(std::string const& name) const
+			{
+				std::shared_lock<std::shared_mutex> rt_lock(m_renderTargets_mutex);
+
+				auto search = m_name_to_renderTarget_idx.find(name);
+
+				WeakResource<dxowl::RenderTarget> retval(invalidResourceID(), nullptr, NOT_READY);
+
+				if(search != m_name_to_renderTarget_idx.end())
+				{
+					retval.id = m_render_targets[search->second].id;
+					retval.resource = m_render_targets[search->second].resource.get();
+					retval.state = m_render_targets[search->second].state;
+				}
+
+				return retval;
 			}
 
 		}

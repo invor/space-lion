@@ -20,12 +20,13 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 {
 	struct GeomPassData
 	{
-		struct ViewProjectionConstantBuffer {
+		struct ViewProjectionConstantBuffer
+		{
 			Mat4x4 view_projection;
 			Mat4x4 view_inverse;
 		};
 
-		struct VSConstantBuffer
+		struct StaticMeshConstantBuffer
 		{
 			Mat4x4 transform;
 
@@ -40,6 +41,11 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 			Mat4x4 padding2;
 		};
 
+		struct UnlitMeshConstantBuffer
+		{
+			Mat4x4 transform;
+		};
+
 		struct RenderTaskData
 		{
 			ResourceID   mesh_resource;
@@ -48,13 +54,18 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 			unsigned int base_vertex;
 
 			ResourceID   shader_resource;
+
+			std::vector<ResourceID> textures;
 		};
 
 		ViewProjectionConstantBuffer view_proj_buffer;
 
-		std::vector<VSConstantBuffer> vs_constant_buffer;
+		std::vector<StaticMeshConstantBuffer> static_mesh_constant_buffers;
 
-		std::vector<RenderTaskData> rt_data;
+		std::vector<RenderTaskData> static_mesh_render_task_data;
+
+		std::vector<UnlitMeshConstantBuffer> unlit_constant_buffer;
+		std::vector<RenderTaskData> unlit_render_task_data;
 
 		size_t opaque_objs_cnt;
 		size_t transparent_objs_cnt;
@@ -64,11 +75,12 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 	{
 		struct BatchResources
 		{
-			WeakResource<dxowl::ShaderProgram>   shader_prgm;
-			Microsoft::WRL::ComPtr<ID3D11Buffer> vs_constant_buffer;
-			UINT                                 vs_constant_buffer_offset;
-			UINT                                 vs_constant_buffer_constants;
-			WeakResource<dxowl::Mesh>            mesh;
+			WeakResource<dxowl::ShaderProgram>            shader_prgm;
+			Microsoft::WRL::ComPtr<ID3D11Buffer>          vs_constant_buffer;
+			UINT                                          vs_constant_buffer_offset;
+			UINT                                          vs_constant_buffer_constants;
+			WeakResource<dxowl::Mesh>                     mesh;
+			std::vector < WeakResource<dxowl::Texture2D>> textures;
 
 			unsigned int indices_cnt;
 			unsigned int first_index;
@@ -82,7 +94,9 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 
 		std::shared_ptr<WeakResource<dxowl::Texture2D>> irradiance_map; //TODO fix this hack..
 
-		std::vector<BatchResources> rt_resources;
+		std::vector<BatchResources> static_mesh_render_task_resources;
+
+		std::vector<BatchResources> unlit_render_task_resources;
 
 		std::vector<BatchResources> transparency_rt_resources;
 	};
@@ -98,7 +112,8 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 		auto& mesh_mngr = world.get<MeshComponentManager<ResourceManager>>();
 		auto& mtl_mngr = world.get<MaterialComponentManager<ResourceManager>>();
 		auto& transform_mngr = world.get<EngineCore::Common::TransformComponentManager>();
-		auto& renderTask_mngr = world.get<RenderTaskComponentManager<RenderTaskTags::StaticMesh>>();
+		auto& staticMesh_renderTask_mngr = world.get<RenderTaskComponentManager<RenderTaskTags::StaticMesh>>();
+		auto& unlit_renderTask_mngr = world.get<RenderTaskComponentManager<RenderTaskTags::Unlit>>();
 
 		// set camera matrices
 		Entity camera_entity = cam_mngr.getActiveCamera();
@@ -113,17 +128,17 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 			data.view_proj_buffer.view_projection = glm::transpose(cam_mngr.getProjectionMatrix(camera_idx) * glm::inverse(transform_mngr.getWorldTransformation(camera_transform_idx)));
 		}
 
-		auto rts = renderTask_mngr.getComponentDataCopy();
+		auto static_mesh_rts = staticMesh_renderTask_mngr.getComponentDataCopy();
 
-		data.vs_constant_buffer.reserve(rts.size());
-		data.rt_data.reserve(rts.size());
+		data.static_mesh_constant_buffers.reserve(static_mesh_rts.size());
+		data.static_mesh_render_task_data.reserve(static_mesh_rts.size());
 
 		data.opaque_objs_cnt = 0;
 		data.transparent_objs_cnt = 0;
 
-		for (auto const& rt : rts)
+		for (auto const& rt : static_mesh_rts)
 		{
-			data.vs_constant_buffer.push_back(GeomPassData::VSConstantBuffer());
+			data.static_mesh_constant_buffers.push_back(GeomPassData::StaticMeshConstantBuffer());
 
 			auto mtl_idx = mtl_mngr.getIndex(rt.entity);
 			if (!mtl_idx.empty())
@@ -132,9 +147,9 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 				auto specular_colour = mtl_mngr.getSpecularColour(mtl_idx[rt.mtl_component_subidx]);
 				auto roughness = mtl_mngr.getRoughness(mtl_idx[rt.mtl_component_subidx]);
 
-				data.vs_constant_buffer.back().albedo_colour = Vec4(albedo_colour[0], albedo_colour[1], albedo_colour[2], albedo_colour[3]);
-				data.vs_constant_buffer.back().specular_colour = Vec4(specular_colour[0], specular_colour[1], specular_colour[2], specular_colour[3]);
-				data.vs_constant_buffer.back().roughness = roughness;
+				data.static_mesh_constant_buffers.back().albedo_colour = Vec4(albedo_colour[0], albedo_colour[1], albedo_colour[2], albedo_colour[3]);
+				data.static_mesh_constant_buffers.back().specular_colour = Vec4(specular_colour[0], specular_colour[1], specular_colour[2], specular_colour[3]);
+				data.static_mesh_constant_buffers.back().roughness = roughness;
 
 				if (albedo_colour[3] > 0.999f){
 					data.opaque_objs_cnt += 1;
@@ -145,23 +160,23 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 			}
 			else
 			{
-				data.vs_constant_buffer.back().albedo_colour = Vec4(1.0f, 0.0f, 1.0f, 1.0f);
-				data.vs_constant_buffer.back().specular_colour = Vec4(0.04f, 0.04f, 0.04f, 1.0f);
-				data.vs_constant_buffer.back().roughness = 1.0f;
+				data.static_mesh_constant_buffers.back().albedo_colour = Vec4(1.0f, 0.0f, 1.0f, 1.0f);
+				data.static_mesh_constant_buffers.back().specular_colour = Vec4(0.04f, 0.04f, 0.04f, 1.0f);
+				data.static_mesh_constant_buffers.back().roughness = 1.0f;
 
 				data.opaque_objs_cnt += 1;
 			}
 
 			auto transform_idx = transform_mngr.getIndex(rt.entity);
-			if(!transform_idx < (std::numeric_limits<size_t>::max)())
+			if(transform_idx < (std::numeric_limits<size_t>::max)())
 			{
-				data.vs_constant_buffer.back().transform = glm::transpose(transform_mngr.getWorldTransformation(transform_idx));
-				data.vs_constant_buffer.back().normal_matrix = glm::transpose(glm::inverse(transform_mngr.getWorldTransformation(transform_idx)));
+				data.static_mesh_constant_buffers.back().transform = glm::transpose(transform_mngr.getWorldTransformation(transform_idx));
+				data.static_mesh_constant_buffers.back().normal_matrix = glm::transpose(glm::inverse(transform_mngr.getWorldTransformation(transform_idx)));
 			}
 
 			auto mesh_comp_idx = mesh_mngr.getIndex(rt.entity);
 			auto draw_params = mesh_mngr.getDrawIndexedParams(mesh_comp_idx[rt.mesh_component_subidx]);
-			data.rt_data.push_back(
+			data.static_mesh_render_task_data.push_back(
 				{
 					rt.mesh,
 					std::get<0>(draw_params),
@@ -171,6 +186,40 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 				}
 			);
 		}
+
+		// gather data for unlit objects
+		auto unlit_rts = unlit_renderTask_mngr.getComponentDataCopy();
+		
+		data.unlit_constant_buffer.reserve(unlit_rts.size());
+		data.unlit_render_task_data.reserve(unlit_rts.size());
+		
+		for (auto const& rt : unlit_rts)
+		{
+			data.unlit_constant_buffer.push_back(GeomPassData::UnlitMeshConstantBuffer());
+
+			auto transform_idx = transform_mngr.getIndex(rt.entity);
+			if (transform_idx < (std::numeric_limits<size_t>::max)())
+			{
+				data.unlit_constant_buffer.back().transform = glm::transpose(transform_mngr.getWorldTransformation(transform_idx));
+			}
+
+			auto mtl_comp_idx = mtl_mngr.getIndex(rt.entity);
+			auto texture = mtl_mngr.getTextures(mtl_comp_idx[rt.mtl_component_subidx], MaterialComponentManager<ResourceManager>::TextureSemantic::ALBEDO);
+		
+			auto mesh_comp_idx = mesh_mngr.getIndex(rt.entity);
+			auto draw_params = mesh_mngr.getDrawIndexedParams(mesh_comp_idx[rt.mesh_component_subidx]);
+			data.unlit_render_task_data.push_back(
+				{
+					rt.mesh,
+					std::get<0>(draw_params),
+					std::get<1>(draw_params),
+					std::get<2>(draw_params),
+					rt.shader_prgm,
+					{ texture }
+				}
+			);
+		}
+
 	},
 		[&world,&resource_mngr](GeomPassData& data, GeomPassResources& resources)
 	{
@@ -215,15 +264,16 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 				));
 		}
 
+		// static meshes
 		Microsoft::WRL::ComPtr<ID3D11Buffer> vs_constant_buffer(nullptr);
 
-		if (data.vs_constant_buffer.size() > 0)
+		if (data.static_mesh_constant_buffers.size() > 0)
 		{
 			D3D11_SUBRESOURCE_DATA constantBufferData = { 0 };
-			constantBufferData.pSysMem = data.vs_constant_buffer.data();
+			constantBufferData.pSysMem = data.static_mesh_constant_buffers.data();
 			constantBufferData.SysMemPitch = 0;
 			constantBufferData.SysMemSlicePitch = 0;
-			const CD3D11_BUFFER_DESC constantBufferDesc(sizeof(GeomPassData::VSConstantBuffer)*data.vs_constant_buffer.size(), D3D11_BIND_CONSTANT_BUFFER);
+			const CD3D11_BUFFER_DESC constantBufferDesc(sizeof(GeomPassData::StaticMeshConstantBuffer)*data.static_mesh_constant_buffers.size(), D3D11_BIND_CONSTANT_BUFFER);
 			winrt::check_hresult(
 				resources.d3d11_device->CreateBuffer(
 					&constantBufferDesc,
@@ -232,26 +282,99 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 				));
 		}
 		
-		resources.rt_resources.reserve(data.opaque_objs_cnt);
+		resources.static_mesh_render_task_resources.reserve(data.opaque_objs_cnt);
 		resources.transparency_rt_resources.reserve(data.transparent_objs_cnt);
 
-		for (size_t rt_idx = 0; rt_idx < data.rt_data.size(); ++rt_idx)
+		for (size_t rt_idx = 0; rt_idx < data.static_mesh_render_task_data.size(); ++rt_idx)
 		{
-			if (data.vs_constant_buffer[rt_idx].albedo_colour.w > 0.99f) // opaque obj
+			if (data.static_mesh_constant_buffers[rt_idx].albedo_colour.w > 0.99f) // opaque obj
 			{
-				WeakResource<dxowl::ShaderProgram>	shader_prgm = resource_mngr.getShaderProgramResource(data.rt_data[rt_idx].shader_resource);
+				WeakResource<dxowl::ShaderProgram>	shader_prgm = resource_mngr.getShaderProgramResource(data.static_mesh_render_task_data[rt_idx].shader_resource);
 
-				WeakResource<dxowl::Mesh> mesh = resource_mngr.getMeshResource(data.rt_data[rt_idx].mesh_resource);;
+				WeakResource<dxowl::Mesh> mesh = resource_mngr.getMeshResource(data.static_mesh_render_task_data[rt_idx].mesh_resource);;
 
-				resources.rt_resources.push_back({ shader_prgm ,vs_constant_buffer, static_cast<UINT>(rt_idx) * 16, 16, mesh, data.rt_data[rt_idx].indices_cnt, data.rt_data[rt_idx].first_index, data.rt_data[rt_idx].base_vertex });
+				resources.static_mesh_render_task_resources.push_back(
+					{
+						shader_prgm,
+						vs_constant_buffer,
+						static_cast<UINT>(rt_idx) * 16,
+						16,
+						mesh,
+						{},
+						data.static_mesh_render_task_data[rt_idx].indices_cnt,
+						data.static_mesh_render_task_data[rt_idx].first_index,
+						data.static_mesh_render_task_data[rt_idx].base_vertex 
+					}
+				);
 			}
 			else  // transparent obj
 			{
-				WeakResource<dxowl::ShaderProgram>	shader_prgm = resource_mngr.getShaderProgramResource(data.rt_data[rt_idx].shader_resource);
+				WeakResource<dxowl::ShaderProgram>	shader_prgm = resource_mngr.getShaderProgramResource(data.static_mesh_render_task_data[rt_idx].shader_resource);
 
-				WeakResource<dxowl::Mesh> mesh = resource_mngr.getMeshResource(data.rt_data[rt_idx].mesh_resource);;
+				WeakResource<dxowl::Mesh> mesh = resource_mngr.getMeshResource(data.static_mesh_render_task_data[rt_idx].mesh_resource);;
 
-				resources.transparency_rt_resources.push_back({ shader_prgm ,vs_constant_buffer, static_cast<UINT>(rt_idx) * 16, 16, mesh, data.rt_data[rt_idx].indices_cnt, data.rt_data[rt_idx].first_index, data.rt_data[rt_idx].base_vertex });
+				resources.transparency_rt_resources.push_back(
+					{
+						shader_prgm,
+						vs_constant_buffer,
+						static_cast<UINT>(rt_idx) * 16,
+						16,
+						mesh,
+						{},
+						data.static_mesh_render_task_data[rt_idx].indices_cnt,
+						data.static_mesh_render_task_data[rt_idx].first_index,
+						data.static_mesh_render_task_data[rt_idx].base_vertex
+					}
+				);
+			}
+		}
+
+		// unlit meshes
+		{
+			Microsoft::WRL::ComPtr<ID3D11Buffer> unlit_constant_buffer(nullptr);
+		
+			if (data.unlit_constant_buffer.size() > 0)
+			{
+				D3D11_SUBRESOURCE_DATA constantBufferData = { 0 };
+				constantBufferData.pSysMem = data.unlit_constant_buffer.data();
+				constantBufferData.SysMemPitch = 0;
+				constantBufferData.SysMemSlicePitch = 0;
+				const CD3D11_BUFFER_DESC constantBufferDesc(sizeof(GeomPassData::StaticMeshConstantBuffer) * data.unlit_constant_buffer.size(), D3D11_BIND_CONSTANT_BUFFER);
+				winrt::check_hresult(
+					resources.d3d11_device->CreateBuffer(
+						&constantBufferDesc,
+						&constantBufferData,
+						&unlit_constant_buffer
+					));
+			}
+		
+			resources.unlit_render_task_resources.reserve(data.unlit_constant_buffer.size());
+		
+			for (size_t rt_idx = 0; rt_idx < data.unlit_render_task_data.size(); ++rt_idx)
+			{
+				WeakResource<dxowl::ShaderProgram>	shader_prgm = resource_mngr.getShaderProgramResource(data.unlit_render_task_data[rt_idx].shader_resource);
+		
+				WeakResource<dxowl::Mesh> mesh = resource_mngr.getMeshResource(data.unlit_render_task_data[rt_idx].mesh_resource);
+
+				std::vector<WeakResource<dxowl::Texture2D>> textures;
+				for (auto& tx : data.unlit_render_task_data[rt_idx].textures)
+				{
+					textures.push_back(resource_mngr.getTexture2DResource(tx));
+				}
+		
+				resources.unlit_render_task_resources.push_back(
+					{
+						shader_prgm,
+						unlit_constant_buffer,
+						static_cast<UINT>(rt_idx) * 16,
+						16,
+						mesh,
+						textures,
+						data.unlit_render_task_data[rt_idx].indices_cnt,
+						data.unlit_render_task_data[rt_idx].first_index,
+						data.unlit_render_task_data[rt_idx].base_vertex
+					}
+				);
 			}
 		}
 	},
@@ -312,18 +435,18 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 
 		// loop over all opaque render tasks
 		{
-			size_t rt_cnt = resources.rt_resources.size();
+			size_t rt_cnt = resources.static_mesh_render_task_resources.size();
 			for (size_t rt_idx = 0; rt_idx < rt_cnt; ++rt_idx)
 			{
-				if(resources.rt_resources[rt_idx].mesh.state == READY
-					&& resources.rt_resources[rt_idx].shader_prgm.state == READY)
+				if(resources.static_mesh_render_task_resources[rt_idx].mesh.state == READY
+					&& resources.static_mesh_render_task_resources[rt_idx].shader_prgm.state == READY)
 				{
-					dxowl::Mesh* mesh = resources.rt_resources[rt_idx].mesh.resource;
-					dxowl::ShaderProgram* shader = resources.rt_resources[rt_idx].shader_prgm.resource;
+					dxowl::Mesh* mesh = resources.static_mesh_render_task_resources[rt_idx].mesh.resource;
+					dxowl::ShaderProgram* shader = resources.static_mesh_render_task_resources[rt_idx].shader_prgm.resource;
 
-					if (current_mesh.value() != resources.rt_resources[rt_idx].mesh.id.value())
+					if (current_mesh.value() != resources.static_mesh_render_task_resources[rt_idx].mesh.id.value())
 					{
-						current_mesh = resources.rt_resources[rt_idx].mesh.id;
+						current_mesh = resources.static_mesh_render_task_resources[rt_idx].mesh.id;
 
 						mesh->setVertexBuffers(device_context, 0);
 						mesh->setIndexBuffer(device_context, 0);
@@ -331,9 +454,9 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 						device_context->IASetPrimitiveTopology(mesh->getPrimitiveTopology());
 					}
 
-					if (current_shader.value() != resources.rt_resources[rt_idx].shader_prgm.id.value())
+					if (current_shader.value() != resources.static_mesh_render_task_resources[rt_idx].shader_prgm.id.value())
 					{
-						current_shader = resources.rt_resources[rt_idx].shader_prgm.id;
+						current_shader = resources.static_mesh_render_task_resources[rt_idx].shader_prgm.id;
 
 						shader->setInputLayout(device_context);
 
@@ -367,23 +490,136 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 					device_context->VSSetConstantBuffers1(
 						0,
 						1,
-						resources.rt_resources[rt_idx].vs_constant_buffer.GetAddressOf(),
-						&resources.rt_resources[rt_idx].vs_constant_buffer_offset,
-						&resources.rt_resources[rt_idx].vs_constant_buffer_constants
+						resources.static_mesh_render_task_resources[rt_idx].vs_constant_buffer.GetAddressOf(),
+						&resources.static_mesh_render_task_resources[rt_idx].vs_constant_buffer_offset,
+						&resources.static_mesh_render_task_resources[rt_idx].vs_constant_buffer_constants
 					);
 
 					device_context->PSSetConstantBuffers1(
 						0,
 						1,
-						resources.rt_resources[rt_idx].vs_constant_buffer.GetAddressOf(),
-						&resources.rt_resources[rt_idx].vs_constant_buffer_offset,
-						&resources.rt_resources[rt_idx].vs_constant_buffer_constants
+						resources.static_mesh_render_task_resources[rt_idx].vs_constant_buffer.GetAddressOf(),
+						&resources.static_mesh_render_task_resources[rt_idx].vs_constant_buffer_offset,
+						&resources.static_mesh_render_task_resources[rt_idx].vs_constant_buffer_constants
 					);
 
 					// Draw the objects.
-					device_context->DrawIndexed(resources.rt_resources[rt_idx].indices_cnt,   // Index count per instance.
-						resources.rt_resources[rt_idx].first_index,	// Start index location.
-						resources.rt_resources[rt_idx].base_vertex	// Base vertex location.)
+					device_context->DrawIndexed(resources.static_mesh_render_task_resources[rt_idx].indices_cnt,   // Index count per instance.
+						resources.static_mesh_render_task_resources[rt_idx].first_index,	// Start index location.
+						resources.static_mesh_render_task_resources[rt_idx].base_vertex	// Base vertex location.)
+					);
+					//context->DrawIndexedInstanced(
+					//	resources.rt_resources[rt_idx].indices_cnt,   // Index count per instance.
+					//	1,									// Instance count.
+					//	resources.rt_resources[rt_idx].first_index,	// Start index location.
+					//	resources.rt_resources[rt_idx].base_vertex,	// Base vertex location.
+					//	0									// Start instance location.
+					//);
+				}
+			}
+		}
+
+		// loop over all unlit render tasks
+		{
+			size_t rt_cnt = resources.unlit_render_task_resources.size();
+			for (size_t rt_idx = 0; rt_idx < rt_cnt; ++rt_idx)
+			{
+				if (resources.unlit_render_task_resources[rt_idx].mesh.state == READY
+					&& resources.unlit_render_task_resources[rt_idx].shader_prgm.state == READY)
+				{
+					dxowl::Mesh* mesh = resources.unlit_render_task_resources[rt_idx].mesh.resource;
+					dxowl::ShaderProgram* shader = resources.unlit_render_task_resources[rt_idx].shader_prgm.resource;
+
+					if (current_mesh.value() != resources.unlit_render_task_resources[rt_idx].mesh.id.value())
+					{
+						current_mesh = resources.unlit_render_task_resources[rt_idx].mesh.id;
+
+						mesh->setVertexBuffers(device_context, 0);
+						mesh->setIndexBuffer(device_context, 0);
+
+						device_context->IASetPrimitiveTopology(mesh->getPrimitiveTopology());
+					}
+
+					if (current_shader.value() != resources.unlit_render_task_resources[rt_idx].shader_prgm.id.value())
+					{
+						current_shader = resources.unlit_render_task_resources[rt_idx].shader_prgm.id;
+
+						shader->setInputLayout(device_context);
+
+						shader->setVertexShader(device_context);
+
+						shader->setGeometryShader(device_context);
+
+						shader->setPixelShader(device_context);
+
+						// Apply the view projection constant buffer to shaders
+						UINT offset = 0;
+						UINT constants = 16;
+						device_context->VSSetConstantBuffers1(
+							1,
+							1,
+							resources.view_proj_buffer.GetAddressOf(),
+							&offset,
+							&constants
+						);
+
+						device_context->PSSetConstantBuffers1(
+							1,
+							1,
+							resources.view_proj_buffer.GetAddressOf(),
+							&offset,
+							&constants
+						);
+					}
+
+					// Apply the model constant buffer to the vertex shader.
+					device_context->VSSetConstantBuffers1(
+						0,
+						1,
+						resources.unlit_render_task_resources[rt_idx].vs_constant_buffer.GetAddressOf(),
+						&resources.unlit_render_task_resources[rt_idx].vs_constant_buffer_offset,
+						&resources.unlit_render_task_resources[rt_idx].vs_constant_buffer_constants
+					);
+
+					device_context->PSSetConstantBuffers1(
+						0,
+						1,
+						resources.unlit_render_task_resources[rt_idx].vs_constant_buffer.GetAddressOf(),
+						&resources.unlit_render_task_resources[rt_idx].vs_constant_buffer_offset,
+						&resources.unlit_render_task_resources[rt_idx].vs_constant_buffer_constants
+					);
+
+					// Set texture and sampler state
+					device_context->PSSetShaderResources(
+						0,
+						1,
+						resources.unlit_render_task_resources[rt_idx].textures.back().resource->getShaderResourceView().GetAddressOf());
+
+					// Create a sampler state for texture sampling in the pixel shader
+					Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_state;
+					D3D11_SAMPLER_DESC samplerDesc;
+					ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
+
+					samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+					samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+					samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+					samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+					samplerDesc.MipLODBias = 0.0f;
+					samplerDesc.MaxAnisotropy = 1;
+					samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+					samplerDesc.BorderColor[0] = 1.0f;
+					samplerDesc.BorderColor[1] = 1.0f;
+					samplerDesc.BorderColor[2] = 1.0f;
+					samplerDesc.BorderColor[3] = 1.0f;
+					samplerDesc.MinLOD = -FLT_MAX;
+					samplerDesc.MaxLOD = FLT_MAX;
+					device->CreateSamplerState(&samplerDesc, sampler_state.GetAddressOf());
+					device_context->PSSetSamplers(0, 1, sampler_state.GetAddressOf());
+
+					// Draw the objects.
+					device_context->DrawIndexed(resources.unlit_render_task_resources[rt_idx].indices_cnt,   // Index count per instance.
+						resources.unlit_render_task_resources[rt_idx].first_index,	// Start index location.
+						resources.unlit_render_task_resources[rt_idx].base_vertex	// Base vertex location.)
 					);
 					//context->DrawIndexedInstanced(
 					//	resources.rt_resources[rt_idx].indices_cnt,   // Index count per instance.

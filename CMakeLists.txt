@@ -149,10 +149,12 @@ SET (EDITOR_FILES
         src/Editor/CameraController.cpp)
 
 SET (DX11_VERTEX_SHADER_FILES
-   resources/shaders/hlsl/static_mesh.vertex.hlsl)
+   resources/shaders/hlsl/static_mesh.vertex.hlsl
+   resources/shaders/hlsl/static_mesh_unlit.vertex.hlsl)
 
 SET (DX11_PIXEL_SHADER_FILES
-   resources/shaders/hlsl/forward_pbr.pixel.hlsl)
+   resources/shaders/hlsl/forward_pbr.pixel.hlsl
+   resources/shaders/hlsl/textured_unlit.pixel.hlsl)
 
 SET (DX11_SHADER_FILES ${DX11_VERTEX_SHADER_FILES} ${DX11_PIXEL_SHADER_FILES})
 
@@ -279,6 +281,20 @@ set_property(SOURCE ${DX11_SHADER_FILES} PROPERTY VS_SHADER_FLAGS /Zi)
 set_property(SOURCE ${DX11_VERTEX_SHADER_FILES} PROPERTY VS_SHADER_TYPE Vertex)
 set_property(SOURCE ${DX11_PIXEL_SHADER_FILES} PROPERTY VS_SHADER_TYPE Pixel)
 
+SET (EXTERNAL_IMGUI_FILES
+        src/External/imgui/imconfig.h
+        src/External/imgui/imgui.h
+        src/External/imgui/imgui.cpp
+        src/External/imgui/imgui_demo.cpp
+        src/External/imgui/imgui_draw.cpp
+        src/External/imgui/imgui_widgets.cpp
+        src/External/imgui/examples/imgui_impl_dx11.h
+        src/External/imgui/examples/imgui_impl_dx11.cpp
+        src/External/imgui/imstb_rectpack.h
+        src/External/imgui/imstb_textedit.h
+        src/External/imgui/imstb_truetype.h
+)
+
 SET (EXTERNAL_DXOWL_FILES
         src/External/dxowl/include/dxowl/Buffer.hpp
         src/External/dxowl/include/dxowl/RenderTarget.hpp
@@ -289,17 +305,24 @@ SET (EXTERNAL_DXOWL_FILES
         src/External/dxowl/include/dxowl/VertexDescriptor.hpp
 )
 
+target_include_directories(
+        SpaceLion PUBLIC
+        "${PROJECT_SOURCE_DIR}/src/External/imgui/"
+)
+
 target_link_libraries(SpaceLion PUBLIC dxowl)
 
 target_sources(SpaceLion
     PRIVATE
         ${ENGINECORE_GRAPHICS_DX11_HEADER_FILES}
         ${ENGINECORE_GRAPHICS_DX11_SOURCE_FILES}
+        ${EXTERNAL_IMGUI_FILES}
         ${EXTERNAL_DXOWL_FILES}
         ${DX11_SHADER_FILES}
 )
 
 source_group(EngineCore\\Graphics\\DX11 FILES ${ENGINECORE_GRAPHICS_DX11_HEADER_FILES} ${ENGINECORE_GRAPHICS_DX11_SOURCE_FILES})
+source_group(External\\imgui\\ FILES ${EXTERNAL_IMGUI_FILES})
 source_group(External\\dxowl\\ FILES ${EXTERNAL_DXOWL_FILES})
 source_group(Resources\\Shaders\\ FILES ${DX11_SHADER_FILES})
 
