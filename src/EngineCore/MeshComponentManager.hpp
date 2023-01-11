@@ -47,6 +47,17 @@ namespace EngineCore
                 PrimitiveTopologyType const& mesh_type,
                 bool                                                  store_seperate = false);
 
+            void addComponent(
+                Entity const& entity,
+                std::string const& mesh_description,
+                ResourceID const& mesh_resource,
+                uint32_t    first_index,
+                uint32_t    indices_cnt,
+                uint32_t    base_vertex
+            );
+
+            ResourceID getMeshResourceID(Entity const& entity, size_t sub_idx = 0) const;
+
             std::tuple<uint32_t, uint32_t, uint32_t> getDrawIndexedParams(size_t component_index) const;
 
         private:
@@ -247,6 +258,42 @@ namespace EngineCore
             return it->mesh_resource;
         }
 
+
+        template<typename ResourceManagerType>
+        inline void MeshComponentManager<ResourceManagerType>::addComponent(
+            Entity const& entity,
+            std::string const& mesh_description,
+            ResourceID const& mesh_resource,
+            uint32_t first_index,
+            uint32_t indices_cnt,
+            uint32_t base_vertex)
+        {
+            std::unique_lock<std::shared_mutex> lock(m_data_mutex);
+
+            addIndex(entity.id(), m_component_data.size());
+            m_component_data.push_back(ComponentData(
+                entity,
+                mesh_description,
+                mesh_resource,
+                first_index,
+                indices_cnt,
+                base_vertex));
+
+        }
+
+        template<typename ResourceManagerType>
+        inline ResourceID MeshComponentManager<ResourceManagerType>::getMeshResourceID(Entity const& entity, size_t sub_idx) const
+        {
+            auto retval = ResourceID();
+
+            auto query = getIndex(entity);
+
+            if (query.size() > sub_idx) {
+                retval = m_component_data[query[sub_idx]].mesh_resource;
+            }
+
+            return retval;
+        }
 
         template<typename ResourceManagerType>
         inline std::tuple<uint32_t, uint32_t, uint32_t> MeshComponentManager<ResourceManagerType>::getDrawIndexedParams(size_t component_index) const
