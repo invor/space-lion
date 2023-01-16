@@ -19,3 +19,6 @@
 [submodule "src/External/dxowl"]
 	path = src/External/dxowl
 	url = https://github.com/invor/dxowl
+[submodule "src/External/implot"]
+	path = src/External/implot
+	url = https://github.com/epezent/implot

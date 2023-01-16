@@ -1,7 +1,7 @@
 #include "BasicRenderingPipeline.hpp"
 
 #include <imgui.h>
-#include <examples/imgui_impl_glfw.h>
+#include <backends/imgui_impl_glfw.h>
 
 #include "CameraComponent.hpp"
 #include "MaterialComponentManager.hpp"

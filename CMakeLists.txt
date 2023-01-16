@@ -204,6 +204,26 @@ target_include_directories(
 
 source_group(External\\lodepng\\ FILES ${EXTERNAL_LODEPNG_FILES})
 
+SET (EXTERNAL_IMPLOT_FILES
+        src/External/implot/implot.h
+        src/External/implot/implot.cpp
+        src/External/implot/implot_demo.cpp
+        src/External/implot/implot_internal.h
+        src/External/implot/implot_items.cpp
+)
+
+target_include_directories(
+        SpaceLion PUBLIC
+        "${PROJECT_SOURCE_DIR}/src/External/implot/"
+)
+
+target_sources(SpaceLion
+    PRIVATE
+        ${EXTERNAL_IMPLOT_FILES}
+)
+
+source_group(External\\implot\\ FILES ${EXTERNAL_IMPLOT_FILES})
+
 if(USE_GL)
 
 SET (EXTERNAL_GLAD_FILES
@@ -219,10 +239,10 @@ SET (EXTERNAL_IMGUI_FILES
         src/External/imgui/imgui_demo.cpp
         src/External/imgui/imgui_draw.cpp
         src/External/imgui/imgui_widgets.cpp
-        src/External/imgui/examples/imgui_impl_glfw.h
-        src/External/imgui/examples/imgui_impl_glfw.cpp
-        src/External/imgui/examples/imgui_impl_opengl3.h
-        src/External/imgui/examples/imgui_impl_opengl3.cpp
+        src/External/imgui/backends/imgui_impl_glfw.h
+        src/External/imgui/backends/imgui_impl_glfw.cpp
+        src/External/imgui/backends/imgui_impl_opengl3.h
+        src/External/imgui/backends/imgui_impl_opengl3.cpp
         src/External/imgui/imstb_rectpack.h
         src/External/imgui/imstb_textedit.h
         src/External/imgui/imstb_truetype.h

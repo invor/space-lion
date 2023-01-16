@@ -2,7 +2,7 @@
 #define types_hpp
 
 #define GLM_ENABLE_EXPERIMENTAL
-#define GLM_FORCE_AVX
+//#define GLM_FORCE_AVX
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
