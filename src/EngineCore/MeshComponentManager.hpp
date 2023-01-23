@@ -223,13 +223,13 @@ namespace EngineCore
 
                 ResourceID new_mesh = m_resource_mngr->allocateMeshAsync(
                     mesh_name,
-                    15000000,
-                    20000000,
+                    1500000,
+                    2000000,
                     vertex_layouts,
                     index_type,
                     mesh_type);
 
-                m_mesh_data.emplace_back(MeshData(new_mesh, *vertex_layouts, index_type, 1000000, 4000000));
+                m_mesh_data.emplace_back(MeshData(new_mesh, *vertex_layouts, index_type, 1500000, 2000000));
 
                 it = m_mesh_data.end();
                 --it;
