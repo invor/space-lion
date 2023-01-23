@@ -238,6 +238,8 @@ SET (EXTERNAL_IMGUI_FILES
         src/External/imgui/imgui.cpp
         src/External/imgui/imgui_demo.cpp
         src/External/imgui/imgui_draw.cpp
+        src/External/imgui/imgui_internal.h
+        src/External/imgui/imgui_tables.cpp
         src/External/imgui/imgui_widgets.cpp
         src/External/imgui/backends/imgui_impl_glfw.h
         src/External/imgui/backends/imgui_impl_glfw.cpp
