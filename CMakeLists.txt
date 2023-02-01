@@ -37,11 +37,13 @@ endif()
 
 SET (ENGINECORE_ANIMATION_HEADER_FILES
         src/EngineCore/TurntableComponentManager.hpp
+        src/EngineCore/TagAlongComponentManager.hpp
         src/EngineCore/AnimationSystems.hpp
         src/EngineCore/SkinComponentManager.hpp)
 
 SET (ENGINECORE_ANIMATION_SOURCE_FILES
         src/EngineCore/TurntableComponentManager.cpp
+        src/EngineCore/TagAlongComponentManager.cpp
         src/EngineCore/AnimationSystems.cpp
         src/EngineCore/SkinComponentManager.cpp)
 
@@ -69,6 +71,9 @@ SET (ENGINECORE_GRAPHICS_HEADER_FILES
         src/EngineCore/AtmosphereComponentManager.hpp
         src/EngineCore/BaseResourceManager.hpp
         src/EngineCore/CameraComponent.hpp
+        src/EngineCore/BoundingBoxComponent.hpp
+        src/EngineCore/BoundingSphereComponent.hpp
+        src/EngineCore/BoundingCylinderComponent.hpp
         src/EngineCore/GenericTextureLayout.hpp
         src/EngineCore/GenericVertexLayout.hpp
         src/EngineCore/GeometryBakery.hpp
@@ -87,6 +92,9 @@ SET (ENGINECORE_GRAPHICS_HEADER_FILES
 SET (ENGINECORE_GRAPHICS_SOURCE_FILES
         src/EngineCore/AtmosphereComponentManager.cpp
         src/EngineCore/CameraComponent.cpp
+        src/EngineCore/BoundingBoxComponent.cpp
+        src/EngineCore/BoundingSphereComponent.cpp
+        src/EngineCore/BoundingCylinderComponent.cpp
         src/EngineCore/GeometryBakery.cpp
         src/EngineCore/gltfAssetComponentManager.cpp
         src/EngineCore/MaterialComponentManager.cpp
@@ -238,8 +246,6 @@ SET (EXTERNAL_IMGUI_FILES
         src/External/imgui/imgui.cpp
         src/External/imgui/imgui_demo.cpp
         src/External/imgui/imgui_draw.cpp
-        src/External/imgui/imgui_internal.h
-        src/External/imgui/imgui_tables.cpp
         src/External/imgui/imgui_widgets.cpp
         src/External/imgui/backends/imgui_impl_glfw.h
         src/External/imgui/backends/imgui_impl_glfw.cpp
