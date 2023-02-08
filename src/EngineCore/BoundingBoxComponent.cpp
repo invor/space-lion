@@ -31,6 +31,8 @@ namespace EngineCore
 
         void BoundingBoxComponentManager::reallocate(uint size)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             Data new_data;
 
             const uint bytes = size * (sizeof(Entity)
@@ -61,6 +63,8 @@ namespace EngineCore
 
         void BoundingBoxComponentManager::addComponent(Entity entity, float width, float height, float depth, BBAlignment alignment)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             assert(m_data.used < m_data.allocated);
 
             uint index = m_data.used;
@@ -78,56 +82,66 @@ namespace EngineCore
 
         void BoundingBoxComponentManager::deleteComponent(Entity entity)
         {
-
+            // std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         }
 
         uint BoundingBoxComponentManager::getComponentCount() const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.used;
         }
 
         Entity BoundingBoxComponentManager::getEntity(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.entity[index];
         }
 
         float BoundingBoxComponentManager::getWidth(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.width[index];
         }
 
         float BoundingBoxComponentManager::getHeight(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.height[index];
         }
 
         float BoundingBoxComponentManager::getDepth(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.depth[index];
         }
 
         BoundingBoxComponentManager::BBAlignment BoundingBoxComponentManager::getAlignment(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.alignment[index];
         }
 
         void BoundingBoxComponentManager::setWidth(uint index, float width)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.width[index] = width;
         }
 
         void BoundingBoxComponentManager::setHeight(uint index, float height)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.height[index] = height;
         }
 
         void BoundingBoxComponentManager::setDepth(uint index, float depth)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.depth[index] = depth;
         }
 
         void BoundingBoxComponentManager::setAlignment(uint index, BBAlignment alignment)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.alignment[index] = alignment;
         }
 
@@ -135,9 +149,12 @@ namespace EngineCore
         {
             std::vector<Entity> rtn;
 
-            for (uint i = 0; i < m_data.used; i++)
             {
-                rtn.push_back(m_data.entity[i]);
+                std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
+                for (uint i = 0; i < m_data.used; i++)
+                {
+                    rtn.push_back(m_data.entity[i]);
+                }
             }
 
             return rtn;

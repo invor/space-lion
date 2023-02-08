@@ -30,6 +30,7 @@ namespace EngineCore
             };
 
             Data m_data;
+            mutable std::shared_mutex m_data_access_mutex;
 
             // TODO move this elsewhere?
             Entity m_active_camera;

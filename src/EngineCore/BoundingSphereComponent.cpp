@@ -26,6 +26,8 @@ namespace EngineCore
 
         void BoundingSphereComponentManager::reallocate(uint size)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             Data new_data;
 
             const uint bytes = size * (sizeof(Entity)
@@ -49,6 +51,8 @@ namespace EngineCore
 
         void BoundingSphereComponentManager::addComponent(Entity entity, float radius)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             assert(m_data.used < m_data.allocated);
 
             uint index = m_data.used;
@@ -63,26 +67,30 @@ namespace EngineCore
 
         void BoundingSphereComponentManager::deleteComponent(Entity entity)
         {
-
+            // std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         }
 
         uint BoundingSphereComponentManager::getComponentCount() const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.used;
         }
 
         Entity BoundingSphereComponentManager::getEntity(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.entity[index];
         }
 
         float BoundingSphereComponentManager::getRadius(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.radius[index];
         }
 
         void BoundingSphereComponentManager::setRadius(uint index, float radius)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.radius[index] = radius;
         }
 
@@ -90,9 +98,13 @@ namespace EngineCore
         {
             std::vector<Entity> rtn;
 
-            for (uint i = 0; i < m_data.used; i++)
             {
-                rtn.push_back(m_data.entity[i]);
+                std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
+
+                for (uint i = 0; i < m_data.used; i++)
+                {
+                    rtn.push_back(m_data.entity[i]);
+                }
             }
 
             return rtn;
