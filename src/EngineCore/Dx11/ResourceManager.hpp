@@ -496,6 +496,8 @@ namespace EngineCore
 
 				WeakResource<dxowl::RenderTarget> getRenderTarget(std::string const& name) const;
 
+				WeakResource<dxowl::RenderTarget> getRenderTarget(ResourceID rsrc_id) const;
+
 	#pragma endregion
 
 			private:
@@ -749,6 +751,24 @@ namespace EngineCore
 				WeakResource<dxowl::RenderTarget> retval(invalidResourceID(), nullptr, NOT_READY);
 
 				if(search != m_name_to_renderTarget_idx.end())
+				{
+					retval.id = m_render_targets[search->second].id;
+					retval.resource = m_render_targets[search->second].resource.get();
+					retval.state = m_render_targets[search->second].state;
+				}
+
+				return retval;
+			}
+
+			inline WeakResource<dxowl::RenderTarget> ResourceManager::getRenderTarget(ResourceID rsrc_id) const
+			{
+				std::shared_lock<std::shared_mutex> rt_lock(m_renderTargets_mutex);
+
+				auto search = m_id_to_renderTarget_idx.find(rsrc_id.value());
+
+				WeakResource<dxowl::RenderTarget> retval(invalidResourceID(), nullptr, NOT_READY);
+
+				if (search != m_id_to_renderTarget_idx.end())
 				{
 					retval.id = m_render_targets[search->second].id;
 					retval.resource = m_render_targets[search->second].resource.get();
