@@ -287,6 +287,8 @@ namespace EngineCore
             auto retval = ResourceID();
 
             auto query = getIndex(entity);
+            
+            std::shared_lock<std::shared_mutex> lock(m_data_mutex);
 
             if (query.size() > sub_idx) {
                 retval = m_component_data[query[sub_idx]].mesh_resource;

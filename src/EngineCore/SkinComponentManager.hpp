@@ -31,7 +31,7 @@ namespace EngineCore {
             };
 
             std::vector<Data> m_data;
-            std::shared_mutex m_dataAccess_mutex;
+            std::shared_mutex m_data_access_mutex;
 
         public:
             SkinComponentManager() = default;

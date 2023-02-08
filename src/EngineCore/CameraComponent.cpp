@@ -34,6 +34,8 @@ namespace EngineCore
 
         void CameraComponentManager::reallocate(uint size)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             Data new_data;
             const uint bytes = size * (sizeof(Entity)
                 + 5 * sizeof(float)
@@ -66,6 +68,8 @@ namespace EngineCore
 
         void CameraComponentManager::addComponent(Entity entity, float near_cp, float far_cp, float fovy, float aspect_ratio, float exposure)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             assert(m_data.used < m_data.allocated);
 
             uint index = m_data.used;
@@ -86,6 +90,7 @@ namespace EngineCore
 
         void CameraComponentManager::deleteComponent(Entity entity)
         {
+            // std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         }
 
         bool CameraComponentManager::checkComponent(uint entity_id) const
@@ -100,7 +105,6 @@ namespace EngineCore
 
         void CameraComponentManager::setActiveCamera(Entity entity)
         {
-
             auto query = getIndex(entity);
 
             if (!query.empty())
@@ -114,11 +118,14 @@ namespace EngineCore
 
         Entity CameraComponentManager::getEntity(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.entity[index];
         }
 
         void CameraComponentManager::setCameraAttributes(uint index, float near_cp, float far_cp, float fovy, float aspect_ratio, float exposure)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             assert(index < m_data.used);
 
             m_data.near_cp[index] = near_cp;
@@ -132,6 +139,8 @@ namespace EngineCore
 
         void CameraComponentManager::updateProjectionMatrix(uint index)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             float near_cp = m_data.near_cp[index];
             float far_cp = m_data.far_cp[index];
             float fovy = m_data.fovy[index];
@@ -165,46 +174,55 @@ namespace EngineCore
 
         void CameraComponentManager::setNear(uint index, float near_cp)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.near_cp[index] = near_cp;
         }
 
         void CameraComponentManager::setFar(uint index, float far_cp)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.far_cp[index] = far_cp;
         }
 
         Mat4x4 CameraComponentManager::getProjectionMatrix(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.projection_matrix[index];
         }
 
         float CameraComponentManager::getFovy(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.fovy[index];
         }
 
         void CameraComponentManager::setFovy(uint index, float fovy)
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.fovy[index] = fovy;
         }
 
         float CameraComponentManager::getAspectRatio(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.aspect_ratio[index];
         }
 
         void CameraComponentManager::setAspectRatio(uint index, float aspect_ratio)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.aspect_ratio[index] = aspect_ratio;
         }
 
         float CameraComponentManager::getExposure(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.exposure[index];
         }
 
         void CameraComponentManager::setExposure(uint index, float exposure)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.exposure[index] = exposure;
         }
 

@@ -4,6 +4,7 @@
 
 #include "TransformComponentManager.hpp"
 #include "TurntableComponentManager.hpp"
+#include "TagAlongComponentManager.hpp"
 
 namespace EngineCore {
 namespace Animation {
@@ -13,6 +14,10 @@ namespace Animation {
         EngineCore::Animation::TurntableComponentManager& turntable_mngr,
         double dt);
 
+    void tagAlong(
+        EngineCore::Common::TransformComponentManager& transform_mngr,
+        EngineCore::Animation::TagAlongComponentManager& tagalong_mngr,
+        double dt);
 }
 }
 

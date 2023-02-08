@@ -40,6 +40,7 @@ namespace Graphics {
         };
 
         Data m_data;
+        mutable std::shared_mutex m_data_access_mutex;
 
         ResourceManagerType& m_rsrc_mngr;
 
@@ -153,6 +154,8 @@ namespace Graphics {
     template<typename ResourceManagerType>
     void AtmosphereComponentManager<typename ResourceManagerType>::reallocate(uint size)
     {
+        std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
         Data new_data;
         const uint bytes = size * (sizeof(Entity) +
             2 * sizeof(Vec3) +
@@ -214,6 +217,8 @@ namespace Graphics {
         float min_altitude,
         float max_altitude)
     {
+        std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
         assert(m_data.used < m_data.allocated);
 
         uint index = m_data.used;
@@ -275,72 +280,84 @@ namespace Graphics {
     template<typename ResourceManagerType>
     inline void AtmosphereComponentManager<ResourceManagerType>::setBetaR(uint index, Vec3 const& beta_r)
     {
+        std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         m_data.beta_r[index] = beta_r;
     }
 
     template<typename ResourceManagerType>
     inline void AtmosphereComponentManager<ResourceManagerType>::setBetaM(uint index, Vec3 const& beta_m)
     {
+        std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         m_data.beta_m[index] = beta_m;
     }
 
     template<typename ResourceManagerType>
     inline void AtmosphereComponentManager<ResourceManagerType>::setHR(uint index, float h_r)
     {
+        std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         m_data.h_r[index] = h_r;
     }
 
     template<typename ResourceManagerType>
     inline void AtmosphereComponentManager<ResourceManagerType>::setHM(uint index, float h_m)
     {
+        std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         m_data.m_r[index] = h_m;
     }
 
     template<typename ResourceManagerType>
     inline void AtmosphereComponentManager<ResourceManagerType>::setMinAltitude(uint index, float min_altitude)
     {
+        std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         m_data.min_altitude[index] = min_altitude;
     }
 
     template<typename ResourceManagerType>
     inline void AtmosphereComponentManager<ResourceManagerType>::setMaxAltitude(uint index, float max_altitude)
     {
+        std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         m_data.max_altitude[index] = max_altitude;
     }
 
     template<typename ResourceManagerType>
     inline void AtmosphereComponentManager<ResourceManagerType>::setTransmittanceLUT(uint index, ResourceID transmittance_lut)
     {
+        std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         m_data.transmittance_lut[index] = transmittance_lut;
     }
 
     template<typename ResourceManagerType>
     inline void AtmosphereComponentManager<ResourceManagerType>::setMieInscatterLUT(uint index, ResourceID mie_inscatter_lut)
     {
+        std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         m_data.mie_inscatter_lut[index] = mie_inscatter_lut;
     }
 
     template<typename ResourceManagerType>
     inline void AtmosphereComponentManager<ResourceManagerType>::setRayleighInscatterLUT(uint index, ResourceID rayleigh_inscatter_lut)
     {
+        std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         m_data.rayleigh_inscatter_lut[index] = rayleigh_inscatter_lut;
     }
 
     template<typename ResourceManagerType>
     inline Entity AtmosphereComponentManager<ResourceManagerType>::getEntity(uint index) const
     {
+        std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
         return m_data.entity[index];
     }
 
     template<typename ResourceManagerType>
     inline Vec3 AtmosphereComponentManager<ResourceManagerType>::getBetaR(uint index) const
     {
+        std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
         return m_data.beta_r[index];
     }
 
     template<typename ResourceManagerType>
     inline Vec3 AtmosphereComponentManager<ResourceManagerType>::getBetaM(uint index) const
     {
+        std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
         return m_data.beta_m[index];
     }
 
@@ -353,36 +370,42 @@ namespace Graphics {
     template<typename ResourceManagerType>
     inline float AtmosphereComponentManager<ResourceManagerType>::getHM(uint index) const
     {
+        std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
         return m_data.h_m[index];
     }
 
     template<typename ResourceManagerType>
     inline float AtmosphereComponentManager<ResourceManagerType>::getMinAltitude(uint index) const
     {
+        std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
         return m_data.min_altitude[index];
     }
 
     template<typename ResourceManagerType>
     inline float AtmosphereComponentManager<ResourceManagerType>::getMaxAltitude(uint index) const
     {
+        std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
         return m_data.max_altitude[index];
     }
 
     template<typename ResourceManagerType>
     inline ResourceID AtmosphereComponentManager<ResourceManagerType>::getTransmittanceLUT(uint index)
     {
+        std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
         return m_data.transmittance_lut[index];
     }
 
     template<typename ResourceManagerType>
     inline ResourceID AtmosphereComponentManager<ResourceManagerType>::getMieInscatterLUT(uint index)
     {
+        std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
         return m_data.mie_inscatter_lut[index];
     }
 
     template<typename ResourceManagerType>
     inline ResourceID AtmosphereComponentManager<ResourceManagerType>::getRayleighInscatterLUT(uint index)
     {
+        std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
         return m_data.rayleigh_inscatter_lut[index];
     }
 
