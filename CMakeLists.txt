@@ -38,12 +38,14 @@ endif()
 SET (ENGINECORE_ANIMATION_HEADER_FILES
         src/EngineCore/TurntableComponentManager.hpp
         src/EngineCore/TagAlongComponentManager.hpp
+        src/EngineCore/BillboardComponentManager.hpp
         src/EngineCore/AnimationSystems.hpp
         src/EngineCore/SkinComponentManager.hpp)
 
 SET (ENGINECORE_ANIMATION_SOURCE_FILES
         src/EngineCore/TurntableComponentManager.cpp
         src/EngineCore/TagAlongComponentManager.cpp
+        src/EngineCore/BillboardComponentManager.cpp
         src/EngineCore/AnimationSystems.cpp
         src/EngineCore/SkinComponentManager.cpp)
 

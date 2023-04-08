@@ -5,6 +5,7 @@
 #include "TransformComponentManager.hpp"
 #include "TurntableComponentManager.hpp"
 #include "TagAlongComponentManager.hpp"
+#include "BillboardComponentManager.hpp"
 
 namespace EngineCore {
 namespace Animation {
@@ -22,9 +23,9 @@ namespace Animation {
 
     // Basically same as tagAlong, but instant without slow approaching the tagger
     // This can also be done by setting the taggee as child entity of the tagger
-    void tagHUD(
+    void billboard(
         EngineCore::Common::TransformComponentManager& transform_mngr,
-        EngineCore::Animation::TagAlongComponentManager& tagalong_mngr,
+        EngineCore::Animation::BillboardComponentManager& billboard_mngr,
         double dt);
 }
 }
