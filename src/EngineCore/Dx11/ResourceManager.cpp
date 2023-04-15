@@ -26,8 +26,8 @@ namespace {
 	//}
 }
 
-EngineCore::Graphics::Dx11::ResourceManager::ResourceManager(ID3D11Device4* d3d11_device, ID3D11DeviceContext4* d3d11_device_context)
-	: m_d3d11_device(d3d11_device), m_d3d11_device_context(d3d11_device_context)
+EngineCore::Graphics::Dx11::ResourceManager::ResourceManager()
+	: m_d3d11_device(nullptr), m_d3d11_device_context(nullptr)
 {
 }
 

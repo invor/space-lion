@@ -76,6 +76,8 @@ namespace EngineCore
 
             FrameType& setUpdateFrame(FrameType&& new_frame);
 
+            FrameType& getUpdateFrame();
+
             FrameType& getRenderFrame();
         };
 
@@ -114,6 +116,12 @@ namespace EngineCore
         {
             m_frame_tripleBuffer[m_update_frame] = new_frame;
 
+            return m_frame_tripleBuffer[m_update_frame];
+        }
+
+        template<typename FrameType>
+        inline FrameType& FrameManager<FrameType>::getUpdateFrame()
+        {
             return m_frame_tripleBuffer[m_update_frame];
         }
 

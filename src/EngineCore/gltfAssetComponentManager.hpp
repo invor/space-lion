@@ -610,7 +610,7 @@ namespace EngineCore
                             layout.levels = 1;
                             layout.type = img.pixel_type;
                             layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
-                            layout.internal_format = 0x8058;// GL_RGBA8
+                            layout.internal_format = GenericTextureLayout::InternalFormat::RGBA8;// GL_RGBA8
 
                             layout.int_parameters = {
                                 {
@@ -653,7 +653,7 @@ namespace EngineCore
                             layout.levels = 1;
                             layout.type = img.pixel_type;
                             layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
-                            layout.internal_format = 0x8058;// GL_RGBA8
+                            layout.internal_format = GenericTextureLayout::InternalFormat::RGBA8;// GL_RGBA8
 
                             layout.int_parameters = {
                                 {
@@ -696,7 +696,7 @@ namespace EngineCore
                             layout.levels = 1;
                             layout.type = img.pixel_type;
                             layout.format = 0x1908; // GL_RGBA, apparently tinygltf enforces 4 components for better vulkan compability anyway
-                            layout.internal_format = 0x8058;// GL_RGBA8
+                            layout.internal_format = GenericTextureLayout::InternalFormat::RGBA8;// GL_RGBA8
 
                             layout.int_parameters = {
                                 {

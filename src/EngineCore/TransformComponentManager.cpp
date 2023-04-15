@@ -152,10 +152,10 @@ namespace EngineCore
         {
             Mat4x4 xform = glm::toMat4(m_data.orientation[index]);
             xform[3] = Vec4(m_data.position[index], 1.0);
-            xform[0][0] *= m_data.scale[index].x;
-            xform[1][1] *= m_data.scale[index].y;
-            xform[2][2] *= m_data.scale[index].z;
-            
+            xform[0] *= m_data.scale[index].x;
+            xform[1] *= m_data.scale[index].y;
+            xform[2] *= m_data.scale[index].z;
+
             if (m_data.parent[index] != index) {
                 m_data.world_transform[index] = m_data.world_transform[m_data.parent[index]] * xform;
             }

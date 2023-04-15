@@ -6,6 +6,13 @@ set(CMAKE_CXX_STANDARD 23)
 
 option(USE_GL "Use OpenGL graphics backend" ON)
 option(USE_DX11 "Use DirectX11 graphics backend" OFF)
+# Add compile defintion for UWP via cmake optioon
+option(UWP "Compile for UWP" OFF)
+
+if(UWP)
+add_compile_definitions(_UWP)
+#add_compile_definitions(__cplusplus_winrt)
+endif()
 
 if(USE_GL)
 
@@ -68,6 +75,7 @@ SET (ENGINECORE_GRAPHICS_HEADER_FILES
         src/EngineCore/gltfAssetComponentManager.hpp
         src/EngineCore/MaterialComponentManager.hpp
         src/EngineCore/MeshComponentManager.hpp
+        src/EngineCore/OceanComponent.hpp
         src/EngineCore/PointlightComponent.hpp
         src/EngineCore/RenderPass.hpp
         src/EngineCore/RenderTaskComponentManager.hpp
@@ -83,6 +91,7 @@ SET (ENGINECORE_GRAPHICS_SOURCE_FILES
         src/EngineCore/gltfAssetComponentManager.cpp
         src/EngineCore/MaterialComponentManager.cpp
         src/EngineCore/MeshComponentManager.cpp
+        src/EngineCore/OceanComponent.cpp
         src/EngineCore/PointlightComponent.cpp
         src/EngineCore/RenderPass.cpp
         src/EngineCore/RenderTaskComponentManager.cpp
@@ -96,6 +105,7 @@ SET (ENGINECORE_GRAPHICS_GL_HEADER_FILES
         src/EngineCore/OpenGL/BasicRenderingPipeline.hpp
         src/EngineCore/OpenGL/GraphicsBackend.hpp
 	#src/EngineCore/OpenGL/LandscapeSystems.hpp
+        src/EngineCore/OpenGL/OceanRenderPass.hpp
         src/EngineCore/OpenGL/ResourceManager.hpp
         src/EngineCore/OpenGL/SkinnedMeshRenderPass.hpp)
 
@@ -104,10 +114,12 @@ SET (ENGINECORE_GRAPHICS_GL_SOURCE_FILES
         src/EngineCore/OpenGL/BasicRenderingPipeline.cpp
         src/EngineCore/OpenGL/GraphicsBackend.cpp
 	#src/EngineCore/OpenGL/LandscapeSystems.cpp
+        src/EngineCore/OpenGL/OceanRenderPass.cpp
         src/EngineCore/OpenGL/ResourceManager.cpp
         src/EngineCore/OpenGL/SkinnedMeshRenderPass.cpp)
 
 SET (ENGINECORE_GRAPHICS_DX11_HEADER_FILES
+        src/EngineCore/Dx11/Dx11Frame.hpp
         src/EngineCore/Dx11/SimpleForwardRenderingPipeline.hpp
         src/EngineCore/Dx11/ResourceManager.hpp)
 
@@ -137,10 +149,12 @@ SET (EDITOR_FILES
         src/Editor/CameraController.cpp)
 
 SET (DX11_VERTEX_SHADER_FILES
-   resources/shaders/hlsl/static_mesh.vertex.hlsl)
+   resources/shaders/hlsl/static_mesh.vertex.hlsl
+   resources/shaders/hlsl/static_mesh_unlit.vertex.hlsl)
 
 SET (DX11_PIXEL_SHADER_FILES
-   resources/shaders/hlsl/forward_pbr.pixel.hlsl)
+   resources/shaders/hlsl/forward_pbr.pixel.hlsl
+   resources/shaders/hlsl/textured_unlit.pixel.hlsl)
 
 SET (DX11_SHADER_FILES ${DX11_VERTEX_SHADER_FILES} ${DX11_PIXEL_SHADER_FILES})
 
@@ -190,6 +204,26 @@ target_include_directories(
 
 source_group(External\\lodepng\\ FILES ${EXTERNAL_LODEPNG_FILES})
 
+SET (EXTERNAL_IMPLOT_FILES
+        src/External/implot/implot.h
+        src/External/implot/implot.cpp
+        src/External/implot/implot_demo.cpp
+        src/External/implot/implot_internal.h
+        src/External/implot/implot_items.cpp
+)
+
+target_include_directories(
+        SpaceLion PUBLIC
+        "${PROJECT_SOURCE_DIR}/src/External/implot/"
+)
+
+target_sources(SpaceLion
+    PRIVATE
+        ${EXTERNAL_IMPLOT_FILES}
+)
+
+source_group(External\\implot\\ FILES ${EXTERNAL_IMPLOT_FILES})
+
 if(USE_GL)
 
 SET (EXTERNAL_GLAD_FILES
@@ -204,11 +238,13 @@ SET (EXTERNAL_IMGUI_FILES
         src/External/imgui/imgui.cpp
         src/External/imgui/imgui_demo.cpp
         src/External/imgui/imgui_draw.cpp
+        src/External/imgui/imgui_internal.h
+        src/External/imgui/imgui_tables.cpp
         src/External/imgui/imgui_widgets.cpp
-        src/External/imgui/examples/imgui_impl_glfw.h
-        src/External/imgui/examples/imgui_impl_glfw.cpp
-        src/External/imgui/examples/imgui_impl_opengl3.h
-        src/External/imgui/examples/imgui_impl_opengl3.cpp
+        src/External/imgui/backends/imgui_impl_glfw.h
+        src/External/imgui/backends/imgui_impl_glfw.cpp
+        src/External/imgui/backends/imgui_impl_opengl3.h
+        src/External/imgui/backends/imgui_impl_opengl3.cpp
         src/External/imgui/imstb_rectpack.h
         src/External/imgui/imstb_textedit.h
         src/External/imgui/imstb_truetype.h
@@ -267,6 +303,22 @@ set_property(SOURCE ${DX11_SHADER_FILES} PROPERTY VS_SHADER_FLAGS /Zi)
 set_property(SOURCE ${DX11_VERTEX_SHADER_FILES} PROPERTY VS_SHADER_TYPE Vertex)
 set_property(SOURCE ${DX11_PIXEL_SHADER_FILES} PROPERTY VS_SHADER_TYPE Pixel)
 
+SET (EXTERNAL_IMGUI_FILES
+        src/External/imgui/imconfig.h
+        src/External/imgui/imgui.h
+        src/External/imgui/imgui.cpp
+        src/External/imgui/imgui_demo.cpp
+        src/External/imgui/imgui_draw.cpp
+        src/External/imgui/imgui_internal.h
+        src/External/imgui/imgui_tables.cpp
+        src/External/imgui/imgui_widgets.cpp
+        src/External/imgui/backends/imgui_impl_dx11.h
+        src/External/imgui/backends/imgui_impl_dx11.cpp
+        src/External/imgui/imstb_rectpack.h
+        src/External/imgui/imstb_textedit.h
+        src/External/imgui/imstb_truetype.h
+)
+
 SET (EXTERNAL_DXOWL_FILES
         src/External/dxowl/include/dxowl/Buffer.hpp
         src/External/dxowl/include/dxowl/RenderTarget.hpp
@@ -277,17 +329,24 @@ SET (EXTERNAL_DXOWL_FILES
         src/External/dxowl/include/dxowl/VertexDescriptor.hpp
 )
 
+target_include_directories(
+        SpaceLion PUBLIC
+        "${PROJECT_SOURCE_DIR}/src/External/imgui/"
+)
+
 target_link_libraries(SpaceLion PUBLIC dxowl)
 
 target_sources(SpaceLion
     PRIVATE
         ${ENGINECORE_GRAPHICS_DX11_HEADER_FILES}
         ${ENGINECORE_GRAPHICS_DX11_SOURCE_FILES}
+        ${EXTERNAL_IMGUI_FILES}
         ${EXTERNAL_DXOWL_FILES}
         ${DX11_SHADER_FILES}
 )
 
 source_group(EngineCore\\Graphics\\DX11 FILES ${ENGINECORE_GRAPHICS_DX11_HEADER_FILES} ${ENGINECORE_GRAPHICS_DX11_SOURCE_FILES})
+source_group(External\\imgui\\ FILES ${EXTERNAL_IMGUI_FILES})
 source_group(External\\dxowl\\ FILES ${EXTERNAL_DXOWL_FILES})
 source_group(Resources\\Shaders\\ FILES ${DX11_SHADER_FILES})
 

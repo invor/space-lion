@@ -37,8 +37,13 @@ namespace EngineCore
                 typedef D3D_PRIMITIVE_TOPOLOGY PrimitiveTopologyType;
 
 			public:
-				ResourceManager(ID3D11Device4* d3d11_device, ID3D11DeviceContext4* d3d11_device_context);
+				ResourceManager();
 				~ResourceManager() = default;
+
+				void init(ID3D11Device4* d3d11_device, ID3D11DeviceContext4* d3d11_device_context) {
+					m_d3d11_device = d3d11_device;
+					m_d3d11_device_context = d3d11_device_context;
+				}
 	
 				void clearAllResources();
 
@@ -157,11 +162,11 @@ namespace EngineCore
                  * Create a DirectX vertex description from the generic vertex layout struct, assuming it contains an
                  * OpenGL-sytle layout description, because is was created from a gltf file
                  */
-                VertexLayout convertGenericGltfVertexLayout(GenericVertexLayout vertex_layout)
+                VertexLayout convertGenericGltfVertexLayout(GenericVertexLayout vertex_layout, UINT base_input_slot = 0)
                 {
                     VertexLayout retval;
 
-                    UINT input_slot = 0;
+					UINT input_slot = base_input_slot;
 
                     for (auto attrib : vertex_layout.attributes)
                     {
@@ -170,6 +175,11 @@ namespace EngineCore
                             retval.attributes.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 });
                             ++input_slot;
                         }
+						else if (attrib.semantic_name == "TANGENT" /* TODO: also check if other attribute porperties match, i.e. 3 GL_FLOAT for the normal*/)
+						{
+							retval.attributes.push_back({ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+							++input_slot;
+						}
                         else if (attrib.semantic_name == "POSITION")
                         {
                             retval.attributes.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, input_slot, input_slot == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 });
@@ -251,9 +261,181 @@ namespace EngineCore
 				//	std::shared_ptr<VertexDescriptor> const& vertex_layout);
 	#pragma endregion
 	
-	#pragma region Create 2D textures
-				constexpr DXGI_FORMAT convertInternalFormat(uint32_t internal_format) {
+    #pragma region Create 2D textures
+				constexpr DXGI_FORMAT convertInternalFormat(GenericTextureLayout::InternalFormat internal_format) {
+					DXGI_FORMAT retval = DXGI_FORMAT_UNKNOWN;
 
+					switch (internal_format)
+					{
+					case GenericTextureLayout::InternalFormat::R8:
+						retval = DXGI_FORMAT_R8_UNORM;
+						break;
+					case GenericTextureLayout::InternalFormat::R8_SNORM:
+						retval = DXGI_FORMAT_R8_SNORM;
+						break;
+					case GenericTextureLayout::InternalFormat::R16:
+						retval = DXGI_FORMAT_R16_UNORM;
+						break;
+					case GenericTextureLayout::InternalFormat::R16_SNORM:
+						retval = DXGI_FORMAT_R16_SNORM;
+						break;
+					case GenericTextureLayout::InternalFormat::RG8:
+						retval = DXGI_FORMAT_R8G8_UNORM;
+						break;
+					case GenericTextureLayout::InternalFormat::RG8_SNORM:
+						retval = DXGI_FORMAT_R8G8_SNORM;
+						break;
+					case GenericTextureLayout::InternalFormat::RG16:
+						retval = DXGI_FORMAT_R16G16_UNORM;
+						break;
+					case GenericTextureLayout::InternalFormat::RG16_SNORM:
+						retval = DXGI_FORMAT_R16G16_SNORM;
+						break;
+					case GenericTextureLayout::InternalFormat::R3_G3_B2:	
+						break;
+					case GenericTextureLayout::InternalFormat::RGB4:
+						break;
+					case GenericTextureLayout::InternalFormat::RGB5:
+						break;
+					case GenericTextureLayout::InternalFormat::RGB8:
+						break;
+					case GenericTextureLayout::InternalFormat::RGB8_SNORM:
+						break;
+					case GenericTextureLayout::InternalFormat::RGB10:
+						break;
+					case GenericTextureLayout::InternalFormat::RGB12:
+						break;
+					case GenericTextureLayout::InternalFormat::RGB16_SNORM:
+						break;
+					case GenericTextureLayout::InternalFormat::RGBA2:
+						break;
+					case GenericTextureLayout::InternalFormat::RGBA4:
+						break;
+					case GenericTextureLayout::InternalFormat::RGB5_A1:
+						break;
+					case GenericTextureLayout::InternalFormat::RGBA8:
+						retval = DXGI_FORMAT_R8G8B8A8_UNORM;
+						break;
+					case GenericTextureLayout::InternalFormat::RGBA8_SNORM:
+						retval = DXGI_FORMAT_R8G8B8A8_SNORM;
+						break;
+					case GenericTextureLayout::InternalFormat::RGB10_A2:
+						retval = DXGI_FORMAT_R10G10B10A2_UNORM;
+						break;
+					case GenericTextureLayout::InternalFormat::RGB10_A2UI:
+						retval = DXGI_FORMAT_R10G10B10A2_UINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RGBA12:						
+						break;
+					case GenericTextureLayout::InternalFormat::RGBA16:
+						retval = DXGI_FORMAT_R16G16B16A16_UNORM;
+						break;
+					case GenericTextureLayout::InternalFormat::SRGB8:
+						break;
+					case GenericTextureLayout::InternalFormat::SRGB8_ALPHA8:
+						break;
+					case GenericTextureLayout::InternalFormat::R16F:
+						retval = DXGI_FORMAT_R16_FLOAT;
+						break;
+					case GenericTextureLayout::InternalFormat::RG16F:
+						retval = DXGI_FORMAT_R16G16_FLOAT;
+						break;
+					case GenericTextureLayout::InternalFormat::RGB16F:
+						break;
+					case GenericTextureLayout::InternalFormat::RGBA16F:
+						retval = DXGI_FORMAT_R16G16B16A16_FLOAT;
+						break;
+					case GenericTextureLayout::InternalFormat::R32F:
+						retval = DXGI_FORMAT_R32_FLOAT;
+						break;
+					case GenericTextureLayout::InternalFormat::RG32F:
+						retval = DXGI_FORMAT_R32G32_FLOAT;
+						break;
+					case GenericTextureLayout::InternalFormat::RGB32F:
+						retval = DXGI_FORMAT_R32G32B32_FLOAT;
+						break;
+					case GenericTextureLayout::InternalFormat::RGBA32F:
+						retval = DXGI_FORMAT_R32G32B32A32_FLOAT;
+						break;
+					case GenericTextureLayout::InternalFormat::R11F_G11F_B10F:
+						retval = DXGI_FORMAT_R11G11B10_FLOAT;
+						break;
+					case GenericTextureLayout::InternalFormat::RGB9_E5:
+						retval = DXGI_FORMAT_R9G9B9E5_SHAREDEXP;
+						break;
+					case GenericTextureLayout::InternalFormat::R8I:
+						retval = DXGI_FORMAT_R8_SINT;
+						break;
+					case GenericTextureLayout::InternalFormat::R8UI:
+						retval = DXGI_FORMAT_R8_UINT;
+						break;
+					case GenericTextureLayout::InternalFormat::R16I:
+						retval = DXGI_FORMAT_R16_SINT;
+						break;
+					case GenericTextureLayout::InternalFormat::R16UI:
+						retval = DXGI_FORMAT_R16_UINT;
+						break;
+					case GenericTextureLayout::InternalFormat::R32I:
+						retval = DXGI_FORMAT_R32_SINT;
+						break;
+					case GenericTextureLayout::InternalFormat::R32UI:
+						retval = DXGI_FORMAT_R32_UINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RG8I:
+						retval = DXGI_FORMAT_R8G8_SINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RG8UI:
+						retval = DXGI_FORMAT_R8G8_UINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RG16I:
+						retval = DXGI_FORMAT_R16G16_SINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RG16UI:
+						retval = DXGI_FORMAT_R16G16_UINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RG32I:
+						retval = DXGI_FORMAT_R32G32_SINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RG32UI:
+						retval = DXGI_FORMAT_R32G32_UINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RGB8I:
+						break;
+					case GenericTextureLayout::InternalFormat::RGB8UI:
+						break;
+					case GenericTextureLayout::InternalFormat::RGB16I:
+						break;
+					case GenericTextureLayout::InternalFormat::RGB16UI:
+						break;
+					case GenericTextureLayout::InternalFormat::RGB32I:
+						retval = DXGI_FORMAT_R32G32B32_SINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RGB32UI:
+						retval = DXGI_FORMAT_R32G32B32_UINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RGBA8I:
+						retval = DXGI_FORMAT_R8G8B8A8_SINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RGBA8UI:
+						retval = DXGI_FORMAT_R8G8B8A8_UINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RGBA16I:
+						retval = DXGI_FORMAT_R16G16B16A16_SINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RGBA16UI:
+						retval = DXGI_FORMAT_R16G16B16A16_UINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RGBA32I:
+						retval = DXGI_FORMAT_R32G32B32A32_SINT;
+						break;
+					case GenericTextureLayout::InternalFormat::RGBA32UI:
+						retval = DXGI_FORMAT_R32G32B32A32_UINT;
+						break;
+					default:
+						break;
+					}
+
+					return retval;
 				}
 
 				D3D11_TEXTURE2D_DESC convertGenericTextureLayout(GenericTextureLayout texture_layout)
@@ -263,33 +445,41 @@ namespace EngineCore
 					retval.Height = texture_layout.height;
 					retval.MipLevels = texture_layout.levels;
 					retval.ArraySize = texture_layout.depth;
-					retval.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+					retval.Format = convertInternalFormat(texture_layout.internal_format);
 					retval.CPUAccessFlags = 0;
 					retval.SampleDesc.Count = 1;
 					retval.SampleDesc.Quality = 0;
 					retval.Usage = D3D11_USAGE_DEFAULT;
-					retval.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+					retval.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 					retval.CPUAccessFlags = 0;
-					retval.MiscFlags = 0;
+					retval.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
 					return retval;
 				}
 
+				// BIG TODO: get dx/gl interface synched
+
 				template<
 					typename TexelDataContainer>
-					ResourceID createTexture2DAsync(
-						std::string const& name,
-						std::shared_ptr<std::vector<TexelDataContainer>> const& data,
-						D3D11_TEXTURE2D_DESC const&	           desc,
-						D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view);
+				ResourceID createTexture2DAsync(
+					std::string const& name,
+					std::shared_ptr<std::vector<TexelDataContainer>> const& data,
+					D3D11_TEXTURE2D_DESC const&	           desc,
+					D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view);
+
+				ResourceID createTexture2DAsync(
+					std::string const& name,
+					D3D11_TEXTURE2D_DESC const& desc,
+					void* data,
+					bool generate_mipmap);
 	
 				template<
 					typename TexelDataContainer>
-					WeakResource<dxowl::Texture2D> createTexture2D(
-						std::string const&                     name,
-						std::vector<TexelDataContainer> const& data,
-						D3D11_TEXTURE2D_DESC const&	           desc,
-						D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view);
+				WeakResource<dxowl::Texture2D> createTexture2D(
+					std::string const&                     name,
+					std::vector<TexelDataContainer> const& data,
+					D3D11_TEXTURE2D_DESC const&	           desc,
+					D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view);
 	#pragma endregion
 
 	#pragma region Create Render Targets
@@ -299,6 +489,14 @@ namespace EngineCore
 					D3D11_TEXTURE2D_DESC const&	           desc,
 					D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view,
 					D3D11_RENDER_TARGET_VIEW_DESC const&   rndr_tgt_view_desc);
+
+	#pragma endregion
+
+	#pragma region Access resources
+
+				WeakResource<dxowl::RenderTarget> getRenderTarget(std::string const& name) const;
+
+				WeakResource<dxowl::RenderTarget> getRenderTarget(ResourceID rsrc_id) const;
 
 	#pragma endregion
 
@@ -435,10 +633,16 @@ namespace EngineCore
 
 				m_renderThread_tasks.push(
 					[this, idx, data, desc, shdr_rsrc_view]() {
+
+						std::vector<const void*> data_ptrs;
+
+						for (auto& dc : *data) {
+							data_ptrs.push_back(dc.data());
+						}
 					
 						this->m_textures_2d[idx].resource = std::make_unique<dxowl::Texture2D>(
 							m_d3d11_device,
-							*data,
+							data_ptrs,
 							desc,
 							shdr_rsrc_view);
 						
@@ -456,6 +660,45 @@ namespace EngineCore
 				//	//
 				//	this->m_textures_2d[idx].state = READY;
 				//});
+
+				return m_textures_2d[idx].id;
+			}
+			
+			inline ResourceID ResourceManager::createTexture2DAsync(
+				std::string const& name,
+				D3D11_TEXTURE2D_DESC const& desc,
+				void* data,
+				bool generate_mipmap)
+			{
+				std::unique_lock<std::shared_mutex> lock(m_textures_2d_mutex);
+
+				size_t idx = m_textures_2d.size();
+				ResourceID rsrc_id = generateResourceID();
+				m_textures_2d.push_back(Resource<dxowl::Texture2D>(rsrc_id));
+
+				addTextureIndex(rsrc_id.value(), name, idx);
+
+				m_renderThread_tasks.push(
+					[this, idx, data, desc, generate_mipmap]() {
+
+						std::vector<const void *> data_ptrs = { data };
+
+						D3D11_SHADER_RESOURCE_VIEW_DESC shdr_rsrc_view;
+						shdr_rsrc_view.Format = desc.Format;
+						shdr_rsrc_view.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+						shdr_rsrc_view.TextureCube.MipLevels = desc.MipLevels;
+						shdr_rsrc_view.TextureCube.MostDetailedMip = 0;
+
+						this->m_textures_2d[idx].resource = std::make_unique<dxowl::Texture2D>(
+							m_d3d11_device,
+							data_ptrs,
+							desc,
+							shdr_rsrc_view,
+							generate_mipmap);
+
+						this->m_textures_2d[idx].state = READY;
+					}
+				);
 
 				return m_textures_2d[idx].id;
 			}
@@ -497,6 +740,42 @@ namespace EngineCore
 				});
 
 				return m_render_targets[idx].id;
+			}
+
+			inline WeakResource<dxowl::RenderTarget> ResourceManager::getRenderTarget(std::string const& name) const
+			{
+				std::shared_lock<std::shared_mutex> rt_lock(m_renderTargets_mutex);
+
+				auto search = m_name_to_renderTarget_idx.find(name);
+
+				WeakResource<dxowl::RenderTarget> retval(invalidResourceID(), nullptr, NOT_READY);
+
+				if(search != m_name_to_renderTarget_idx.end())
+				{
+					retval.id = m_render_targets[search->second].id;
+					retval.resource = m_render_targets[search->second].resource.get();
+					retval.state = m_render_targets[search->second].state;
+				}
+
+				return retval;
+			}
+
+			inline WeakResource<dxowl::RenderTarget> ResourceManager::getRenderTarget(ResourceID rsrc_id) const
+			{
+				std::shared_lock<std::shared_mutex> rt_lock(m_renderTargets_mutex);
+
+				auto search = m_id_to_renderTarget_idx.find(rsrc_id.value());
+
+				WeakResource<dxowl::RenderTarget> retval(invalidResourceID(), nullptr, NOT_READY);
+
+				if (search != m_id_to_renderTarget_idx.end())
+				{
+					retval.id = m_render_targets[search->second].id;
+					retval.resource = m_render_targets[search->second].resource.get();
+					retval.state = m_render_targets[search->second].state;
+				}
+
+				return retval;
 			}
 
 		}

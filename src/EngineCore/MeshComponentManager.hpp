@@ -47,6 +47,17 @@ namespace EngineCore
                 PrimitiveTopologyType const& mesh_type,
                 bool                                                  store_seperate = false);
 
+            void addComponent(
+                Entity const& entity,
+                std::string const& mesh_description,
+                ResourceID const& mesh_resource,
+                uint32_t    first_index,
+                uint32_t    indices_cnt,
+                uint32_t    base_vertex
+            );
+
+            ResourceID getMeshResourceID(Entity const& entity, size_t sub_idx = 0) const;
+
             std::tuple<uint32_t, uint32_t, uint32_t> getDrawIndexedParams(size_t component_index) const;
 
         private:
@@ -123,9 +134,11 @@ namespace EngineCore
             // convert generic vertex and index descriptions to API-sepecific data types
             std::shared_ptr<std::vector<typename ResourceManagerType::VertexLayout>> vertex_layouts
                 = std::make_shared<std::vector<typename ResourceManagerType::VertexLayout>>();
+            unsigned int base_input_slot = 0;
             for (auto& generic_vertex_layout : (*generic_vertex_layouts))
             {
-                vertex_layouts->push_back(m_resource_mngr->convertGenericGltfVertexLayout(generic_vertex_layout));
+                vertex_layouts->push_back(m_resource_mngr->convertGenericGltfVertexLayout(generic_vertex_layout, base_input_slot));
+                ++base_input_slot;
             }
             auto index_type = m_resource_mngr->convertGenericIndexType(generic_index_type);
 
@@ -210,13 +223,13 @@ namespace EngineCore
 
                 ResourceID new_mesh = m_resource_mngr->allocateMeshAsync(
                     mesh_name,
-                    15000000,
-                    20000000,
+                    1500000,
+                    2000000,
                     vertex_layouts,
                     index_type,
                     mesh_type);
 
-                m_mesh_data.emplace_back(MeshData(new_mesh, *vertex_layouts, index_type, 1000000, 4000000));
+                m_mesh_data.emplace_back(MeshData(new_mesh, *vertex_layouts, index_type, 1500000, 2000000));
 
                 it = m_mesh_data.end();
                 --it;
@@ -245,6 +258,42 @@ namespace EngineCore
             return it->mesh_resource;
         }
 
+
+        template<typename ResourceManagerType>
+        inline void MeshComponentManager<ResourceManagerType>::addComponent(
+            Entity const& entity,
+            std::string const& mesh_description,
+            ResourceID const& mesh_resource,
+            uint32_t first_index,
+            uint32_t indices_cnt,
+            uint32_t base_vertex)
+        {
+            std::unique_lock<std::shared_mutex> lock(m_data_mutex);
+
+            addIndex(entity.id(), m_component_data.size());
+            m_component_data.push_back(ComponentData(
+                entity,
+                mesh_description,
+                mesh_resource,
+                first_index,
+                indices_cnt,
+                base_vertex));
+
+        }
+
+        template<typename ResourceManagerType>
+        inline ResourceID MeshComponentManager<ResourceManagerType>::getMeshResourceID(Entity const& entity, size_t sub_idx) const
+        {
+            auto retval = ResourceID();
+
+            auto query = getIndex(entity);
+
+            if (query.size() > sub_idx) {
+                retval = m_component_data[query[sub_idx]].mesh_resource;
+            }
+
+            return retval;
+        }
 
         template<typename ResourceManagerType>
         inline std::tuple<uint32_t, uint32_t, uint32_t> MeshComponentManager<ResourceManagerType>::getDrawIndexedParams(size_t component_index) const

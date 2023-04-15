@@ -2,7 +2,7 @@
 
 uniform sampler2D lighting_tx2D;
 uniform sampler2D atmosphere_tx2D;
-//uniform sampler2D ocean_tx2D;
+uniform sampler2D ocean_tx2D;
 //uniform sampler2D volume_tx2D;
 
 uniform float exposure;
@@ -29,7 +29,7 @@ void main()
 {
     vec4 geometry = texture(lighting_tx2D,uvCoord);
     vec4 atmosphere = texture(atmosphere_tx2D,uvCoord);
-    //vec4 ocean = texture(ocean_tx2D,uvCoord);
+    vec4 ocean = texture(ocean_tx2D,uvCoord);
     //vec4 volumetrics = texture(volume_tx2D,uvCoord);
 
     vec4 rgb_depth_linear = vec4(0.0,0.0,0.0,10000.0);
@@ -44,7 +44,7 @@ void main()
     //rgb_depth_linear.rgb *= 0.18/5000.0; // default value for mapping avg luminance of ~4000cd/m^2 to 0.18 intensity
 
 
-    //rgb_depth_linear.rgb = ocean.rgb * ocean.a + (1.0-ocean.a) * rgb_depth_linear.rgb;
+    rgb_depth_linear.rgb = ocean.rgb * ocean.a + (1.0-ocean.a) * rgb_depth_linear.rgb;
 
     //rgb_depth_linear.rgb = rgb_depth_linear.rgb * (1.0 - volumetrics.a) + volumetrics.rgb * volumetrics.a;
 

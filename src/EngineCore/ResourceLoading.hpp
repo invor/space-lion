@@ -6,9 +6,10 @@
 #include <vector>
 #include <filesystem>
 #include <fstream>
-#ifdef UWP
+#ifdef _UWP
 #include <format>
-#endif //UWP
+#include <windows.h>
+#endif //_UWP
 
 #include <lodepng.h>
 
@@ -47,7 +48,7 @@ namespace Utility {
     //
     // Modified to use only UWP version
     inline std::filesystem::path GetAppFolder() {
-#ifdef UWP
+#ifdef _UWP
         HMODULE thisModule;
         thisModule = nullptr;
 
