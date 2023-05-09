@@ -54,15 +54,22 @@ void EngineCore::Animation::tagAlong(
 
 void EngineCore::Animation::billboard(
     EngineCore::Common::TransformComponentManager& transform_mngr,
-    EngineCore::Animation::BillboardComponentManager& billbaord_mngr,
+    EngineCore::Animation::BillboardComponentManager& billboard_mngr,
     double dt)
 {
-    auto billboard_cmps = billbaord_mngr.getBillboardComponentDataCopy();
+    auto billboard_cmps = billboard_mngr.getBillboardComponentDataCopy();
 
     for (auto& cmp : billboard_cmps) {
         size_t tagger_idx = transform_mngr.getIndex(cmp.tagger);
-        glm::quat tagger_orientation = transform_mngr.getOrientation(tagger_idx);
         size_t taggee_idx = transform_mngr.getIndex(cmp.taggee);
-        transform_mngr.setOrientation(taggee_idx, tagger_orientation);
+
+        Vec3 tagger_pos = transform_mngr.getPosition(tagger_idx);
+        Vec3 taggee_pos = transform_mngr.getPosition(taggee_idx);
+
+        Vec3 up = Vec3(0, 1, 0);
+
+        auto r = glm::toQuat(glm::inverse(glm::lookAt(taggee_pos, tagger_pos, up)));
+        //Quat r = Quat(1, 0, 0, 0);
+        transform_mngr.setOrientation(taggee_idx, r);
     }
 }
