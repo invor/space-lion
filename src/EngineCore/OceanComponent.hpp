@@ -94,6 +94,8 @@ private:
 	};
 
 	std::vector<Data> m_data;
+	mutable std::shared_mutex m_data_access_mutex;
+	mutable std::shared_mutex m_ocean_mutex;
 
 	EngineCore::Graphics::ResourceID m_ocean_surface_mesh;
 	EngineCore::Graphics::ResourceID m_ocean_fresnel_lut;
@@ -105,6 +107,8 @@ public:
 
 	void addComponent(Entity entity, float wave_height, float patch_size, uint grid_size)
 	{
+		std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
 		uint idx = static_cast<int>(m_data.size());
 
 		m_data.push_back(Data(entity, wave_height, patch_size, grid_size));
@@ -112,56 +116,68 @@ public:
 
 	size_t getComponentCount() const
 	{
+		std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
 		return m_data.size();
 	}
 
 	void setSurfaceMesh(EngineCore::Graphics::ResourceID rsrc_id)
 	{
+		std::unique_lock<std::shared_mutex> lock(m_ocean_mutex);
 		m_ocean_surface_mesh = rsrc_id;
 	}
 
 	EngineCore::Graphics::ResourceID getSurfaceMesh() const
 	{
+		std::shared_lock<std::shared_mutex> lock(m_ocean_mutex);
 		return m_ocean_surface_mesh;
 	}
 
 	void setFresnelLUT(EngineCore::Graphics::ResourceID rsrc_id)
 	{
+		std::unique_lock<std::shared_mutex> lock(m_ocean_mutex);
 		m_ocean_fresnel_lut = rsrc_id;
 	}
 
 	EngineCore::Graphics::ResourceID getFresnelLUT() const
 	{
+		std::shared_lock<std::shared_mutex> lock(m_ocean_mutex);
 		return m_ocean_fresnel_lut;
 	}
 
 	unsigned int getGridSize(size_t index) const
 	{
+		std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
 		return m_data[index].grid_size;
 	}
 
 	float getPatchSize(size_t index) const
 	{
+		std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
 		return m_data[index].ocean_patch_size;
 	}
 
 	float getWaveHeight(size_t index) const
 	{
+		std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
 		return m_data[index].ocean_wave_height;
 	}
 
 	float getSimulationTime(size_t index) const
 	{
+		std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
 		return m_data[index].simulation_time;
 	}
 
 	void setSimulationTime(size_t index, float time) 
 	{
+		std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
 		m_data[index].simulation_time = time;
 	}
 
 	EngineCore::Graphics::ResourceID getTextureResource(size_t index, TextureSemantic semantic) const
 	{
+		std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
+
 		switch (semantic)
 		{
 		case OceanComponentManager::TextureSemantic::GAUSSIAN_NOISE:
@@ -216,6 +232,8 @@ public:
 
 	void setTextureResource(size_t index, TextureSemantic semantic, EngineCore::Graphics::ResourceID rsrc_id)
 	{
+		std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
 		switch (semantic)
 		{
 		case OceanComponentManager::TextureSemantic::GAUSSIAN_NOISE:

@@ -27,6 +27,8 @@ namespace EngineCore
             void stop();
 
             void submitTask(Task new_task);
+
+            bool empty() const;
         };
     }
 }

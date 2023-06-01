@@ -34,3 +34,7 @@ void EngineCore::Utility::TaskSchedueler::submitTask(Task new_task)
 {
     m_task_queue.push(new_task);
 }
+
+bool EngineCore::Utility::TaskSchedueler::empty() const {
+    return m_task_queue.empty();
+}

@@ -16,16 +16,17 @@ namespace EngineCore
             struct Data
             {
                 uint     used;      ///< number of components currently in use
-                uint     allocated; ///< number of components that the allocated memery can hold
+                uint     allocated; ///< number of components that the allocated memory can hold
                 uint8_t* buffer;    ///< raw data pointer
 
-                Entity* entity;       ///< entity owning that owns the component
+                Entity* entity;       ///< entity owning the component
                 Vec3*   light_colour; ///< color of the light in rgb values
                 float*  lumen;        ///< Luminous power of the light source given in Lumen (lm)
                 float*  radius;       ///< Maximum radius
             };
 
             Data m_data;
+            mutable std::shared_mutex m_data_access_mutex;
 
         public:
             PointlightComponentManager(uint size);
@@ -35,7 +36,7 @@ namespace EngineCore
 
             void addComponent(Entity entity, Vec3 light_colour, float lumen, float radius);
 
-            void deleteComonent(Entity entity);
+            void deleteComponent(Entity entity);
 
             uint getComponentCount() const;
 

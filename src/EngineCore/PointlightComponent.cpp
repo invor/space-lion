@@ -29,6 +29,8 @@ namespace EngineCore
 
         void PointlightComponentManager::reallocate(uint size)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             Data new_data;
 
             const uint bytes = size * (sizeof(Entity)
@@ -56,6 +58,8 @@ namespace EngineCore
 
         void PointlightComponentManager::addComponent(Entity entity, Vec3 light_colour, float lumen, float radius)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             assert(m_data.used < m_data.allocated);
 
             uint index = m_data.used;
@@ -70,48 +74,56 @@ namespace EngineCore
             m_data.used++;
         }
 
-        void PointlightComponentManager::deleteComonent(Entity entity)
+        void PointlightComponentManager::deleteComponent(Entity entity)
         {
-
+            // std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         }
 
         uint PointlightComponentManager::getComponentCount() const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.used;
         }
 
         Entity PointlightComponentManager::getEntity(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.entity[index];
         }
 
         Vec3 PointlightComponentManager::getColour(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.light_colour[index];
         }
 
         float PointlightComponentManager::getLumen(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.lumen[index];
         }
 
         float PointlightComponentManager::getRadius(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.radius[index];
         }
 
         void PointlightComponentManager::setColour(uint index, Vec3 colour)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.light_colour[index] = colour;
         }
 
         void PointlightComponentManager::setLumen(uint index, float lumen)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.lumen[index] = lumen;
         }
 
         void PointlightComponentManager::setRadius(uint index, float radius)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.radius[index] = radius;
         }
 
@@ -119,9 +131,12 @@ namespace EngineCore
         {
             std::vector<Entity> rtn;
 
-            for (uint i = 0; i < m_data.used; i++)
             {
-                rtn.push_back(m_data.entity[i]);
+                std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
+                for (uint i = 0; i < m_data.used; i++)
+                {
+                    rtn.push_back(m_data.entity[i]);
+                }
             }
 
             return rtn;

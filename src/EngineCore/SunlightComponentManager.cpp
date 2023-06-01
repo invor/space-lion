@@ -34,6 +34,8 @@ namespace EngineCore
 
         void SunlightComponentManager::reallocate(uint size)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             Data new_data;
 
             const uint bytes = size * (sizeof(Entity)
@@ -61,6 +63,8 @@ namespace EngineCore
 
         void SunlightComponentManager::addComponent(Entity entity, Vec3 light_colour, float lumen, float star_radius)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             assert(m_data.used < m_data.allocated);
 
             uint index = m_data.used;
@@ -77,41 +81,48 @@ namespace EngineCore
 
         void SunlightComponentManager::deleteComonent(Entity entity)
         {
-
+            // std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         }
 
         void SunlightComponentManager::setColour(uint index, Vec3 colour)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.light_colour[index] = colour;
         }
 
         void SunlightComponentManager::setLumen(uint index, float lumen)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.lumen[index] = lumen;
         }
 
         void SunlightComponentManager::setStarRadius(uint index, float radius)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.star_radius[index] = radius;
         }
 
         Entity SunlightComponentManager::getEntity(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.entity[index];
         }
 
         Vec3 SunlightComponentManager::getColour(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.light_colour[index];
         }
 
         float SunlightComponentManager::getLumen(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.lumen[index];
         }
 
         float SunlightComponentManager::getStarRadius(uint index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.star_radius[index];
         }
 
