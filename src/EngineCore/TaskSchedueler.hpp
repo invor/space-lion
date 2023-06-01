@@ -28,7 +28,7 @@ namespace EngineCore
 
             void submitTask(Task new_task);
 
-            bool emptyQueue();
+            bool empty() const;
         };
     }
 }
