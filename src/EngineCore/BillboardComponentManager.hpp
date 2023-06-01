@@ -22,11 +22,11 @@ namespace EngineCore
         private:
             struct Data
             {
-                Data(Entity tagger, Entity taggee)
-                    : tagger(tagger), taggee(taggee) {}
+                Data(Entity entity, Entity target)
+                    : entity(entity), target(target) {}
 
-                Entity tagger; // The entity that gets followed by the taggee
-                Entity taggee; // The entity that gets tagged, i.e. the entity that follows the tagger
+                Entity entity; ///< The entity that gets rotated towards the target
+                Entity target; ///< The entity that will be faced by the billboard
             };
 
             std::vector<Data> m_billboard_data;
@@ -36,7 +36,7 @@ namespace EngineCore
             BillboardComponentManager() = default;
             ~BillboardComponentManager() = default;
 
-            void addComponent(Entity tagger, Entity taggee);
+            void addComponent(Entity entity, Entity target);
 
             // TODO: deleteComponent??
 

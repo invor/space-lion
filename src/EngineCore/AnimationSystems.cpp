@@ -36,18 +36,18 @@ void EngineCore::Animation::tagAlong(
         // then cmp.offset gets replaced by {0, 0, -1 * dist}
         // where the {0, 0, -1} denotes a position 1 meter in front of the camera
 
-        size_t tagger_idx = transform_mngr.getIndex(cmp.tagger);
-        Vec3 tagger_position = transform_mngr.getPosition(tagger_idx);
-        glm::quat tagger_orientation = transform_mngr.getOrientation(tagger_idx);
-        Vec3 rotated_offset = glm::rotate(tagger_orientation, cmp.offset);
-        Vec3 tagger_front_pos = rotated_offset + tagger_position;
+        size_t target_idx = transform_mngr.getIndex(cmp.target);
+        Vec3 target_position = transform_mngr.getPosition(target_idx);
+        glm::quat target_orientation = transform_mngr.getOrientation(target_idx);
+        Vec3 rotated_offset = glm::rotate(target_orientation, cmp.offset);
+        Vec3 target_front_pos = rotated_offset + target_position;
 
-        size_t taggee_idx = transform_mngr.getIndex(cmp.taggee);
-        Vec3 taggee_position = transform_mngr.getPosition(taggee_idx);
+        size_t entity_idx = transform_mngr.getIndex(cmp.entity);
+        Vec3 entity_position = transform_mngr.getPosition(entity_idx);
 
-        tagger_front_pos = taggee_position + (tagger_front_pos - taggee_position) * cmp.slerp_alpha;
+        target_front_pos = entity_position + (target_front_pos - entity_position) * cmp.slerp_alpha;
 
-        transform_mngr.setPosition(taggee_idx, tagger_front_pos);
+        transform_mngr.setPosition(entity_idx, target_front_pos);
     }
 }
 
@@ -60,16 +60,16 @@ void EngineCore::Animation::billboard(
     auto billboard_cmps = billboard_mngr.getBillboardComponentDataCopy();
 
     for (auto& cmp : billboard_cmps) {
-        size_t tagger_idx = transform_mngr.getIndex(cmp.tagger);
-        size_t taggee_idx = transform_mngr.getIndex(cmp.taggee);
+        size_t target_idx = transform_mngr.getIndex(cmp.target);
+        size_t entity_idx = transform_mngr.getIndex(cmp.entity);
 
-        Vec3 tagger_pos = transform_mngr.getPosition(tagger_idx);
-        Vec3 taggee_pos = transform_mngr.getPosition(taggee_idx);
+        Vec3 target_pos = transform_mngr.getPosition(target_idx);
+        Vec3 entity_pos = transform_mngr.getPosition(entity_idx);
 
         Vec3 up = Vec3(0, 1, 0);
 
-        auto r = glm::toQuat(glm::inverse(glm::lookAt(taggee_pos, tagger_pos, up)));
+        auto r = glm::toQuat(glm::inverse(glm::lookAt(entity_pos, target_pos, up)));
         //Quat r = Quat(1, 0, 0, 0);
-        transform_mngr.setOrientation(taggee_idx, r);
+        transform_mngr.setOrientation(entity_idx, r);
     }
 }
