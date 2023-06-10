@@ -17,35 +17,22 @@ namespace EngineCore
 {
     namespace Graphics
     {
-        template<typename ResourceManagerType>
         class MaterialComponentManager : public BaseMultiInstanceComponentManager
         {
         public:
 
             enum TextureSemantic { ALBEDO, NORMAL, SPECULAR, METALLIC_ROUGHNESS, ROUGHNESS };
 
-
-            MaterialComponentManager(ResourceManagerType* resource_manager)
-                : BaseMultiInstanceComponentManager(), m_resource_manager(resource_manager) {}
+            MaterialComponentManager()
+                : BaseMultiInstanceComponentManager() {}
             ~MaterialComponentManager() = default;
 
-
-            //template <typename ...T>
-            //void addComponent(
-            //	Entity entity,
-            //	std::string material_name,
-            //	ResourceID shader_program,
-            //	T... textures)
-            //{
-            //	addComponent(entity, material_name, shader_program, std::initializer_list<T>{ textures... });
-            //}
-
-            inline void addComponent(
+            void addComponent(
                 Entity      entity,
                 std::string material_name,
                 ResourceID  shader_program);
 
-            inline void addComponent(
+            void addComponent(
                 Entity entity,
                 std::string          material_name,
                 ResourceID           shader_program,
@@ -125,80 +112,10 @@ namespace EngineCore
 
             std::vector<ComponentData> m_component_data;
             mutable std::shared_mutex  m_data_mutex;
-
-            ResourceManagerType*       m_resource_manager;
         };
 
-        template<typename ResourceManagerType>
-        inline void MaterialComponentManager<ResourceManagerType>::addComponent(
-            Entity entity,
-            std::string material_name,
-            ResourceID shader_program)
-        {
-            addComponent(
-                entity,
-                material_name,
-                shader_program,
-                std::array<float, 4>{1.0f, 0.5f, 1.0f, 1.0f},
-                std::array<float, 4>{1.0f, 1.0f, 1.0f, 1.0f},
-                0.8f,
-                std::vector<std::pair<TextureSemantic, ResourceID>>());
-        }
-
-        template<typename ResourceManagerType>
-        inline void MaterialComponentManager<ResourceManagerType>::addComponent(
-            Entity entity,
-            std::string material_name,
-            ResourceID shader_program,
-            std::array<float, 4> albedo_colour,
-            std::array<float, 4> specular_colour,
-            float roughness)
-        {
-            addComponent(
-                entity,
-                material_name,
-                shader_program,
-                albedo_colour,
-                specular_colour,
-                roughness,
-                std::vector<std::pair<TextureSemantic, ResourceID>>());
-        }
-
-        template<typename ResourceManagerType>
-        inline ResourceID MaterialComponentManager<ResourceManagerType>::getTextures(size_t component_idx, TextureSemantic semantic) const
-        {
-            std::shared_lock<std::shared_mutex> lock(m_data_mutex);
-
-            //std::vector<ResourceID> retval;
-            //
-            //auto range_query = m_component_data[component_idx].textures.equal_range(semantic);
-            //
-            //if (range_query.first != m_component_data[component_idx].textures.end())
-            //{
-            //    for (auto itr = range_query.first; itr != range_query.second; ++itr){
-            //        retval.push_back(itr->second);
-            //    }
-            //}
-            //
-            //return retval;
-
-            ResourceID retval = ResourceManagerType::invalidResourceID();
-
-            for (auto& tx : m_component_data[component_idx].textures)
-            {
-                if(std::get<0>(tx) == semantic)
-                {
-                    retval = std::get<1>(tx);
-                    break;
-                }
-            }
-
-            return retval;
-        }
-
-        template<typename ResourceManagerType>
         template <typename ResourceIDContainer>
-        inline void MaterialComponentManager<ResourceManagerType>::addComponent(
+        void MaterialComponentManager::addComponent(
             Entity               entity,
             std::string          material_name,
             ResourceID           shader_program,
@@ -218,10 +135,9 @@ namespace EngineCore
                 albedo_colour,
                 specular_colour,
                 roughness,
-                std::vector<std::pair<TextureSemantic,ResourceID>>(textures.begin(), textures.end())
+                std::vector<std::pair<TextureSemantic, ResourceID>>(textures.begin(), textures.end())
             ));
         }
-
     }
 }
 

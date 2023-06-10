@@ -276,7 +276,7 @@ namespace EngineCore
             }
 
             auto& transform_mngr = m_world.get<EngineCore::Common::TransformComponentManager>();
-            auto& mtl_mngr = m_world.get<EngineCore::Graphics::MaterialComponentManager<ResourceManagerType>>();
+            auto& mtl_mngr = m_world.get<EngineCore::Graphics::MaterialComponentManager>();
             auto& mesh_mngr = m_world.get<EngineCore::Graphics::MeshComponentManager<ResourceManagerType>>();
             auto& staticMesh_renderTask_mngr = m_world.get<EngineCore::Graphics::RenderTaskComponentManager<EngineCore::Graphics::RenderTaskTags::StaticMesh>>();
             auto& skinnedMesh_renderTask_mngr = m_world.get<EngineCore::Graphics::RenderTaskComponentManager<EngineCore::Graphics::RenderTaskTags::SkinnedMesh>>();
@@ -569,7 +569,7 @@ namespace EngineCore
                     float roughness = 0.8f;
                     std::array<float, 4> specular_colour = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-                    typedef MaterialComponentManager<ResourceManagerType>::TextureSemantic TextureSemantic;
+                    typedef MaterialComponentManager::TextureSemantic TextureSemantic;
                     std::vector< std::pair<TextureSemantic, ResourceID>> textures;
 
                     std::string identifier_string =

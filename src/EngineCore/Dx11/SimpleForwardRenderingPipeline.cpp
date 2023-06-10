@@ -110,7 +110,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 
 		auto& cam_mngr = world.get<CameraComponentManager>();
 		auto& mesh_mngr = world.get<MeshComponentManager<ResourceManager>>();
-		auto& mtl_mngr = world.get<MaterialComponentManager<ResourceManager>>();
+		auto& mtl_mngr = world.get<MaterialComponentManager>();
 		auto& transform_mngr = world.get<EngineCore::Common::TransformComponentManager>();
 		auto& staticMesh_renderTask_mngr = world.get<RenderTaskComponentManager<RenderTaskTags::StaticMesh>>();
 		auto& unlit_renderTask_mngr = world.get<RenderTaskComponentManager<RenderTaskTags::Unlit>>();
@@ -204,7 +204,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
 			}
 
 			auto mtl_comp_idx = mtl_mngr.getIndex(rt.entity);
-			auto texture = mtl_mngr.getTextures(mtl_comp_idx[rt.mtl_component_subidx], MaterialComponentManager<ResourceManager>::TextureSemantic::ALBEDO);
+			auto texture = mtl_mngr.getTextures(mtl_comp_idx[rt.mtl_component_subidx], MaterialComponentManager::TextureSemantic::ALBEDO);
 		
 			auto mesh_comp_idx = mesh_mngr.getIndex(rt.entity);
 			auto draw_params = mesh_mngr.getDrawIndexedParams(mesh_comp_idx[rt.mesh_component_subidx]);
