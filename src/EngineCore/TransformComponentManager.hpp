@@ -69,6 +69,8 @@ namespace EngineCore
 
             void setOrientation(size_t index, Quat orientation);
 
+            void setScale(size_t index, Vec3 scale);
+
             void setParent(size_t index, Entity parent);
 
             const Vec3 & getPosition(size_t index) const;

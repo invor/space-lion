@@ -222,6 +222,15 @@ namespace EngineCore
             transform(index);
         }
 
+        void TransformComponentManager::setScale(size_t index, Vec3 scale)
+        {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
+            m_data.scale[index] = scale;
+
+            transform(index);
+        }
+
         void TransformComponentManager::setParent(size_t index, Entity parent)
         {
             std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
