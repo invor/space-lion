@@ -19,6 +19,7 @@ namespace EngineCore
         struct BaseFrame {
             size_t m_frameID = 0; ///< frame id assigned to each frame upon creation
             double m_simulation_dt = 0.0; ///< time elapsed since last frame was created
+            std::chrono::steady_clock::time_point m_simulation_time = std::chrono::steady_clock::now();
 
             size_t m_render_frameID = 0; ///< frame id assigned by graphics backend to processed frames
             double m_render_dt = 0.0; ///< time elapsed since last frame processed by graphics backend
