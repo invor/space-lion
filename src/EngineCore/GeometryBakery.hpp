@@ -27,8 +27,8 @@ namespace EngineCore
             NORMAL    = 0x2,
             TANGENT   = 0x4,
             BITANGENT = 0x8,
-            UV        = 0x16,
-            COLOR     = 0x32
+            UV        = 0x10,
+            COLOR     = 0x20
         };
 
         /**
