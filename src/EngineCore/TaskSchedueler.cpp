@@ -15,9 +15,15 @@ void EngineCore::Utility::TaskSchedueler::run(int worker_thread_cnt)
             {
                 std::function<void()> f;
                 if (m_task_queue.tryPop(f, std::chrono::microseconds(10))) {
-                    ++m_busy_threads_cnt;
+                    {
+                        std::lock_guard<std::mutex> lock(m_busy_mutex);
+                        ++m_busy_threads_cnt;
+                    }
                     f();
-                    --m_busy_threads_cnt;
+                    {
+                        std::lock_guard<std::mutex> lock(m_busy_mutex);
+                        --m_busy_threads_cnt;
+                    }
                     m_busy_cv.notify_all();
                 }
             }
