@@ -480,6 +480,12 @@ namespace EngineCore
 					std::vector<TexelDataContainer> const& data,
 					D3D11_TEXTURE2D_DESC const&	           desc,
 					D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view);
+
+				ResourceID createTextTexture2DAsync(
+					std::string const& name,
+					std::string const& text,
+					D3D11_TEXTURE2D_DESC const& desc,
+					bool generate_mipmap);
 	#pragma endregion
 
 	#pragma region Create Render Targets

@@ -2,8 +2,14 @@
 
 #include <winrt/Windows.Storage.h>
 
+#include <iostream>
+#include <codecvt>
 #include <filesystem>
 #include <fstream>
+
+#include <dxgi.h>
+#include <d2d1_2.h>
+#include <dwrite_2.h>
 
 #include "ResourceLoading.hpp"
 
@@ -24,6 +30,197 @@ namespace {
 	//	DataReader::FromBuffer(fileBuffer).ReadBytes(winrt::array_view<uint8_t>(returnBuffer));
 	//	co_return returnBuffer;
 	//}
+
+	// Copyright (c) Microsoft Corporation.
+	// Licensed under the MIT License.
+	// See https://github.com/microsoft/OpenXR-MixedReality
+	inline std::wstring utf8_to_wide(std::string_view utf8Text) {
+		if (utf8Text.empty()) {
+			return {};
+		}
+
+		std::wstring wideText;
+		const int wideLength = ::MultiByteToWideChar(CP_UTF8, 0, utf8Text.data(), (int)utf8Text.size(), nullptr, 0);
+		if (wideLength == 0) {
+			std::cerr<<"utf8_to_wide get size error.";
+			return {};
+		}
+
+		// MultiByteToWideChar returns number of chars of the input buffer, regardless of null terminitor
+		wideText.resize(wideLength, 0);
+		const int length = ::MultiByteToWideChar(CP_UTF8, 0, utf8Text.data(), (int)utf8Text.size(), wideText.data(), wideLength);
+		if (length != wideLength) {
+			std::cerr<<"utf8_to_wide convert string error.";
+			return {};
+		}
+
+		return wideText;
+	}
+
+	// Copyright (c) Microsoft Corporation.
+	// Licensed under the MIT License.
+	// See https://github.com/microsoft/OpenXR-MixedReality
+	inline std::string wide_to_utf8(std::wstring_view wideText) {
+		if (wideText.empty()) {
+			return {};
+		}
+
+		std::string narrowText;
+		int narrowLength = ::WideCharToMultiByte(CP_UTF8, 0, wideText.data(), (int)wideText.size(), nullptr, 0, nullptr, nullptr);
+		if (narrowLength == 0) {
+			std::cerr<<"wide_to_utf8 get size error.";
+			return {};
+		}
+
+		// WideCharToMultiByte returns number of chars of the input buffer, regardless of null terminitor
+		narrowText.resize(narrowLength, 0);
+		const int length =
+			::WideCharToMultiByte(CP_UTF8, 0, wideText.data(), (int)wideText.size(), narrowText.data(), narrowLength, nullptr, nullptr);
+		if (length != narrowLength) {
+			std::cerr<<"wide_to_utf8 convert string error.";
+			return {};
+		}
+
+		return narrowText;
+	}
+
+	// Copyright (c) Microsoft Corporation.
+	// Licensed under the MIT License.
+	// See https://github.com/microsoft/OpenXR-MixedReality
+	struct TextTextureInfo {
+		TextTextureInfo(uint32_t width, uint32_t height)
+			: Width(width)
+			, Height(height) {
+		}
+
+		uint32_t Width;
+		uint32_t Height;
+		const wchar_t* FontName = L"Segoe UI";
+		float FontSize = 18;
+		float Margin = 0;
+		std::array<float, 4> Foreground = { 1,1,1,1 };
+		std::array<float, 4> Background = { 0,0,0,0 };
+		DWRITE_TEXT_ALIGNMENT TextAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		DWRITE_PARAGRAPH_ALIGNMENT ParagraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+		DXGI_FORMAT TextFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
+	};
+
+	// Copyright (c) Microsoft Corporation.
+	// Licensed under the MIT License.
+	// See https://github.com/microsoft/OpenXR-MixedReality
+	// Manages a texture which can be drawn to.
+	class TextTexture {
+	public:
+		inline TextTexture(
+			ID3D11Device4* d3d11_device,
+			ID3D11DeviceContext4* d3d11_device_context,
+			TextTextureInfo textInfo)
+			: m_textInfo(std::move(textInfo))
+		{
+			D2D1_FACTORY_OPTIONS options{};
+			
+			winrt::check_hresult(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, winrt::guid_of<ID2D1Factory2>(), &options, m_d2dFactory.put_void()));
+			winrt::check_hresult(DWriteCreateFactory(
+				DWRITE_FACTORY_TYPE_SHARED, winrt::guid_of<IDWriteFactory2>(), reinterpret_cast<IUnknown**>(m_dwriteFactory.put_void())));
+
+			IDXGIDevice* pDXGIDevice;
+			auto hr = d3d11_device->QueryInterface(__uuidof(IDXGIDevice), (void**)&pDXGIDevice);
+			winrt::check_hresult(m_d2dFactory->CreateDevice(pDXGIDevice, m_d2dDevice.put()));
+			winrt::check_hresult(m_d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, m_d2dContext.put()));
+
+			//
+			// Create text format.
+			//
+			winrt::check_hresult(m_dwriteFactory->CreateTextFormat(m_textInfo.FontName,
+				nullptr,
+				DWRITE_FONT_WEIGHT_NORMAL,
+				DWRITE_FONT_STYLE_NORMAL,
+				DWRITE_FONT_STRETCH_NORMAL,
+				m_textInfo.FontSize,
+				L"en-US",
+				m_textFormat.put()));
+			winrt::check_hresult(m_textFormat->SetTextAlignment(m_textInfo.TextAlignment));
+			winrt::check_hresult(m_textFormat->SetParagraphAlignment(m_textInfo.ParagraphAlignment));
+
+			winrt::check_hresult(m_d2dFactory->CreateDrawingStateBlock(m_stateBlock.put()));
+
+			//
+			// Set up 2D rendering modes.
+			//
+			const D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
+				D2D1::PixelFormat(m_textInfo.TextFormat, D2D1_ALPHA_MODE_PREMULTIPLIED));
+
+			const auto texDesc = CD3D11_TEXTURE2D_DESC(m_textInfo.TextFormat,
+				m_textInfo.Width,
+				m_textInfo.Height,
+				1,
+				1,
+				D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE,
+				D3D11_USAGE_DEFAULT,
+				0,
+				1,
+				0,
+				0);
+			winrt::check_hresult(d3d11_device->CreateTexture2D(&texDesc, nullptr, m_textDWriteTexture.put()));
+
+			winrt::com_ptr<IDXGISurface> dxgiPerfBuffer = m_textDWriteTexture.as<IDXGISurface>();
+			winrt::check_hresult(m_d2dContext->CreateBitmapFromDxgiSurface(dxgiPerfBuffer.get(), &bitmapProperties, m_d2dTargetBitmap.put()));
+
+			m_d2dContext->SetTarget(m_d2dTargetBitmap.get());
+			m_d2dContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
+			m_d2dContext->SetTransform(D2D1::Matrix3x2F::Identity());
+
+			const auto& foreground = m_textInfo.Foreground;
+			const D2D1::ColorF brushColor(std::get<0>(foreground), std::get<1>(foreground), std::get<2>(foreground), std::get<3>(foreground));
+			winrt::check_hresult(m_d2dContext->CreateSolidColorBrush(brushColor, m_brush.put()));
+		}
+
+		inline void Draw(std::string text)
+		{
+			m_d2dContext->SaveDrawingState(m_stateBlock.get());
+
+			const D2D1_SIZE_F renderTargetSize = m_d2dContext->GetSize();
+			m_d2dContext->BeginDraw();
+
+			const auto& background = m_textInfo.Background;
+			m_d2dContext->Clear(D2D1::ColorF(std::get<0>(background), std::get<1>(background), std::get<2>(background), std::get<3>(background)));
+
+			if (!text.empty()) {
+				const auto& margin = m_textInfo.Margin;
+				std::wstring wtext = utf8_to_wide(text);
+				m_d2dContext->DrawText(wtext.c_str(),
+					(UINT32)wtext.size(),
+					m_textFormat.get(),
+					D2D1::RectF(m_textInfo.Margin,
+						m_textInfo.Margin,
+						renderTargetSize.width - m_textInfo.Margin * 2,
+						renderTargetSize.height - m_textInfo.Margin * 2),
+					m_brush.get());
+			}
+
+			m_d2dContext->EndDraw();
+
+			m_d2dContext->RestoreDrawingState(m_stateBlock.get());
+		}
+
+		ID3D11Texture2D* Texture() const
+		{
+			return m_textDWriteTexture.get();
+		}
+
+	private:
+		const TextTextureInfo m_textInfo;
+		winrt::com_ptr<ID2D1Factory2> m_d2dFactory;
+		winrt::com_ptr<ID2D1Device1> m_d2dDevice;
+		winrt::com_ptr<ID2D1DeviceContext1> m_d2dContext;
+		winrt::com_ptr<ID2D1Bitmap1> m_d2dTargetBitmap;
+		winrt::com_ptr<ID2D1SolidColorBrush> m_brush;
+		winrt::com_ptr<ID2D1DrawingStateBlock> m_stateBlock;
+		winrt::com_ptr<IDWriteFactory2> m_dwriteFactory;
+		winrt::com_ptr<IDWriteTextFormat> m_textFormat;
+		winrt::com_ptr<ID3D11Texture2D> m_textDWriteTexture;
+	};
+
 }
 
 EngineCore::Graphics::Dx11::ResourceManager::ResourceManager()
@@ -238,4 +435,64 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(
 	m_shader_programs[idx].state = READY;
 
 	return m_shader_programs.back().id;
+}
+
+
+ResourceID EngineCore::Graphics::Dx11::ResourceManager::createTextTexture2DAsync(
+	std::string const& name,
+	std::string const& text,
+	D3D11_TEXTURE2D_DESC const& desc,
+	bool generate_mipmap)
+{
+	std::unique_lock<std::shared_mutex> lock(m_textures_2d_mutex);
+
+	size_t idx = m_textures_2d.size();
+	ResourceID rsrc_id = generateResourceID();
+	m_textures_2d.push_back(Resource<dxowl::Texture2D>(rsrc_id));
+
+	addTextureIndex(rsrc_id.value(), name, idx);
+
+	m_renderThread_tasks.push(
+		[this, idx, text, desc, generate_mipmap]() {
+
+			std::vector<const void*> data_ptrs = { nullptr };
+
+			D3D11_SHADER_RESOURCE_VIEW_DESC shdr_rsrc_view;
+			shdr_rsrc_view.Format = desc.Format;
+			shdr_rsrc_view.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			shdr_rsrc_view.TextureCube.MipLevels = desc.MipLevels;
+			shdr_rsrc_view.TextureCube.MostDetailedMip = 0;
+
+			this->m_textures_2d[idx].resource = std::make_unique<dxowl::Texture2D>(
+				m_d3d11_device,
+				data_ptrs,
+				desc,
+				shdr_rsrc_view,
+				generate_mipmap);
+
+			std::unique_ptr<TextTexture> text_to_texture
+				= std::make_unique<TextTexture>(m_d3d11_device, m_d3d11_device_context, TextTextureInfo(desc.Width,desc.Height));
+			text_to_texture->Draw(text);
+
+			// copy rendered text texture
+			{
+				D3D11_BOX src_region;
+				src_region.left = 0;
+				src_region.right = 512;
+				src_region.top = 0;
+				src_region.bottom = 512;
+				src_region.front = 0;
+				src_region.back = 1;
+
+				ID3D11Resource* src_rsrc = text_to_texture->Texture();
+				ID3D11Resource* dest_rsrc;
+				this->m_textures_2d[idx].resource->getShaderResourceView()->GetResource(&dest_rsrc);
+				m_d3d11_device_context->CopySubresourceRegion(dest_rsrc, 0, 0, 0, 0, src_rsrc, 0, &src_region);
+			}
+
+			this->m_textures_2d[idx].state = READY;
+		}
+	);
+
+	return m_textures_2d[idx].id;
 }
