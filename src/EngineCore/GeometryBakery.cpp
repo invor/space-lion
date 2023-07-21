@@ -45,7 +45,8 @@ namespace EngineCore
         std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createPlane(
             float width,
             float height,
-            int attribute_bit_mask)
+            int attribute_bit_mask,
+            bool z_up)
         {
             struct Vec2
             {
@@ -84,12 +85,12 @@ namespace EngineCore
             for (int i = 0; i < 4; ++i)
             {
                 position_ptr[i].x = (width / 2.0f) * width_signs[i];
-                position_ptr[i].y = 0.0f;
-                position_ptr[i].z = (height / 2.0f) * height_signs[i];
+                position_ptr[i].y = z_up  ? (height / 2.0f) * height_signs[i] : 0.0f;
+                position_ptr[i].z = !z_up ? (height / 2.0f) * height_signs[i] : 0.0f;
 
                 normal_ptr[i].x = 0.0f;
-                normal_ptr[i].y = 1.0f;
-                normal_ptr[i].z = 0.0f;
+                normal_ptr[i].y = z_up  ? 0.0f : 1.0f;
+                normal_ptr[i].z = !z_up ? 0.0f : 1.0f;
 
                 tangent_ptr[i].x = 1.0f;
                 tangent_ptr[i].y = 0.0f;
@@ -104,8 +105,8 @@ namespace EngineCore
                 uv_ptr[i].v = (height_signs[i] + 1.0f) / 2.0f;
 
                 bitangent_ptr[i].x = 0.0f;
-                bitangent_ptr[i].y = 0.0f;
-                bitangent_ptr[i].z = 1.0f;
+                bitangent_ptr[i].y = z_up  ? -1.0f : 0.0f;
+                bitangent_ptr[i].z = !z_up ? 1.0f : 0.0f;
             }
 
             VertexDataPtr vertex_data = std::make_shared<std::vector<std::vector<uint8_t>>>();

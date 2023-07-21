@@ -102,7 +102,7 @@ namespace {
 		std::array<float, 4> Background = { 0,0,0,0 };
 		DWRITE_TEXT_ALIGNMENT TextAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 		DWRITE_PARAGRAPH_ALIGNMENT ParagraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-		DXGI_FORMAT TextFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
+		DXGI_FORMAT TextFormat = DXGI_FORMAT_R8G8B8A8_UNORM;// DXGI_FORMAT_B8G8R8A8_UNORM;
 	};
 
 	// Copyright (c) Microsoft Corporation.
@@ -455,7 +455,7 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createTextTexture2DAsync
 	m_renderThread_tasks.push(
 		[this, idx, text, desc, generate_mipmap]() {
 
-			std::vector<const void*> data_ptrs = { nullptr };
+			std::vector<const void*> data_ptrs;
 
 			D3D11_SHADER_RESOURCE_VIEW_DESC shdr_rsrc_view;
 			shdr_rsrc_view.Format = desc.Format;

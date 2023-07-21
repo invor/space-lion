@@ -42,7 +42,8 @@ namespace EngineCore
         std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createPlane(
             float width,
             float height,
-            int attribute_bit_mask);
+            int attribute_bit_mask,
+            bool z_up = false);
 
         /**
         * \brief Creates and returns unit box geometry
