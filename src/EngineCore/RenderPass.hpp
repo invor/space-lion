@@ -62,12 +62,12 @@ namespace EngineCore
 
             void execute() const { m_execute(m_data, m_resources); }
 
-            Data		m_data;
-            Resources	m_resources;
+            Data        m_data;
+            Resources    m_resources;
 
-            SetupCallback<Data, Resources>		m_data_setup;
-            SetupCallback<Data, Resources>		m_resources_setup;
-            ExecuteCallback<Data, Resources>	m_execute;
+            SetupCallback<Data, Resources>        m_data_setup;
+            SetupCallback<Data, Resources>        m_resources_setup;
+            ExecuteCallback<Data, Resources>    m_execute;
         };
 
         class RenderPass
@@ -113,9 +113,9 @@ namespace EngineCore
             void execute() { m_pass->execute(); }
 
         private:
-            std::string	m_description;
+            std::string    m_description;
 
-            RenderPassConcept*	m_pass;
+            RenderPassConcept*    m_pass;
         };
 
     }

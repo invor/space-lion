@@ -20,18 +20,18 @@ namespace Graphics {
     private:
         struct Data
         {
-            uint used;						///< number of components currently in use
-            uint allocated;					///< number of components that the allocated memery can hold
-            uint8_t* buffer;				///< raw data pointer
+            uint used;                        ///< number of components currently in use
+            uint allocated;                    ///< number of components that the allocated memery can hold
+            uint8_t* buffer;                ///< raw data pointer
 
-            Entity* entity;					///< entity owning the component
+            Entity* entity;                    ///< entity owning the component
 
-            Vec3* beta_r;					///< extinction coefficient for Rayleigh scattering
-            Vec3* beta_m;					///< extinction coefficient for Mie scattering
-            float* h_r;						///< ?
-            float* h_m;						///< ?
-            float* min_altitude;			///< minimum altitude of the atmosphere
-            float* max_altitude;			///< maximum altitude of the atmosphere<
+            Vec3* beta_r;                    ///< extinction coefficient for Rayleigh scattering
+            Vec3* beta_m;                    ///< extinction coefficient for Mie scattering
+            float* h_r;                        ///< ?
+            float* h_m;                        ///< ?
+            float* min_altitude;            ///< minimum altitude of the atmosphere
+            float* max_altitude;            ///< maximum altitude of the atmosphere<
             ResourceID* transmittance_lut;
             ResourceID* mie_inscatter_lut;
             ResourceID* rayleigh_inscatter_lut;

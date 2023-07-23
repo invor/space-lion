@@ -150,26 +150,26 @@ namespace EngineCore
 
             m_data.projection_matrix[index] = glm::perspective(fovy, aspect_ratio, near_cp, far_cp);
 
-            //	float f = 1.0f / std::tan(fovy / 2.0f);
-            //	float nf = 1.0f / (near_cp - far_cp);
-            //	projection_matrix[0][0] = f / aspect_ratio;
-            //	projection_matrix[0][1] = 0.0f;
-            //	projection_matrix[0][2] = 0.0f;
-            //	projection_matrix[0][3] = 0.0f;
-            //	projection_matrix[1][0] = 0.0f;
-            //	projection_matrix[1][1] = f;
-            //	projection_matrix[1][2] = 0.0f;
-            //	projection_matrix[1][3] = 0.0f;
-            //	projection_matrix[2][0] = 0.0f;
-            //	projection_matrix[2][1] = 0.0f;
-            //	projection_matrix[2][2] = (far_cp + near_cp) * nf;
-            //	projection_matrix[2][3] = -1.0f;
-            //	projection_matrix[3][0] = 0.0f;
-            //	projection_matrix[3][1] = 0.0f;
-            //	projection_matrix[3][2] = (2.0f * far_cp * near_cp) * nf;
-            //	projection_matrix[3][3] = 0.0f;
-            //	
-            //	m_data.projection_matrix[index] = projection_matrix;
+            //    float f = 1.0f / std::tan(fovy / 2.0f);
+            //    float nf = 1.0f / (near_cp - far_cp);
+            //    projection_matrix[0][0] = f / aspect_ratio;
+            //    projection_matrix[0][1] = 0.0f;
+            //    projection_matrix[0][2] = 0.0f;
+            //    projection_matrix[0][3] = 0.0f;
+            //    projection_matrix[1][0] = 0.0f;
+            //    projection_matrix[1][1] = f;
+            //    projection_matrix[1][2] = 0.0f;
+            //    projection_matrix[1][3] = 0.0f;
+            //    projection_matrix[2][0] = 0.0f;
+            //    projection_matrix[2][1] = 0.0f;
+            //    projection_matrix[2][2] = (far_cp + near_cp) * nf;
+            //    projection_matrix[2][3] = -1.0f;
+            //    projection_matrix[3][0] = 0.0f;
+            //    projection_matrix[3][1] = 0.0f;
+            //    projection_matrix[3][2] = (2.0f * far_cp * near_cp) * nf;
+            //    projection_matrix[3][3] = 0.0f;
+            //    
+            //    m_data.projection_matrix[index] = projection_matrix;
         }
 
         void CameraComponentManager::setNear(uint index, float near_cp)

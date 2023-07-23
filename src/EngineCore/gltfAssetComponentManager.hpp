@@ -452,8 +452,8 @@ namespace EngineCore
                     Vec3 min(static_cast<float>(min_data[0]), static_cast<float>(min_data[1]), static_cast<float>(min_data[2]));
 
                     //app_content.accessBoundingBoxManager().addComponent(entity, DirectX::BoundingBox(
-                    //	(max + min) * 0.5f,
-                    //	(max - min) * 0.5f));
+                    //    (max + min) * 0.5f,
+                    //    (max - min) * 0.5f));
 
                     auto mesh_data = loadMeshPrimitveData(model, gltf_node_idx, primitive_idx);
 

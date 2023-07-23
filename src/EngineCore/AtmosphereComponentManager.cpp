@@ -134,7 +134,7 @@
 //    }
 //    m_atmosphere_prgm->setUniform("sun_count", sun_count);
 //
-//    /*	Draw all entities instanced */
+//    /*    Draw all entities instanced */
 //    int instance_counter = 0;
 //    std::string atmosphere_center_uniform;
 //    std::string max_altitude_uniform;

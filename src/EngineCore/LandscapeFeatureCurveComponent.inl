@@ -162,52 +162,52 @@ std::tuple<VertexData, IndexData, GenericVertexLayout> EngineCore::Graphics::Lan
     }
 
     Vec3 v0 = Vec3(0.0);
-    //			Vec3 v1 = v0 + 1.5f * m_featureCurves[index].m_ribbon_width * constraintPoint.m_gradient_0;
-    //			Vec3 v2 = v0 + 1.5f * m_featureCurves[index].m_ribbon_width * constraintPoint.m_gradient_1;
-    //			std::vector<float> gradient_interface_vertices({ v0.x,v0.y,v0.z,1.0,1.0,0.0,1.0,
-    //				v1.x,v1.y,v1.z,1.0,1.0,0.0,1.0,
-    //				v2.x,v2.y,v2.z,1.0,1.0,0.0,1.0 });
+    //            Vec3 v1 = v0 + 1.5f * m_featureCurves[index].m_ribbon_width * constraintPoint.m_gradient_0;
+    //            Vec3 v2 = v0 + 1.5f * m_featureCurves[index].m_ribbon_width * constraintPoint.m_gradient_1;
+    //            std::vector<float> gradient_interface_vertices({ v0.x,v0.y,v0.z,1.0,1.0,0.0,1.0,
+    //                v1.x,v1.y,v1.z,1.0,1.0,0.0,1.0,
+    //                v2.x,v2.y,v2.z,1.0,1.0,0.0,1.0 });
     //
-    //			//std::vector<float> gradient_interface_vertices({ v0.x,v0.y,v0.z,0.47f,0.125f,0.125f,1.0f,
-    //			//	v1.x,v1.y,v1.z,0.47f,0.125f,0.125f,1.0f,
-    //			//	v2.x,v2.y,v2.z,0.47f,0.125f,0.125f,1.0f });
+    //            //std::vector<float> gradient_interface_vertices({ v0.x,v0.y,v0.z,0.47f,0.125f,0.125f,1.0f,
+    //            //    v1.x,v1.y,v1.z,0.47f,0.125f,0.125f,1.0f,
+    //            //    v2.x,v2.y,v2.z,0.47f,0.125f,0.125f,1.0f });
     //
-    //			std::vector<float> gradient_select_vertices({ v0.x,v0.y,v0.z, v1.x,v1.y,v1.z, v2.x,v2.y,v2.z });
+    //            std::vector<float> gradient_select_vertices({ v0.x,v0.y,v0.z, v1.x,v1.y,v1.z, v2.x,v2.y,v2.z });
     //
-    //			//TODO insert selection mesh
-    //			std::vector<uint> lh_gradient_indices({ 0,1 });
+    //            //TODO insert selection mesh
+    //            std::vector<uint> lh_gradient_indices({ 0,1 });
     //
-    //			VertexLayout vertex_description(28, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
-    //				VertexLayout::Attribute(GL_FLOAT,4,GL_FALSE,sizeof(GLfloat) * 3) });
+    //            VertexLayout vertex_description(28, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
+    //                VertexLayout::Attribute(GL_FLOAT,4,GL_FALSE,sizeof(GLfloat) * 3) });
     //
-    //			GRenderingComponents::interfaceMeshManager().updateComponent(constraintPoint.m_lefthand_gradient,
-    //				gradient_interface_vertices,
-    //				lh_gradient_indices,
-    //				vertex_description,
-    //				GL_LINES);
+    //            GRenderingComponents::interfaceMeshManager().updateComponent(constraintPoint.m_lefthand_gradient,
+    //                gradient_interface_vertices,
+    //                lh_gradient_indices,
+    //                vertex_description,
+    //                GL_LINES);
     //
-    //			VertexLayout picking_vertex_description(12, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0) });
+    //            VertexLayout picking_vertex_description(12, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0) });
     //
-    //			GRenderingComponents::pickingManager().updateComponentProxyGeometry(constraintPoint.m_lefthand_gradient,
-    //				gradient_select_vertices,
-    //				lh_gradient_indices,
-    //				picking_vertex_description,
-    //				GL_LINES);
+    //            GRenderingComponents::pickingManager().updateComponentProxyGeometry(constraintPoint.m_lefthand_gradient,
+    //                gradient_select_vertices,
+    //                lh_gradient_indices,
+    //                picking_vertex_description,
+    //                GL_LINES);
     //
     //
-    //			std::vector<uint> rh_gradient_indices({ 0,2 });
+    //            std::vector<uint> rh_gradient_indices({ 0,2 });
     //
-    //			GRenderingComponents::interfaceMeshManager().updateComponent(constraintPoint.m_righthand_gradient,
-    //				gradient_interface_vertices,
-    //				rh_gradient_indices,
-    //				vertex_description,
-    //				GL_LINES);
+    //            GRenderingComponents::interfaceMeshManager().updateComponent(constraintPoint.m_righthand_gradient,
+    //                gradient_interface_vertices,
+    //                rh_gradient_indices,
+    //                vertex_description,
+    //                GL_LINES);
     //
-    //			GRenderingComponents::pickingManager().updateComponentProxyGeometry(constraintPoint.m_righthand_gradient,
-    //				gradient_select_vertices,
-    //				rh_gradient_indices,
-    //				picking_vertex_description,
-    //				GL_LINES);
+    //            GRenderingComponents::pickingManager().updateComponentProxyGeometry(constraintPoint.m_righthand_gradient,
+    //                gradient_select_vertices,
+    //                rh_gradient_indices,
+    //                picking_vertex_description,
+    //                GL_LINES);
 }
 
 template<typename ResourceManagerType>
@@ -237,34 +237,34 @@ void EngineCore::Graphics::Landscape::FeatureCurveComponentManager<ResourceManag
     auto mesh_data = computeCurveProxyMesh(idx);
     //GEngineCore::resourceManager().updateMeshAsync(proxy_mesh,mesh_data.first,mesh_data.second);
 
-    //		#if EDITOR_MODE // preprocessor definition
-    //		
-    //				VertexLayout vertex_description(60, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
-    //					VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,sizeof(GLfloat) * 3),
-    //					VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,sizeof(GLfloat) * 6),
-    //					VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,sizeof(GLfloat) * 9),
-    //					VertexLayout::Attribute(GL_FLOAT,2,GL_FALSE,sizeof(GLfloat) * 12),
-    //					VertexLayout::Attribute(GL_FLOAT,1,GL_FALSE,sizeof(GLfloat) * 14) });
-    //		
-    //				GRenderingComponents::interfaceMeshManager().addComponent<std::vector<float>, std::vector<uint>>(entity,
-    //					"feature_curve" + std::to_string(idx),
-    //					"../resources/materials/editor/interface_curve.slmtl",
-    //					m_featureCurves.back().m_mesh_vertices,
-    //					m_featureCurves.back().m_mesh_indices,
-    //					vertex_description,
-    //					GL_TRIANGLES);
-    //		
-    //				// add selectable component
-    //				GRenderingComponents::pickingManager().addComponent<std::vector<float>, std::vector<uint>>(entity,
-    //					"feature_curve_" + std::to_string(idx) + "_selectProxy",
-    //					"../resources/materials/editor/picking.slmtl",
-    //					m_featureCurves.back().m_mesh_vertices,
-    //					m_featureCurves.back().m_mesh_indices,
-    //					vertex_description,
-    //					GL_TRIANGLES);
-    //				GTools::selectManager().addComponent(entity, std::bind(&Editor::LandscapeTools::activateFeatureCurveTools, &GTools::landscapeTool(), entity),
-    //					std::bind(&Editor::LandscapeTools::deactivateFeatureCurveTools, &GTools::landscapeTool()));
-    //		#endif
+    //        #if EDITOR_MODE // preprocessor definition
+    //        
+    //                VertexLayout vertex_description(60, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
+    //                    VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,sizeof(GLfloat) * 3),
+    //                    VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,sizeof(GLfloat) * 6),
+    //                    VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,sizeof(GLfloat) * 9),
+    //                    VertexLayout::Attribute(GL_FLOAT,2,GL_FALSE,sizeof(GLfloat) * 12),
+    //                    VertexLayout::Attribute(GL_FLOAT,1,GL_FALSE,sizeof(GLfloat) * 14) });
+    //        
+    //                GRenderingComponents::interfaceMeshManager().addComponent<std::vector<float>, std::vector<uint>>(entity,
+    //                    "feature_curve" + std::to_string(idx),
+    //                    "../resources/materials/editor/interface_curve.slmtl",
+    //                    m_featureCurves.back().m_mesh_vertices,
+    //                    m_featureCurves.back().m_mesh_indices,
+    //                    vertex_description,
+    //                    GL_TRIANGLES);
+    //        
+    //                // add selectable component
+    //                GRenderingComponents::pickingManager().addComponent<std::vector<float>, std::vector<uint>>(entity,
+    //                    "feature_curve_" + std::to_string(idx) + "_selectProxy",
+    //                    "../resources/materials/editor/picking.slmtl",
+    //                    m_featureCurves.back().m_mesh_vertices,
+    //                    m_featureCurves.back().m_mesh_indices,
+    //                    vertex_description,
+    //                    GL_TRIANGLES);
+    //                GTools::selectManager().addComponent(entity, std::bind(&Editor::LandscapeTools::activateFeatureCurveTools, &GTools::landscapeTool(), entity),
+    //                    std::bind(&Editor::LandscapeTools::deactivateFeatureCurveTools, &GTools::landscapeTool()));
+    //        #endif
 }
 
 template<typename ResourceManagerType>
@@ -349,53 +349,53 @@ void EngineCore::Graphics::Landscape::FeatureCurveComponentManager<ResourceManag
         // TODO move to function dedicated to (re)building constraint point interface mesh
         //#if EDITOR_MODE // preprocessor definition
         //
-        //			Vec3 v0 = Vec3(0.0);
-        //			Vec3 v1 = v0 + 1.5f * m_featureCurves[index].m_ribbon_width * constraintPoint.m_gradient_0;
-        //			Vec3 v2 = v0 + 1.5f * m_featureCurves[index].m_ribbon_width * constraintPoint.m_gradient_1;
-        //			std::vector<float> gradient_interface_vertices({ v0.x,v0.y,v0.z,1.0,1.0,0.0,1.0,
-        //				v1.x,v1.y,v1.z,1.0,1.0,0.0,1.0,
-        //				v2.x,v2.y,v2.z,1.0,1.0,0.0,1.0 });
+        //            Vec3 v0 = Vec3(0.0);
+        //            Vec3 v1 = v0 + 1.5f * m_featureCurves[index].m_ribbon_width * constraintPoint.m_gradient_0;
+        //            Vec3 v2 = v0 + 1.5f * m_featureCurves[index].m_ribbon_width * constraintPoint.m_gradient_1;
+        //            std::vector<float> gradient_interface_vertices({ v0.x,v0.y,v0.z,1.0,1.0,0.0,1.0,
+        //                v1.x,v1.y,v1.z,1.0,1.0,0.0,1.0,
+        //                v2.x,v2.y,v2.z,1.0,1.0,0.0,1.0 });
         //
-        //			//std::vector<float> gradient_interface_vertices({ v0.x,v0.y,v0.z,0.47f,0.125f,0.125f,1.0f,
-        //			//	v1.x,v1.y,v1.z,0.47f,0.125f,0.125f,1.0f,
-        //			//	v2.x,v2.y,v2.z,0.47f,0.125f,0.125f,1.0f });
+        //            //std::vector<float> gradient_interface_vertices({ v0.x,v0.y,v0.z,0.47f,0.125f,0.125f,1.0f,
+        //            //    v1.x,v1.y,v1.z,0.47f,0.125f,0.125f,1.0f,
+        //            //    v2.x,v2.y,v2.z,0.47f,0.125f,0.125f,1.0f });
         //
-        //			std::vector<float> gradient_select_vertices({ v0.x,v0.y,v0.z, v1.x,v1.y,v1.z, v2.x,v2.y,v2.z });
+        //            std::vector<float> gradient_select_vertices({ v0.x,v0.y,v0.z, v1.x,v1.y,v1.z, v2.x,v2.y,v2.z });
         //
-        //			//TODO insert selection mesh
-        //			std::vector<uint> lh_gradient_indices({ 0,1 });
+        //            //TODO insert selection mesh
+        //            std::vector<uint> lh_gradient_indices({ 0,1 });
         //
-        //			VertexLayout vertex_description(28, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
-        //				VertexLayout::Attribute(GL_FLOAT,4,GL_FALSE,sizeof(GLfloat) * 3) });
+        //            VertexLayout vertex_description(28, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
+        //                VertexLayout::Attribute(GL_FLOAT,4,GL_FALSE,sizeof(GLfloat) * 3) });
         //
-        //			GRenderingComponents::interfaceMeshManager().updateComponent(constraintPoint.m_lefthand_gradient,
-        //				gradient_interface_vertices,
-        //				lh_gradient_indices,
-        //				vertex_description,
-        //				GL_LINES);
+        //            GRenderingComponents::interfaceMeshManager().updateComponent(constraintPoint.m_lefthand_gradient,
+        //                gradient_interface_vertices,
+        //                lh_gradient_indices,
+        //                vertex_description,
+        //                GL_LINES);
         //
-        //			VertexLayout picking_vertex_description(12, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0) });
+        //            VertexLayout picking_vertex_description(12, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0) });
         //
-        //			GRenderingComponents::pickingManager().updateComponentProxyGeometry(constraintPoint.m_lefthand_gradient,
-        //				gradient_select_vertices,
-        //				lh_gradient_indices,
-        //				picking_vertex_description,
-        //				GL_LINES);
+        //            GRenderingComponents::pickingManager().updateComponentProxyGeometry(constraintPoint.m_lefthand_gradient,
+        //                gradient_select_vertices,
+        //                lh_gradient_indices,
+        //                picking_vertex_description,
+        //                GL_LINES);
         //
         //
-        //			std::vector<uint> rh_gradient_indices({ 0,2 });
+        //            std::vector<uint> rh_gradient_indices({ 0,2 });
         //
-        //			GRenderingComponents::interfaceMeshManager().updateComponent(constraintPoint.m_righthand_gradient,
-        //				gradient_interface_vertices,
-        //				rh_gradient_indices,
-        //				vertex_description,
-        //				GL_LINES);
+        //            GRenderingComponents::interfaceMeshManager().updateComponent(constraintPoint.m_righthand_gradient,
+        //                gradient_interface_vertices,
+        //                rh_gradient_indices,
+        //                vertex_description,
+        //                GL_LINES);
         //
-        //			GRenderingComponents::pickingManager().updateComponentProxyGeometry(constraintPoint.m_righthand_gradient,
-        //				gradient_select_vertices,
-        //				rh_gradient_indices,
-        //				picking_vertex_description,
-        //				GL_LINES);
+        //            GRenderingComponents::pickingManager().updateComponentProxyGeometry(constraintPoint.m_righthand_gradient,
+        //                gradient_select_vertices,
+        //                rh_gradient_indices,
+        //                picking_vertex_description,
+        //                GL_LINES);
         //#endif
     }
 
@@ -404,27 +404,27 @@ void EngineCore::Graphics::Landscape::FeatureCurveComponentManager<ResourceManag
     //GEngineCore::resourceManager().updateMeshAsync(proxy_mesh,mesh_data.first,mesh_data.second);
 
     //TODO move
-    //	#if EDITOR_MODE // preprocessor definition
-    //	
-    //			VertexLayout vertex_description(60, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
-    //				VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,sizeof(GLfloat) * 3),
-    //				VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,sizeof(GLfloat) * 6),
-    //				VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,sizeof(GLfloat) * 9),
-    //				VertexLayout::Attribute(GL_FLOAT,2,GL_FALSE,sizeof(GLfloat) * 12),
-    //				VertexLayout::Attribute(GL_FLOAT,1,GL_FALSE,sizeof(GLfloat) * 14) });
-    //	
-    //			GRenderingComponents::interfaceMeshManager().updateComponent(m_featureCurves[index].m_entity,
-    //				m_featureCurves[index].m_mesh_vertices,
-    //				m_featureCurves[index].m_mesh_indices,
-    //				vertex_description,
-    //				GL_TRIANGLES);
-    //	
-    //			GRenderingComponents::pickingManager().updateComponentProxyGeometry(m_featureCurves[index].m_entity,
-    //				m_featureCurves[index].m_mesh_vertices,
-    //				m_featureCurves[index].m_mesh_indices,
-    //				vertex_description,
-    //				GL_TRIANGLES);
-    //	#endif
+    //    #if EDITOR_MODE // preprocessor definition
+    //    
+    //            VertexLayout vertex_description(60, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
+    //                VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,sizeof(GLfloat) * 3),
+    //                VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,sizeof(GLfloat) * 6),
+    //                VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,sizeof(GLfloat) * 9),
+    //                VertexLayout::Attribute(GL_FLOAT,2,GL_FALSE,sizeof(GLfloat) * 12),
+    //                VertexLayout::Attribute(GL_FLOAT,1,GL_FALSE,sizeof(GLfloat) * 14) });
+    //    
+    //            GRenderingComponents::interfaceMeshManager().updateComponent(m_featureCurves[index].m_entity,
+    //                m_featureCurves[index].m_mesh_vertices,
+    //                m_featureCurves[index].m_mesh_indices,
+    //                vertex_description,
+    //                GL_TRIANGLES);
+    //    
+    //            GRenderingComponents::pickingManager().updateComponentProxyGeometry(m_featureCurves[index].m_entity,
+    //                m_featureCurves[index].m_mesh_vertices,
+    //                m_featureCurves[index].m_mesh_indices,
+    //                vertex_description,
+    //                GL_TRIANGLES);
+    //    #endif
 }
 
 template<typename ResourceManagerType>
@@ -535,70 +535,70 @@ Entity EngineCore::Graphics::Landscape::FeatureCurveComponentManager<ResourceMan
 
     //#if EDITOR_MODE // preprocessor definition
     //
-    //		Vec3 v0 = Vec3(0.0);
-    //		Vec3 v1 = v0 + 1.5f * m_featureCurves[index].m_ribbon_width * cp.m_gradient_0;
-    //		Vec3 v2 = v0 + 1.5f * m_featureCurves[index].m_ribbon_width * cp.m_gradient_1;
-    //		std::vector<float> gradient_interface_vertices({ v0.x,v0.y,v0.z,1.0,1.0,0.0,1.0,
-    //			v1.x,v1.y,v1.z,1.0,1.0,0.0,1.0,
-    //			v2.x,v2.y,v2.z,1.0,1.0,0.0,1.0 });
+    //        Vec3 v0 = Vec3(0.0);
+    //        Vec3 v1 = v0 + 1.5f * m_featureCurves[index].m_ribbon_width * cp.m_gradient_0;
+    //        Vec3 v2 = v0 + 1.5f * m_featureCurves[index].m_ribbon_width * cp.m_gradient_1;
+    //        std::vector<float> gradient_interface_vertices({ v0.x,v0.y,v0.z,1.0,1.0,0.0,1.0,
+    //            v1.x,v1.y,v1.z,1.0,1.0,0.0,1.0,
+    //            v2.x,v2.y,v2.z,1.0,1.0,0.0,1.0 });
     //
-    //		//std::vector<float> gradient_interface_vertices({ v0.x,v0.y,v0.z,0.47f,0.125f,0.125f,1.0f,
-    //		//	v1.x,v1.y,v1.z,0.47f,0.125f,0.125f,1.0f,
-    //		//	v2.x,v2.y,v2.z,0.47f,0.125f,0.125f,1.0f });
+    //        //std::vector<float> gradient_interface_vertices({ v0.x,v0.y,v0.z,0.47f,0.125f,0.125f,1.0f,
+    //        //    v1.x,v1.y,v1.z,0.47f,0.125f,0.125f,1.0f,
+    //        //    v2.x,v2.y,v2.z,0.47f,0.125f,0.125f,1.0f });
     //
-    //		std::vector<float> gradient_select_vertices({ v0.x,v0.y,v0.z, v1.x,v1.y,v1.z, v2.x,v2.y,v2.z });
+    //        std::vector<float> gradient_select_vertices({ v0.x,v0.y,v0.z, v1.x,v1.y,v1.z, v2.x,v2.y,v2.z });
     //
-    //		//TODO insert selection mesh
-    //		std::vector<uint> lh_gradient_indices({ 0,1 });
+    //        //TODO insert selection mesh
+    //        std::vector<uint> lh_gradient_indices({ 0,1 });
     //
-    //		VertexLayout vertex_description(28, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
-    //			VertexLayout::Attribute(GL_FLOAT,4,GL_FALSE,sizeof(GLfloat) * 3) });
+    //        VertexLayout vertex_description(28, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0),
+    //            VertexLayout::Attribute(GL_FLOAT,4,GL_FALSE,sizeof(GLfloat) * 3) });
     //
-    //		GRenderingComponents::interfaceMeshManager().addComponent(lh_gradient_entity,
-    //			"cp_" + std::to_string(cp.m_entity.id()) + "_lh_gradients",
-    //			"../resources/materials/editor/interface_cv.slmtl",
-    //			gradient_interface_vertices,
-    //			lh_gradient_indices,
-    //			vertex_description,
-    //			GL_LINES);
+    //        GRenderingComponents::interfaceMeshManager().addComponent(lh_gradient_entity,
+    //            "cp_" + std::to_string(cp.m_entity.id()) + "_lh_gradients",
+    //            "../resources/materials/editor/interface_cv.slmtl",
+    //            gradient_interface_vertices,
+    //            lh_gradient_indices,
+    //            vertex_description,
+    //            GL_LINES);
     //
-    //		VertexLayout picking_vertex_description(12, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0) });
+    //        VertexLayout picking_vertex_description(12, { VertexLayout::Attribute(GL_FLOAT,3,GL_FALSE,0) });
     //
-    //		GRenderingComponents::pickingManager().addComponent(lh_gradient_entity,
-    //			"cp_" + std::to_string(cp.m_entity.id()) + "_lh_gradient",
-    //			"../resources/materials/editor/picking_cp.slmtl",
-    //			gradient_select_vertices,
-    //			lh_gradient_indices,
-    //			picking_vertex_description,
-    //			GL_LINES);
-    //		//[cp]() { GTools::featureCurveGradientManipulator().activate(cp.m_lefthand_gradient, []() {}); },
-    //		//[cp]() { GTools::featureCurveGradientManipulator().deactivate(); });
-    //		GTools::selectManager().addComponent(lh_gradient_entity,
-    //			[lh_gradient_entity]() { GTools::landscapeTool().activateConstraintPointTools(lh_gradient_entity); },
-    //			[lh_gradient_entity]() { GTools::landscapeTool().deactivateConstraintPointTools(); });
+    //        GRenderingComponents::pickingManager().addComponent(lh_gradient_entity,
+    //            "cp_" + std::to_string(cp.m_entity.id()) + "_lh_gradient",
+    //            "../resources/materials/editor/picking_cp.slmtl",
+    //            gradient_select_vertices,
+    //            lh_gradient_indices,
+    //            picking_vertex_description,
+    //            GL_LINES);
+    //        //[cp]() { GTools::featureCurveGradientManipulator().activate(cp.m_lefthand_gradient, []() {}); },
+    //        //[cp]() { GTools::featureCurveGradientManipulator().deactivate(); });
+    //        GTools::selectManager().addComponent(lh_gradient_entity,
+    //            [lh_gradient_entity]() { GTools::landscapeTool().activateConstraintPointTools(lh_gradient_entity); },
+    //            [lh_gradient_entity]() { GTools::landscapeTool().deactivateConstraintPointTools(); });
     //
-    //		std::vector<uint> rh_gradient_indices({ 0,2 });
+    //        std::vector<uint> rh_gradient_indices({ 0,2 });
     //
-    //		GRenderingComponents::interfaceMeshManager().addComponent(rh_gradient_entity,
-    //			"cp_" + std::to_string(cp.m_entity.id()) + "_rh_gradients",
-    //			"../resources/materials/editor/interface_cv.slmtl",
-    //			gradient_interface_vertices,
-    //			rh_gradient_indices,
-    //			vertex_description,
-    //			GL_LINES);
+    //        GRenderingComponents::interfaceMeshManager().addComponent(rh_gradient_entity,
+    //            "cp_" + std::to_string(cp.m_entity.id()) + "_rh_gradients",
+    //            "../resources/materials/editor/interface_cv.slmtl",
+    //            gradient_interface_vertices,
+    //            rh_gradient_indices,
+    //            vertex_description,
+    //            GL_LINES);
     //
-    //		GRenderingComponents::pickingManager().addComponent(rh_gradient_entity,
-    //			"cp_" + std::to_string(cp.m_entity.id()) + "_rh_gradient",
-    //			"../resources/materials/editor/picking_cp.slmtl",
-    //			gradient_select_vertices,
-    //			rh_gradient_indices,
-    //			picking_vertex_description,
-    //			GL_LINES);
-    //		//[cp]() { GTools::featureCurveGradientManipulator().activate(cp.m_righthand_gradient, []() {}); },
-    //		//[cp]() { GTools::featureCurveGradientManipulator().deactivate(); });
-    //		GTools::selectManager().addComponent(rh_gradient_entity,
-    //			[rh_gradient_entity]() { GTools::landscapeTool().activateConstraintPointTools(rh_gradient_entity); },
-    //			[rh_gradient_entity]() { GTools::landscapeTool().deactivateConstraintPointTools(); });
+    //        GRenderingComponents::pickingManager().addComponent(rh_gradient_entity,
+    //            "cp_" + std::to_string(cp.m_entity.id()) + "_rh_gradient",
+    //            "../resources/materials/editor/picking_cp.slmtl",
+    //            gradient_select_vertices,
+    //            rh_gradient_indices,
+    //            picking_vertex_description,
+    //            GL_LINES);
+    //        //[cp]() { GTools::featureCurveGradientManipulator().activate(cp.m_righthand_gradient, []() {}); },
+    //        //[cp]() { GTools::featureCurveGradientManipulator().deactivate(); });
+    //        GTools::selectManager().addComponent(rh_gradient_entity,
+    //            [rh_gradient_entity]() { GTools::landscapeTool().activateConstraintPointTools(rh_gradient_entity); },
+    //            [rh_gradient_entity]() { GTools::landscapeTool().deactivateConstraintPointTools(); });
     //#endif
 
     return cp_entity;

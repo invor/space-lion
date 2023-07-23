@@ -20,19 +20,19 @@ namespace EngineCore
         private:
             struct Data
             {
-                size_t used;					///< number of components currently in use
-                size_t allocated;				///< number of components that the allocated memery can hold
-                uint8_t* buffer;			///< raw data pointer
+                size_t used;                    ///< number of components currently in use
+                size_t allocated;                ///< number of components that the allocated memery can hold
+                uint8_t* buffer;            ///< raw data pointer
 
-                Entity* entity;				///< entity that owns the component
-                Mat4x4* world_transform;	///< the actual transformation (aka model matrix)
-                Vec3* position;				///< local position (equals global position if component has no parent)
-                Quat* orientation;			///< local orientation (...)
-                Vec3* scale;				///< local scale (...)
+                Entity* entity;                ///< entity that owns the component
+                Mat4x4* world_transform;    ///< the actual transformation (aka model matrix)
+                Vec3* position;                ///< local position (equals global position if component has no parent)
+                Quat* orientation;            ///< local orientation (...)
+                Vec3* scale;                ///< local scale (...)
 
-                size_t* parent;				///< index to parent (equals components own index if comp. has no parent)
-                size_t* first_child;			///< index to child (...)
-                size_t* next_sibling;			///< index to sibling (...)
+                size_t* parent;                ///< index to parent (equals components own index if comp. has no parent)
+                size_t* first_child;            ///< index to child (...)
+                size_t* next_sibling;            ///< index to sibling (...)
             };
 
             Data m_data;
