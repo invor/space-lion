@@ -23,7 +23,7 @@ void EngineCore::Animation::animateTurntables(
 }
 
 
-void EngineCore::Animation::tagAlong(
+void EngineCore::Animation::animateTagAlong(
     EngineCore::Common::TransformComponentManager& transform_mngr,
     EngineCore::Animation::TagAlongComponentManager& tagalong_mngr,
     double dt) 
@@ -32,10 +32,6 @@ void EngineCore::Animation::tagAlong(
 
     for (auto& cmp : tag_cmps)
     {
-        // if offset is replaced by distance to cam
-        // then cmp.offset gets replaced by {0, 0, -1 * dist}
-        // where the {0, 0, -1} denotes a position 1 meter in front of the camera
-
         size_t target_idx = transform_mngr.getIndex(cmp.target);
         Vec3 target_position = transform_mngr.getPosition(target_idx);
         glm::quat target_orientation = transform_mngr.getOrientation(target_idx);
@@ -45,14 +41,17 @@ void EngineCore::Animation::tagAlong(
         size_t entity_idx = transform_mngr.getIndex(cmp.entity);
         Vec3 entity_position = transform_mngr.getPosition(entity_idx);
 
-        target_front_pos = entity_position + (target_front_pos - entity_position) * cmp.slerp_alpha;
+        Vec3 movement_vector = target_front_pos - entity_position;
+        float deadzone_factor = std::max(0.0f,(glm::length(movement_vector) - cmp.deadzone)) / glm::length(movement_vector);
+
+        target_front_pos = entity_position + movement_vector * deadzone_factor * std::min(1.0f, cmp.slerp_alpha * (static_cast<float>(dt)/0.1f));
 
         transform_mngr.setPosition(entity_idx, target_front_pos);
     }
 }
 
 
-void EngineCore::Animation::billboard(
+void EngineCore::Animation::animateBillboards(
     EngineCore::Common::TransformComponentManager& transform_mngr,
     EngineCore::Animation::BillboardComponentManager& billboard_mngr,
     double dt)
@@ -68,8 +67,9 @@ void EngineCore::Animation::billboard(
 
         Vec3 up = Vec3(0, 1, 0);
 
-        auto r = glm::toQuat(glm::inverse(glm::lookAt(entity_pos, target_pos, up)));
-        //Quat r = Quat(1, 0, 0, 0);
+        // Mirror target position to make +z face the original target
+        auto mirrored_target_pos = target_pos - 2.0f * (target_pos-entity_pos);
+        auto r = glm::toQuat(glm::inverse(glm::lookAt(entity_pos, mirrored_target_pos, up)));
         transform_mngr.setOrientation(entity_idx, r);
     }
 }

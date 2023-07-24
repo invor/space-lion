@@ -22,14 +22,12 @@ namespace EngineCore
         private:
             struct Data
             {
-                Data(Entity entity, Entity target, Vec3 offset, float slerp_alpha)
-                    : entity(entity), target(target), offset(offset), slerp_alpha(slerp_alpha) {}
+                Data(Entity entity, Entity target, Vec3 offset, float slerp_alpha, float deadzone)
+                    : entity(entity), target(target), offset(offset), slerp_alpha(slerp_alpha), deadzone(deadzone) {}
 
                 Entity entity; ///< The entity that gets tagged, i.e. the entity that follows the target
-
                 Entity target; ///< The entity that gets followed
-
-                Vec3 offset; ///< Instead of offset, it might be useful to define a minimum distance between both entities
+                Vec3   offset; ///< Additional offset from the target entity
 
                 /**
                 * Slerp_alpha == 0    No movement for the taggee
@@ -37,6 +35,8 @@ namespace EngineCore
                 * Slerp_alpha == 1    Places the taggee permantly in front of the tagger
                 */
                 float slerp_alpha;
+
+                float deadzone; ///< Distance from the target location at which the entity starts moving towards the target
             };
 
             std::vector<Data> m_tag_data;
@@ -51,7 +51,7 @@ namespace EngineCore
             * 
             * Slerp_alpha values outside of [0, 1] are going to be clamped to [0, 1]
             */
-            void addComponent(Entity entity, Entity target, Vec3 offset, float slerp_alpha);
+            void addComponent(Entity entity, Entity target, Vec3 offset, float slerp_alpha, float deadzone = 0.0f);
 
             // TOOD: deleteComponent
 

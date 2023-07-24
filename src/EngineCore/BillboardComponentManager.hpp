@@ -17,6 +17,9 @@ namespace EngineCore
 
     namespace Animation
     {
+        /**
+        * Entities with billboard component will turn their z axis towards the designated target entity
+        */
         class BillboardComponentManager : public BaseSingleInstanceComponentManager
         {
         private:
