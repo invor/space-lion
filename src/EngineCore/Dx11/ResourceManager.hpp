@@ -484,6 +484,9 @@ namespace EngineCore
                 ResourceID createTextTexture2DAsync(
                     std::string const& name,
                     std::string const& text,
+                    float font_size,
+                    std::array<float, 4> text_color,
+                    std::array<float, 4> bckgrnd_color,
                     D3D11_TEXTURE2D_DESC const& desc,
                     bool generate_mipmap);
     #pragma endregion

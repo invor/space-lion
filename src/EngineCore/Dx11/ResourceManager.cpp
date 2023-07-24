@@ -441,6 +441,9 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(
 ResourceID EngineCore::Graphics::Dx11::ResourceManager::createTextTexture2DAsync(
     std::string const& name,
     std::string const& text,
+    float font_size,
+    std::array<float, 4> text_color,
+    std::array<float, 4> bckgrnd_color,
     D3D11_TEXTURE2D_DESC const& desc,
     bool generate_mipmap)
 {
@@ -453,7 +456,7 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createTextTexture2DAsync
     addTextureIndex(rsrc_id.value(), name, idx);
 
     m_renderThread_tasks.push(
-        [this, idx, text, desc, generate_mipmap]() {
+        [this, idx, text, text_color, bckgrnd_color, desc, generate_mipmap]() {
 
             std::vector<const void*> data_ptrs;
 
@@ -470,17 +473,20 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createTextTexture2DAsync
                 shdr_rsrc_view,
                 generate_mipmap);
 
+            TextTextureInfo text_info(desc.Width, desc.Height);
+            text_info.Foreground = text_color;
+            text_info.Background = bckgrnd_color;
             std::unique_ptr<TextTexture> text_to_texture
-                = std::make_unique<TextTexture>(m_d3d11_device, m_d3d11_device_context, TextTextureInfo(desc.Width,desc.Height));
+                = std::make_unique<TextTexture>(m_d3d11_device, m_d3d11_device_context, text_info);
             text_to_texture->Draw(text);
 
             // copy rendered text texture
             {
                 D3D11_BOX src_region;
                 src_region.left = 0;
-                src_region.right = 512;
+                src_region.right = desc.Width;
                 src_region.top = 0;
-                src_region.bottom = 512;
+                src_region.bottom = desc.Height;
                 src_region.front = 0;
                 src_region.back = 1;
 
