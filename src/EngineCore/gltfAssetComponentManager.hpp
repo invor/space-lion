@@ -43,25 +43,25 @@ namespace EngineCore
             std::shared_ptr<tinygltf::Model> loadGLTFModel(std::vector<unsigned char> const& databuffer);
         }
 
-        template<typename ResourceManagerType>
         class GltfAssetComponentManager : public BaseMultiInstanceComponentManager
         {
         public:
-            GltfAssetComponentManager(ResourceManagerType& rsrc_mngr, WorldState& world);
+            typedef std::shared_ptr<tinygltf::Model> ModelPtr;
+
+            GltfAssetComponentManager() = default;
             ~GltfAssetComponentManager() = default;
 
             void addComponent(Entity entity, std::string const& gltf_filepath, std::string const& gltf_node_name, ResourceID dflt_shader_prgm);
 
             void addComponent(Entity entity, std::string const& gltf_filepath, int gltf_node_idx, ResourceID dflt_shader_prgm);
 
-            void importGltfScene(std::string const& gltf_filepath, ResourceID dflt_shader_prgm);
+            ModelPtr addGltfModelToCache(std::string const& gltf_filepath);
 
-            void importGltfScene(std::string const& gltf_filepath, std::shared_ptr<tinygltf::Model> const& gltf_model, ResourceID dflt_shader_prgm);
+            void addGltfModelToCache(std::string const& gltf_filepath, ModelPtr const& gltf_model);
 
             void clearModelCache();
 
         private:
-            typedef std::shared_ptr<tinygltf::Model> ModelPtr;
 
             struct ComponentData
             {
@@ -70,21 +70,14 @@ namespace EngineCore
                 int      gltf_node_idx;
             };
 
-            std::unordered_map<std::string, ModelPtr> m_gltf_assets;
-            std::shared_mutex                         m_gltf_assets_mutex;
+            std::unordered_map<std::string, ModelPtr> m_gltf_models;
+            std::shared_mutex                         m_gltf_models_mutex;
             std::vector<ComponentData>                m_data;
             std::shared_mutex                         m_data_mutex;
 
-            ResourceManagerType& m_rsrc_mngr;
-            WorldState& m_world;
-
             void addComponent(Entity entity, ModelPtr const& model, int gltf_node_idx, std::unordered_map<int, Entity> const& node_to_entity, ResourceID dflt_shader_prgm);
 
-            ModelPtr addGltfAsset(std::string const& gltf_filepath);
-
-            void addGltfAsset(std::string const& gltf_filepath, ModelPtr const& gltf_model);
-
-            void addGltfNode(ModelPtr const& model, int gltf_node_idx, Entity parent_entity, std::unordered_map<int, Entity>& node_to_entity, ResourceID dflt_shader_prgm);
+            
 
             typedef std::shared_ptr<std::vector<GenericVertexLayout>>        VertexLayoutPtr;
             typedef std::shared_ptr<std::vector<std::vector<unsigned char>>> VertexDataPtr;
@@ -96,14 +89,8 @@ namespace EngineCore
                 loadMeshPrimitveData(ModelPtr const& model, size_t node_idx, size_t primitive_idx);
         };
 
-        template<typename ResourceManagerType>
-        inline GltfAssetComponentManager<ResourceManagerType>::GltfAssetComponentManager(ResourceManagerType& rsrc_mngr, WorldState& world)
-            : m_rsrc_mngr(rsrc_mngr), m_world(world)
-        {
-        }
-
-        template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::addComponent(
+        
+        inline void GltfAssetComponentManager::addComponent(
             Entity entity,
             std::string const& gltf_filepath,
             std::string const& gltf_node_name,
@@ -146,8 +133,8 @@ namespace EngineCore
             }
         }
 
-        template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::addComponent(
+        
+        inline void GltfAssetComponentManager::addComponent(
             Entity entity,
             std::string const& gltf_filepath,
             int gltf_node_idx,
@@ -172,95 +159,7 @@ namespace EngineCore
             addComponent(entity, model, gltf_node_idx, dflt_shader_prgm);
         }
 
-        template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::importGltfScene(std::string const& gltf_filepath, ResourceID dflt_shader_prgm)
-        {
-            auto gltf_model = addGltfAsset(gltf_filepath);
-
-            // helper data structure for tracking entities that are created while traversing gltf scene graph
-            std::unordered_map<int, Entity> node_to_entity;
-
-            // iterate over nodes of model and add entities+components to world
-            for (auto& scene : gltf_model->scenes)
-            {
-                for (auto node : scene.nodes)
-                {
-                    addGltfNode(gltf_model, node, m_world.accessEntityManager().invalidEntity(), node_to_entity, dflt_shader_prgm);
-                }
-            }
-        }
-
-        template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::importGltfScene(std::string const& gltf_filepath, std::shared_ptr<tinygltf::Model> const& gltf_model, ResourceID dflt_shader_prgm)
-        {
-            addGltfAsset(gltf_filepath, gltf_model);
-
-            // helper data structure for tracking entities that are created while traversing gltf scene graph
-            std::unordered_map<int, Entity> node_to_entity;
-
-            // iterate over nodes of model and add entities+components to world
-            for (auto& scene : gltf_model->scenes)
-            {
-                for (auto node : scene.nodes)
-                {
-                    addGltfNode(gltf_model, node, m_world.accessEntityManager().invalidEntity(), node_to_entity, dflt_shader_prgm);
-                }
-            }
-        }
-
-        template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::clearModelCache()
-        {
-            std::unique_lock<std::shared_mutex> data_lock(m_data_mutex);
-            std::unique_lock<std::shared_mutex> assets_lock(m_gltf_assets_mutex);
-
-            for (auto& cmp : m_data)
-            {
-                cmp.gltf_asset_idx.reset();
-            }
-
-            for (auto& asset : m_gltf_assets) {
-                asset.second.reset();
-            }
-        }
-
-        template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::addGltfNode(
-            ModelPtr const& gltf_model,
-            int gltf_node_idx,
-            Entity parent_entity,
-            std::unordered_map<int, Entity>& node_to_entity,
-            ResourceID dflt_shader_prgm)
-        {
-            auto& transform_mngr = m_world.get<EngineCore::Common::TransformComponentManager>();
-
-            // add entity
-            auto entity = m_world.accessEntityManager().create();
-            node_to_entity.insert({ gltf_node_idx,entity });
-
-            // add name
-            //m_world.accessNameManager()->addComponent(entity, model->nodes[node].name);
-
-            // add transform
-            auto transform_idx = transform_mngr.addComponent(entity);
-
-            if (parent_entity != m_world.accessEntityManager().invalidEntity())
-            {
-                transform_mngr.setParent(transform_idx, parent_entity);
-            }
-
-            // traverse children and add gltf nodes recursivly
-            for (auto child : gltf_model->nodes[gltf_node_idx].children)
-            {
-                addGltfNode(gltf_model, child, entity, node_to_entity, dflt_shader_prgm);
-            }
-
-            // add gltf asset component (which in turn add mesh + material)
-            addComponent(entity, gltf_model, gltf_node_idx, node_to_entity, dflt_shader_prgm);
-        }
-
-        template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::addComponent(
+        inline void GltfAssetComponentManager::addComponent(
             Entity entity,
             ModelPtr const& model,
             int gltf_node_idx,
@@ -277,7 +176,7 @@ namespace EngineCore
 
             auto& transform_mngr = m_world.get<EngineCore::Common::TransformComponentManager>();
             auto& mtl_mngr = m_world.get<EngineCore::Graphics::MaterialComponentManager>();
-            auto& mesh_mngr = m_world.get<EngineCore::Graphics::MeshComponentManager<ResourceManagerType>>();
+            auto& mesh_mngr = m_world.get<EngineCore::Graphics::MeshComponentManager>();
             auto& staticMesh_renderTask_mngr = m_world.get<EngineCore::Graphics::RenderTaskComponentManager<EngineCore::Graphics::RenderTaskTags::StaticMesh>>();
             auto& skinnedMesh_renderTask_mngr = m_world.get<EngineCore::Graphics::RenderTaskComponentManager<EngineCore::Graphics::RenderTaskTags::SkinnedMesh>>();
             auto& skin_mngr = m_world.get<EngineCore::Animation::SkinComponentManager>();
@@ -381,7 +280,7 @@ namespace EngineCore
                         //          "skeleton_bone_shader",
                         //          bone_shader_names
                         //      );
-                        //      using TextureSemantic = typename Graphics::MaterialComponentManager<ResourceManagerType>::TextureSemantic;
+                        //      using TextureSemantic = typename Graphics::MaterialComponentManager::TextureSemantic;
                         //      mtl_mngr.addComponent(
                         //          joint_entity,
                         //          "skeleton_bone",
@@ -777,36 +676,12 @@ namespace EngineCore
             }
         }
 
-        template<typename ResourceManagerType>
-        inline std::shared_ptr<tinygltf::Model> GltfAssetComponentManager<ResourceManagerType>::addGltfAsset(
-            std::string const& gltf_filepath)
-        {
-            auto model = Utility::loadGltfModel(gltf_filepath);
-
-            {
-                std::unique_lock<std::shared_mutex> lock(m_gltf_assets_mutex);
-                m_gltf_assets.insert(std::make_pair(gltf_filepath, model));
-            }
-
-            return model;
-        }
-
-        template<typename ResourceManagerType>
-        inline void GltfAssetComponentManager<ResourceManagerType>::addGltfAsset(std::string const& gltf_filepath, ModelPtr const& gltf_model)
-        {
-            {
-                std::unique_lock<std::shared_mutex> lock(m_gltf_assets_mutex);
-                m_gltf_assets.insert(std::make_pair(gltf_filepath, gltf_model));
-            }
-        }
-
-        template<typename ResourceManagerType>
         inline std::tuple<
             std::shared_ptr<std::vector<GenericVertexLayout>>,
             std::shared_ptr<std::vector<std::vector<unsigned char>>>,
             std::shared_ptr<std::vector<unsigned char>>,
             uint32_t> // generic index type
-            GltfAssetComponentManager<ResourceManagerType>::loadMeshPrimitveData(ModelPtr const& model, size_t node_idx, size_t primitive_idx)
+            GltfAssetComponentManager::loadMeshPrimitveData(ModelPtr const& model, size_t node_idx, size_t primitive_idx)
         {
             if (model == nullptr)
                 return { nullptr,nullptr,nullptr, 0 };
