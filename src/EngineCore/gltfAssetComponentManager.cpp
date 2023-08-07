@@ -69,12 +69,18 @@ void EngineCore::Graphics::GltfAssetComponentManager::clearModelCache()
     std::unique_lock<std::shared_mutex> data_lock(m_data_mutex);
     std::unique_lock<std::shared_mutex> assets_lock(m_gltf_models_mutex);
 
-    for (auto& cmp : m_data)
-    {
-        cmp.gltf_asset_idx.reset();
-    }
-
     for (auto& asset : m_gltf_models) {
         asset.second.reset();
     }
+}
+
+void EngineCore::Graphics::GltfAssetComponentManager::addComponent(
+    Entity entity,
+    std::string const& gltf_filepath,
+    size_t gltf_node_idx)
+{
+    std::unique_lock<std::shared_mutex> lock(m_data_mutex);
+    size_t cmp_idx = m_data.size();
+    addIndex(entity.id(), cmp_idx);
+    m_data.push_back({ entity,gltf_filepath,gltf_node_idx });
 }
