@@ -56,6 +56,12 @@ namespace EngineCore
                 return m_component_data[idx].albedo_colour;
             }
 
+            inline void setAlbedoColour(size_t idx, std::array<float, 4> albedo_colour) const {
+                std::shared_lock<std::shared_mutex> lock(m_data_mutex);
+
+                m_component_data[idx].albedo_colour = albedo_colour;
+            }
+
             inline std::array<float, 4> getSpecularColour(size_t idx) const {
                 std::shared_lock<std::shared_mutex> lock(m_data_mutex);
 
@@ -110,7 +116,7 @@ namespace EngineCore
                 bool                    double_sided;
             };
 
-            std::vector<ComponentData> m_component_data;
+            mutable std::vector<ComponentData> m_component_data;
             mutable std::shared_mutex  m_data_mutex;
         };
 

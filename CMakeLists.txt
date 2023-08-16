@@ -80,6 +80,7 @@ SET (ENGINECORE_GRAPHICS_HEADER_FILES
         src/EngineCore/GenericVertexLayout.hpp
         src/EngineCore/GeometryBakery.hpp
         src/EngineCore/gltfAssetComponentManager.hpp
+        src/EngineCore/gltfAssetSystems.hpp
         src/EngineCore/MaterialComponentManager.hpp
         src/EngineCore/MeshComponentManager.hpp
         src/EngineCore/OceanComponent.hpp
