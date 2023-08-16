@@ -45,6 +45,13 @@ namespace EngineCore
 
         class GltfAssetComponentManager : public BaseMultiInstanceComponentManager
         {
+            struct ComponentData
+            {
+                Entity      entity;
+                std::string gltf_asset_filepath;
+                size_t      gltf_node_idx;
+            };
+
         public:
             typedef std::shared_ptr<tinygltf::Model> ModelPtr;
 
@@ -59,19 +66,13 @@ namespace EngineCore
 
             void clearModelCache();
 
+            std::vector<ComponentData> getComponents() const;
+
         private:
-
-            struct ComponentData
-            {
-                Entity      entity;
-                std::string gltf_asset_filepath;
-                size_t      gltf_node_idx;
-            };
-
             std::unordered_map<std::string, ModelPtr> m_gltf_models;
             std::shared_mutex                         m_gltf_models_mutex;
             std::vector<ComponentData>                m_data;
-            std::shared_mutex                         m_data_mutex;
+            mutable std::shared_mutex                         m_data_mutex;
         };
     }
 }

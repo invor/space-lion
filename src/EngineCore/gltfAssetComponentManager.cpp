@@ -84,3 +84,13 @@ void EngineCore::Graphics::GltfAssetComponentManager::addComponent(
     addIndex(entity.id(), cmp_idx);
     m_data.push_back({ entity,gltf_filepath,gltf_node_idx });
 }
+
+std::vector<EngineCore::Graphics::GltfAssetComponentManager::ComponentData> EngineCore::Graphics::GltfAssetComponentManager::getComponents() const
+{
+    std::vector<EngineCore::Graphics::GltfAssetComponentManager::ComponentData> retval;
+    {
+        std::shared_lock<std::shared_mutex> lock(m_data_mutex);
+        retval = m_data;
+    }
+    return retval;
+}
