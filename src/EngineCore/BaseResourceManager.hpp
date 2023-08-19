@@ -56,9 +56,9 @@ namespace EngineCore
             //WeakResource() = delete;
             WeakResource(ResourceID id, ResourceType* resource, ResourceState state) : id(id), resource(resource), state(state) {}
 
-            ResourceID		id;
-            ResourceType*	resource;
-            ResourceState	state;
+            ResourceID    id;
+            ResourceType* resource;
+            ResourceState state;
         };
 
 
@@ -69,9 +69,9 @@ namespace EngineCore
             //Resource() : id(GEngineCore::resourceManager().getInvalidResourceID()), resource(nullptr), state(NOT_READY) {}
             Resource(ResourceID id) : id(id), resource(nullptr), state(NOT_READY) {}
 
-            ResourceID						id;
-            std::unique_ptr<ResourceType>	resource;
-            ResourceState					state;
+            ResourceID                    id;
+            std::unique_ptr<ResourceType> resource;
+            ResourceState                 state;
         };
 
         template<

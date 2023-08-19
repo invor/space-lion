@@ -27,19 +27,19 @@ namespace EngineCore
 
             struct Data
             {
-                uint used;					///< number of components currently in use
-                uint allocated;				///< number of components that the allocated memery can hold
-                uint8_t* buffer;				///< raw data pointer
+                uint used;                    ///< number of components currently in use
+                uint allocated;                ///< number of components that the allocated memery can hold
+                uint8_t* buffer;                ///< raw data pointer
 
-                Entity* entity;				///< entity owning the component
+                Entity* entity;                ///< entity owning the component
 
-                Vec3* velocity;				///< velocity of the airplane (direction and magnitude)
-                Vec3* acceleration;			///< acceleration of the airplance
+                Vec3* velocity;                ///< velocity of the airplane (direction and magnitude)
+                Vec3* acceleration;            ///< acceleration of the airplance
 
-                float* engine_thrust;		///< engine thrust, force acting in the direction of airplane orientation
-                float* elevator_angle;		///< angle of the elevator, controls aircraft pitch
-                float* rudder_angle;		///< angle of the rudder, controls aircraft yaw
-                float* aileron_angle;		///< angle of the ailerons, controls aircraft banking
+                float* engine_thrust;        ///< engine thrust, force acting in the direction of airplane orientation
+                float* elevator_angle;        ///< angle of the elevator, controls aircraft pitch
+                float* rudder_angle;        ///< angle of the rudder, controls aircraft yaw
+                float* aileron_angle;        ///< angle of the ailerons, controls aircraft banking
                 float* pitch_torque;
                 float* roll_torque;
                 float* yaw_torque;
@@ -48,11 +48,11 @@ namespace EngineCore
                 float* angle_of_sideslip;
                 float* lift_coefficient;
                 float* drag_coefficient;
-                float* aerodynamic_drag;	///< aerodynamic drag, force acting in opposite direction of the velocity
-                float* aerodynamic_lift;	///< aerodynamic lift, force acting upward from airplane orientation
+                float* aerodynamic_drag;    ///< aerodynamic drag, force acting in opposite direction of the velocity
+                float* aerodynamic_lift;    ///< aerodynamic lift, force acting upward from airplane orientation
 
-                float* wing_surface;		///< airplane wing surface (necessary for computing lift)
-                float* mass;				///< airplane mass (necessary for computing lift)
+                float* wing_surface;        ///< airplane wing surface (necessary for computing lift)
+                float* mass;                ///< airplane mass (necessary for computing lift)
 
             };
 

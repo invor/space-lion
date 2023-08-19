@@ -44,23 +44,23 @@ namespace EngineCore {
                         m_lh_bitangent_entity(lh_bitangent_entity),
                         m_rh_bitangent_entity(rh_bitangent_entity) {}
 
-                    Entity	m_entity;				///< entity that constraint point is associated with
+                    Entity    m_entity;                ///< entity that constraint point is associated with
 
-                    Vec3	m_tangent;				///< curve tangent at constraint point location (note: not guaranteed to be up-to-date)
+                    Vec3    m_tangent;                ///< curve tangent at constraint point location (note: not guaranteed to be up-to-date)
 
-                    Vec3	m_lefthand_bitangent;	///< lefthand bitangent vector constraint 
-                    Vec3	m_righthand_bitangent;	///< righthand bitangent vector constraint
+                    Vec3    m_lefthand_bitangent;    ///< lefthand bitangent vector constraint 
+                    Vec3    m_righthand_bitangent;    ///< righthand bitangent vector constraint
 
-                    float	m_noise_amplitude;		///< noise amplitude constraint
-                    float	m_noise_roughness;		///< noise roughness constraint
+                    float    m_noise_amplitude;        ///< noise amplitude constraint
+                    float    m_noise_roughness;        ///< noise roughness constraint
 
-                    int		m_lefthand_material;	///< lefthand material index
-                    int		m_righthand_material;	///< righthand material index
+                    int        m_lefthand_material;    ///< lefthand material index
+                    int        m_righthand_material;    ///< righthand material index
 
-                    float	m_curve_position;		///< constraint point position on the curve (in normalized curve parameter space)
+                    float    m_curve_position;        ///< constraint point position on the curve (in normalized curve parameter space)
 
-                    Entity	m_lh_bitangent_entity;	///< entity that lefthand bitangent vector is associated with
-                    Entity	m_rh_bitangent_entity;	///< entity that righthand bitangent vector is associated with
+                    Entity    m_lh_bitangent_entity;    ///< entity that lefthand bitangent vector is associated with
+                    Entity    m_rh_bitangent_entity;    ///< entity that righthand bitangent vector is associated with
                 };
 
                 struct Data
@@ -71,11 +71,11 @@ namespace EngineCore {
                         m_ribbon_width(1.0f),
                         m_proxy_mesh(proxy_mesh) {}
 
-                    Entity							m_entity;
-                    bool							m_is_surface_seed;
-                    float							m_ribbon_width;
-                    std::vector<ConstraintPoint>	m_constraint_points;
-                    ResourceID						m_proxy_mesh;
+                    Entity                            m_entity;
+                    bool                            m_is_surface_seed;
+                    float                            m_ribbon_width;
+                    std::vector<ConstraintPoint>    m_constraint_points;
+                    ResourceID                        m_proxy_mesh;
                 };
 
                 std::vector<Data> m_data;

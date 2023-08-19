@@ -27,6 +27,7 @@ namespace EngineCore
             };
 
             Data m_data;
+            mutable std::shared_mutex m_data_access_mutex;
 
         public:
             SunlightComponentManager(uint size);

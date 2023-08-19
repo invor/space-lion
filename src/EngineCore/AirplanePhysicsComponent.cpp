@@ -225,9 +225,9 @@ namespace EngineCore
                 float aileron_angle = m_data.aileron_angle[i] * 1.0f;
 
                 // orientation is updated in local coordinate frame
-                //	orientation *= glm::rotate(glm::quat(), -0.02f * aileron_angle / (1.0f + abs(aoa)), Vec3(0.0, 0.0, -1.0)); // roll
-                //	orientation *= glm::rotate(glm::quat(), -0.005f * elevator_angle / (1.0f + abs(aoa)), Vec3(1.0, 0.0, 0.0)); // pitch
-                //	orientation *= glm::rotate(glm::quat(), 0.001f * rudder_angle / (1.0f + abs(aos)), Vec3(0.0, 1.0, 0.0)); // yaw
+                //    orientation *= glm::rotate(glm::quat(), -0.02f * aileron_angle / (1.0f + abs(aoa)), Vec3(0.0, 0.0, -1.0)); // roll
+                //    orientation *= glm::rotate(glm::quat(), -0.005f * elevator_angle / (1.0f + abs(aoa)), Vec3(1.0, 0.0, 0.0)); // pitch
+                //    orientation *= glm::rotate(glm::quat(), 0.001f * rudder_angle / (1.0f + abs(aos)), Vec3(0.0, 1.0, 0.0)); // yaw
 
                 // add rotation about center of mass induced by gravity and induced by lift...very, very simplified
                 float gravity_torque = -0.000025f * m;

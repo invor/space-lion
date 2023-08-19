@@ -6,18 +6,27 @@ void EngineCore::Utility::TaskSchedueler::run(int worker_thread_cnt)
 {
     m_worker_thread_pool.resize(worker_thread_cnt);
     m_taskScheduelerActive.test_and_set();
+    m_busy_threads_cnt = 0;
 
     for (int i = 0; i < worker_thread_cnt; ++i)
     {
         m_worker_thread_pool[i] = std::thread([this]() {
-            while (m_taskScheduelerActive.test_and_set())
+            while (m_taskScheduelerActive.test())
             {
                 std::function<void()> f;
-                if (m_task_queue.tryPop(f, std::chrono::microseconds(10)))
+                if (m_task_queue.tryPop(f, std::chrono::microseconds(10))) {
+                    {
+                        std::lock_guard<std::mutex> lock(m_busy_mutex);
+                        ++m_busy_threads_cnt;
+                    }
                     f();
+                    {
+                        std::lock_guard<std::mutex> lock(m_busy_mutex);
+                        --m_busy_threads_cnt;
+                    }
+                    m_busy_cv.notify_all();
+                }
             }
-
-            m_taskScheduelerActive.clear();
         });
     }
 }
@@ -33,4 +42,14 @@ void EngineCore::Utility::TaskSchedueler::stop()
 void EngineCore::Utility::TaskSchedueler::submitTask(Task new_task)
 {
     m_task_queue.push(new_task);
+}
+
+bool EngineCore::Utility::TaskSchedueler::empty() const {
+    return m_task_queue.empty();
+}
+
+void EngineCore::Utility::TaskSchedueler::waitWhileBusy()
+{
+    std::unique_lock<std::mutex> lock(m_busy_mutex);
+    m_busy_cv.wait(lock, [this] { return m_task_queue.empty() && (m_busy_threads_cnt.load() == 0); });
 }

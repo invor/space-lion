@@ -37,11 +37,15 @@ endif()
 
 SET (ENGINECORE_ANIMATION_HEADER_FILES
         src/EngineCore/TurntableComponentManager.hpp
+        src/EngineCore/TagAlongComponentManager.hpp
+        src/EngineCore/BillboardComponentManager.hpp
         src/EngineCore/AnimationSystems.hpp
         src/EngineCore/SkinComponentManager.hpp)
 
 SET (ENGINECORE_ANIMATION_SOURCE_FILES
         src/EngineCore/TurntableComponentManager.cpp
+        src/EngineCore/TagAlongComponentManager.cpp
+        src/EngineCore/BillboardComponentManager.cpp
         src/EngineCore/AnimationSystems.cpp
         src/EngineCore/SkinComponentManager.cpp)
 
@@ -69,10 +73,14 @@ SET (ENGINECORE_GRAPHICS_HEADER_FILES
         src/EngineCore/AtmosphereComponentManager.hpp
         src/EngineCore/BaseResourceManager.hpp
         src/EngineCore/CameraComponent.hpp
+        src/EngineCore/BoundingBoxComponent.hpp
+        src/EngineCore/BoundingSphereComponent.hpp
+        src/EngineCore/BoundingCylinderComponent.hpp
         src/EngineCore/GenericTextureLayout.hpp
         src/EngineCore/GenericVertexLayout.hpp
         src/EngineCore/GeometryBakery.hpp
         src/EngineCore/gltfAssetComponentManager.hpp
+        src/EngineCore/gltfAssetSystems.hpp
         src/EngineCore/MaterialComponentManager.hpp
         src/EngineCore/MeshComponentManager.hpp
         src/EngineCore/OceanComponent.hpp
@@ -87,6 +95,9 @@ SET (ENGINECORE_GRAPHICS_HEADER_FILES
 SET (ENGINECORE_GRAPHICS_SOURCE_FILES
         src/EngineCore/AtmosphereComponentManager.cpp
         src/EngineCore/CameraComponent.cpp
+        src/EngineCore/BoundingBoxComponent.cpp
+        src/EngineCore/BoundingSphereComponent.cpp
+        src/EngineCore/BoundingCylinderComponent.cpp
         src/EngineCore/GeometryBakery.cpp
         src/EngineCore/gltfAssetComponentManager.cpp
         src/EngineCore/MaterialComponentManager.cpp
@@ -104,7 +115,7 @@ SET (ENGINECORE_GRAPHICS_GL_HEADER_FILES
         src/EngineCore/OpenGL/AtmosphereRenderPass.hpp
         src/EngineCore/OpenGL/BasicRenderingPipeline.hpp
         src/EngineCore/OpenGL/GraphicsBackend.hpp
-	#src/EngineCore/OpenGL/LandscapeSystems.hpp
+        #src/EngineCore/OpenGL/LandscapeSystems.hpp
         src/EngineCore/OpenGL/OceanRenderPass.hpp
         src/EngineCore/OpenGL/ResourceManager.hpp
         src/EngineCore/OpenGL/SkinnedMeshRenderPass.hpp)
@@ -113,7 +124,7 @@ SET (ENGINECORE_GRAPHICS_GL_SOURCE_FILES
         src/EngineCore/OpenGL/AtmosphereRenderPass.cpp
         src/EngineCore/OpenGL/BasicRenderingPipeline.cpp
         src/EngineCore/OpenGL/GraphicsBackend.cpp
-	#src/EngineCore/OpenGL/LandscapeSystems.cpp
+        #src/EngineCore/OpenGL/LandscapeSystems.cpp
         src/EngineCore/OpenGL/OceanRenderPass.cpp
         src/EngineCore/OpenGL/ResourceManager.cpp
         src/EngineCore/OpenGL/SkinnedMeshRenderPass.cpp)
@@ -136,6 +147,7 @@ SET (ENGINECORE_PHYSICS_SOURCE_FILES
 SET (ENGINECORE_UTILITY_HEADER_FILES
         src/EngineCore/MTQueue.hpp
         src/EngineCore/ResourceLoading.hpp
+	src/EngineCore/RingBuffer.hpp
         src/EngineCore/TaskSchedueler.hpp
         src/EngineCore/types.hpp
         src/EngineCore/utility.hpp)
@@ -238,8 +250,6 @@ SET (EXTERNAL_IMGUI_FILES
         src/External/imgui/imgui.cpp
         src/External/imgui/imgui_demo.cpp
         src/External/imgui/imgui_draw.cpp
-        src/External/imgui/imgui_internal.h
-        src/External/imgui/imgui_tables.cpp
         src/External/imgui/imgui_widgets.cpp
         src/External/imgui/backends/imgui_impl_glfw.h
         src/External/imgui/backends/imgui_impl_glfw.cpp

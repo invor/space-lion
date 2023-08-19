@@ -21,83 +21,83 @@ namespace ResourceLoading
         return source.str();
     }
 
-    //	MaterialInfo parseMaterial(std::string const& material_path)
-    //	{
-    //		std::ifstream file;
-    //		file.open(material_path, std::ifstream::in);
-    //	
-    //		MaterialInfo mtl_info;
-    //	
-    //		std::string vs_path;
-    //		std::string fs_path;
-    //		std::string gs_path;
-    //		std::string tessCtrl_path;
-    //		std::string tessEval_path;
-    //	
-    //		if (file.is_open())
-    //		{
-    //			file.seekg(0, std::ifstream::beg);
-    //	
-    //			std::string line;
-    //	
-    //			while (!file.eof())
-    //			{
-    //				getline(file, line, '\n');
-    //	
-    //				std::stringstream ss(line);
-    //				std::string buffer;
-    //				std::string texture_path;
-    //	
-    //				ss >> buffer;
-    //	
-    //				if (std::strcmp("vs", buffer.c_str()) == 0)
-    //					ss >> vs_path;
-    //				else if (std::strcmp("fs", buffer.c_str()) == 0)
-    //					ss >> fs_path;
-    //				else if (std::strcmp("gs", buffer.c_str()) == 0)
-    //					ss >> gs_path;
-    //				else if (std::strcmp("tc", buffer.c_str()) == 0)
-    //					ss >> tessCtrl_path;
-    //				else if (std::strcmp("te", buffer.c_str()) == 0)
-    //					ss >> tessEval_path;
-    //				else if (std::strcmp("td", buffer.c_str()) == 0)
-    //					ss >> texture_path;
-    //				else if (std::strcmp("ts", buffer.c_str()) == 0)
-    //					ss >> texture_path;
-    //				else if (std::strcmp("tr", buffer.c_str()) == 0)
-    //					ss >> texture_path;
-    //				else if (std::strcmp("tn", buffer.c_str()) == 0)
-    //					ss >> texture_path;
-    //				else if (std::strcmp("th", buffer.c_str()) == 0)
-    //					ss >> texture_path;
-    //	
-    //				// TODO detect USE_TEXTURE2DARRAY flag
-    //	
-    //				if (!texture_path.empty())
-    //					mtl_info.texture_filepaths.push_back(texture_path);
-    //			}
-    //	
-    //			if (!vs_path.empty() && !fs_path.empty())
-    //			{
-    //				mtl_info.shader_filepaths.push_back(vs_path);
-    //				mtl_info.shader_filepaths.push_back(fs_path);
-    //			}
-    //	
-    //			if (!gs_path.empty())
-    //			{
-    //				mtl_info.shader_filepaths.push_back(gs_path);
-    //			}
-    //	
-    //			if (!tessCtrl_path.empty() && !tessEval_path.empty())
-    //			{
-    //				mtl_info.shader_filepaths.push_back(tessCtrl_path);
-    //				mtl_info.shader_filepaths.push_back(tessEval_path);
-    //			}
-    //	
-    //		}
-    //	
-    //		return mtl_info;
-    //	}
+    //    MaterialInfo parseMaterial(std::string const& material_path)
+    //    {
+    //        std::ifstream file;
+    //        file.open(material_path, std::ifstream::in);
+    //    
+    //        MaterialInfo mtl_info;
+    //    
+    //        std::string vs_path;
+    //        std::string fs_path;
+    //        std::string gs_path;
+    //        std::string tessCtrl_path;
+    //        std::string tessEval_path;
+    //    
+    //        if (file.is_open())
+    //        {
+    //            file.seekg(0, std::ifstream::beg);
+    //    
+    //            std::string line;
+    //    
+    //            while (!file.eof())
+    //            {
+    //                getline(file, line, '\n');
+    //    
+    //                std::stringstream ss(line);
+    //                std::string buffer;
+    //                std::string texture_path;
+    //    
+    //                ss >> buffer;
+    //    
+    //                if (std::strcmp("vs", buffer.c_str()) == 0)
+    //                    ss >> vs_path;
+    //                else if (std::strcmp("fs", buffer.c_str()) == 0)
+    //                    ss >> fs_path;
+    //                else if (std::strcmp("gs", buffer.c_str()) == 0)
+    //                    ss >> gs_path;
+    //                else if (std::strcmp("tc", buffer.c_str()) == 0)
+    //                    ss >> tessCtrl_path;
+    //                else if (std::strcmp("te", buffer.c_str()) == 0)
+    //                    ss >> tessEval_path;
+    //                else if (std::strcmp("td", buffer.c_str()) == 0)
+    //                    ss >> texture_path;
+    //                else if (std::strcmp("ts", buffer.c_str()) == 0)
+    //                    ss >> texture_path;
+    //                else if (std::strcmp("tr", buffer.c_str()) == 0)
+    //                    ss >> texture_path;
+    //                else if (std::strcmp("tn", buffer.c_str()) == 0)
+    //                    ss >> texture_path;
+    //                else if (std::strcmp("th", buffer.c_str()) == 0)
+    //                    ss >> texture_path;
+    //    
+    //                // TODO detect USE_TEXTURE2DARRAY flag
+    //    
+    //                if (!texture_path.empty())
+    //                    mtl_info.texture_filepaths.push_back(texture_path);
+    //            }
+    //    
+    //            if (!vs_path.empty() && !fs_path.empty())
+    //            {
+    //                mtl_info.shader_filepaths.push_back(vs_path);
+    //                mtl_info.shader_filepaths.push_back(fs_path);
+    //            }
+    //    
+    //            if (!gs_path.empty())
+    //            {
+    //                mtl_info.shader_filepaths.push_back(gs_path);
+    //            }
+    //    
+    //            if (!tessCtrl_path.empty() && !tessEval_path.empty())
+    //            {
+    //                mtl_info.shader_filepaths.push_back(tessCtrl_path);
+    //                mtl_info.shader_filepaths.push_back(tessEval_path);
+    //            }
+    //    
+    //        }
+    //    
+    //        return mtl_info;
+    //    }
 
     std::array<std::string, 4> parseDecalMaterial(std::string const& material_path)
     {
@@ -193,12 +193,12 @@ namespace ResourceLoading
         std::ifstream file(filename, std::ios::in | std::ios::binary);
 
         /*
-        /	Check if the file could be opened.
+        /    Check if the file could be opened.
         */
         if (!(file.is_open()))return false;
 
         /*
-        /	Go to the beginning of the file and read the first line.
+        /    Go to the beginning of the file and read the first line.
         */
         file.seekg(0, file.beg);
         std::getline(file, buffer, '\n');
@@ -206,23 +206,23 @@ namespace ResourceLoading
         for (itr2 = buffer.begin(); itr2 != buffer.end(); itr2++)
         {
             /*
-            /	Check if the first line contains more than just ppm's magic number.
-            /	If it does, it should look like this:
-            /	"magic_number image_dimension_x image_dimension_y maximum_value"
-            /	Therefore we scan the string for a space character and start parsing it.
+            /    Check if the first line contains more than just ppm's magic number.
+            /    If it does, it should look like this:
+            /    "magic_number image_dimension_x image_dimension_y maximum_value"
+            /    Therefore we scan the string for a space character and start parsing it.
             */
             if (*itr2 == ' ')
             {
                 if (currentComponent == 0)
                 {
-                    /*	The first component is the magic number. We don't need it.	*/
+                    /*    The first component is the magic number. We don't need it.    */
                     currentComponent++;
                     firstline = true;
                     itr1 = (itr2 + 1);
                 }
                 else if (currentComponent == 1)
                 {
-                    /*	Get the image dimension in x.	*/
+                    /*    Get the image dimension in x.    */
                     compBuffer.assign(itr1, itr2);
                     imgDimX = atoi(compBuffer.c_str());
                     currentComponent++;
@@ -230,7 +230,7 @@ namespace ResourceLoading
                 }
                 else if (currentComponent == 2)
                 {
-                    /*	Get the image dimension in y.	*/
+                    /*    Get the image dimension in y.    */
                     compBuffer.assign(itr1, itr2);
                     imgDimY = atoi(compBuffer.c_str());
                     currentComponent++;
@@ -240,8 +240,8 @@ namespace ResourceLoading
         }
 
         /*
-        /	If the information we were looking for was inside the first line, we are done here.
-        /	Note the position where we left off and exit with return true after closing the file.
+        /    If the information we were looking for was inside the first line, we are done here.
+        /    Note the position where we left off and exit with return true after closing the file.
         */
         if (firstline)
         {
@@ -251,8 +251,8 @@ namespace ResourceLoading
         }
 
         /*
-        /	If the information wasn't inside the first line we have to keep reading lines.
-        /	Skip all comment lines (first character = '#').
+        /    If the information wasn't inside the first line we have to keep reading lines.
+        /    Skip all comment lines (first character = '#').
         */
         std::getline(file, buffer, '\n');
         while (buffer[0] == '#' || (buffer.size() < 1))
@@ -261,12 +261,12 @@ namespace ResourceLoading
         }
 
         /*
-        /	Now we should have a string containing the image dimensions and can extract them.
+        /    Now we should have a string containing the image dimensions and can extract them.
         */
         itr1 = buffer.begin();
         for (itr2 = buffer.begin(); itr2 != buffer.end(); itr2++)
         {
-            /*	Get the image dimension in x.	*/
+            /*    Get the image dimension in x.    */
             if (*itr2 == ' ')
             {
                 compBuffer.assign(itr1, itr2);
@@ -277,18 +277,18 @@ namespace ResourceLoading
         }
 
         /*
-        /	The last component of a line can't be parsed within the loop since it isn't followed by
-        /	a space character, but an end-of-line.
+        /    The last component of a line can't be parsed within the loop since it isn't followed by
+        /    a space character, but an end-of-line.
         /
-        /	Get the image dimension in x.
+        /    Get the image dimension in x.
         */
         compBuffer.assign(itr1, itr2);
         imgDimY = atoi(compBuffer.c_str());
 
         /*
-        /	Read one more line. This should contain the maximum value of the image, but we don't need
-        /	that.
-        /	Note down the position after this line and exit with return true after closing the file.
+        /    Read one more line. This should contain the maximum value of the image, but we don't need
+        /    that.
+        /    Note down the position after this line and exit with return true after closing the file.
         */
         std::getline(file, buffer, '\n');
         headerEndPos = static_cast<unsigned long>(file.tellg());
@@ -301,12 +301,12 @@ namespace ResourceLoading
         std::ifstream file(filename, std::ios::in | std::ios::binary);
 
         /*
-        /	Check if the file could be opened.
+        /    Check if the file could be opened.
         */
         if (!(file.is_open()))return false;
 
         /*
-        /	Determine the length from the beginning of the image data to the end of the file.
+        /    Determine the length from the beginning of the image data to the end of the file.
         */
         file.seekg(0, file.end);
         unsigned long length = static_cast<unsigned long>(file.tellg());
@@ -317,7 +317,7 @@ namespace ResourceLoading
         file.read(buffer, length);
 
         /*
-        /	Rearrange the image information so that the data begins with the lower left corner.
+        /    Rearrange the image information so that the data begins with the lower left corner.
         */
         int k = 0;
         for (int i = 0; i < imgDimY; i++)
@@ -344,12 +344,12 @@ namespace ResourceLoading
         std::ifstream file(filename, std::ios::in | std::ios::binary);
 
         /*
-        /	Check if the file could be opened.
+        /    Check if the file could be opened.
         */
         if (!(file.is_open()))return false;
 
         /*
-        /	Determine the length from the beginning of the image data to the end of the file.
+        /    Determine the length from the beginning of the image data to the end of the file.
         */
         file.seekg(0, file.end);
         unsigned long length = static_cast<unsigned long>(file.tellg());
@@ -360,7 +360,7 @@ namespace ResourceLoading
         file.read(buffer, length);
 
         /*
-        /	Rearrange the image information so that the data begins with the lower left corner.
+        /    Rearrange the image information so that the data begins with the lower left corner.
         */
         int k = 0;
         for (int i = 0; i < imgDimY; i++)

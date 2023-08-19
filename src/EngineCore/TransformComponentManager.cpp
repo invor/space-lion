@@ -38,7 +38,7 @@ namespace EngineCore
 
         void TransformComponentManager::reallocate(size_t size)
         {
-            //TODO data protection mutex
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
 
             assert(size > m_data.used);
 
@@ -78,6 +78,8 @@ namespace EngineCore
 
         size_t TransformComponentManager::addComponent(Entity entity, Vec3 position, Quat orientation, Vec3 scale)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             assert(m_data.used < m_data.allocated);
 
             // TODO check if entity already has a transform component and issue a warning of some kind
@@ -105,10 +107,12 @@ namespace EngineCore
         void TransformComponentManager::deleteComonent(Entity entity)
         {
             //TODO
+            // std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
         }
 
         size_t TransformComponentManager::getComponentCount() const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.used;
         }
 
@@ -121,6 +125,8 @@ namespace EngineCore
 
         void TransformComponentManager::translate(size_t index, Vec3 translation)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             m_data.position[index] += translation;
 
             transform(index);
@@ -128,6 +134,8 @@ namespace EngineCore
 
         void TransformComponentManager::rotate(size_t index, Quat rotation)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             //m_data.orientation[index] *= rotation; // local transform...
             m_data.orientation[index] = glm::normalize(rotation * m_data.orientation[index]);
 
@@ -136,6 +144,8 @@ namespace EngineCore
 
         void TransformComponentManager::rotateLocal(size_t index, Quat rotation)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             m_data.orientation[index] = glm::normalize(m_data.orientation[index] * rotation);
 
             transform(index);
@@ -143,6 +153,8 @@ namespace EngineCore
 
         void TransformComponentManager::scale(size_t index, Vec3 scale_factors)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             m_data.scale[index] *= scale_factors;
 
             transform(index);
@@ -150,6 +162,8 @@ namespace EngineCore
 
         void TransformComponentManager::transform(size_t index)
         {
+            // std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             Mat4x4 xform = glm::toMat4(m_data.orientation[index]);
             xform[3] = Vec4(m_data.position[index], 1.0);
             xform[0] *= m_data.scale[index].x;
@@ -183,6 +197,8 @@ namespace EngineCore
 
         void TransformComponentManager::setPosition(Entity entity, Vec3 position)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             auto query = getIndex(entity);
 
             setPosition(query, position);
@@ -190,6 +206,8 @@ namespace EngineCore
 
         void TransformComponentManager::setPosition(size_t index, Vec3 position)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             m_data.position[index] = position;
 
             transform(index);
@@ -197,13 +215,26 @@ namespace EngineCore
 
         void TransformComponentManager::setOrientation(size_t index, Quat orientation)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             m_data.orientation[index] = orientation;
+
+            transform(index);
+        }
+
+        void TransformComponentManager::setScale(size_t index, Vec3 scale)
+        {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
+            m_data.scale[index] = scale;
 
             transform(index);
         }
 
         void TransformComponentManager::setParent(size_t index, Entity parent)
         {
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             auto query = getIndex(parent);
 
 
@@ -233,11 +264,14 @@ namespace EngineCore
 
         const Vec3 & TransformComponentManager::getPosition(size_t index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.position[index];
         }
 
         Vec3 TransformComponentManager::getWorldPosition(size_t index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
+
             assert(index < m_data.used);
 
             return Vec3(m_data.world_transform[index] * Vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -245,10 +279,12 @@ namespace EngineCore
 
         Vec3 TransformComponentManager::getWorldPosition(Entity e) const
         {
+
             Vec3 retval;
 
             auto query = getIndex(e);
 
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             retval = getWorldPosition(query);
 
             return retval;
@@ -256,16 +292,19 @@ namespace EngineCore
 
         const Quat & TransformComponentManager::getOrientation(size_t index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.orientation[index];
         }
 
         const Mat4x4 & TransformComponentManager::getWorldTransformation(size_t index) const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.world_transform[index];
         }
 
         Mat4x4 const * const TransformComponentManager::getWorldTransformations() const
         {
+            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             return m_data.world_transform;
         }
     }

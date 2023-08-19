@@ -20,6 +20,16 @@ namespace EngineCore
 {
     namespace Graphics
     {
+        enum VertexAttributeBitMask
+        {
+            NONE      = 0x0,
+            POSITION  = 0x1,
+            NORMAL    = 0x2,
+            TANGENT   = 0x4,
+            BITANGENT = 0x8,
+            UV        = 0x10,
+            COLOR     = 0x20
+        };
 
         /**
         * \brief Creates and return triangle geometry
@@ -29,7 +39,11 @@ namespace EngineCore
         /**
         * \brief Creates and return plane (quad) geometry
         */
-        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createPlane(float width, float height);
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createPlane(
+            float width,
+            float height,
+            int attribute_bit_mask,
+            bool z_up = false);
 
         /**
         * \brief Creates and returns unit box geometry

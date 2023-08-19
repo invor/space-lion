@@ -42,7 +42,11 @@ namespace EngineCore
             return std::tuple<VertexData, IndexData, VertexDataDescriptor>(vertices, indices, layout);
         }
 
-        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createPlane(float width, float height)
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createPlane(
+            float width,
+            float height,
+            int attribute_bit_mask,
+            bool z_up)
         {
             struct Vec2
             {
@@ -59,20 +63,21 @@ namespace EngineCore
                 uint8_t r, g, b, a;
             };
 
-            VertexDataPtr vertex_data = std::make_shared< std::vector<std::vector<uint8_t>>>(6);
-            (*vertex_data)[0].resize(4 * sizeof(Vec3));
-            (*vertex_data)[1].resize(4 * sizeof(Vec3));
-            (*vertex_data)[2].resize(4 * sizeof(Vec3));
-            (*vertex_data)[3].resize(4 * sizeof(Color));
-            (*vertex_data)[4].resize(4 * sizeof(Vec2));
-            (*vertex_data)[5].resize(4 * sizeof(Vec3));
+            
 
-            Vec3* position_ptr = reinterpret_cast<Vec3*>((*vertex_data)[0].data());
-            Vec3* normal_ptr = reinterpret_cast<Vec3*>((*vertex_data)[1].data());
-            Vec3* tangent_ptr = reinterpret_cast<Vec3*>((*vertex_data)[2].data());
-            Color* color_ptr = reinterpret_cast<Color*>((*vertex_data)[3].data());
-            Vec2* uv_ptr = reinterpret_cast<Vec2*>((*vertex_data)[4].data());
-            Vec3* bitangent_ptr = reinterpret_cast<Vec3*>((*vertex_data)[5].data());
+            std::vector<uint8_t> position(4 * sizeof(Vec3));
+            std::vector<uint8_t> normal(4 * sizeof(Vec3));
+            std::vector<uint8_t> tangent(4 * sizeof(Vec3));
+            std::vector<uint8_t> color(4 * sizeof(Color));
+            std::vector<uint8_t> uv(4 * sizeof(Vec2));
+            std::vector<uint8_t> bitangent(4 * sizeof(Vec3));
+
+            Vec3* position_ptr = reinterpret_cast<Vec3*>(position.data());
+            Vec3* normal_ptr = reinterpret_cast<Vec3*>(normal.data());
+            Vec3* tangent_ptr = reinterpret_cast<Vec3*>(tangent.data());
+            Color* color_ptr = reinterpret_cast<Color*>(color.data());
+            Vec2* uv_ptr = reinterpret_cast<Vec2*>(uv.data());
+            Vec3* bitangent_ptr = reinterpret_cast<Vec3*>(bitangent.data());
 
             std::array<float, 4> width_signs = { -1.0f,1.0f,1.0f,-1.0f };
             std::array<float, 4> height_signs = { -1.0f,-1.0f,1.0f,1.0f };
@@ -80,12 +85,12 @@ namespace EngineCore
             for (int i = 0; i < 4; ++i)
             {
                 position_ptr[i].x = (width / 2.0f) * width_signs[i];
-                position_ptr[i].y = 0.0f;
-                position_ptr[i].z = (height / 2.0f) * height_signs[i];
+                position_ptr[i].y = z_up  ? (height / 2.0f) * height_signs[i] : 0.0f;
+                position_ptr[i].z = !z_up ? (height / 2.0f) * height_signs[i] : 0.0f;
 
                 normal_ptr[i].x = 0.0f;
-                normal_ptr[i].y = 1.0f;
-                normal_ptr[i].z = 0.0f;
+                normal_ptr[i].y = z_up  ? 0.0f : 1.0f;
+                normal_ptr[i].z = !z_up ? 0.0f : 1.0f;
 
                 tangent_ptr[i].x = 1.0f;
                 tangent_ptr[i].y = 0.0f;
@@ -100,22 +105,51 @@ namespace EngineCore
                 uv_ptr[i].v = (height_signs[i] + 1.0f) / 2.0f;
 
                 bitangent_ptr[i].x = 0.0f;
-                bitangent_ptr[i].y = 0.0f;
-                bitangent_ptr[i].z = 1.0f;
+                bitangent_ptr[i].y = z_up  ? -1.0f : 0.0f;
+                bitangent_ptr[i].z = !z_up ? 1.0f : 0.0f;
             }
 
-            IndexDataPtr indices = std::make_shared<IndexData>(IndexData{ 0,3,1,3,2,0 });
+            VertexDataPtr vertex_data = std::make_shared<std::vector<std::vector<uint8_t>>>();
+            if ((attribute_bit_mask & POSITION) != 0) {
+                vertex_data->push_back(position);
+            }
+            if ((attribute_bit_mask & NORMAL) != 0) {
+                vertex_data->push_back(normal);
+            }
+            if ((attribute_bit_mask & TANGENT) != 0) {
+                vertex_data->push_back(tangent);
+            }
+            if ((attribute_bit_mask & COLOR) != 0) {
+                vertex_data->push_back(color);
+            }
+            if ((attribute_bit_mask & UV) != 0) {
+                vertex_data->push_back(uv);
+            }
+            if ((attribute_bit_mask & BITANGENT) != 0) {
+                vertex_data->push_back(bitangent);
+            }
 
-            auto layout = std::make_shared<VertexDataDescriptor>(
-                std::vector<GenericVertexLayout>{
-                    GenericVertexLayout(12, { GenericVertexLayout::Attribute(5126 /*GL_FLOAT*/,3,false,0),
-                        GenericVertexLayout::Attribute(3, 5126, false,0),
-                        GenericVertexLayout::Attribute(3, 5126, false,0),
-                        GenericVertexLayout::Attribute(4, 5121, false,0),
-                        GenericVertexLayout::Attribute(2, 5126, false,0),
-                        GenericVertexLayout::Attribute(3, 5126, false,0) })
-                }
-            );
+            IndexDataPtr indices = std::make_shared<IndexData>(IndexData{ 0,3,1,3,2,1 });
+
+            auto layout = std::make_shared<VertexDataDescriptor>();
+            if ((attribute_bit_mask & POSITION) != 0) {
+                layout->push_back(GenericVertexLayout(12, { GenericVertexLayout::Attribute(3,5126,false,0) }));
+            }
+            if ((attribute_bit_mask & NORMAL) != 0) {
+                layout->push_back(GenericVertexLayout(12, { GenericVertexLayout::Attribute(3,5126,false,0) }));
+            }
+            if ((attribute_bit_mask & TANGENT) != 0) {
+                layout->push_back(GenericVertexLayout(12, { GenericVertexLayout::Attribute(3,5126,false,0) }));
+            }
+            if ((attribute_bit_mask & COLOR) != 0) {
+                layout->push_back(GenericVertexLayout(4, { GenericVertexLayout::Attribute(4,5121,false,0) }));
+            }
+            if ((attribute_bit_mask & UV) != 0) {
+                layout->push_back(GenericVertexLayout(8, { GenericVertexLayout::Attribute(2,5126,false,0) }));
+            }
+            if ((attribute_bit_mask & BITANGENT) != 0) {
+                layout->push_back(GenericVertexLayout(12, { GenericVertexLayout::Attribute(3,5126,false,0) }));
+            }
 
             return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>(vertex_data, indices, layout);
         }
@@ -150,122 +184,122 @@ namespace EngineCore
             std::vector<uint8_t> bitangents(24 * sizeof(Vec3));
 
             Vec3* access_ptr = reinterpret_cast<Vec3*>(positions.data());
-            /*	front face */
+            /*    front face */
             access_ptr[0] = { -0.5f, -0.5f, 0.5f }; access_ptr[1] = { -0.5f, 0.5f, 0.5f };
             access_ptr[2] = { 0.5f, 0.5f, 0.5f }; access_ptr[3] = { 0.5f, -0.5f, 0.5f };
-            /*	right face */
+            /*    right face */
             access_ptr[4] = { 0.5f, -0.5f, 0.5f }; access_ptr[5] = { 0.5f, 0.5f, 0.5f };
             access_ptr[6] = { 0.5f, 0.5f, -0.5f }; access_ptr[7] = { 0.5f, -0.5f, -0.5f };
-            /*	left face */
+            /*    left face */
             access_ptr[8] = { -0.5, -0.5, -0.5 }; access_ptr[9] = { -0.5, 0.5, -0.5 };
             access_ptr[10] = { -0.5, 0.5, 0.5 }; access_ptr[11] = { -0.5, -0.5, 0.5 };
-            /*	back face */
+            /*    back face */
             access_ptr[12] = { 0.5, -0.5, -0.5 }; access_ptr[13] = { 0.5, 0.5, -0.5 };
             access_ptr[14] = { -0.5, 0.5, -0.5 }; access_ptr[15] = { -0.5, -0.5, -0.5 };
-            /*	bottom face */
+            /*    bottom face */
             access_ptr[16] = { -0.5, -0.5, 0.5 }; access_ptr[17] = { -0.5, -0.5, -0.5 };
             access_ptr[18] = { 0.5, -0.5, -0.5 }; access_ptr[19] = { 0.5, -0.5, 0.5 };
-            /*	top face */
+            /*    top face */
             access_ptr[20] = { -0.5, 0.5, 0.5 }; access_ptr[21] = { -0.5, 0.5, -0.5 };
             access_ptr[22] = { 0.5, 0.5, -0.5 }; access_ptr[23] = { 0.5, 0.5, 0.5 };
 
             access_ptr = reinterpret_cast<Vec3*>(normals.data());
-            /*	front face */
+            /*    front face */
             access_ptr[0] = { 0.0, 0.0, 1.0 }; access_ptr[1] = { 0.0, 0.0, 1.0 };
             access_ptr[2] = { 0.0, 0.0, 1.0 }; access_ptr[3] = { 0.0, 0.0, 1.0 };
-            /*	right face */
+            /*    right face */
             access_ptr[4] = { 1.0, 0.0, 0.0 }; access_ptr[5] = { 1.0, 0.0, 0.0 };
             access_ptr[6] = { 1.0, 0.0, 0.0 }; access_ptr[7] = { 1.0, 0.0, 0.0 };
-            /*	left face */
+            /*    left face */
             access_ptr[8] = { -1.0, 0.0, 0.0 }; access_ptr[9] = { -1.0, 0.0, 0.0 };
             access_ptr[10] = { -1.0, 0.0, 0.0 }; access_ptr[11] = { -1.0, 0.0, 0.0 };
-            /*	back face */
+            /*    back face */
             access_ptr[12] = { 0.0, 0.0, -1.0 }; access_ptr[13] = { 0.0, 0.0, -1.0 };
             access_ptr[14] = { 0.0, 0.0, -1.0 }; access_ptr[15] = { 0.0, 0.0, -1.0 };
-            /*	bottom face */
+            /*    bottom face */
             access_ptr[16] = { 0.0, -1.0, 0.0 }; access_ptr[17] = { 0.0, -1.0, 0.0 };
             access_ptr[18] = { 0.0, -1.0, 0.0 }; access_ptr[19] = { 0.0, -1.0, 0.0 };
-            /*	top face */
+            /*    top face */
             access_ptr[20] = { 0.0, 1.0, 0.0 }; access_ptr[21] = { 0.0, 1.0, 0.0 };
             access_ptr[22] = { 0.0, 1.0, 0.0 }; access_ptr[23] = { 0.0, 1.0, 0.0 };
 
             Vec4* tangent_access_ptr = reinterpret_cast<Vec4*>(tangents.data());
-            /*	front face */
+            /*    front face */
             tangent_access_ptr[0] = { 1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[1] = { 1.0, 0.0, 0.0, 1.0 };
             tangent_access_ptr[2] = { 1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[3] = { 1.0, 0.0, 0.0, 1.0 };
-            /*	right face */
+            /*    right face */
             tangent_access_ptr[4] = { 0.0, 0.0, -1.0, 1.0 }; tangent_access_ptr[5] = { 0.0, 0.0, -1.0, 1.0 };
             tangent_access_ptr[6] = { 0.0, 0.0, -1.0, 1.0 }; tangent_access_ptr[7] = { 0.0, 0.0, -1.0, 1.0 };
-            /*	left face */
+            /*    left face */
             tangent_access_ptr[8] = { 0.0, 0.0, 1.0 , 1.0 }; tangent_access_ptr[9] = { 0.0, 0.0, 1.0, 1.0 };
             tangent_access_ptr[10] = { 0.0, 0.0, 1.0, 1.0 }; tangent_access_ptr[11] = { 0.0, 0.0, 1.0, 1.0 };
-            /*	back face */
+            /*    back face */
             tangent_access_ptr[12] = { -1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[13] = { -1.0, 0.0, 0.0, 1.0 };
             tangent_access_ptr[14] = { -1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[15] = { -1.0, 0.0, 0.0, 1.0 };
-            /*	bottom face */
+            /*    bottom face */
             tangent_access_ptr[16] = { 1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[17] = { 1.0, 0.0, 0.0, 1.0 };
             tangent_access_ptr[18] = { 1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[19] = { 1.0, 0.0, 0.0, 1.0 };
-            /*	top face */
+            /*    top face */
             tangent_access_ptr[20] = { 1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[21] = { 1.0, 0.0, 0.0, 1.0 };
             tangent_access_ptr[22] = { 1.0, 0.0, 0.0, 1.0 }; tangent_access_ptr[23] = { 1.0, 0.0, 0.0, 1.0 };
 
             Color* col_access_ptr = reinterpret_cast<Color*>(colors.data());
-            /*	front face */
+            /*    front face */
             col_access_ptr[0] = { (uint8_t)0.0, (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0 }; col_access_ptr[1] = { (uint8_t)0.0, (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0 };
             col_access_ptr[2] = { (uint8_t)1.0, (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0 }; col_access_ptr[3] = { (uint8_t)1.0, (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0 };
-            /*	right face */
+            /*    right face */
             col_access_ptr[4] = { (uint8_t)1.0, (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0 }; col_access_ptr[5] = { (uint8_t)1.0, (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0 };
             col_access_ptr[6] = { (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0 }; col_access_ptr[7] = { (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0 };
-            /*	left face */
+            /*    left face */
             col_access_ptr[8] = { (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0 }; col_access_ptr[9] = { (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0 };
             col_access_ptr[10] = { (uint8_t)0.0, (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0 }; col_access_ptr[11] = { (uint8_t)0.0, (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0 };
-            /*	back face */
+            /*    back face */
             col_access_ptr[12] = { (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0 }; col_access_ptr[13] = { (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0 };
             col_access_ptr[14] = { (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0 }; col_access_ptr[15] = { -(uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0 };
-            /*	bottom face */
+            /*    bottom face */
             col_access_ptr[16] = { (uint8_t)0.0, (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0 }; col_access_ptr[17] = { (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0 };
             col_access_ptr[18] = { (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0 }; col_access_ptr[19] = { (uint8_t)1.0, (uint8_t)0.0, (uint8_t)0.0, (uint8_t)1.0 };
-            /*	top face */
+            /*    top face */
             col_access_ptr[20] = { (uint8_t)0.0, (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0 }; col_access_ptr[21] = { (uint8_t)0.0, (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0 };
             col_access_ptr[22] = { (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0, (uint8_t)1.0 }; col_access_ptr[23] = { (uint8_t)1.0, (uint8_t)1.0, (uint8_t)0.0, (uint8_t)1.0 };
 
             Vec2* uv_access_ptr = reinterpret_cast<Vec2*>(uv_coords.data());
-            /*	front face */
+            /*    front face */
             uv_access_ptr[0] = { 0.0, 0.0 }; uv_access_ptr[1] = { 0.0, 1.0 };
             uv_access_ptr[2] = { 1.0, 1.0 }; uv_access_ptr[3] = { 1.0, 0.0 };
-            /*	right face */
+            /*    right face */
             uv_access_ptr[4] = { 0.0, 0.0 }; uv_access_ptr[5] = { 0.0, 1.0 };
             uv_access_ptr[6] = { 1.0, 1.0 }; uv_access_ptr[7] = { 1.0, 0.0 };
-            /*	left face */
+            /*    left face */
             uv_access_ptr[8] = { 0.0, 0.0 }; uv_access_ptr[9] = { 0.0, 1.0 };
             uv_access_ptr[10] = { 1.0, 1.0 }; uv_access_ptr[11] = { 1.0, 0.0 };
-            /*	back face */
+            /*    back face */
             uv_access_ptr[12] = { 0.0, 0.0 }; uv_access_ptr[13] = { 0.0, 1.0 };
             uv_access_ptr[14] = { 1.0, 1.0 }; uv_access_ptr[15] = { 1.0, 0.0 };
-            /*	bottom face */
+            /*    bottom face */
             uv_access_ptr[16] = { 0.0, 0.0 }; uv_access_ptr[17] = { 0.0, 1.0 };
             uv_access_ptr[18] = { 1.0, 1.0 }; uv_access_ptr[19] = { 1.0, 0.0 };
-            /*	top face */
+            /*    top face */
             uv_access_ptr[20] = { 0.0, 0.0 }; uv_access_ptr[21] = { 0.0, 1.0 };
             uv_access_ptr[22] = { 1.0, 1.0 }; uv_access_ptr[23] = { 1.0, 0.0 };
 
             access_ptr = reinterpret_cast<Vec3*>(bitangents.data());
-            /*	front face */
+            /*    front face */
             access_ptr[0] = { 0.0, 1.0, 0.0 }; access_ptr[1] = { 0.0, 1.0, 0.0 };
             access_ptr[2] = { 0.0, 1.0, 0.0 }; access_ptr[3] = { 0.0, 1.0, 0.0 };
-            /*	right face */
+            /*    right face */
             access_ptr[4] = { 0.0, 1.0, 0.0 }; access_ptr[5] = { 0.0, 1.0, 0.0 };
             access_ptr[6] = { 0.0, 1.0, 0.0 }; access_ptr[7] = { 0.0, 1.0, 0.0 };
-            /*	left face */
+            /*    left face */
             access_ptr[8] = { 0.0, 1.0, 0.0 }; access_ptr[9] = { 0.0, 1.0, 0.0 };
             access_ptr[10] = { 0.0, 1.0, 0.0 }; access_ptr[11] = { 0.0, 1.0, 0.0 };
-            /*	back face */
+            /*    back face */
             access_ptr[12] = { 0.0, 1.0, 0.0 }; access_ptr[13] = { 0.0, 1.0, 0.0 };
             access_ptr[14] = { 0.0, 1.0, 0.0 }; access_ptr[15] = { 0.0, 1.0, 0.0 };
-            /*	bottom face */
+            /*    bottom face */
             access_ptr[16] = { 0.0, 0.0, 1.0 }; access_ptr[17] = { 0.0, 0.0, 1.0 };
             access_ptr[18] = { 0.0, 0.0, 1.0 }; access_ptr[19] = { 0.0, 0.0, 1.0 };
-            /*	top face */
+            /*    top face */
             access_ptr[20] = { 0.0, 0.0, 1.0 }; access_ptr[21] = { 0.0, 0.0, 1.0 };
             access_ptr[22] = { 0.0, 0.0, 1.0 }; access_ptr[23] = { 0.0, 0.0, 1.0 };
 
@@ -332,10 +366,10 @@ namespace EngineCore
                 Vertex_pn(-z,-x,0.0f,-nz,-nx,0.0f) });
             IndexDataPtr indices = std::make_shared<IndexData>(
                 std::vector<unsigned int>({
-                    0,4,1,	0,9,4,	9,5,4,	4,5,8,	4,8,1,
-                    8,10,1,	8,3,10,	5,3,8,	5,2,3,	2,7,3,
-                    7,10,3,	7,6,10,	7,11,6,	11,0,6,	0,1,6,
-                    6,1,10,	9,0,11,	9,11,2,	9,2,5,	7,2,11 })
+                    0,4,1,    0,9,4,    9,5,4,    4,5,8,    4,8,1,
+                    8,10,1,    8,3,10,    5,3,8,    5,2,3,    2,7,3,
+                    7,10,3,    7,6,10,    7,11,6,    11,0,6,    0,1,6,
+                    6,1,10,    9,0,11,    9,11,2,    9,2,5,    7,2,11 })
             );
 
             // Subdivide icosahedron

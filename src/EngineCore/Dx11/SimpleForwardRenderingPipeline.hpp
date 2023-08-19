@@ -3,18 +3,18 @@
 
 namespace EngineCore
 {
-	class WorldState;
+    class WorldState;
 
-	namespace Graphics
-	{
-		namespace Dx11
-		{
-			struct Frame;
+    namespace Graphics
+    {
+        namespace Dx11
+        {
+            struct Frame;
             class ResourceManager;
 
-			void setupSimpleForwardRenderingPipeline(Frame & frame, WorldState& world, ResourceManager& resource_mngr);
-		}
-	}
+            void setupSimpleForwardRenderingPipeline(Frame & frame, WorldState& world, ResourceManager& resource_mngr);
+        }
+    }
 }
 
 #endif // !SimpleForwardRenderingPipeline_hpp
