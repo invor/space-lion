@@ -22,18 +22,22 @@ namespace EngineCore {
 
                 struct LandscapeBrickComponent
                 {
-                    LandscapeBrickComponent(ResourceManagerType& resource_manager, Entity entity, Vec3 dimensions, uint res_x, uint res_y, uint res_z)
-                        : m_entity(entity), m_dimensions(dimensions), m_res_x(res_x), m_res_y(res_y), m_res_z(res_z),
-                        m_normals(resource_manager.getInvalidResourceID()),
-                        m_normals_backbuffer(resource_manager.getInvalidResourceID()),
-                        m_head(resource_manager.getInvalidResourceID()),
-                        m_guidancefield_data(resource_manager.getInvalidResourceID()),
-                        m_gradients(resource_manager.getInvalidResourceID()),
-                        m_gradients_backbuffer(resource_manager.getInvalidResourceID()),
-                        m_noise_params(resource_manager.getInvalidResourceID()),
-                        m_surface(resource_manager.getInvalidResourceID()),
-                        m_surface_backbuffer(resource_manager.getInvalidResourceID()),
-                        m_surface_boundaryRegion(resource_manager.getInvalidResourceID()),
+                    LandscapeBrickComponent(Entity entity, Vec3 dimensions, uint res_x, uint res_y, uint res_z)
+                        : m_entity(entity),
+                        m_dimensions(dimensions),
+                        m_res_x(res_x),
+                        m_res_y(res_y),
+                        m_res_z(res_z),
+                        m_normals(),
+                        m_normals_backbuffer(),
+                        m_head(),
+                        m_guidancefield_data(),
+                        m_gradients(),
+                        m_gradients_backbuffer(),
+                        m_noise_params(),
+                        m_surface(),
+                        m_surface_backbuffer(),
+                        m_surface_boundaryRegion(),
                         m_upper_neighbour(entity),
                         m_lower_neighbour(entity),
                         m_south_neighbour(entity),
@@ -44,21 +48,21 @@ namespace EngineCore {
                         m_lod_lvls(0),
                         m_ptex_ready(true),
                         m_cancel_ptex_update(false),
-                        m_ptex_mesh(resource_manager.getInvalidResourceID()),
+                        m_ptex_mesh(),
                         m_ptex_textures(),
-                        m_ptex_material(resource_manager.getInvalidResourceID()),
-                        m_ptex_material_bth(resource_manager.getInvalidResourceID()),
-                        m_ptex_parameters(resource_manager.getInvalidResourceID()),
-                        m_ptex_parameters_backbuffer(resource_manager.getInvalidResourceID()),
-                        m_ptex_bindless_texture_handles(resource_manager.getInvalidResourceID()),
-                        m_ptex_bindless_image_handles(resource_manager.getInvalidResourceID()),
-                        m_ptex_bindless_mipmap_image_handles(resource_manager.getInvalidResourceID()),
-                        m_ptex_tiles_per_edge(resource_manager.getInvalidResourceID()),
-                        m_ptex_updatePatches_tgt_SSBO(resource_manager.getInvalidResourceID()),
-                        m_ptex_updatePatches_src_SSBO(resource_manager.getInvalidResourceID()),
-                        m_ptex_patch_distances_SSBO(resource_manager.getInvalidResourceID()),
-                        m_ptex_availableTiles_SSBO(resource_manager.getInvalidResourceID()),
-                        m_ptex_decal_list_rsrc(resource_manager.getInvalidResourceID()),
+                        m_ptex_material(),
+                        m_ptex_material_bth(),
+                        m_ptex_parameters(),
+                        m_ptex_parameters_backbuffer(),
+                        m_ptex_bindless_texture_handles(),
+                        m_ptex_bindless_image_handles(),
+                        m_ptex_bindless_mipmap_image_handles(),
+                        m_ptex_tiles_per_edge(),
+                        m_ptex_updatePatches_tgt_SSBO(),
+                        m_ptex_updatePatches_src_SSBO(),
+                        m_ptex_patch_distances_SSBO(),
+                        m_ptex_availableTiles_SSBO(),
+                        m_ptex_decal_list_rsrc(),
                         ptex_distance_computation_time(0.0),
                         ptex_distance_computation_avg_time(0.0),
                         ptex_distance_computation_max_time(0.0),
@@ -79,32 +83,32 @@ namespace EngineCore {
                     uint m_res_x, m_res_y, m_res_z;
 
                     /** Volume containing surface normals. Guidance field for building the surface. */
-                    ResourceID m_normals; //Texture3D
-                    ResourceID m_normals_backbuffer; //Texture3D
+                    ResourceID m_normals; //Texture3D*
+                    ResourceID m_normals_backbuffer; //Texture3D*
 
                     /** Volume containing surface gradients. Part of the guidance field for building the surface. */
-                    ResourceID m_gradients;
-                    ResourceID m_gradients_backbuffer;
+                    ResourceID m_gradients; //Texture3D*
+                    ResourceID m_gradients_backbuffer; //Texture3D*
 
-                    ResourceID m_head;
-                    ResourceID m_guidancefield_data;
-                    GLuint m_counter_buffer;
+                    ResourceID m_head; //ShaderStorageBufferObject*
+                    ResourceID m_guidancefield_data; //ShaderStorageBufferObject*
+                    ResourceID m_counter_buffer; //GLuint
 
                     /** 3D field of 2D containing surface noise parameters */
-                    ResourceID m_noise_params;
+                    ResourceID m_noise_params; //Texture3D*
 
                     /** 3D field of 2D entries containing surface signed distance field and surface propagation weights */
-                    ResourceID m_surface;
-                    ResourceID m_surface_backbuffer;
-                    ResourceID m_surface_boundaryRegion;
+                    ResourceID m_surface; //Texture3D*
+                    ResourceID m_surface_backbuffer; //Texture3D*
+                    ResourceID m_surface_boundaryRegion; //Texture3D*
 
                     // Boundary conditions of brick
-                    ResourceID m_upper_boundary[4];
-                    ResourceID m_lower_boundary[4];
-                    ResourceID m_northern_boundary[4];
-                    ResourceID m_southern_boundary[4];
-                    ResourceID m_western_boundary[4];
-                    ResourceID m_eastern_boundary[4];
+                    ResourceID m_upper_boundary[4]; //Texture3D*
+                    ResourceID m_lower_boundary[4]; //Texture3D*
+                    ResourceID m_northern_boundary[4]; //Texture3D*
+                    ResourceID m_southern_boundary[4]; //Texture3D*
+                    ResourceID m_western_boundary[4]; //Texture3D*
+                    ResourceID m_eastern_boundary[4]; //Texture3D*
 
                     Entity m_upper_neighbour;
                     Entity m_lower_neighbour;
@@ -114,9 +118,9 @@ namespace EngineCore {
                     Entity m_east_neighbour;
 
                     /** Mesh representation of computed surface */
-                    ResourceID m_surface_mesh;
-                    ResourceID m_surface_material;
-                    ResourceID m_shadowCaster_material;
+                    ResourceID m_surface_mesh; //Mesh*
+                    size_t m_surface_material; //Material* -> material sub index?
+                    size_t m_shadowCaster_material; //Material* -> material sub index?
 
                     ResourceID				m_ptex_mesh;
                     std::vector<ResourceID> m_ptex_textures;
@@ -279,7 +283,7 @@ namespace EngineCore {
                 ResourceID updatePtexTilesTextures_prgm; // future work
 
                 ResourceID transformFeedback_terrainOutput_prgm;
-                GLuint transformFeedback_terrainBuffer;
+                ResourceID transformFeedback_terrainBuffer; //GLuint
 
                 void createGpuResources(uint index);
                 void updateGpuResources(uint index);
