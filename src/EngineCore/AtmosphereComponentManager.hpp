@@ -146,7 +146,7 @@ namespace Graphics {
         //TODO flag gpu resources for deletion
     }
 
-    void AtmosphereComponentManager::reallocate(uint size)
+    inline void AtmosphereComponentManager::reallocate(uint size)
     {
         std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
 
