@@ -68,22 +68,26 @@ namespace EngineCore
 
         void CameraComponentManager::addComponent(Entity entity, float near_cp, float far_cp, float fovy, float aspect_ratio, float exposure)
         {
-            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+            uint index = 0;
 
-            assert(m_data.used < m_data.allocated);
+            {
+                std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
 
-            uint index = m_data.used;
+                assert(m_data.used < m_data.allocated);
 
-            addIndex(entity.id(),index);
+                index = m_data.used;
 
-            m_data.entity[index] = entity;
-            m_data.near_cp[index] = near_cp;
-            m_data.far_cp[index] = far_cp;
-            m_data.fovy[index] = fovy;
-            m_data.aspect_ratio[index] = aspect_ratio;
-            m_data.exposure[index] = exposure;
+                addIndex(entity.id(), index);
 
-            m_data.used++;
+                m_data.entity[index] = entity;
+                m_data.near_cp[index] = near_cp;
+                m_data.far_cp[index] = far_cp;
+                m_data.fovy[index] = fovy;
+                m_data.aspect_ratio[index] = aspect_ratio;
+                m_data.exposure[index] = exposure;
+
+                m_data.used++;
+            }
 
             updateProjectionMatrix(index);
         }
@@ -124,15 +128,17 @@ namespace EngineCore
 
         void CameraComponentManager::setCameraAttributes(uint index, float near_cp, float far_cp, float fovy, float aspect_ratio, float exposure)
         {
-            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+            {
+                std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
 
-            assert(index < m_data.used);
+                assert(index < m_data.used);
 
-            m_data.near_cp[index] = near_cp;
-            m_data.far_cp[index] = far_cp;
-            m_data.fovy[index] = fovy;
-            m_data.aspect_ratio[index] = aspect_ratio;
-            m_data.exposure[index] = exposure;
+                m_data.near_cp[index] = near_cp;
+                m_data.far_cp[index] = far_cp;
+                m_data.fovy[index] = fovy;
+                m_data.aspect_ratio[index] = aspect_ratio;
+                m_data.exposure[index] = exposure;
+            }
 
             updateProjectionMatrix(index);
         }
@@ -145,11 +151,9 @@ namespace EngineCore
             float far_cp = m_data.far_cp[index];
             float fovy = m_data.fovy[index];
             float aspect_ratio = m_data.aspect_ratio[index];
-
-            //Mat4x4 projection_matrix;// = m_data.projection_matrix[index];
-
             m_data.projection_matrix[index] = glm::perspective(fovy, aspect_ratio, near_cp, far_cp);
 
+            //    Mat4x4 projection_matrix;// = m_data.projection_matrix[index];
             //    float f = 1.0f / std::tan(fovy / 2.0f);
             //    float nf = 1.0f / (near_cp - far_cp);
             //    projection_matrix[0][0] = f / aspect_ratio;
@@ -198,7 +202,7 @@ namespace EngineCore
 
         void CameraComponentManager::setFovy(uint index, float fovy)
         {
-            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
+            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
             m_data.fovy[index] = fovy;
         }
 

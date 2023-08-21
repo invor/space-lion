@@ -197,8 +197,6 @@ namespace EngineCore
 
         void TransformComponentManager::setPosition(Entity entity, Vec3 position)
         {
-            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
-
             auto query = getIndex(entity);
 
             setPosition(query, position);
@@ -279,12 +277,10 @@ namespace EngineCore
 
         Vec3 TransformComponentManager::getWorldPosition(Entity e) const
         {
-
             Vec3 retval;
 
             auto query = getIndex(e);
 
-            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
             retval = getWorldPosition(query);
 
             return retval;
