@@ -1,5 +1,6 @@
 #include "BasicRenderingPipeline.hpp"
 
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 
@@ -80,7 +81,7 @@ namespace EngineCore
                     [&frame, &world_state, &resource_mngr](GeomPassData& data, GeomPassResources& resources) {
 
                     auto& cam_mngr = world_state.get<CameraComponentManager>();
-                    auto& mtl_mngr = world_state.get<MaterialComponentManager<ResourceManager>>();
+                    auto& mtl_mngr = world_state.get<MaterialComponentManager>();
                     auto& mesh_mngr = world_state.get<MeshComponentManager<ResourceManager>> ();
                     auto& renderTask_mngr = world_state.get<RenderTaskComponentManager<Graphics::RenderTaskTags::StaticMesh>>();
                     auto& transform_mngr = world_state.get<Common::TransformComponentManager>();
@@ -139,7 +140,7 @@ namespace EngineCore
                         //auto mtl_idx = mtl_mngr.getIndex(obj.entity);
                         //if (!mtl_idx.empty())
                         {
-                            using TextureSemantic = MaterialComponentManager<ResourceManager>::TextureSemantic;
+                            using TextureSemantic = MaterialComponentManager::TextureSemantic;
                             //auto albedo_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::ALBEDO);
                             //auto roughness_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::METALLIC_ROUGHNESS);
                             //auto normal_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::NORMAL);
@@ -478,7 +479,7 @@ namespace EngineCore
                     [&frame, &world_state, &resource_mngr](GeomPassData& data, GeomPassResources& resources) {
 
                         auto & cam_mngr = world_state.get<CameraComponentManager>();
-                        auto const& mtl_mngr = world_state.get<MaterialComponentManager<ResourceManager>>();
+                        auto const& mtl_mngr = world_state.get<MaterialComponentManager>();
                         auto const& mesh_mngr = world_state.get<MeshComponentManager<ResourceManager>>();
                         auto const& renderTask_mngr = world_state.get<RenderTaskComponentManager<Graphics::RenderTaskTags::StaticMesh>>();
                         auto const& transform_mngr = world_state.get<Common::TransformComponentManager>();
@@ -542,7 +543,7 @@ namespace EngineCore
 
                             // gather material texture resources
                             {
-                                using TextureSemantic = MaterialComponentManager<ResourceManager>::TextureSemantic;
+                                using TextureSemantic = MaterialComponentManager::TextureSemantic;
 
                                 auto albedo_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::ALBEDO);
                                 auto roughness_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::METALLIC_ROUGHNESS);

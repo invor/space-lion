@@ -119,7 +119,7 @@ void EngineCore::Graphics::OpenGL::addOceanRenderPass(Common::Frame& frame, Worl
         },
         // resource setup phase
         [&world_state, &resource_mngr, &frame](OceanPassData& data, OceanPassResources& resources) {
-            auto& atmosphere_mngr = world_state.get<Graphics::AtmosphereComponentManager<ResourceManager>>();
+            auto& atmosphere_mngr = world_state.get<Graphics::AtmosphereComponentManager>();
             auto& ocean_mngr = world_state.get<OceanComponentManager>();
 
             if (resources.gBuffer.state != READY) {

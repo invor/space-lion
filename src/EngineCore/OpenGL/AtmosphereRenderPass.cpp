@@ -65,9 +65,9 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
     frame.addRenderPass<AtmospherePassData, AtmospherePassResources>("AtmospherePass",
         // data setup phase
         [&frame, &world_state, &resource_mngr](AtmospherePassData& data, AtmospherePassResources& resources) {
-            auto& atmosphere_mngr = world_state.get<Graphics::AtmosphereComponentManager<ResourceManager>>();
+            auto& atmosphere_mngr = world_state.get<Graphics::AtmosphereComponentManager>();
             auto& cam_mngr = world_state.get<CameraComponentManager>();
-            auto& mtl_mngr = world_state.get<MaterialComponentManager<ResourceManager>>();
+            auto& mtl_mngr = world_state.get<MaterialComponentManager>();
             auto& mesh_mngr = world_state.get<MeshComponentManager<ResourceManager>>();
             auto& transform_mngr = world_state.get<Common::TransformComponentManager>();
             auto& sunlight_mngr = world_state.get<Graphics::SunlightComponentManager>();
@@ -121,7 +121,7 @@ void EngineCore::Graphics::OpenGL::addAtmosphereRenderPass(Common::Frame& frame,
         // resource setup phase
         [&world_state, &resource_mngr](AtmospherePassData& data, AtmospherePassResources& resources) {
 
-            auto& atmosphere_mngr = world_state.get<Graphics::AtmosphereComponentManager<ResourceManager>>();
+            auto& atmosphere_mngr = world_state.get<Graphics::AtmosphereComponentManager>();
 
             // fill atmosphere resources
             auto atmosphere_cnt = atmosphere_mngr.getComponentCount();

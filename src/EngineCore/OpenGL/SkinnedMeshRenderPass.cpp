@@ -1,5 +1,6 @@
 #include "SkinnedMeshRenderPass.hpp"
 
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 
@@ -66,7 +67,7 @@ void EngineCore::Graphics::OpenGL::addSkinnedMeshRenderPass(Common::Frame& frame
         [&frame, &world_state, &resource_mngr](SkinnedMeshPassData& data, SkinnedMeshPassResources& resources)
         {
             auto& cam_mngr = world_state.get<CameraComponentManager>();
-            auto& mtl_mngr = world_state.get<MaterialComponentManager<ResourceManager>>();
+            auto& mtl_mngr = world_state.get<MaterialComponentManager>();
             auto& mesh_mngr = world_state.get<MeshComponentManager<ResourceManager>>();
             auto& renderTask_mngr = world_state.get<RenderTaskComponentManager<Graphics::RenderTaskTags::SkinnedMesh>>();
             auto& skin_mngr = world_state.get<Animation::SkinComponentManager>();
