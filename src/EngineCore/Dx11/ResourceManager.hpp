@@ -483,7 +483,8 @@ namespace EngineCore
 
                 ResourceID createTextTexture2DAsync(
                     std::string const& name,
-                    std::string const& text,
+                    std::wstring const& text,
+                    bool leadingSymbol,
                     float font_size,
                     std::array<float, 4> text_color,
                     std::array<float, 4> bckgrnd_color,
