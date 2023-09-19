@@ -114,7 +114,9 @@ namespace {
         inline TextTexture(
             ID3D11Device4* d3d11_device,
             ID3D11DeviceContext4* d3d11_device_context,
-            TextTextureInfo textInfo)
+            TextTextureInfo textInfo,
+            std::wstring const& text,
+            bool leadingSymbol)
             : m_textInfo(std::move(textInfo))
         {
             D2D1_FACTORY_OPTIONS options{};
@@ -141,6 +143,24 @@ namespace {
                 m_textFormat.put()));
             winrt::check_hresult(m_textFormat->SetTextAlignment(m_textInfo.TextAlignment));
             winrt::check_hresult(m_textFormat->SetParagraphAlignment(m_textInfo.ParagraphAlignment));
+
+            //
+            // Create text layout
+            //
+            auto wszText_ = text.c_str();
+            auto cTextLength_ = (UINT32)wcslen(wszText_);
+            winrt::check_hresult(m_dwriteFactory->CreateTextLayout(wszText_,
+                cTextLength_,
+                m_textFormat.get(),
+                textInfo.Width, 
+                textInfo.Height,
+                m_textLayout.put()));
+
+            if (leadingSymbol) 
+            {
+                // apply icon format
+                m_textLayout->SetFontFamilyName(L"HoloLens MDL2 Assets", { 0, 1 }); // font and range
+            }
 
             winrt::check_hresult(m_d2dFactory->CreateDrawingStateBlock(m_stateBlock.put()));
 
@@ -173,10 +193,10 @@ namespace {
             const auto& foreground = m_textInfo.Foreground;
             const D2D1::ColorF brushColor(std::get<0>(foreground), std::get<1>(foreground), std::get<2>(foreground), std::get<3>(foreground));
             winrt::check_hresult(m_d2dContext->CreateSolidColorBrush(brushColor, m_brush.put()));
-        }
 
-        inline void Draw(std::string text)
-        {
+            //
+            // Draw to texture
+            //
             m_d2dContext->SaveDrawingState(m_stateBlock.get());
 
             const D2D1_SIZE_F renderTargetSize = m_d2dContext->GetSize();
@@ -186,20 +206,14 @@ namespace {
             m_d2dContext->Clear(D2D1::ColorF(std::get<0>(background), std::get<1>(background), std::get<2>(background), std::get<3>(background)));
 
             if (!text.empty()) {
-                const auto& margin = m_textInfo.Margin;
-                std::wstring wtext = utf8_to_wide(text);
-                m_d2dContext->DrawText(wtext.c_str(),
-                    (UINT32)wtext.size(),
-                    m_textFormat.get(),
-                    D2D1::RectF(m_textInfo.Margin,
-                        m_textInfo.Margin,
-                        renderTargetSize.width - m_textInfo.Margin * 2,
-                        renderTargetSize.height - m_textInfo.Margin * 2),
-                    m_brush.get());
+                m_d2dContext->DrawTextLayout(
+                    { 0.0, 0.0 },
+                    m_textLayout.get(),
+                    m_brush.get()
+                );
             }
 
             m_d2dContext->EndDraw();
-
             m_d2dContext->RestoreDrawingState(m_stateBlock.get());
         }
 
@@ -218,6 +232,7 @@ namespace {
         winrt::com_ptr<ID2D1DrawingStateBlock> m_stateBlock;
         winrt::com_ptr<IDWriteFactory2> m_dwriteFactory;
         winrt::com_ptr<IDWriteTextFormat> m_textFormat;
+        winrt::com_ptr<IDWriteTextLayout> m_textLayout;
         winrt::com_ptr<ID3D11Texture2D> m_textDWriteTexture;
     };
 
@@ -440,7 +455,8 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(
 
 ResourceID EngineCore::Graphics::Dx11::ResourceManager::createTextTexture2DAsync(
     std::string const& name,
-    std::string const& text,
+    std::wstring const& text,
+    bool leadingSymbol,
     float font_size,
     std::array<float, 4> text_color,
     std::array<float, 4> bckgrnd_color,
@@ -456,7 +472,7 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createTextTexture2DAsync
     addTextureIndex(rsrc_id.value(), name, idx);
 
     m_renderThread_tasks.push(
-        [this, idx, text, text_color, bckgrnd_color, desc, generate_mipmap]() {
+        [this, idx, text, text_color, bckgrnd_color, desc, generate_mipmap, leadingSymbol]() {
 
             std::vector<const void*> data_ptrs;
 
@@ -477,8 +493,7 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createTextTexture2DAsync
             text_info.Foreground = text_color;
             text_info.Background = bckgrnd_color;
             std::unique_ptr<TextTexture> text_to_texture
-                = std::make_unique<TextTexture>(m_d3d11_device, m_d3d11_device_context, text_info);
-            text_to_texture->Draw(text);
+                = std::make_unique<TextTexture>(m_d3d11_device, m_d3d11_device_context, text_info, text, leadingSymbol);
 
             // copy rendered text texture
             {
