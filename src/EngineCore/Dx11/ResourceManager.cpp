@@ -115,7 +115,7 @@ namespace {
             ID3D11Device4* d3d11_device,
             ID3D11DeviceContext4* d3d11_device_context,
             TextTextureInfo textInfo,
-            const std::wstring text,
+            std::wstring const& text,
             bool leadingSymbol)
             : m_textInfo(std::move(textInfo))
         {
@@ -193,10 +193,10 @@ namespace {
             const auto& foreground = m_textInfo.Foreground;
             const D2D1::ColorF brushColor(std::get<0>(foreground), std::get<1>(foreground), std::get<2>(foreground), std::get<3>(foreground));
             winrt::check_hresult(m_d2dContext->CreateSolidColorBrush(brushColor, m_brush.put()));
-        }
 
-        inline void Draw(std::wstring text)
-        {
+            //
+            // Draw to texture
+            //
             m_d2dContext->SaveDrawingState(m_stateBlock.get());
 
             const D2D1_SIZE_F renderTargetSize = m_d2dContext->GetSize();
@@ -207,15 +207,13 @@ namespace {
 
             if (!text.empty()) {
                 m_d2dContext->DrawTextLayout(
-                    {0.0, 0.0},
+                    { 0.0, 0.0 },
                     m_textLayout.get(),
                     m_brush.get()
                 );
-
             }
 
             m_d2dContext->EndDraw();
-
             m_d2dContext->RestoreDrawingState(m_stateBlock.get());
         }
 
@@ -496,7 +494,6 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createTextTexture2DAsync
             text_info.Background = bckgrnd_color;
             std::unique_ptr<TextTexture> text_to_texture
                 = std::make_unique<TextTexture>(m_d3d11_device, m_d3d11_device_context, text_info, text, leadingSymbol);
-            text_to_texture->Draw(text);
 
             // copy rendered text texture
             {
