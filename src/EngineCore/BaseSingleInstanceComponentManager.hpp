@@ -13,32 +13,19 @@
 #include "BaseComponentManager.hpp"
 #include "EntityManager.hpp"
 
+#include "SingleInstanceIndexMap.hpp"
+
 namespace EngineCore
 {
 
     class BaseSingleInstanceComponentManager : public BaseComponentManager
     {
     protected:
-
-        /// <summary>
-        /// Mapping from Entity ID to component index
-        /// </summary>
-        std::vector<size_t> m_index_map;
-
-        /// <summary>
-        /// Mutex for protection of index map add vs read
-        /// </summary>
-        mutable std::shared_mutex m_index_map_mutex;
+        Utility::SingleInstanceIndexMap index_map_;
 
         inline void addIndex(unsigned int entity_id, size_t index)
         {
-            std::unique_lock<std::shared_mutex> index_map_lock(m_index_map_mutex);
-
-            if (m_index_map.size() <= entity_id) {
-                m_index_map.resize(entity_id + 1, (std::numeric_limits<size_t>::max)());
-            }
-
-            m_index_map[entity_id] = index;
+            index_map_.addIndex(entity_id, index);
         }
 
     public:
@@ -57,15 +44,7 @@ namespace EngineCore
 
         inline size_t getIndex(unsigned int entity_id) const
         {
-            std::shared_lock<std::shared_mutex> index_map_lock(m_index_map_mutex);
-
-            size_t retval = (std::numeric_limits<size_t>::max)();
-
-            if (m_index_map.size() > entity_id) {
-                retval = m_index_map[entity_id];
-            }
-
-            return retval;
+            return index_map_.getIndex(entity_id);
         }
     };
 
