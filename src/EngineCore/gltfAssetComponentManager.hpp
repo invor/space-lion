@@ -72,7 +72,7 @@ namespace EngineCore
             std::unordered_map<std::string, ModelPtr> m_gltf_models;
             std::shared_mutex                         m_gltf_models_mutex;
             std::vector<ComponentData>                m_data;
-            mutable std::shared_mutex                         m_data_mutex;
+            mutable std::shared_mutex                 m_data_mutex;
         };
     }
 }

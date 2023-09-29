@@ -42,16 +42,27 @@ std::shared_ptr<tinygltf::Model> EngineCore::Graphics::Utility::loadGltfModel(st
 std::shared_ptr<tinygltf::Model> EngineCore::Graphics::GltfAssetComponentManager::addGltfModelToCache(
     std::string const& gltf_filepath)
 {
-    //TODO find model in Cache!
+    ModelPtr retval = nullptr;
 
-    auto model = Utility::loadGltfModel(gltf_filepath);
-
+    // check for model in cache
     {
-        std::unique_lock<std::shared_mutex> lock(m_gltf_models_mutex);
-        m_gltf_models.insert(std::make_pair(gltf_filepath, model));
+        std::shared_lock<std::shared_mutex> lock(m_gltf_models_mutex);
+        auto query = m_gltf_models.find(gltf_filepath);
+
+        if (query != m_gltf_models.end()) {
+            retval = query->second;
+        }
     }
 
-    return model;
+    // if model not found in cache, load and add now
+    if (retval == nullptr) {
+        retval = Utility::loadGltfModel(gltf_filepath);
+
+        std::unique_lock<std::shared_mutex> lock(m_gltf_models_mutex);
+        m_gltf_models.insert(std::make_pair(gltf_filepath, retval));
+    }
+
+    return retval;
 }
 
 void EngineCore::Graphics::GltfAssetComponentManager::addGltfModelToCache(
@@ -79,9 +90,10 @@ void EngineCore::Graphics::GltfAssetComponentManager::addComponent(
     std::string const& gltf_filepath,
     size_t gltf_node_idx)
 {
-    std::unique_lock<std::shared_mutex> lock(m_data_mutex);
     size_t cmp_idx = m_data.size();
     addIndex(entity.id(), cmp_idx);
+
+    std::unique_lock<std::shared_mutex> lock(m_data_mutex);
     m_data.push_back({ entity,gltf_filepath,gltf_node_idx });
 }
 
