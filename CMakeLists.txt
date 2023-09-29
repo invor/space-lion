@@ -148,6 +148,7 @@ SET (ENGINECORE_UTILITY_HEADER_FILES
         src/EngineCore/MTQueue.hpp
         src/EngineCore/ResourceLoading.hpp
 	src/EngineCore/RingBuffer.hpp
+        src/EngineCore/SingleInstanceIndexMap.hpp
         src/EngineCore/TaskSchedueler.hpp
         src/EngineCore/types.hpp
         src/EngineCore/utility.hpp)
