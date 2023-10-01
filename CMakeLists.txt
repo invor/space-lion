@@ -145,6 +145,7 @@ SET (ENGINECORE_PHYSICS_SOURCE_FILES
         src/EngineCore/AirplanePhysicsComponent.cpp)
 
 SET (ENGINECORE_UTILITY_HEADER_FILES
+        src/EngineCore/ComponentStorage.hpp
         src/EngineCore/MTQueue.hpp
         src/EngineCore/ResourceLoading.hpp
 	src/EngineCore/RingBuffer.hpp

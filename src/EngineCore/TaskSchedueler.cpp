@@ -7,6 +7,7 @@ void EngineCore::Utility::TaskSchedueler::run(int worker_thread_cnt)
     worker_thread_pool_.resize(worker_thread_cnt);
     task_schedueler_active_.test_and_set();
     busy_threads_cnt_ = 0;
+    tasks_cnt_ = 0;
 
     for (int i = 0; i < worker_thread_cnt; ++i)
     {
