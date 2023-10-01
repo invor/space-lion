@@ -6,6 +6,7 @@
 #include "TurntableComponentManager.hpp"
 #include "TagAlongComponentManager.hpp"
 #include "BillboardComponentManager.hpp"
+#include "TaskSchedueler.hpp"
 
 namespace EngineCore {
 namespace Animation {
@@ -13,7 +14,8 @@ namespace Animation {
     void animateTurntables(
         EngineCore::Common::TransformComponentManager& transform_mngr,
         EngineCore::Animation::TurntableComponentManager& turntable_mngr,
-        double dt);
+        double dt,
+        Utility::TaskSchedueler& task_schedueler);
 
     void animateTagAlong(
         EngineCore::Common::TransformComponentManager& transform_mngr,

@@ -17,7 +17,7 @@ namespace EngineCore
     {
         class TurntableComponentManager : public BaseSingleInstanceComponentManager
         {
-        private:
+        public:
             struct Data
             {
                 Data(Entity entity, float angle, Vec3 axis)
@@ -27,7 +27,7 @@ namespace EngineCore
                 float  angle;
                 Vec3   axis;
             };
-
+        private:
             std::vector<Data> m_data;
             std::shared_mutex m_dataAccess_mutex;
             

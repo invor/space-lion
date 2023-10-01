@@ -5,6 +5,7 @@
 
 #include "BaseComponentManager.hpp"
 #include "EntityManager.hpp"
+#include "TaskSchedueler.hpp"
 
 namespace EngineCore
 {
@@ -38,9 +39,9 @@ namespace EngineCore
         /** 
          *
          */
-        void add(std::function<void(WorldState&, double)> system);
+        void add(std::function<void(WorldState&, double, Utility::TaskSchedueler&)> system);
 
-        std::vector<std::function<void(WorldState&, double)>> const& getSystems();
+        std::vector<std::function<void(WorldState&, double, Utility::TaskSchedueler&)>> const& getSystems();
 
     private:
         /**
@@ -59,7 +60,7 @@ namespace EngineCore
         /** 
          *
          */
-        std::vector<std::function<void(WorldState&, double)>> m_systems;
+        std::vector<std::function<void(WorldState&, double, Utility::TaskSchedueler&)>> m_systems;
 
         template <class ComponentType>
         inline static int getTypeId() {
@@ -74,12 +75,12 @@ namespace EngineCore
         return m_entity_manager;
     }
 
-    inline void WorldState::add(std::function<void(WorldState&, double)> system)
+    inline void WorldState::add(std::function<void(WorldState&, double, Utility::TaskSchedueler&)> system)
     {
         m_systems.emplace_back(system);
     }
 
-    inline std::vector<std::function<void(WorldState&, double)>> const & WorldState::getSystems()
+    inline std::vector<std::function<void(WorldState&, double, Utility::TaskSchedueler&)>> const & WorldState::getSystems()
     {
         return m_systems;
     }

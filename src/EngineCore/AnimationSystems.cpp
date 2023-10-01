@@ -3,23 +3,37 @@
 void EngineCore::Animation::animateTurntables(
     EngineCore::Common::TransformComponentManager & transform_mngr,
     EngineCore::Animation::TurntableComponentManager & turntable_mngr,
-    double dt)
+    double dt,
+    Utility::TaskSchedueler& task_schedueler)
 {
     auto t_0 = std::chrono::high_resolution_clock::now();
 
-    auto tt_cmps = turntable_mngr.getComponentDataCopy();
+    std::vector<EngineCore::Animation::TurntableComponentManager::Data> tt_cmps = turntable_mngr.getComponentDataCopy();
 
-    for (auto& cmp : tt_cmps)
-    {
-        auto transform_idx = transform_mngr.getIndex(cmp.entity);
-        // if ( idx == max )
-        transform_mngr.rotateLocal(transform_idx, glm::angleAxis(static_cast<float>(cmp.angle * dt), cmp.axis));
+    std::vector<std::pair<size_t, size_t>> from_to_pairs;
+    size_t bucket_cnt = 6;
+    for (size_t i = 0; i < bucket_cnt; ++i) {
+        from_to_pairs.push_back({ tt_cmps.size() * (float(i) / float(bucket_cnt)), tt_cmps.size() * (float(i + 1) / float(bucket_cnt)) });
     }
+    
+    for (auto from_to : from_to_pairs) {
+        task_schedueler.submitTask(
+            [&transform_mngr, &tt_cmps, from_to, dt]() {
+                for (size_t i = from_to.first; i < from_to.second; ++i)
+                {
+                    auto transform_idx = transform_mngr.getIndex((tt_cmps)[i].entity);
+                    transform_mngr.rotateLocal(transform_idx, glm::angleAxis(static_cast<float>((tt_cmps)[i].angle * dt), (tt_cmps)[i].axis));
+                }
+            }
+        );
+    }
+    
+    task_schedueler.waitWhileBusy();
 
     auto t_1 = std::chrono::high_resolution_clock::now();
 
     auto dt2 = std::chrono::duration_cast<std::chrono::duration<double>>(t_1 - t_0).count();
-    //std::cout << "Animation system computation time: " << dt2 << std::endl;
+    std::cout << "Animation system computation time: " << dt2 << std::endl;
 }
 
 
