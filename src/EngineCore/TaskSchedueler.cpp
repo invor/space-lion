@@ -4,52 +4,67 @@
 
 void EngineCore::Utility::TaskSchedueler::run(int worker_thread_cnt)
 {
-    m_worker_thread_pool.resize(worker_thread_cnt);
-    m_taskScheduelerActive.test_and_set();
-    m_busy_threads_cnt = 0;
+    worker_thread_pool_.resize(worker_thread_cnt);
+    task_schedueler_active_.test_and_set();
+    busy_threads_cnt_ = 0;
 
     for (int i = 0; i < worker_thread_cnt; ++i)
     {
-        m_worker_thread_pool[i] = std::thread([this]() {
-            while (m_taskScheduelerActive.test())
+        worker_thread_pool_[i] = std::thread([this]() {
+            while (task_schedueler_active_.test())
             {
-                std::function<void()> f;
-                if (m_task_queue.tryPop(f, std::chrono::microseconds(10))) {
-                    {
-                        std::lock_guard<std::mutex> lock(m_busy_mutex);
-                        ++m_busy_threads_cnt;
-                    }
-                    f();
-                    {
-                        std::lock_guard<std::mutex> lock(m_busy_mutex);
-                        --m_busy_threads_cnt;
-                    }
-                    m_busy_cv.notify_all();
+                std::function<void()> task;
+                bool success = false;
+
+                {
+                    // atomically try to pop task from queue and increment busy if successful
+                    std::unique_lock<std::mutex> lock(mutex_);
+                    cvar_.wait(lock, [this] { return (tasks_cnt_.load() > 0); });
+                    task = std::move(queue_.front());
+                    queue_.pop();
+                    --tasks_cnt_;
+                    ++busy_threads_cnt_;
+                    success = true;
                 }
+
+                if (success)
+                {
+                    task();
+                    --busy_threads_cnt_;
+                }
+
+                cvar_.notify_all();
             }
-        });
+            });
     }
 }
 
 void EngineCore::Utility::TaskSchedueler::stop()
 {
-    m_taskScheduelerActive.clear();
+    task_schedueler_active_.clear();
 
-    for (auto& thread : m_worker_thread_pool)
+    for (auto& thread : worker_thread_pool_)
         thread.join();
 }
 
 void EngineCore::Utility::TaskSchedueler::submitTask(Task new_task)
 {
-    m_task_queue.push(new_task);
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        queue_.push(new_task);
+        ++tasks_cnt_;
+    }
+    cvar_.notify_all();
 }
 
 bool EngineCore::Utility::TaskSchedueler::empty() const {
-    return m_task_queue.empty();
+    return (tasks_cnt_.load() == 0);
 }
 
 void EngineCore::Utility::TaskSchedueler::waitWhileBusy()
 {
-    std::unique_lock<std::mutex> lock(m_busy_mutex);
-    m_busy_cv.wait(lock, [this] { return m_task_queue.empty() && (m_busy_threads_cnt.load() == 0); });
+    // pessimistic wait while busy that checks every 0.01ms if acutally still busy,
+    // because it sometimes somehow misses the notifications from the worker threads
+    std::unique_lock<std::mutex> lock(mutex_);
+    while (!cvar_.wait_for(lock, std::chrono::microseconds(10), [this] { return (tasks_cnt_.load() == 0) && (busy_threads_cnt_.load() == 0); }));
 }

@@ -17,13 +17,20 @@ namespace EngineCore
         class TaskSchedueler
         {
         private:
-            std::atomic_flag               m_taskScheduelerActive = ATOMIC_FLAG_INIT; //TODO replace
-            MTQueue<std::function<void()>> m_task_queue;
-            std::vector<std::thread>       m_worker_thread_pool;
-            
-            std::mutex                     m_busy_mutex;
-            std::condition_variable        m_busy_cv;
-            std::atomic_int                m_busy_threads_cnt;
+            std::atomic_flag         task_schedueler_active_ = ATOMIC_FLAG_INIT; //TODO replace
+            std::vector<std::thread> worker_thread_pool_;
+
+            /** Underlying standard queue. */
+            std::queue<Task>         queue_;
+            /** Mutex to protect task queue operations. */
+            mutable std::mutex       mutex_;
+            /** Condition variable to wait while busy or for new task*/
+            std::condition_variable  cvar_;
+
+            /** Atomically keep track of threads currently busy processing a task */
+            std::atomic_int          busy_threads_cnt_;
+            /** Atomically keep track of tasks currently still in queue */
+            std::atomic_int          tasks_cnt_;
 
         public:
             void run(int worker_thread_cnt);
