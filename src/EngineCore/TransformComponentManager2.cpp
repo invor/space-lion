@@ -137,30 +137,29 @@ namespace EngineCore
             }
 
             // update transforms of all children
-            if (data_(page_idx, idx_in_page).first_child != index)
+            size_t child_idx = data_(page_idx, idx_in_page).first_child;
+            if (child_idx != index)
             {
-                size_t child_idx = data_(page_idx, idx_in_page).first_child;
-                auto [child_page_idx, child_idx_in_page] = data_.getIndices(child_idx);
-
-                size_t sibling_idx = data_(child_page_idx, child_idx_in_page).next_sibling;
-                auto [sibling_page_idx, sibing_idx_in_page] = data_.getIndices(sibling_idx);
-
                 lock.unlock();
                 transform(child_idx);
                 lock.lock();
 
+                auto [child_page_idx, child_idx_in_page] = data_.getIndices(child_idx);
+                size_t sibling_idx = data_(child_page_idx, child_idx_in_page).next_sibling;
+            
                 while (sibling_idx != child_idx)
                 {
+                    auto [sibling_page_idx, sibing_idx_in_page] = data_.getIndices(sibling_idx);
+
                     child_idx = sibling_idx;
                     child_page_idx = sibling_page_idx;
                     child_idx_in_page = sibing_idx_in_page;
 
-                    sibling_idx = data_(child_page_idx, child_idx_in_page).next_sibling;
-                    std::tie(sibling_page_idx, sibing_idx_in_page) = data_.getIndices(sibling_idx);
-
                     lock.unlock();
                     transform(child_idx);
                     lock.lock();
+            
+                    sibling_idx = data_(child_page_idx, child_idx_in_page).next_sibling;
                 }
             }
         }
