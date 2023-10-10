@@ -1,5 +1,3 @@
-#if 0
-
 #include "TransformComponentManager.hpp"
 
 namespace EngineCore
@@ -10,96 +8,35 @@ namespace EngineCore
             : BaseSingleInstanceComponentManager()
         {}
 
-        TransformComponentManager::TransformComponentManager(size_t size)
-            : BaseSingleInstanceComponentManager(), m_data()
-        {
-            const size_t bytes = size * (sizeof(Entity)
-                + sizeof(Mat4x4)
-                + 2 * sizeof(Vec3)
-                + sizeof(Quat)
-                + 3 * sizeof(size_t));
-            m_data.buffer = new uint8_t[bytes];
-
-            m_data.used = 0;
-            m_data.allocated = size;
-
-            m_data.entity = (Entity*)(m_data.buffer);
-            m_data.world_transform = (Mat4x4*)(m_data.entity + size);
-            m_data.position = (Vec3*)(m_data.world_transform + size);
-            m_data.orientation = (Quat*)(m_data.position + size);
-            m_data.scale = (Vec3*)(m_data.orientation + size);
-            m_data.parent = (size_t*)(m_data.scale + size);
-            m_data.first_child = (size_t*)(m_data.parent + size);
-            m_data.next_sibling = (size_t*)(m_data.first_child + size);
-        }
-
         TransformComponentManager::~TransformComponentManager()
-        {
-            delete[] m_data.buffer;
-        }
-
-        void TransformComponentManager::reallocate(size_t size)
-        {
-            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
-
-            assert(size > m_data.used);
-
-            Data new_data;
-            const size_t bytes = size * (sizeof(Entity)
-                + sizeof(Mat4x4)
-                + 2 * sizeof(Vec3)
-                + sizeof(Quat)
-                + 3 * sizeof(size_t));
-            new_data.buffer = new uint8_t[bytes];
-
-            new_data.used = m_data.used;
-            new_data.allocated = size;
-
-            new_data.entity = (Entity*)(new_data.buffer);
-            new_data.world_transform = (Mat4x4*)(new_data.entity + size);
-            new_data.position = (Vec3*)(new_data.world_transform + size);
-            new_data.orientation = (Quat*)(new_data.position + size);
-            new_data.scale = (Vec3*)(new_data.orientation + size);
-            new_data.parent = (size_t*)(new_data.scale + size);
-            new_data.first_child = (size_t*)(new_data.parent + size);
-            new_data.next_sibling = (size_t*)(new_data.first_child + size);
-
-            std::memcpy(new_data.entity, m_data.entity, m_data.used * sizeof(Entity));
-            std::memcpy(new_data.world_transform, m_data.world_transform, m_data.used * sizeof(Mat4x4));
-            std::memcpy(new_data.position, m_data.position, m_data.used * sizeof(Vec3));
-            std::memcpy(new_data.orientation, m_data.orientation, m_data.used * sizeof(Quat));
-            std::memcpy(new_data.scale, m_data.scale, m_data.used * sizeof(Vec3));
-            std::memcpy(new_data.parent, m_data.parent, m_data.used * sizeof(uint));
-            std::memcpy(new_data.first_child, m_data.first_child, m_data.used * sizeof(uint));
-            std::memcpy(new_data.next_sibling, m_data.next_sibling, m_data.used * sizeof(uint));
-
-            delete[] m_data.buffer;
-
-            m_data = new_data;
-        }
+        {}
 
         size_t TransformComponentManager::addComponent(Entity entity, Vec3 position, Quat orientation, Vec3 scale)
         {
-            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
-
-            assert(m_data.used < m_data.allocated);
-
-            // TODO check if entity already has a transform component and issue a warning of some kind
-
-            size_t index = m_data.used;
+            auto index = data_.addComponent(
+                {
+                    entity,
+                    Mat4x4(0.0f),
+                    position,
+                    orientation,
+                    scale,
+                    0,
+                    0,
+                    0
+                }
+            );
 
             addIndex(entity.id(), index);
 
-            m_data.entity[index] = entity;
-            m_data.position[index] = position;
-            m_data.orientation[index] = orientation;
-            m_data.scale[index] = scale;
+            auto [page_idx, idx_in_page] = data_.getIndices(index);
 
-            m_data.parent[index] = index;
-            m_data.first_child[index] = index;
-            m_data.next_sibling[index] = index;
+            {
+                auto lock = data_.accquirePageLock(page_idx);
 
-            m_data.used++;
+                data_(page_idx, idx_in_page).parent = index;
+                data_(page_idx, idx_in_page).first_child = index;
+                data_(page_idx, idx_in_page).next_sibling = index;
+            }
 
             transform(index);
 
@@ -108,14 +45,14 @@ namespace EngineCore
 
         void TransformComponentManager::deleteComonent(Entity entity)
         {
-            //TODO
-            // std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+            auto query = getIndex(entity);
+
+            data_.deleteComponent(query);
         }
 
         size_t TransformComponentManager::getComponentCount() const
         {
-            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
-            return m_data.used;
+            return data_.getComponentCount();
         }
 
         void TransformComponentManager::translate(Entity entity, Vec3 translation)
@@ -127,72 +64,100 @@ namespace EngineCore
 
         void TransformComponentManager::translate(size_t index, Vec3 translation)
         {
-            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+            {
+                auto [page_idx, idx_in_page] = data_.getIndices(index);
 
-            m_data.position[index] += translation;
+                auto lock = data_.accquirePageLock(page_idx);
+
+                data_(page_idx, idx_in_page).position += translation;
+            }
 
             transform(index);
         }
 
         void TransformComponentManager::rotate(size_t index, Quat rotation)
         {
-            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+            {
+                auto [page_idx, idx_in_page] = data_.getIndices(index);
 
-            //m_data.orientation[index] *= rotation; // local transform...
-            m_data.orientation[index] = glm::normalize(rotation * m_data.orientation[index]);
+                auto lock = data_.accquirePageLock(page_idx);
+
+                data_(page_idx, idx_in_page).orientation = glm::normalize(rotation * data_(page_idx, idx_in_page).orientation);
+            }
 
             transform(index);
         }
 
         void TransformComponentManager::rotateLocal(size_t index, Quat rotation)
         {
-            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+            {
+                auto [page_idx, idx_in_page] = data_.getIndices(index);
 
-            m_data.orientation[index] = glm::normalize(m_data.orientation[index] * rotation);
+                auto lock = data_.accquirePageLock(page_idx);
+
+                data_(page_idx, idx_in_page).orientation = glm::normalize(data_(page_idx, idx_in_page).orientation * rotation);
+            }
 
             transform(index);
         }
 
         void TransformComponentManager::scale(size_t index, Vec3 scale_factors)
         {
-            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+            {
+                auto [page_idx, idx_in_page] = data_.getIndices(index);
 
-            m_data.scale[index] *= scale_factors;
+                auto lock = data_.accquirePageLock(page_idx);
+
+                data_(page_idx, idx_in_page).scale *= scale_factors;
+            }
 
             transform(index);
         }
 
         void TransformComponentManager::transform(size_t index)
         {
-            // std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+            auto [page_idx, idx_in_page] = data_.getIndices(index);
 
-            Mat4x4 xform = glm::toMat4(m_data.orientation[index]);
-            xform[3] = Vec4(m_data.position[index], 1.0);
-            xform[0] *= m_data.scale[index].x;
-            xform[1] *= m_data.scale[index].y;
-            xform[2] *= m_data.scale[index].z;
+            auto lock = data_.accquirePageLock(page_idx);
 
-            if (m_data.parent[index] != index) {
-                m_data.world_transform[index] = m_data.world_transform[m_data.parent[index]] * xform;
+            Mat4x4 xform = glm::toMat4(data_(page_idx, idx_in_page).orientation);
+            xform[3] = Vec4(data_(page_idx, idx_in_page).position, 1.0);
+            xform[0] *= data_(page_idx, idx_in_page).scale.x;
+            xform[1] *= data_(page_idx, idx_in_page).scale.y;
+            xform[2] *= data_(page_idx, idx_in_page).scale.z;
+
+            if (data_(page_idx, idx_in_page).parent != index) {
+                auto [parent_page_idx, parent_idx_in_page] = data_.getIndices(data_(page_idx, idx_in_page).parent);
+                data_(page_idx, idx_in_page).world_transform = data_(parent_page_idx, parent_idx_in_page).world_transform * xform;
             }
             else {
-                m_data.world_transform[index] = xform;
+                data_(page_idx, idx_in_page).world_transform = xform;
             }
 
             // update transforms of all children
-            if (m_data.first_child[index] != index)
+            size_t child_idx = data_(page_idx, idx_in_page).first_child;
+            if (child_idx != index)
             {
-                size_t child_idx = m_data.first_child[index];
-                size_t sibling_idx = m_data.next_sibling[child_idx];
-
+                lock.unlock();
                 transform(child_idx);
+                lock.lock();
+
+                auto [child_page_idx, child_idx_in_page] = data_.getIndices(child_idx);
+                size_t sibling_idx = data_(child_page_idx, child_idx_in_page).next_sibling;
 
                 while (sibling_idx != child_idx)
                 {
-                    child_idx = sibling_idx;
-                    sibling_idx = m_data.next_sibling[child_idx];
+                    auto [sibling_page_idx, sibing_idx_in_page] = data_.getIndices(sibling_idx);
 
+                    child_idx = sibling_idx;
+                    child_page_idx = sibling_page_idx;
+                    child_idx_in_page = sibing_idx_in_page;
+
+                    lock.unlock();
                     transform(child_idx);
+                    lock.lock();
+
+                    sibling_idx = data_(child_page_idx, child_idx_in_page).next_sibling;
                 }
             }
         }
@@ -206,75 +171,96 @@ namespace EngineCore
 
         void TransformComponentManager::setPosition(size_t index, Vec3 position)
         {
-            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+            {
+                auto [page_idx, idx_in_page] = data_.getIndices(index);
 
-            m_data.position[index] = position;
+                auto lock = data_.accquirePageLock(page_idx);
+
+                data_(page_idx, idx_in_page).position = position;
+            }
 
             transform(index);
         }
 
         void TransformComponentManager::setOrientation(size_t index, Quat orientation)
         {
-            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+            {
+                auto [page_idx, idx_in_page] = data_.getIndices(index);
 
-            m_data.orientation[index] = orientation;
+                auto lock = data_.accquirePageLock(page_idx);
+
+                data_(page_idx, idx_in_page).orientation = orientation;
+            }
 
             transform(index);
         }
 
         void TransformComponentManager::setScale(size_t index, Vec3 scale)
         {
-            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
+            {
+                auto [page_idx, idx_in_page] = data_.getIndices(index);
 
-            m_data.scale[index] = scale;
+                auto lock = data_.accquirePageLock(page_idx);
+
+                data_(page_idx, idx_in_page).scale = scale;
+            }
 
             transform(index);
         }
 
         void TransformComponentManager::setParent(size_t index, Entity parent)
         {
-            std::unique_lock<std::shared_mutex> lock(m_data_access_mutex);
-
-            auto query = getIndex(parent);
-
-
-            size_t parent_idx = query;
-
-            m_data.parent[index] = parent_idx;
-
-            if (m_data.first_child[parent_idx] == parent_idx)
             {
-                m_data.first_child[parent_idx] = index;
-            }
-            else
-            {
-                size_t child_idx = m_data.first_child[parent_idx];
+                auto [page_idx, idx_in_page] = data_.getIndices(index);
 
-                while (m_data.next_sibling[child_idx] != child_idx)
+                auto lock = data_.accquirePageLock(page_idx);
+
+                auto query = getIndex(parent);
+
+                size_t parent_idx = query;
+                data_(page_idx, idx_in_page).parent = parent_idx;
+
+                auto [parent_page_idx, parent_idx_in_page] = data_.getIndices(parent_idx);
+
+                if (data_(parent_page_idx, parent_idx_in_page).first_child == parent_idx)
                 {
-                    child_idx = m_data.next_sibling[child_idx];
+                    data_(parent_page_idx, parent_idx_in_page).first_child = index;
                 }
+                else
+                {
+                    size_t child_idx = data_(parent_page_idx, parent_idx_in_page).first_child;
+                    auto [child_page_idx, child_idx_in_page] = data_.getIndices(child_idx);
 
-                m_data.next_sibling[child_idx] = index;
+                    while (data_(child_page_idx, child_idx_in_page).next_sibling != child_idx)
+                    {
+                        child_idx = data_(child_page_idx, child_idx_in_page).next_sibling;
+                        std::tie(child_page_idx, child_idx_in_page) = data_.getIndices(child_idx);
+                    }
+
+                    data_(child_page_idx, child_idx_in_page).next_sibling = index;
+                }
             }
 
             transform(index);
-            
+
         }
 
-        const Vec3 & TransformComponentManager::getPosition(size_t index) const
+        Vec3 const& TransformComponentManager::getPosition(size_t index) const
         {
-            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
-            return m_data.position[index];
+            auto [page_idx, idx_in_page] = data_.getIndices(index);
+
+            auto lock = data_.accquirePageLock(page_idx);
+
+            return data_(page_idx, idx_in_page).position;
         }
 
         Vec3 TransformComponentManager::getWorldPosition(size_t index) const
         {
-            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
+            auto [page_idx, idx_in_page] = data_.getIndices(index);
 
-            assert(index < m_data.used);
+            auto lock = data_.accquirePageLock(page_idx);
 
-            return Vec3(m_data.world_transform[index] * Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+            return Vec3(data_(page_idx, idx_in_page).world_transform * Vec4(0.0f, 0.0f, 0.0f, 1.0f));
         }
 
         Vec3 TransformComponentManager::getWorldPosition(Entity e) const
@@ -288,24 +274,22 @@ namespace EngineCore
             return retval;
         }
 
-        const Quat & TransformComponentManager::getOrientation(size_t index) const
+        Quat const& TransformComponentManager::getOrientation(size_t index) const
         {
-            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
-            return m_data.orientation[index];
+            auto [page_idx, idx_in_page] = data_.getIndices(index);
+
+            auto lock = data_.accquirePageLock(page_idx);
+
+            return data_(page_idx, idx_in_page).orientation;
         }
 
-        const Mat4x4 & TransformComponentManager::getWorldTransformation(size_t index) const
+        Mat4x4 const& TransformComponentManager::getWorldTransformation(size_t index) const
         {
-            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
-            return m_data.world_transform[index];
-        }
+            auto [page_idx, idx_in_page] = data_.getIndices(index);
 
-        Mat4x4 const * const TransformComponentManager::getWorldTransformations() const
-        {
-            std::shared_lock<std::shared_mutex> lock(m_data_access_mutex);
-            return m_data.world_transform;
+            auto lock = data_.accquirePageLock(page_idx);
+
+            return data_(page_idx, idx_in_page).world_transform;
         }
     }
 }
-
-#endif
