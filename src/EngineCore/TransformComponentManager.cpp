@@ -1,3 +1,5 @@
+#if 0
+
 #include "TransformComponentManager.hpp"
 
 namespace EngineCore
@@ -305,3 +307,5 @@ namespace EngineCore
         }
     }
 }
+
+#endif

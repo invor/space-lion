@@ -59,6 +59,7 @@ SET (ENGINECORE_COMMON_HEADER_FILES
         src/EngineCore/InputEvent.hpp
         src/EngineCore/NameComponentManager.hpp
         src/EngineCore/TransformComponentManager.hpp
+        src/EngineCore/TransformComponentManager2.hpp
         src/EngineCore/WorldState.hpp)
 
 SET (ENGINECORE_COMMON_SOURCE_FILES
@@ -67,6 +68,7 @@ SET (ENGINECORE_COMMON_SOURCE_FILES
         src/EngineCore/Frame.cpp
         src/EngineCore/NameComponentManager.cpp
         src/EngineCore/TransformComponentManager.cpp
+        src/EngineCore/TransformComponentManager2.cpp
         src/EngineCore/WorldState.cpp)
 
 SET (ENGINECORE_GRAPHICS_HEADER_FILES

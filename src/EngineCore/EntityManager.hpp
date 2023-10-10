@@ -17,6 +17,9 @@ const size_t MAX_ENTITY_ID = std::numeric_limits<uint>::max() - 1;
  */
 struct Entity
 {
+public:
+    constexpr Entity() : m_id(std::numeric_limits<uint>::max()) {}
+
     inline uint id() const { return m_id; }
 
     inline bool operator==(const Entity& rhs) { return m_id == rhs.id(); }
@@ -24,8 +27,6 @@ struct Entity
 
     friend class EntityManager;
 private:
-    constexpr Entity() : m_id(std::numeric_limits<uint>::max()) {}
-
     uint m_id;
 };
 
