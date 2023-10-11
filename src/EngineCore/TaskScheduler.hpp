@@ -1,5 +1,5 @@
-#ifndef TaskSchedueler_hpp
-#define TaskSchedueler_hpp
+#ifndef TaskScheduler_hpp
+#define TaskScheduler_hpp
 
 #include <atomic>
 #include <condition_variable>
@@ -14,7 +14,7 @@ namespace EngineCore
 
         typedef std::function<void()> Task;
 
-        class TaskSchedueler
+        class TaskScheduler
         {
         private:
             std::atomic_flag         task_schedueler_active_ = ATOMIC_FLAG_INIT; //TODO replace
@@ -46,5 +46,5 @@ namespace EngineCore
     }
 }
 
-#endif // !TaskSchedueler_hpp
+#endif // !TaskScheduler_hpp
 

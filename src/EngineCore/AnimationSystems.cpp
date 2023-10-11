@@ -4,7 +4,7 @@ void EngineCore::Animation::animateTurntables(
     EngineCore::Common::TransformComponentManager & transform_mngr,
     EngineCore::Animation::TurntableComponentManager & turntable_mngr,
     double dt,
-    Utility::TaskSchedueler& task_schedueler)
+    Utility::TaskScheduler& task_scheduler)
 {
     auto t_0 = std::chrono::high_resolution_clock::now();
 
@@ -17,7 +17,7 @@ void EngineCore::Animation::animateTurntables(
     }
     
     for (auto from_to : from_to_pairs) {
-        task_schedueler.submitTask(
+        task_scheduler.submitTask(
             [&transform_mngr, &tt_cmps, from_to, dt]() {
                 for (size_t i = from_to.first; i < from_to.second; ++i)
                 {
@@ -28,7 +28,7 @@ void EngineCore::Animation::animateTurntables(
         );
     }
     
-    task_schedueler.waitWhileBusy();
+    task_scheduler.waitWhileBusy();
 
     auto t_1 = std::chrono::high_resolution_clock::now();
 

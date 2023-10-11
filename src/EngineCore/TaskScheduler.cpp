@@ -1,8 +1,8 @@
-#include "TaskSchedueler.hpp"
+#include "TaskScheduler.hpp"
 
 #include <iostream>
 
-void EngineCore::Utility::TaskSchedueler::run(int worker_thread_cnt)
+void EngineCore::Utility::TaskScheduler::run(int worker_thread_cnt)
 {
     worker_thread_pool_.resize(worker_thread_cnt);
     task_schedueler_active_.test_and_set();
@@ -40,7 +40,7 @@ void EngineCore::Utility::TaskSchedueler::run(int worker_thread_cnt)
     }
 }
 
-void EngineCore::Utility::TaskSchedueler::stop()
+void EngineCore::Utility::TaskScheduler::stop()
 {
     task_schedueler_active_.clear();
 
@@ -48,7 +48,7 @@ void EngineCore::Utility::TaskSchedueler::stop()
         thread.join();
 }
 
-void EngineCore::Utility::TaskSchedueler::submitTask(Task new_task)
+void EngineCore::Utility::TaskScheduler::submitTask(Task new_task)
 {
     {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -58,11 +58,11 @@ void EngineCore::Utility::TaskSchedueler::submitTask(Task new_task)
     cvar_.notify_all();
 }
 
-bool EngineCore::Utility::TaskSchedueler::empty() const {
+bool EngineCore::Utility::TaskScheduler::empty() const {
     return (tasks_cnt_.load() == 0);
 }
 
-void EngineCore::Utility::TaskSchedueler::waitWhileBusy()
+void EngineCore::Utility::TaskScheduler::waitWhileBusy()
 {
     // pessimistic wait while busy that checks every 0.01ms if acutally still busy,
     // because it sometimes somehow misses the notifications from the worker threads

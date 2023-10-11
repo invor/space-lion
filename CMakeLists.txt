@@ -150,13 +150,13 @@ SET (ENGINECORE_UTILITY_HEADER_FILES
         src/EngineCore/ResourceLoading.hpp
 	src/EngineCore/RingBuffer.hpp
         src/EngineCore/SingleInstanceIndexMap.hpp
-        src/EngineCore/TaskSchedueler.hpp
+        src/EngineCore/TaskScheduler.hpp
         src/EngineCore/types.hpp
         src/EngineCore/utility.hpp)
 
 SET (ENGINECORE_UTILITY_SOURCE_FILES
         src/EngineCore/ResourceLoading.cpp
-        src/EngineCore/TaskSchedueler.cpp)
+        src/EngineCore/TaskScheduler.cpp)
 
 SET (EDITOR_FILES
         src/Editor/CameraController.hpp
