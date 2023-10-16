@@ -76,6 +76,10 @@ namespace EngineCore
             Quat const& getOrientation(size_t index) const;
 
             Mat4x4 const& getWorldTransformation(size_t index) const;
+
+            std::vector<Entity> getChildren(Entity entity) const;
+
+            std::vector<Entity> getChildren(size_t index) const;
         };
     }
 }

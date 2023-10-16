@@ -291,5 +291,51 @@ namespace EngineCore
 
             return data_(page_idx, idx_in_page).world_transform;
         }
+
+        std::vector<Entity> TransformComponentManager::getChildren(Entity entity) const
+        {
+            std::vector<Entity> retval;
+
+            auto query = getIndex(entity);
+
+            retval = getChildren(query);
+
+            return retval;
+        }
+
+        std::vector<Entity> TransformComponentManager::getChildren(size_t index) const
+        {
+            std::vector<Entity> retval;
+
+            auto [page_idx, idx_in_page] = data_.getIndices(index);
+
+            auto lock = data_.accquirePageLock(page_idx);
+
+            // update transforms of all children
+            size_t child_idx = data_(page_idx, idx_in_page).first_child;
+            if (child_idx != index)
+            {
+                auto [child_page_idx, child_idx_in_page] = data_.getIndices(child_idx);
+
+                retval.push_back(data_(child_page_idx, child_idx_in_page).entity);
+
+                size_t sibling_idx = data_(child_page_idx, child_idx_in_page).next_sibling;
+
+                while (sibling_idx != child_idx)
+                {
+                    auto [sibling_page_idx, sibing_idx_in_page] = data_.getIndices(sibling_idx);
+
+                    child_idx = sibling_idx;
+                    child_page_idx = sibling_page_idx;
+                    child_idx_in_page = sibing_idx_in_page;
+
+                    retval.push_back(data_(child_page_idx, child_idx_in_page).entity);
+
+                    sibling_idx = data_(child_page_idx, child_idx_in_page).next_sibling;
+                }
+            }
+
+            return retval;
+        }
     }
 }
