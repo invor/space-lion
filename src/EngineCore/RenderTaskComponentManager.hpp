@@ -48,8 +48,25 @@ namespace EngineCore
 
             struct Data
             {
-                Data(Entity e, ResourceID mesh, size_t mesh_component_subidx, ResourceID shader_prgm, size_t mtl_component_subidx, bool visible)
-                    : entity(e), mesh(mesh), mesh_component_subidx(mesh_component_subidx), shader_prgm(shader_prgm), mtl_component_subidx(mtl_component_subidx), visible(visible) {}
+                Data(Entity entity, 
+                    ResourceID mesh,
+                    size_t mesh_component_subidx,
+                    ResourceID shader_prgm,
+                    size_t mtl_component_subidx,
+                    bool visible,
+                    size_t cached_transform_idx,
+                    size_t cached_mesh_idx,
+                    size_t cached_material_idx)
+                    : entity(entity), 
+                    mesh(mesh), 
+                    mesh_component_subidx(mesh_component_subidx),
+                    shader_prgm(shader_prgm),
+                    mtl_component_subidx(mtl_component_subidx),
+                    visible(visible),
+                    cached_transform_idx(cached_transform_idx),
+                    cached_mesh_idx(cached_mesh_idx),
+                    cached_material_idx(cached_material_idx)
+                {}
 
                 inline friend bool operator< (const Data& lhs, const Data& rhs) {
                     return (lhs.shader_prgm.value() == rhs.shader_prgm.value() ? lhs.mesh.value() < rhs.mesh.value() : lhs.shader_prgm.value() < rhs.shader_prgm.value());
@@ -78,6 +95,10 @@ namespace EngineCore
                 size_t cached_material_idx,
                 bool visible = true);
 
+            void setVisibility(Entity entity, bool visible);
+
+            void setVisibility(size_t index, bool visible);
+
             std::vector<Data> & getComponentData(); //TODO this is not thread safe, is it?
 
             std::vector<Data> getComponentDataCopy() const;
@@ -105,13 +126,40 @@ namespace EngineCore
 
             addIndex(entity.id(), m_data.size());
 
-            m_data.emplace_back(Data(entity, mesh, mesh_component_subidx, shader_prgm, mtl_component_subidx, visible));
-
-            m_data.back().cached_transform_idx = cached_transform_idx;
-            m_data.back().cached_mesh_idx = cached_mesh_idx;
-            m_data.back().cached_material_idx = cached_material_idx;
+            m_data.emplace_back(Data(
+                entity,
+                mesh,
+                mesh_component_subidx,
+                shader_prgm,
+                mtl_component_subidx,
+                visible,
+                cached_transform_idx,
+                cached_mesh_idx,
+                cached_material_idx)
+            );
 
             std::sort(m_data.begin(), m_data.end());
+        }
+
+        template<typename TagType>
+        inline void RenderTaskComponentManager<TagType>::setVisibility(Entity entity, bool visible)
+        {
+            auto index_query = getIndex(entity.id());
+
+            std::unique_lock<std::shared_mutex> lock(m_data_mutex);
+
+            for (auto index : index_query)
+            {
+                m_data[index].visible = visible;
+            }
+        }
+
+        template<typename TagType>
+        inline void RenderTaskComponentManager<TagType>::setVisibility(size_t index, bool visible)
+        {
+            std::unique_lock<std::shared_mutex> lock(m_data_mutex);
+
+            m_data[index].visible = visible;
         }
 
         template<typename TagType>
@@ -121,7 +169,7 @@ namespace EngineCore
         }
 
         template<typename TagType>
-        std::vector<typename RenderTaskComponentManager<TagType>::Data> RenderTaskComponentManager<TagType>::getComponentDataCopy() const
+        inline std::vector<typename RenderTaskComponentManager<TagType>::Data> RenderTaskComponentManager<TagType>::getComponentDataCopy() const
         {
             std::vector<EngineCore::Graphics::RenderTaskComponentManager<TagType>::Data> retval;
 
