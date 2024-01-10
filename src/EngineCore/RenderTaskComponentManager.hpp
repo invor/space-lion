@@ -139,6 +139,8 @@ namespace EngineCore
             );
 
             std::sort(m_data.begin(), m_data.end());
+
+            rebuildIndexMap(m_data);
         }
 
         template<typename TagType>

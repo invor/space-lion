@@ -46,6 +46,27 @@ namespace EngineCore
             }
         }
 
+        template<typename ComponentDataStorageType>
+        inline void rebuildIndexMap(ComponentDataStorageType data)
+        {
+            std::unique_lock<std::shared_mutex> index_map_lock(m_index_map_mutex);
+
+            m_index_map.clear();
+
+            for (size_t idx = 0; idx < data.size(); ++idx) {
+                auto query = m_index_map.find(data[idx].entity.id());
+
+                if (query != m_index_map.end())
+                {
+                    query->second.push_back(idx);
+                }
+                else
+                {
+                    m_index_map.insert({ data[idx].entity.id(), {idx}});
+                }
+            }
+        }
+
     public:
         BaseMultiInstanceComponentManager() = default;
         ~BaseMultiInstanceComponentManager() = default;
