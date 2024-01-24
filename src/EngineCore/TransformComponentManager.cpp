@@ -311,7 +311,6 @@ namespace EngineCore
 
             auto lock = data_.accquirePageLock(page_idx);
 
-            // update transforms of all children
             size_t child_idx = data_(page_idx, idx_in_page).first_child;
             if (child_idx != index)
             {
@@ -333,6 +332,25 @@ namespace EngineCore
 
                     sibling_idx = data_(child_page_idx, child_idx_in_page).next_sibling;
                 }
+            }
+
+            return retval;
+        }
+
+        Entity TransformComponentManager::getParent(size_t index) const
+        {
+            Entity retval;
+
+            auto [page_idx, idx_in_page] = data_.getIndices(index);
+
+            auto lock = data_.accquirePageLock(page_idx);
+
+            size_t parent_idx = data_(page_idx, idx_in_page).parent;
+
+            if (parent_idx != index)
+            {
+                auto [parent_page_idx, parent_idx_in_page] = data_.getIndices(parent_idx);
+                retval = data_(parent_page_idx, parent_idx_in_page).entity;
             }
 
             return retval;

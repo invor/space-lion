@@ -79,11 +79,16 @@ void EngineCore::Animation::animateBillboards(
         Vec3 target_pos = transform_mngr.getPosition(target_idx);
         Vec3 entity_pos = transform_mngr.getPosition(entity_idx);
 
-        Vec3 up = Vec3(0, 1, 0);
+        Entity parent = transform_mngr.getParent(entity_idx);
+        if (parent != EntityManager::invalidEntity())
+        {
+            Mat4x4 to_parent_space = glm::inverse(transform_mngr.getWorldTransformation(transform_mngr.getIndex(parent)));
+            target_pos = Vec3(to_parent_space * Vec4(target_pos, 1.0f));
+        }
 
         // Mirror target position to make +z face the original target
         auto mirrored_target_pos = target_pos - 2.0f * (target_pos-entity_pos);
-        auto r = glm::toQuat(glm::inverse(glm::lookAt(entity_pos, mirrored_target_pos, up)));
+        auto r = glm::toQuat(glm::inverse(glm::lookAt(entity_pos, mirrored_target_pos, Vec3(0.0f, 1.0f, 0.0f))));
         transform_mngr.setOrientation(entity_idx, r);
     }
 }

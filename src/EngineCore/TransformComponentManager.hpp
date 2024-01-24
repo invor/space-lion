@@ -80,6 +80,8 @@ namespace EngineCore
             std::vector<Entity> getChildren(Entity entity) const;
 
             std::vector<Entity> getChildren(size_t index) const;
+
+            Entity getParent(size_t index) const;
         };
     }
 }
