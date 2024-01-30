@@ -5,16 +5,24 @@
 
 using namespace EngineCore::Animation;
 
-void TagAlongComponentManager::addComponent(Entity entity, Entity target, Vec3 offset, float slerp_alpha, float deadzone)
+void TagAlongComponentManager::addComponent(Entity entity, Entity target, Vec3 offset, float time_to_target, float deadzone)
 {
     std::unique_lock<std::shared_mutex> lock(m_tag_data_access_mutex);
 
-    uint idx = static_cast<uint>(m_tag_data.size());
+    size_t idx = m_tag_data.size();
 
     addIndex(entity.id(), idx);
 
-    slerp_alpha = std::clamp(slerp_alpha, 0.f, 1.f);
-    m_tag_data.push_back(Data(entity, target, offset, slerp_alpha, deadzone));
+    m_tag_data.push_back(Data(entity, target, offset, time_to_target, deadzone));
+}
+
+void EngineCore::Animation::TagAlongComponentManager::setTarget(Entity entity, Entity target)
+{
+    std::unique_lock<std::shared_mutex> lock(m_tag_data_access_mutex);
+
+    size_t idx = getIndex(entity);
+
+    m_tag_data[idx].target = target;
 }
 
 std::vector<TagAlongComponentManager::Data> TagAlongComponentManager::getTagComponentDataCopy()

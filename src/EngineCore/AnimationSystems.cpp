@@ -58,7 +58,7 @@ void EngineCore::Animation::animateTagAlong(
         Vec3 movement_vector = target_front_pos - entity_position;
         float deadzone_factor = std::max(0.0f,(glm::length(movement_vector) - cmp.deadzone)) / glm::length(movement_vector);
 
-        target_front_pos = entity_position + movement_vector * deadzone_factor * std::min(1.0f, cmp.slerp_alpha * (static_cast<float>(dt)/0.1f));
+        target_front_pos = entity_position + movement_vector * deadzone_factor * std::min(1.0f, (static_cast<float>(dt) / cmp.time_to_target));
 
         transform_mngr.setPosition(entity_idx, target_front_pos);
     }
