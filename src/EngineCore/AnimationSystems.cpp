@@ -47,16 +47,15 @@ void EngineCore::Animation::animateTagAlong(
     for (auto& cmp : tag_cmps)
     {
         size_t target_idx = transform_mngr.getIndex(cmp.target);
-        Vec3 target_position = transform_mngr.getPosition(target_idx);
-        glm::quat target_orientation = transform_mngr.getOrientation(target_idx);
-        Vec3 rotated_offset = glm::rotate(target_orientation, cmp.offset);
-        Vec3 target_front_pos = rotated_offset + target_position;
+        Mat4x4 target_xform = transform_mngr.getWorldTransformation(target_idx);
+        Vec3 target_front_pos = Vec3(target_xform * Vec4(cmp.offset, 1.0f));
 
         size_t entity_idx = transform_mngr.getIndex(cmp.entity);
-        Vec3 entity_position = transform_mngr.getPosition(entity_idx);
+        Vec3 entity_position = transform_mngr.getWorldPosition(entity_idx);
 
         Vec3 movement_vector = target_front_pos - entity_position;
-        float deadzone_factor = std::max(0.0f,(glm::length(movement_vector) - cmp.deadzone)) / glm::length(movement_vector);
+        float distance = glm::length(movement_vector);
+        float deadzone_factor = distance > 0.0f ? std::max(0.0f,(distance - cmp.deadzone)) / distance : 0.0f;
 
         target_front_pos = entity_position + movement_vector * deadzone_factor * std::min(1.0f, (static_cast<float>(dt) / cmp.time_to_target));
 
