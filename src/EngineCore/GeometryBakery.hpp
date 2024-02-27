@@ -68,7 +68,11 @@ namespace EngineCore
         */
         std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createCylinder(float radius, float height, int segments = 8);
 
-        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createCylinder(float base_radius, float top_radius, float height, int segments = 8);
+        /**
+        * \brief Creates and returns a truncated cone geometry
+        * \param segments controls the subdivision of the truncated cone
+        */
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createTruncatedCone(float base_radius, float top_radius, float height, int segments = 8);
 
         /**
         * Credit goes to Dan: https://stackoverflow.com/questions/5255806/how-to-calculate-tangent-and-binormal/66918075#66918075

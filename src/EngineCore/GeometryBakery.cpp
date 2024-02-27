@@ -544,10 +544,10 @@ namespace EngineCore
 
         std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createCylinder(float radius, float height, int segments)
         {
-            return createCylinder(radius, radius, height, segments);
+            return createTruncatedCone(radius, radius, height, segments);
         }
 
-        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createCylinder(float base_radius, float top_radius, float height, int segments)
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createTruncatedCone(float base_radius, float top_radius, float height, int segments)
         {
             std::vector<float> vertex_positions;
             std::vector<float> vertex_normals;
