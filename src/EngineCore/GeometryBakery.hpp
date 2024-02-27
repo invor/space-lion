@@ -63,6 +63,14 @@ namespace EngineCore
         std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createBone(float bone_length = 1.0);
 
         /**
+        * \brief Creates and returns a cylinder geometry
+        * \param segments controls the subdivisions of the cylinder
+        */
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createCylinder(float radius, float height, int segments = 8);
+
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createCylinder(float base_radius, float top_radius, float height, int segments = 8);
+
+        /**
         * Credit goes to Dan: https://stackoverflow.com/questions/5255806/how-to-calculate-tangent-and-binormal/66918075#66918075
         */
         template<typename IndexType>

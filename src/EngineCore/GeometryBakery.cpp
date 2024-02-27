@@ -541,5 +541,147 @@ namespace EngineCore
             return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>(vertex_data, indices, layout);
 
         }
+
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createCylinder(float radius, float height, int segments)
+        {
+            return createCylinder(radius, radius, height, segments);
+        }
+
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createCylinder(float base_radius, float top_radius, float height, int segments)
+        {
+            std::vector<float> vertex_positions;
+            std::vector<float> vertex_normals;
+            IndexDataPtr indices = std::make_shared<IndexData>();
+
+            std::vector<float> circle_vertices;
+            std::vector<float> side_normals;
+
+            float side_angle = std::atan2(base_radius - top_radius, height);
+            float x = std::cos(side_angle);
+            float y = std::sin(side_angle);
+
+            segments = segments < 3 ? 3 : segments;
+
+            // create circle vertices and calculate side normals
+            for (int i = 0; i <= segments; ++i)
+            {
+                float segment_angle = static_cast<float>(i) / static_cast<float>(segments) * 2.0f * 3.14159265359f;
+
+                circle_vertices.push_back(std::cos(segment_angle));
+                circle_vertices.push_back(0.0f);
+                circle_vertices.push_back(std::sin(segment_angle));
+
+                side_normals.push_back(std::cos(segment_angle) * x - std::sin(segment_angle) * 0.0f);
+                side_normals.push_back(y);
+                side_normals.push_back(std::sin(segment_angle) * x + std::cos(segment_angle) * 0.0f);
+            }
+
+            // create cylinder side
+            for (int i = 0; i < 2; ++i)
+            {
+                float h = i < 1 ? -height / 2.0f : height / 2.0f;
+                float r = i < 1 ? base_radius : top_radius;
+
+                for (int j = 0, k = 0; j <= segments; ++j, k += 3)
+                {
+                    vertex_positions.push_back(circle_vertices[k] * r);
+                    vertex_positions.push_back(h);
+                    vertex_positions.push_back(circle_vertices[k + 2] * r);
+
+                    vertex_normals.push_back(side_normals[k]);
+                    vertex_normals.push_back(side_normals[k + 1]);
+                    vertex_normals.push_back(side_normals[k + 2]);
+                }
+            }
+
+            int base_index = (int)vertex_positions.size() / 3;
+            int top_index = base_index + segments + 1;
+
+            // create cylinder base and top
+            for (int i = 0; i < 2; ++i)
+            {
+                float h = i < 1 ? -height / 2.0f : height / 2.0f;
+                float r = i < 1 ? base_radius : top_radius;
+                float y = i < 1 ? -1.0f : 1.0f;
+
+                vertex_positions.push_back(0.0f);
+                vertex_positions.push_back(h);
+                vertex_positions.push_back(0.0f);
+
+                vertex_normals.push_back(0.0f);
+                vertex_normals.push_back(y);
+                vertex_normals.push_back(0.0f);
+
+                for (int j = 0, k = 0; j < segments; ++j, k += 3)
+                {
+                    vertex_positions.push_back(circle_vertices[k] * base_radius);
+                    vertex_positions.push_back(h);
+                    vertex_positions.push_back(circle_vertices[k + 2] * base_radius);
+
+                    vertex_normals.push_back(0.0f);
+                    vertex_normals.push_back(y);
+                    vertex_normals.push_back(0.0f);
+                }
+            }
+
+            for (int i = 0, j = 0, k = segments + 1; i < segments; ++i, ++j, ++k)
+            {
+                indices->push_back(j);
+                indices->push_back(j + 1);
+                indices->push_back(k);
+
+                indices->push_back(k);
+                indices->push_back(j + 1);
+                indices->push_back(k + 1);
+            }
+
+            for (int i = 0, j = base_index + 1; i < segments; ++i, ++j)
+            {
+                if (i < segments - 1)
+                {
+                    indices->push_back(base_index);
+                    indices->push_back(j + 1);
+                    indices->push_back(j);
+                }
+                else
+                {
+                    indices->push_back(base_index);
+                    indices->push_back(base_index + 1);
+                    indices->push_back(j);
+                }
+            }
+
+            for (int i = 0, j = top_index + 1; i < segments; ++i, ++j)
+            {
+                if (i < segments - 1)
+                {
+                    indices->push_back(top_index);
+                    indices->push_back(j);
+                    indices->push_back(j + 1);
+                }
+                else
+                {
+                    indices->push_back(top_index);
+                    indices->push_back(j);
+                    indices->push_back(top_index + 1);
+                }
+            }
+
+            auto layout = std::make_shared<VertexDataDescriptor>(std::vector<GenericVertexLayout>{
+                GenericVertexLayout(12, { GenericVertexLayout::Attribute(3,5126,false,0) }),
+                    GenericVertexLayout(12, { GenericVertexLayout::Attribute(3,5126,false,0) })
+            });
+
+            // TOOD avoid this copying stuff...
+            //VertexData vertex_data(vertices.begin(),vertices.end());
+            //VertexData vertex_data((vertices.size() * 6)*4);
+            //std::copy(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 *4), vertex_data.data());
+            VertexDataPtr vertex_data = std::make_shared< std::vector<std::vector<uint8_t>>>(std::vector<std::vector<uint8_t>>{
+                std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertex_positions.data()), reinterpret_cast<uint8_t*>(vertex_positions.data()) + (vertex_positions.size() * 3 * 4)),
+                    std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertex_normals.data()), reinterpret_cast<uint8_t*>(vertex_normals.data()) + (vertex_normals.size() * 3 * 4))
+            });
+
+            return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>(vertex_data, indices, layout);
+        }
     }
 }
