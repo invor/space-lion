@@ -164,7 +164,8 @@ SET (EDITOR_FILES
 
 SET (DX11_VERTEX_SHADER_FILES
    resources/shaders/hlsl/static_mesh.vertex.hlsl
-   resources/shaders/hlsl/static_mesh_unlit.vertex.hlsl)
+   resources/shaders/hlsl/static_mesh_unlit.vertex.hlsl
+   resources/shaders/hlsl/static_mesh_untextured.vertex.hlsl)
 
 SET (DX11_PIXEL_SHADER_FILES
    resources/shaders/hlsl/forward_pbr.pixel.hlsl
