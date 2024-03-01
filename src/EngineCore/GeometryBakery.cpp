@@ -460,7 +460,7 @@ namespace EngineCore
             //VertexData vertex_data((vertices.size() * 6)*4);
             //std::copy(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 *4), vertex_data.data());
             auto vertex_data = std::make_shared<VertexData>(VertexData(
-                { std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 * 4)) }
+                { std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * sizeof(Vertex_pn))) }
             ));
 
             return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>(vertex_data, indices, layout);
@@ -534,8 +534,8 @@ namespace EngineCore
             //VertexData vertex_data((vertices.size() * 6)*4);
             //std::copy(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 *4), vertex_data.data());
             VertexDataPtr vertex_data = std::make_shared< std::vector<std::vector<uint8_t>>>(std::vector<std::vector<uint8_t>>{
-                    std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertex_positions.data()), reinterpret_cast<uint8_t*>(vertex_positions.data()) + (vertex_positions.size() * 3 * 4)),
-                    std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertex_normals.data()), reinterpret_cast<uint8_t*>(vertex_normals.data()) + (vertex_normals.size() * 3 * 4))
+                    std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertex_positions.data()), reinterpret_cast<uint8_t*>(vertex_positions.data()) + (vertex_positions.size() * sizeof(float))),
+                    std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertex_normals.data()), reinterpret_cast<uint8_t*>(vertex_normals.data()) + (vertex_normals.size() * sizeof(float)))
                 });
 
             return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>(vertex_data, indices, layout);
@@ -594,8 +594,8 @@ namespace EngineCore
                 }
             }
 
-            int base_index = (int)vertex_positions.size() / 3;
-            int top_index = base_index + segments + 1;
+            uint32_t base_index = (uint32_t)vertex_positions.size() / 3;
+            uint32_t top_index = base_index + segments + 1;
 
             // create cylinder base and top
             for (int i = 0; i < 2; ++i)
@@ -612,7 +612,7 @@ namespace EngineCore
                 vertex_normals.push_back(y);
                 vertex_normals.push_back(0.0f);
 
-                for (int j = 0, k = 0; j < segments; ++j, k += 3)
+                for (uint32_t j = 0, k = 0; j < segments; ++j, k += 3)
                 {
                     vertex_positions.push_back(circle_vertices[k] * base_radius);
                     vertex_positions.push_back(h);
@@ -624,7 +624,7 @@ namespace EngineCore
                 }
             }
 
-            for (int i = 0, j = 0, k = segments + 1; i < segments; ++i, ++j, ++k)
+            for (uint32_t i = 0, j = 0, k = segments + 1; i < segments; ++i, ++j, ++k)
             {
                 indices->push_back(j);
                 indices->push_back(j + 1);
@@ -635,7 +635,7 @@ namespace EngineCore
                 indices->push_back(k + 1);
             }
 
-            for (int i = 0, j = base_index + 1; i < segments; ++i, ++j)
+            for (uint32_t i = 0, j = base_index + 1; i < segments; ++i, ++j)
             {
                 if (i < segments - 1)
                 {
@@ -651,7 +651,7 @@ namespace EngineCore
                 }
             }
 
-            for (int i = 0, j = top_index + 1; i < segments; ++i, ++j)
+            for (uint32_t i = 0, j = top_index + 1; i < segments; ++i, ++j)
             {
                 if (i < segments - 1)
                 {
@@ -676,10 +676,12 @@ namespace EngineCore
             //VertexData vertex_data(vertices.begin(),vertices.end());
             //VertexData vertex_data((vertices.size() * 6)*4);
             //std::copy(reinterpret_cast<uint8_t*>(vertices.data()), reinterpret_cast<uint8_t*>(vertices.data()) + (vertices.size() * 6 *4), vertex_data.data());
-            VertexDataPtr vertex_data = std::make_shared< std::vector<std::vector<uint8_t>>>(std::vector<std::vector<uint8_t>>{
-                std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertex_positions.data()), reinterpret_cast<uint8_t*>(vertex_positions.data()) + (vertex_positions.size() * 3 * 4)),
-                    std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertex_normals.data()), reinterpret_cast<uint8_t*>(vertex_normals.data()) + (vertex_normals.size() * 3 * 4))
-            });
+            VertexDataPtr vertex_data = std::make_shared< std::vector<std::vector<uint8_t>>>(std::vector<std::vector<uint8_t>>
+                {
+                    std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertex_positions.data()), reinterpret_cast<uint8_t*>(vertex_positions.data()) + (vertex_positions.size() * sizeof(float))),
+                    std::vector<uint8_t>(reinterpret_cast<uint8_t*>(vertex_normals.data()), reinterpret_cast<uint8_t*>(vertex_normals.data()) + (vertex_normals.size() * sizeof(float)))
+                }
+            );
 
             return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>(vertex_data, indices, layout);
         }
