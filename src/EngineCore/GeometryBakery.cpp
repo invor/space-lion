@@ -685,5 +685,15 @@ namespace EngineCore
 
             return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>(vertex_data, indices, layout);
         }
+
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> create3dLineShaderVertices(std::vector<std::pair<Vec3, Vec3>> line_segments)
+        {
+            return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>();
+        }
+
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> create3dLineCross(float size, float line_width)
+        {
+            return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>();
+        }
     }
 }

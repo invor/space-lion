@@ -75,6 +75,18 @@ namespace EngineCore
         std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createTruncatedCone(float base_radius, float top_radius, float height, int segments = 8);
 
         /**
+        * Special vertex buffer for 3d line shader.
+        * For each line segment, four vertices are generated (to build a quad that covers the line segment),
+        * and each vertex has two attributes to store the start and end point of its segment
+        **/
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> create3dLineShaderVertices(std::vector<std::pair<Vec3, Vec3>> line_segments);
+
+        /**
+        * Create a 3d cross with 6 line segments
+        **/
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> create3dLineCross(float size, float line_width);
+
+        /**
         * Credit goes to Dan: https://stackoverflow.com/questions/5255806/how-to-calculate-tangent-and-binormal/66918075#66918075
         */
         template<typename IndexType>
