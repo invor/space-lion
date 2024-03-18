@@ -129,7 +129,7 @@ namespace EngineCore
                 vertex_data->push_back(bitangent);
             }
 
-            IndexDataPtr indices = std::make_shared<IndexData>(IndexData{ 0,3,1,3,2,1 });
+            IndexDataPtr indices = std::make_shared<IndexData>(IndexData{ 0,1,3,3,1,2 });
 
             auto layout = std::make_shared<VertexDataDescriptor>();
             if ((attribute_bit_mask & POSITION) != 0) {
@@ -519,8 +519,8 @@ namespace EngineCore
 
             for (uint32_t i = 0; i < segments; ++i) {
                 indices->push_back(i);
-                indices->push_back((i + 1) % segments);
                 indices->push_back(i + segments);
+                indices->push_back((i + 1) % segments);
             }
 
 
