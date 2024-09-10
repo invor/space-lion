@@ -1,5 +1,5 @@
 /// <copyright file="Dx11ResourceManager.hpp">
-/// Copyright © 2018 Michael Becher. Alle Rechte vorbehalten.
+/// Copyright Â© 2018 Michael Becher. Alle Rechte vorbehalten.
 /// </copyright>
 /// <author>Michael Becher</author>
 
@@ -25,14 +25,15 @@
 #include <dwrite_3.h>
 
 #include <future>
+#include <types.hpp>
 
 namespace EngineCore
 {
     namespace Graphics
     {
         struct FontInfo {
-            FontInfo() 
-                : default_font_name(L"Segoe UI"), 
+            FontInfo()
+                : default_font_name(L"Segoe UI"),
                 font_size(18.0f),
                 foreground{ 0,0,0,1 },
                 background{ 1,1,1,1 },
@@ -269,7 +270,7 @@ namespace EngineCore
                     std::shared_ptr<IndexContainer> const& index_data);
 
     #pragma endregion
-    
+
     #pragma region Create shader program
                 typedef std::pair<std::string, dxowl::ShaderProgram::ShaderType> ShaderFilename;
                 ResourceID createShaderProgramAsync(
@@ -282,13 +283,13 @@ namespace EngineCore
                     std::string const& name,
                     std::vector<ShaderData> const& shader_bytedata,
                     std::vector<dxowl::VertexDescriptor> const& vertex_layout);
-    
+
                 //std::future<WeakResource<ShaderProgram>> recreateShaderProgram(
                 //    ResourceID const& resource_id,
                 //    std::shared_ptr<std::pair<std::string, ShaderProgram::ShaderType>> const& shader_filenames,
                 //    std::shared_ptr<VertexDescriptor> const& vertex_layout);
     #pragma endregion
-    
+
     #pragma region Create 2D textures
                 constexpr DXGI_FORMAT convertInternalFormat(GenericTextureLayout::InternalFormat internal_format) {
                     DXGI_FORMAT retval = DXGI_FORMAT_UNKNOWN;
@@ -319,7 +320,7 @@ namespace EngineCore
                     case GenericTextureLayout::InternalFormat::RG16_SNORM:
                         retval = DXGI_FORMAT_R16G16_SNORM;
                         break;
-                    case GenericTextureLayout::InternalFormat::R3_G3_B2:    
+                    case GenericTextureLayout::InternalFormat::R3_G3_B2:
                         break;
                     case GenericTextureLayout::InternalFormat::RGB4:
                         break;
@@ -353,7 +354,7 @@ namespace EngineCore
                     case GenericTextureLayout::InternalFormat::RGB10_A2UI:
                         retval = DXGI_FORMAT_R10G10B10A2_UINT;
                         break;
-                    case GenericTextureLayout::InternalFormat::RGBA12:                        
+                    case GenericTextureLayout::InternalFormat::RGBA12:
                         break;
                     case GenericTextureLayout::InternalFormat::RGBA16:
                         retval = DXGI_FORMAT_R16G16B16A16_UNORM;
@@ -500,7 +501,7 @@ namespace EngineCore
                     D3D11_TEXTURE2D_DESC const& desc,
                     void* data,
                     bool generate_mipmap);
-    
+
                 template<
                     typename TexelDataContainer>
                 WeakResource<dxowl::Texture2D> createTexture2D(
@@ -526,6 +527,13 @@ namespace EngineCore
                     ResourceID rsrc_id,
                     std::wstring const& text,
                     FontInfo const& font_info
+                );
+
+                Vec2 estimateTextTextureSize(
+                    FontInfo const& font_info,
+                    float dpi,
+                    size_t line_length,
+                    size_t lines = 1
                 );
 
     #pragma endregion
@@ -571,7 +579,7 @@ namespace EngineCore
                 };
 
                 std::unique_ptr<TextResources> m_text_resources;
-            
+
             };
 
             //template<typename VertexContainer, typename IndexContainer>
@@ -721,8 +729,8 @@ namespace EngineCore
                         size_t index_type_byte_size = dxowl::computeByteSize(m_meshes[query->second].resource->getIndexFormat());
                         size_t index_byte_offset = index_offset * index_type_byte_size;
                         m_meshes[query->second].resource->loadIndexSubdata(
-                            m_d3d11_device_context, 
-                            index_byte_offset, 
+                            m_d3d11_device_context,
+                            index_byte_offset,
                             *index_data);
                     }
 
@@ -752,13 +760,13 @@ namespace EngineCore
                         for (auto& dc : *data) {
                             data_ptrs.push_back(dc.data());
                         }
-                    
+
                         this->m_textures_2d[idx].resource = std::make_unique<dxowl::Texture2D>(
                             m_d3d11_device,
                             data_ptrs,
                             desc,
                             shdr_rsrc_view);
-                        
+
                         this->m_textures_2d[idx].state = READY;
                     }
                 );
@@ -776,7 +784,7 @@ namespace EngineCore
 
                 return m_textures_2d[idx].id;
             }
-            
+
             inline ResourceID ResourceManager::createTexture2DAsync(
                 std::string const& name,
                 D3D11_TEXTURE2D_DESC const& desc,
@@ -818,17 +826,17 @@ namespace EngineCore
 
             template<typename TexelDataContainer>
             inline WeakResource<dxowl::Texture2D> ResourceManager::createTexture2D(
-                std::string const & name, 
+                std::string const & name,
                 std::vector<TexelDataContainer> const & data,
-                D3D11_TEXTURE2D_DESC const & desc, 
+                D3D11_TEXTURE2D_DESC const & desc,
                 D3D11_SHADER_RESOURCE_VIEW_DESC const & shdr_rsrc_view)
             {
                 return WeakResource<dxowl::Texture2D>();
             }
 
             inline ResourceID ResourceManager::createRenderTargetAsync(
-                std::string const & name, 
-                D3D11_TEXTURE2D_DESC const & desc, 
+                std::string const & name,
+                D3D11_TEXTURE2D_DESC const & desc,
                 D3D11_SHADER_RESOURCE_VIEW_DESC const & shdr_rsrc_view,
                 D3D11_RENDER_TARGET_VIEW_DESC const & rndr_tgt_view_desc)
             {

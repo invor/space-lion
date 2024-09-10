@@ -107,7 +107,7 @@ namespace {
     // Licensed under the MIT License.
     // See https://github.com/microsoft/OpenXR-MixedReality
     // Manages a texture which can be drawn to.
-    // 
+    //
     // Modified to support loading custom fonts
     class TextTexture {
     public:
@@ -154,7 +154,7 @@ namespace {
                 range.startPosition = std::get<1>(font_range);
                 range.length = std::get<2>(font_range);
                 WCHAR const* font = std::get<0>(font_range).c_str();
-            
+
                 m_textLayout->SetFontFamilyName(font, range);
             }
 
@@ -379,7 +379,6 @@ void EngineCore::Graphics::Dx11::ResourceManager::init(ID3D11Device4* d3d11_devi
     }
 }
 
-
 void EngineCore::Graphics::Dx11::ResourceManager::clearAllResources()
 {
     m_buffers.clear();
@@ -447,7 +446,7 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::allocateMeshAsync(
 //#pragma optimize( "", off )
 //std::future<ResourceID> ResourceManager::createShaderProgramAsync(
 ResourceID ResourceManager::createShaderProgramAsync(
-    std::string const & name, 
+    std::string const & name,
     std::shared_ptr<std::vector<ResourceManager::ShaderFilename>> shader_filenames,
     std::shared_ptr<std::vector<dxowl::VertexDescriptor>> vertex_layout)
 {
@@ -520,8 +519,8 @@ ResourceID ResourceManager::createShaderProgramAsync(
 }
 
 ResourceID EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(
-    std::string const & name, 
-    std::vector<ShaderData> const & shader_bytedata, 
+    std::string const & name,
+    std::vector<ShaderData> const & shader_bytedata,
     std::vector<dxowl::VertexDescriptor> const & vertex_layout)
 {
     std::unique_lock<std::shared_mutex> shader_lock(m_shader_programs_mutex);
@@ -635,7 +634,7 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createTextTexture2DAsync
             //          m_text_resources->m_custom_font_collection.get(),
             //          text_info,
             //          text);
-            //  
+            //
             //  // copy rendered text texture
             //  {
             //      D3D11_BOX src_region;
@@ -645,7 +644,7 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createTextTexture2DAsync
             //      src_region.bottom = desc.Height;
             //      src_region.front = 0;
             //      src_region.back = 1;
-            //  
+            //
             //      ID3D11Resource* src_rsrc = text_to_texture->Texture();
             //      ID3D11Resource* dest_rsrc;
             //      this->m_textures_2d[idx].resource->getShaderResourceView()->GetResource(&dest_rsrc);
@@ -734,4 +733,53 @@ void EngineCore::Graphics::Dx11::ResourceManager::updateTextTexture2DAsync(Resou
             updateTextTexture2D(rsrc_id, text, font_info);
         }
     );
+}
+
+Vec2 EngineCore::Graphics::Dx11::ResourceManager::estimateTextTextureSize(FontInfo const& font_info, float dpi, size_t line_length, size_t lines)
+{
+    Vec2 size = { 0.0f, 0.0f };
+    UINT32 index = 0;
+    BOOL exists = false;
+
+    winrt::com_ptr <IDWriteFontFamily> pFontFamily;
+    winrt::check_hresult(m_text_resources->m_custom_font_collection->FindFamilyName(font_info.default_font_name.c_str(), &index, &exists));
+    if (exists)
+    {
+        winrt::check_hresult(m_text_resources->m_custom_font_collection->GetFontFamily(index, pFontFamily.put()));
+
+        winrt::com_ptr <IDWriteFont> pFont;
+        winrt::check_hresult(pFontFamily->GetFont(0, pFont.put()));
+
+        DWRITE_FONT_METRICS font_metrics;
+        pFont->GetMetrics(&font_metrics);
+        font_metrics.designUnitsPerEm;
+
+        winrt::com_ptr <IDWriteFontFace> pFontFace;
+        winrt::check_hresult(pFont->CreateFontFace(pFontFace.put()));
+
+        UINT16 glyph_count = pFontFace->GetGlyphCount();
+
+        std::vector<UINT16> glyph_indices(glyph_count);
+        std::vector<DWRITE_GLYPH_METRICS> glyph_metrics(glyph_count);
+
+        for (UINT16 i = 0; i < glyph_count; ++i) {
+            glyph_indices[i] = i;
+        }
+
+        winrt::check_hresult(pFontFace->GetDesignGlyphMetrics(glyph_indices.data(), glyph_count, glyph_metrics.data(), FALSE));
+
+        UINT32 max_width = 0;
+        UINT32 max_height = 0;
+
+        for (const auto& metrics : glyph_metrics) {
+            max_width = std::max(max_width, metrics.advanceWidth);
+            max_height = std::max(max_height, metrics.advanceHeight);
+        }
+
+        float font_size = font_info.font_size * (dpi / 72.0f);
+
+        size.x = std::ceil(max_width * font_size / font_metrics.designUnitsPerEm) * line_length;
+        size.y = std::ceil(max_height * font_size / font_metrics.designUnitsPerEm) * lines;
+    }
+    return size;
 }
