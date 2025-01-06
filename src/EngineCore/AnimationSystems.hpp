@@ -20,7 +20,8 @@ namespace Animation {
     void animateTagAlong(
         EngineCore::Common::TransformComponentManager& transform_mngr,
         EngineCore::Animation::TagAlongComponentManager& tagalong_mngr,
-        double dt);
+        double dt,
+        Utility::TaskScheduler& task_scheduler);
 
     void animateBillboards(
         EngineCore::Common::TransformComponentManager& transform_mngr,

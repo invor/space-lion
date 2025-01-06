@@ -40,27 +40,46 @@ void EngineCore::Animation::animateTurntables(
 void EngineCore::Animation::animateTagAlong(
     EngineCore::Common::TransformComponentManager& transform_mngr,
     EngineCore::Animation::TagAlongComponentManager& tagalong_mngr,
-    double dt) 
+    double dt,
+    Utility::TaskScheduler& task_scheduler)
 {
-    auto tag_cmps = tagalong_mngr.getTagComponentDataCopy();
+    size_t component_cnt = tagalong_mngr.getComponentCount();
 
-    for (auto& cmp : tag_cmps)
-    {
-        size_t target_idx = transform_mngr.getIndex(cmp.target);
-        Mat4x4 target_xform = transform_mngr.getWorldTransformation(target_idx);
-        Vec3 target_front_pos = Vec3(target_xform * Vec4(cmp.offset, 1.0f));
-
-        size_t entity_idx = transform_mngr.getIndex(cmp.entity);
-        Vec3 entity_position = transform_mngr.getWorldPosition(entity_idx);
-
-        Vec3 movement_vector = target_front_pos - entity_position;
-        float distance = glm::length(movement_vector);
-        float deadzone_factor = distance > 0.0f ? std::max(0.0f,(distance - cmp.deadzone)) / distance : 0.0f;
-
-        target_front_pos = entity_position + movement_vector * deadzone_factor * std::min(1.0f, (static_cast<float>(dt) / cmp.time_to_target));
-
-        transform_mngr.setPosition(entity_idx, target_front_pos);
+    std::vector<std::pair<size_t, size_t>> from_to_pairs;
+    size_t bucket_cnt = 6;
+    for (size_t i = 0; i < bucket_cnt; ++i) {
+        from_to_pairs.push_back({ component_cnt * (float(i) / float(bucket_cnt)), component_cnt * (float(i + 1) / float(bucket_cnt)) });
     }
+
+    for (auto from_to : from_to_pairs) {
+        task_scheduler.submitTask(
+            [&transform_mngr, &tagalong_mngr, from_to, dt]() {
+                for (size_t i = from_to.first; i < from_to.second; ++i)
+                {
+                    if (tagalong_mngr.checkComponent(i)) {
+                        auto const& cmp = tagalong_mngr.getComponent(i);
+
+                        //size_t target_idx = transform_mngr.getIndex(cmp.target);
+                        //Mat4x4 target_xform = transform_mngr.getWorldTransformation(target_idx);
+                        //Vec3 target_front_pos = Vec3(target_xform * Vec4(cmp.offset, 1.0f));
+                        //
+                        //size_t entity_idx = transform_mngr.getIndex(cmp.entity);
+                        //Vec3 entity_position = transform_mngr.getWorldPosition(entity_idx);
+                        //
+                        //Vec3 movement_vector = target_front_pos - entity_position;
+                        //float distance = glm::length(movement_vector);
+                        //float deadzone_factor = distance > 0.0f ? std::max(0.0f, (distance - cmp.deadzone)) / distance : 0.0f;
+                        //
+                        //target_front_pos = entity_position + movement_vector * deadzone_factor * std::min(1.0f, (static_cast<float>(dt) / cmp.time_to_target));
+                        //
+                        //transform_mngr.setPosition(entity_idx, target_front_pos);
+                    }
+                }
+            }
+        );
+    }
+
+    task_scheduler.waitWhileBusy();
 }
 
 
@@ -116,7 +135,7 @@ void EngineCore::Animation::animatioMoveTo(
 
                         auto transform_idx = transform_mngr.getIndex(cmp.entity);
 
-                        if (cmp.move_orientation == MoveToComponentManager::Space::LOCAL)
+                        if (cmp.move_orientation == Space::LOCAL)
                         {
                             auto current_position = transform_mngr.getPosition(transform_idx);
                             auto move_direction = cmp.target_position - current_position;
