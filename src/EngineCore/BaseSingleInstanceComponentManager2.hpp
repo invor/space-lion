@@ -1,10 +1,10 @@
-/// <copyright file="BaseMultiInstanceComponentManager.h">
+/// <copyright file="BaseMultiInstanceComponentManager2.hpp">
 /// Copyright © 2025 Michael Becher. Alle Rechte vorbehalten.
 /// </copyright>
 /// <author>Michael Becher</author>
 
-#ifndef BaseSingleInstanceComponentManager_hpp
-#define BaseSingleInstanceComponentManager_hpp
+#ifndef BaseSingleInstanceComponentManager2_hpp
+#define BaseSingleInstanceComponentManager2_hpp
 
 #include "BaseComponentManager.hpp"
 #include "ComponentStorage.hpp"
@@ -45,6 +45,8 @@ namespace EngineCore
         bool checkComponent(size_t index) const;
 
         ComponentDataType const& getComponent(size_t index) const;
+
+        ComponentDataType& getComponent(size_t index);
     };
 
     template<typename ComponentDataType>
@@ -70,7 +72,7 @@ namespace EngineCore
     {
         auto index = data_.addComponent(std::move(component_data));
 
-        index_map_.addIndex(entity_id, index);
+        index_map_.addIndex(component_data.entity.id(), index);
 
         return index;
     }
@@ -85,7 +87,8 @@ namespace EngineCore
         if (index != Utility::SingleInstanceIndexMap::invalidIndex()) {
             index_map_.deleteIndex(entity);
 
-            data_.deleteComponent(index);
+            auto [page_idx, idx_in_page] = data_.getIndices(index);
+            data_.deleteComponent(page_idx, idx_in_page);
         }
     }
 
@@ -109,6 +112,13 @@ namespace EngineCore
         return data_(indices.first, indices.second);
     }
 
+    template<typename ComponentDataType>
+    inline ComponentDataType& BaseSingleInstanceComponentManager2<ComponentDataType>::getComponent(size_t index)
+    {
+        auto indices = data_.getIndices(index);
+        return data_(indices.first, indices.second);
+    }
+
 }
 
-#endif // !AbstractComponentManager_hpp
+#endif // !AbstractComponentManager2_hpp

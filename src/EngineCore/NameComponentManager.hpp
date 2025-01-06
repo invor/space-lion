@@ -31,7 +31,7 @@ namespace EngineCore
             std::mutex m_dataAccess_mutex;
 
         public:
-            void addComponent(Entity entity, std::string const& debug_name);
+            void addComponent(Entity entity, std::string const& debug_name); //TODO just by-value and move since a copy is made either way
             void addComponent(Entity entity, std::string && debug_name);
 
             std::string getDebugName(Entity entity) const;
