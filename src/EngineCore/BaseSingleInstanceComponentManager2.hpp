@@ -21,10 +21,7 @@ namespace EngineCore
         Utility::SingleInstanceIndexMap             index_map_;
         Utility::ComponentStorage<ComponentDataType, 1000, 1000> data_;
 
-        inline void addIndex(unsigned int entity_id, size_t index)
-        {
-            index_map_.addIndex(entity_id, index);
-        }
+        void addIndex(unsigned int entity_id, size_t index);
 
     public:
         BaseSingleInstanceComponentManager2() = default;
@@ -35,55 +32,82 @@ namespace EngineCore
         BaseSingleInstanceComponentManager2& operator=(BaseSingleInstanceComponentManager2&& rhs) = delete;
         BaseSingleInstanceComponentManager2& operator=(const BaseSingleInstanceComponentManager2& rhs) = delete;
 
-        inline size_t getIndex(Entity entity) const
-        {
-            return getIndex(entity.id());
-        }
+        size_t getIndex(Entity entity) const;
 
-        inline size_t getIndex(unsigned int entity_id) const
-        {
-            return index_map_.getIndex(entity_id);
-        }
+        size_t getIndex(unsigned int entity_id) const;
 
-        inline size_t addComponent(ComponentDataType component_data)
-        {
-            auto index = data_.addComponent( std::move(component_data) );
+        size_t addComponent(ComponentDataType component_data);
 
-            index_map_.addIndex(entity_id, index);
+        void deleteComponent(Entity entity);
 
-            auto [page_idx, idx_in_page] = data_.getIndices(index);
+        size_t getComponentCount() const;
 
-            return index;
-        }
+        bool checkComponent(size_t index) const;
 
-        inline void deleteComponent(Entity entity)
-        {
-            auto index = getIndex(entity.id());
+        ComponentDataType const& getComponent(size_t index) const;
+    };
 
-            //TODO check for valid index before deletion
+    template<typename ComponentDataType>
+    inline void BaseSingleInstanceComponentManager2<ComponentDataType>::addIndex(unsigned int entity_id, size_t index)
+    {
+        index_map_.addIndex(entity_id, index);
+    }
 
+    template<typename ComponentDataType>
+    inline size_t BaseSingleInstanceComponentManager2<ComponentDataType>::getIndex(Entity entity) const
+    {
+        return getIndex(entity.id());
+    }
+
+    template<typename ComponentDataType>
+    inline size_t BaseSingleInstanceComponentManager2<ComponentDataType>::getIndex(unsigned int entity_id) const
+    {
+        return index_map_.getIndex(entity_id);
+    }
+
+    template<typename ComponentDataType>
+    inline size_t BaseSingleInstanceComponentManager2<ComponentDataType>::addComponent(ComponentDataType component_data)
+    {
+        auto index = data_.addComponent(std::move(component_data));
+
+        index_map_.addIndex(entity_id, index);
+
+        return index;
+    }
+
+    template<typename ComponentDataType>
+    inline void BaseSingleInstanceComponentManager2<ComponentDataType>::deleteComponent(Entity entity)
+    {
+        auto index = getIndex(entity.id());
+
+        // check if valid index is given for entity
+        // (avoids adding an invalid index to free list of component storage)
+        if (index != Utility::SingleInstanceIndexMap::invalidIndex()) {
             index_map_.deleteIndex(entity);
 
             data_.deleteComponent(index);
         }
+    }
 
-        inline size_t getComponentCount() const
-        {
-            return data_.getComponentCount();
-        }
+    template<typename ComponentDataType>
+    inline size_t BaseSingleInstanceComponentManager2<ComponentDataType>::getComponentCount() const
+    {
+        return data_.getComponentCount();
+    }
 
-        inline bool checkComponent(size_t index) const
-        {
-            auto indices = data_.getIndices(index);
-            return data_.checkComponent(indices.first, indices.second);
-        }
+    template<typename ComponentDataType>
+    inline bool BaseSingleInstanceComponentManager2<ComponentDataType>::checkComponent(size_t index) const
+    {
+        auto indices = data_.getIndices(index);
+        return data_.checkComponent(indices.first, indices.second);
+    }
 
-        inline ComponentDataType const& getComponent(size_t index) const
-        {
-            auto indices = data_.getIndices(index);
-            return data_(indices.first, indices.second);
-        }
-    };
+    template<typename ComponentDataType>
+    inline ComponentDataType const& BaseSingleInstanceComponentManager2<ComponentDataType>::getComponent(size_t index) const
+    {
+        auto indices = data_.getIndices(index);
+        return data_(indices.first, indices.second);
+    }
 
 }
 

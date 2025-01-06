@@ -47,7 +47,9 @@ namespace EngineCore
         {
             auto query = getIndex(entity);
 
-            data_.deleteComponent(query);
+            auto [page_idx, idx_in_page] = data_.getIndices(query);
+
+            data_.deleteComponent(page_idx, idx_in_page);
         }
 
         size_t TransformComponentManager::getComponentCount() const

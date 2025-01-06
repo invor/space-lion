@@ -20,7 +20,10 @@ namespace EngineCore {
 
             size_t getIndex(unsigned int entity_id) const;
 
-            //TODO invalid index static function
+            /**
+            * Get an invalid index, i.e. index = max_uint.
+            */
+            static size_t invalidIndex() { return (std::numeric_limits<size_t>::max)(); }
 
         private:
             struct Page {
@@ -65,7 +68,7 @@ namespace EngineCore {
 
                 //set init value in new page
                 for (size_t j = 0; j < page_size_; ++j) {
-                    index_map_[page_index].storage->at(j).store((std::numeric_limits<size_t>::max)());
+                    index_map_[page_index].storage->at(j).store(invalidIndex());
                 }
 
                 //flag new page as loaded
@@ -90,14 +93,13 @@ namespace EngineCore {
 
             if (index_map_[page_index].loaded.test())
             {
-                //retrieve index for entity
-                index_map_[page_index].storage->at(index_in_page).store((std::numeric_limits<size_t>::max)());
+                index_map_[page_index].storage->at(index_in_page).store(invalidIndex());
             }
         }
         
         inline size_t SingleInstanceIndexMap::getIndex(unsigned int entity_id) const
         {
-            size_t retval = (std::numeric_limits<size_t>::max)();
+            size_t retval = invalidIndex();
 
             //find correct page
             auto div = std::div(static_cast<long>(entity_id), static_cast<long>(page_size_));
