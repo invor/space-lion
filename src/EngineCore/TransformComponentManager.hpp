@@ -29,7 +29,7 @@ namespace EngineCore
             size_t next_sibling;    ///< index to sibling (...)
         };
 
-        class TransformComponentManager : public BaseSingleInstanceComponentManager2<TransformComponentData>
+        class TransformComponentManager : public BaseSingleInstanceComponentManager2<TransformComponentData, 100000, 1000>
         {
         private:
             void transform(size_t index);

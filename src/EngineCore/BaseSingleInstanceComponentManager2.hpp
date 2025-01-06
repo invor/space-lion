@@ -14,12 +14,12 @@
 namespace EngineCore
 {
 
-    template<typename ComponentDataType>
+    template<typename ComponentDataType, size_t PageCount, size_t PageSize>
     class BaseSingleInstanceComponentManager2 : public BaseComponentManager
     {
     protected:
         Utility::SingleInstanceIndexMap             index_map_;
-        Utility::ComponentStorage<ComponentDataType, 1000, 1000> data_;
+        Utility::ComponentStorage<ComponentDataType, PageCount, PageSize> data_;
 
         void addIndex(unsigned int entity_id, size_t index);
 
@@ -49,26 +49,26 @@ namespace EngineCore
         ComponentDataType& getComponent(size_t index);
     };
 
-    template<typename ComponentDataType>
-    inline void BaseSingleInstanceComponentManager2<ComponentDataType>::addIndex(unsigned int entity_id, size_t index)
+    template<typename ComponentDataType, size_t PageCount, size_t PageSize>
+    inline void BaseSingleInstanceComponentManager2<ComponentDataType, PageCount, PageSize>::addIndex(unsigned int entity_id, size_t index)
     {
         index_map_.addIndex(entity_id, index);
     }
 
-    template<typename ComponentDataType>
-    inline size_t BaseSingleInstanceComponentManager2<ComponentDataType>::getIndex(Entity entity) const
+    template<typename ComponentDataType, size_t PageCount, size_t PageSize>
+    inline size_t BaseSingleInstanceComponentManager2<ComponentDataType, PageCount, PageSize>::getIndex(Entity entity) const
     {
         return getIndex(entity.id());
     }
 
-    template<typename ComponentDataType>
-    inline size_t BaseSingleInstanceComponentManager2<ComponentDataType>::getIndex(unsigned int entity_id) const
+    template<typename ComponentDataType, size_t PageCount, size_t PageSize>
+    inline size_t BaseSingleInstanceComponentManager2<ComponentDataType, PageCount, PageSize>::getIndex(unsigned int entity_id) const
     {
         return index_map_.getIndex(entity_id);
     }
 
-    template<typename ComponentDataType>
-    inline size_t BaseSingleInstanceComponentManager2<ComponentDataType>::addComponent(ComponentDataType component_data)
+    template<typename ComponentDataType, size_t PageCount, size_t PageSize>
+    inline size_t BaseSingleInstanceComponentManager2<ComponentDataType, PageCount, PageSize>::addComponent(ComponentDataType component_data)
     {
         auto index = data_.addComponent(std::move(component_data));
 
@@ -77,8 +77,8 @@ namespace EngineCore
         return index;
     }
 
-    template<typename ComponentDataType>
-    inline void BaseSingleInstanceComponentManager2<ComponentDataType>::deleteComponent(Entity entity)
+    template<typename ComponentDataType, size_t PageCount, size_t PageSize>
+    inline void BaseSingleInstanceComponentManager2<ComponentDataType, PageCount, PageSize>::deleteComponent(Entity entity)
     {
         auto index = getIndex(entity.id());
 
@@ -92,28 +92,28 @@ namespace EngineCore
         }
     }
 
-    template<typename ComponentDataType>
-    inline size_t BaseSingleInstanceComponentManager2<ComponentDataType>::getComponentCount() const
+    template<typename ComponentDataType, size_t PageCount, size_t PageSize>
+    inline size_t BaseSingleInstanceComponentManager2<ComponentDataType, PageCount, PageSize>::getComponentCount() const
     {
         return data_.getComponentCount();
     }
 
-    template<typename ComponentDataType>
-    inline bool BaseSingleInstanceComponentManager2<ComponentDataType>::checkComponent(size_t index) const
+    template<typename ComponentDataType, size_t PageCount, size_t PageSize>
+    inline bool BaseSingleInstanceComponentManager2<ComponentDataType, PageCount, PageSize>::checkComponent(size_t index) const
     {
         auto indices = data_.getIndices(index);
         return data_.checkComponent(indices.first, indices.second);
     }
 
-    template<typename ComponentDataType>
-    inline ComponentDataType const& BaseSingleInstanceComponentManager2<ComponentDataType>::getComponent(size_t index) const
+    template<typename ComponentDataType, size_t PageCount, size_t PageSize>
+    inline ComponentDataType const& BaseSingleInstanceComponentManager2<ComponentDataType, PageCount, PageSize>::getComponent(size_t index) const
     {
         auto indices = data_.getIndices(index);
         return data_(indices.first, indices.second);
     }
 
-    template<typename ComponentDataType>
-    inline ComponentDataType& BaseSingleInstanceComponentManager2<ComponentDataType>::getComponent(size_t index)
+    template<typename ComponentDataType, size_t PageCount, size_t PageSize>
+    inline ComponentDataType& BaseSingleInstanceComponentManager2<ComponentDataType, PageCount, PageSize>::getComponent(size_t index)
     {
         auto indices = data_.getIndices(index);
         return data_(indices.first, indices.second);

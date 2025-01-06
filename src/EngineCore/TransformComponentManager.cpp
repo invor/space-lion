@@ -5,7 +5,7 @@ namespace EngineCore
     namespace Common
     {
         TransformComponentManager::TransformComponentManager()
-            : BaseSingleInstanceComponentManager2<TransformComponentData>()
+            : BaseSingleInstanceComponentManager2<TransformComponentData, 100000, 1000>()
         {}
 
         TransformComponentManager::~TransformComponentManager()
