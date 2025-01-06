@@ -22,7 +22,7 @@ namespace EngineCore {
 
             size_t addComponent(T component);
 
-            void deleteComponent(size_t component_index);
+            void deleteComponent(size_t component_index); //TODO standardize interface
 
             size_t getComponentCount() const;
 
@@ -34,7 +34,7 @@ namespace EngineCore {
 
             bool checkComponent(size_t page_index, size_t index_in_page) const;
 
-            std::pair<size_t, size_t> getIndices(size_t component_index) const;
+            std::pair<size_t, size_t> getIndices(size_t component_index) const; //TODO standardize interface
 
             std::unique_lock<std::shared_mutex> accquirePageLock(size_t page_index) const;
 

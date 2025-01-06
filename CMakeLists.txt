@@ -55,6 +55,7 @@ SET (ENGINECORE_COMMON_HEADER_FILES
         src/EngineCore/BaseComponentManager.hpp
         src/EngineCore/BaseMultiInstanceComponentManager.hpp
         src/EngineCore/BaseSingleInstanceComponentManager.hpp
+        src/EngineCore/BaseSingleInstanceComponentManager2.hpp
         src/EngineCore/BSplineComponent.hpp
         src/EngineCore/CooldownTriggerComponentManager.hpp
         src/EngineCore/EntityManager.hpp

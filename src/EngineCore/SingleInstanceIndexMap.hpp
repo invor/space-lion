@@ -16,7 +16,11 @@ namespace EngineCore {
 
             void addIndex(unsigned int entity_id, size_t index);
 
+            void deleteIndex(unsigned int entity_id);
+
             size_t getIndex(unsigned int entity_id) const;
+
+            //TODO invalid index static function
 
         private:
             struct Page {
@@ -71,6 +75,25 @@ namespace EngineCore {
             //store index for entity
             index_map_[page_index].storage->at(index_in_page).store(component_index);
         }
+
+        inline void SingleInstanceIndexMap::deleteIndex(unsigned int entity_id)
+        {
+            //TODO: contemplate whether delete and add need to sync
+            std::unique_lock<std::mutex> lock(add_index_mutex_);
+
+            //find correct page
+            auto div = std::div(static_cast<long>(entity_id), static_cast<long>(page_size_));
+            auto page_index = div.quot;
+            auto index_in_page = div.rem;
+
+            assert(page_index < page_cnt_);
+
+            if (index_map_[page_index].loaded.test())
+            {
+                //retrieve index for entity
+                index_map_[page_index].storage->at(index_in_page).store((std::numeric_limits<size_t>::max)());
+            }
+        }
         
         inline size_t SingleInstanceIndexMap::getIndex(unsigned int entity_id) const
         {
@@ -85,7 +108,7 @@ namespace EngineCore {
 
             if (index_map_[page_index].loaded.test())
             {
-                //store index for entity
+                //retrieve index for entity
                 retval = index_map_[page_index].storage->at(index_in_page).load();
             }
 
