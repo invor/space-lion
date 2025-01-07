@@ -1,12 +1,7 @@
 #ifndef TurntableComponentManager_hpp
 #define TurntableComponentManager_hpp
 
-#include <mutex>
-#include <string>
-#include <unordered_map>
-#include <vector>
-
-#include "BaseSingleInstanceComponentManager.hpp"
+#include "BaseSingleInstanceComponentManager2.hpp"
 #include "EntityManager.hpp"
 
 namespace EngineCore
@@ -15,29 +10,20 @@ namespace EngineCore
 
     namespace Animation
     {
-        class TurntableComponentManager : public BaseSingleInstanceComponentManager
+        struct TurntableComponentData
         {
-        public:
-            struct Data
-            {
-                Data(Entity entity, float angle, Vec3 axis)
-                    : entity(entity), angle(angle), axis(axis) {}
+            Entity entity;
+            float  angle;
+            Vec3   axis;
+        };
 
-                Entity entity;
-                float  angle;
-                Vec3   axis;
-            };
-        private:
-            std::vector<Data> m_data;
-            std::shared_mutex m_dataAccess_mutex;
-            
+        class TurntableComponentManager : public BaseSingleInstanceComponentManager2<TurntableComponentData, 1000, 1000>
+        {
         public:
             TurntableComponentManager() = default;
             ~TurntableComponentManager() = default;
 
-            void addComponent(Entity entity, float angle, Vec3 axis = Vec3(0.0f,1.0f,0.0f));
-
-            std::vector<Data> getComponentDataCopy();
+            size_t addComponent(Entity entity, float angle, Vec3 axis = Vec3(0.0f,1.0f,0.0f));
         };
     }
 }

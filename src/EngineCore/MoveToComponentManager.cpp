@@ -10,7 +10,7 @@ size_t EngineCore::Animation::MoveToComponentManager::addComponent(Entity entity
             move_orientation
         }
     );
-    
+
     addIndex(entity.id(), index);
 
     return index;

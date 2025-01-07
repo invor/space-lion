@@ -26,7 +26,8 @@ namespace Animation {
     void animateBillboards(
         EngineCore::Common::TransformComponentManager& transform_mngr,
         EngineCore::Animation::BillboardComponentManager& billboard_mngr,
-        double dt);
+        double dt,
+        Utility::TaskScheduler& task_scheduler);
 
     void animatioMoveTo(
         EngineCore::Common::TransformComponentManager& transform_mngr,
