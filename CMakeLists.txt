@@ -54,6 +54,7 @@ SET (ENGINECORE_ANIMATION_SOURCE_FILES
 SET (ENGINECORE_COMMON_HEADER_FILES
         src/EngineCore/BaseComponentManager.hpp
         src/EngineCore/BaseMultiInstanceComponentManager.hpp
+        src/EngineCore/BaseMultiInstanceComponentManager2.hpp
         src/EngineCore/BaseSingleInstanceComponentManager.hpp
         src/EngineCore/BaseSingleInstanceComponentManager2.hpp
         src/EngineCore/BSplineComponent.hpp
