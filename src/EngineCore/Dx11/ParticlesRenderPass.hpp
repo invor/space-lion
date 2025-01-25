@@ -58,7 +58,6 @@ namespace EngineCore {
                 frame.addRenderPass<Data, Resources>("Particles",
                     [&world_state](Data& data, Resources& resources) {
                         auto& mtl_mngr = world_state.get<EngineCore::Graphics::MaterialComponentManager>();
-                        auto& mesh_mngr = world_state.get<EngineCore::Graphics::MeshComponentManager<EngineCore::Graphics::Dx11::ResourceManager>>();
                         auto& particles_renderTask_mngr = world_state.get<EngineCore::Graphics::RenderTaskComponentManager<EngineCore::Graphics::RenderTaskTags::Particles>>();
                         auto& transform_mngr = world_state.get<EngineCore::Common::TransformComponentManager>();
                         auto& particles_mngr = world_state.get<EngineCore::Graphics::ParticlesComponentManager<EngineCore::Graphics::Dx11::ResourceManager>>();
