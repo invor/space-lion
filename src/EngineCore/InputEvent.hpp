@@ -2,6 +2,7 @@
 #define InputEvent_hpp
 
 #include <functional>
+#include <string>
 
 namespace EngineCore{
 namespace Common{
