@@ -409,7 +409,7 @@ namespace EngineCore
 
             //IndexDataPtr indices = std::make_shared<IndexData>(IndexData{ 0,1,3,3,1,2 });
             IndexDataPtr indices = std::get<1>(geom);
-            uint index_offset = indices->size();
+            unsigned int index_offset = static_cast<unsigned int>(indices->size());
             indices->push_back(0 + index_offset);
             indices->push_back(1 + index_offset);
             indices->push_back(3 + index_offset);
@@ -759,7 +759,7 @@ namespace EngineCore
             std::vector<float> vertex_normals;
             IndexDataPtr indices = std::make_shared<IndexData>();
 
-            int segments = 8;
+            unsigned int segments = 8;
             float radius = 0.05f * bone_length;
             float height = 1.0f * bone_length;
             float alpha = std::atan(radius / height);
@@ -768,7 +768,7 @@ namespace EngineCore
 
 
             // create cone side
-            for (int i = 0; i < segments; ++i) {
+            for (unsigned int i = 0; i < segments; ++i) {
                 float x = 0.0f, y = 0.0f, z = 0.0f;
 
                 x = radius * std::sin(static_cast<float>(i) / static_cast<float>(segments) * 2.0f * 3.14159265359f);
@@ -788,7 +788,7 @@ namespace EngineCore
             }
 
             //TODO cone tip vertices
-            for (int i = 0; i < segments; ++i) {
+            for (unsigned int i = 0; i < segments; ++i) {
                 float x = 0.0f, y = 0.0f, z = height;
 
                 float nx = (vertex_normals[i * 3 + 0] + vertex_normals[((i + 1) % segments) * 3 + 0]) / 2.0f;
@@ -804,7 +804,7 @@ namespace EngineCore
                 vertex_normals.push_back(nz);
             }
 
-            for (uint32_t i = 0; i < segments; ++i) {
+            for (unsigned int i = 0; i < segments; ++i) {
                 indices->push_back(i);
                 indices->push_back(i + segments);
                 indices->push_back((i + 1) % segments);
@@ -829,12 +829,12 @@ namespace EngineCore
 
         }
 
-        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createCylinder(float radius, float height, int segments)
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createCylinder(float radius, float height, unsigned int segments)
         {
             return createTruncatedCone(radius, radius, height, segments);
         }
 
-        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createTruncatedCone(float base_radius, float top_radius, float height, int segments)
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createTruncatedCone(float base_radius, float top_radius, float height, unsigned int segments)
         {
             std::vector<float> vertex_positions;
             std::vector<float> vertex_normals;
@@ -850,7 +850,7 @@ namespace EngineCore
             segments = segments < 3 ? 3 : segments;
 
             // create circle vertices and calculate side normals
-            for (int i = 0; i <= segments; ++i)
+            for (unsigned int i = 0; i <= segments; ++i)
             {
                 float segment_angle = static_cast<float>(i) / static_cast<float>(segments) * 2.0f * 3.14159265359f;
 
@@ -864,12 +864,12 @@ namespace EngineCore
             }
 
             // create cylinder side
-            for (int i = 0; i < 2; ++i)
+            for (unsigned int i = 0; i < 2; ++i)
             {
                 float h = i < 1 ? -height / 2.0f : height / 2.0f;
                 float r = i < 1 ? base_radius : top_radius;
 
-                for (int j = 0, k = 0; j <= segments; ++j, k += 3)
+                for (unsigned int j = 0, k = 0; j <= segments; ++j, k += 3)
                 {
                     vertex_positions.push_back(circle_vertices[k] * r);
                     vertex_positions.push_back(h);
@@ -899,7 +899,7 @@ namespace EngineCore
                 vertex_normals.push_back(y);
                 vertex_normals.push_back(0.0f);
 
-                for (uint32_t j = 0, k = 0; j < segments; ++j, k += 3)
+                for (unsigned int j = 0, k = 0; j < segments; ++j, k += 3)
                 {
                     vertex_positions.push_back(circle_vertices[k] * base_radius);
                     vertex_positions.push_back(h);
@@ -911,7 +911,7 @@ namespace EngineCore
                 }
             }
 
-            for (uint32_t i = 0, j = 0, k = segments + 1; i < segments; ++i, ++j, ++k)
+            for (unsigned int i = 0, j = 0, k = segments + 1; i < segments; ++i, ++j, ++k)
             {
                 indices->push_back(j);
                 indices->push_back(j + 1);
@@ -922,7 +922,7 @@ namespace EngineCore
                 indices->push_back(k + 1);
             }
 
-            for (uint32_t i = 0, j = base_index + 1; i < segments; ++i, ++j)
+            for (unsigned int i = 0, j = base_index + 1; i < segments; ++i, ++j)
             {
                 if (i < segments - 1)
                 {
@@ -938,7 +938,7 @@ namespace EngineCore
                 }
             }
 
-            for (uint32_t i = 0, j = top_index + 1; i < segments; ++i, ++j)
+            for (unsigned int i = 0, j = top_index + 1; i < segments; ++i, ++j)
             {
                 if (i < segments - 1)
                 {
