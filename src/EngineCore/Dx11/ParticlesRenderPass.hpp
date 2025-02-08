@@ -58,7 +58,6 @@ namespace EngineCore {
                 frame.addRenderPass<Data, Resources>("Particles",
                     [&world_state](Data& data, Resources& resources) {
                         auto& mtl_mngr = world_state.get<EngineCore::Graphics::MaterialComponentManager>();
-                        auto& mesh_mngr = world_state.get<EngineCore::Graphics::MeshComponentManager<EngineCore::Graphics::Dx11::ResourceManager>>();
                         auto& particles_renderTask_mngr = world_state.get<EngineCore::Graphics::RenderTaskComponentManager<EngineCore::Graphics::RenderTaskTags::Particles>>();
                         auto& transform_mngr = world_state.get<EngineCore::Common::TransformComponentManager>();
                         auto& particles_mngr = world_state.get<EngineCore::Graphics::ParticlesComponentManager<EngineCore::Graphics::Dx11::ResourceManager>>();
@@ -81,7 +80,7 @@ namespace EngineCore {
                                 unsigned int particles_cnt = 0;
                                 if (!particles_indices.empty()) {
                                     particles_rsrc = particles_mngr.getComponent(particles_indices.front()).particle_data;
-                                    particles_cnt = particles_mngr.getComponent(particles_indices.front()).particle_count;
+                                    particles_cnt = static_cast<unsigned int>(particles_mngr.getComponent(particles_indices.front()).particle_count);
                                 }
 
                                 data.particles_rtd.push_back({ rt.shader_prgm, particles_rsrc,particles_cnt });
@@ -103,7 +102,10 @@ namespace EngineCore {
                             constantBufferData.pSysMem = data.particles_cbs.data();
                             constantBufferData.SysMemPitch = 0;
                             constantBufferData.SysMemSlicePitch = 0;
-                            const CD3D11_BUFFER_DESC constantBufferDesc(sizeof(Data::ParticlesConstantBuffer) * data.particles_cbs.size(), D3D11_BIND_CONSTANT_BUFFER);
+                            const CD3D11_BUFFER_DESC constantBufferDesc(
+                                static_cast<UINT>(sizeof(Data::ParticlesConstantBuffer) * data.particles_cbs.size()),
+                                D3D11_BIND_CONSTANT_BUFFER
+                            );
                             winrt::check_hresult(
                                 resources.d3d11_device->CreateBuffer(
                                     &constantBufferDesc,
@@ -218,7 +220,7 @@ namespace EngineCore {
                                     //TODO
                                     context->DrawInstanced(
                                         resources.particles_resources[rt_idx].particles_cnt * 6, // Vertex count
-                                        frame.m_view_projections.size(),                         // Instance count
+                                        static_cast<UINT>(frame.m_view_projections.size()),      // Instance count
                                         0,                                                       // Base vertex location
                                         0                                                        // Start instance location
                                     );

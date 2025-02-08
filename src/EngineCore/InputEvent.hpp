@@ -2,6 +2,7 @@
 #define InputEvent_hpp
 
 #include <functional>
+#include <string>
 
 namespace EngineCore{
 namespace Common{
@@ -252,7 +253,7 @@ namespace Input
 
     typedef std::function<void(Event const&, HardwareState const&)> EventAction;
 
-    typedef std::function<void(HardwareStateQuery const&, std::vector<HardwareState> const&, float)> StateAction;
+    typedef std::function<void(HardwareStateQuery const&, std::vector<HardwareState> const&, double)> StateAction;
 
 
     /**

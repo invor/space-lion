@@ -99,20 +99,22 @@ VertexShaderOutput Main(VertexShaderInput input)
 
     position.xy = verts[vertex_in_quad].xy * particles[particle_idx].radius;
     
+    float3 particle_world_position = mul(float4(particles[particle_idx].position, 1.0), model).xyz;
+    
     // Orient the sprite towards the camera.
-    float4x4 matOrient = OrientToCamera(particles[particle_idx].position, transpose(InvView));
+    float4x4 matOrient = OrientToCamera(particle_world_position, transpose(InvView));
     position = mul(matOrient, float4(position,1.0)).xyz;
 
     // Move sprite to world position.
-    position += particles[particle_idx].position;
+    position += particle_world_position;
     position -= matOrient._13_23_33 * particles[particle_idx].radius;
     
-    output.gylph_space_position = float4(position - particles[particle_idx].position, 1.0);
+    output.gylph_space_position = float4(position - particle_world_position, 1.0);
     
-    output.position = mul(mul(float4(position, 1.0), model), ViewProjection);
+    output.position = mul(float4(position, 1.0), ViewProjection);
     output.colour = float4(1.0,1.0,1.0,1.0);
-    output.sphere_params = float4(particles[particle_idx].position,particles[particle_idx].radius);
-    output.cam_position = mul(float4(0.0, 0.0, 0.0, 1.0), InvView) - float4(particles[particle_idx].position, 0.0);
+    output.sphere_params = float4(particle_world_position, particles[particle_idx].radius);
+    output.cam_position = mul(float4(0.0, 0.0, 0.0, 1.0), InvView) - float4(particle_world_position, 0.0);
     //output.cam_direction = 
 
     return output;

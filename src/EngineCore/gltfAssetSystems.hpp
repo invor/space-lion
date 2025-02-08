@@ -75,6 +75,50 @@ namespace EngineCore
                 }
             }
 
+            inline std::tuple<std::shared_ptr<std::vector<unsigned char>>, std::shared_ptr<std::vector<uint32_t>>> loadMeshAttributeData(std::shared_ptr<tinygltf::Model> const& model, const std::string& attribute) {
+
+                if (model != nullptr)
+                {
+                    auto attribues = std::make_shared<std::vector<unsigned char>>();
+                    auto indices = std::make_shared<std::vector<uint32_t>>();
+
+                    for (const auto& mesh : model->meshes) {
+                        for (const auto& primitive : mesh.primitives)
+                        {
+                            const auto& indices_accessor = model->accessors[primitive.indices];
+                            const auto& indices_bufferView = model->bufferViews[indices_accessor.bufferView];
+                            const auto& indices_buffer = model->buffers[indices_bufferView.buffer];
+
+                            if (indices_accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
+                                const unsigned char* indices_data = reinterpret_cast<const unsigned char*>(&indices_buffer.data[indices_bufferView.byteOffset + indices_accessor.byteOffset]);
+                                indices->assign(indices_data, indices_data + indices_accessor.count);
+                            }
+                            else if (indices_accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT) {
+                                const unsigned int* indices_data = reinterpret_cast<const unsigned int*>(&indices_buffer.data[indices_bufferView.byteOffset + indices_accessor.byteOffset]);
+                                indices->assign(indices_data, indices_data + indices_accessor.count);
+                            }
+                            else if (indices_accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+                                const unsigned short* indices_data = reinterpret_cast<const unsigned short*>(&indices_buffer.data[indices_bufferView.byteOffset + indices_accessor.byteOffset]);
+                                indices->assign(indices_data, indices_data + indices_accessor.count);
+                            }
+
+                            const auto& attribute_accessor = model->accessors[primitive.attributes.find(attribute)->second];
+                            const auto& attribute_bufferView = model->bufferViews[attribute_accessor.bufferView];
+                            const auto& attribute_buffer = model->buffers[attribute_bufferView.buffer];
+
+                            const unsigned char* attribute_data = &attribute_buffer.data[attribute_bufferView.byteOffset + attribute_accessor.byteOffset];
+                            attribues->insert(attribues->end(), attribute_data, attribute_data + (attribute_accessor.count * attribute_accessor.ByteStride(attribute_bufferView)));
+                        }
+                    }
+
+                    return { attribues, indices };
+                }
+                else
+                {
+                    return { nullptr, nullptr };
+                }
+            }
+
             template<typename ResourceManagerType>
             inline void addGltfNode(
                 EngineCore::WorldState& world_state,

@@ -196,6 +196,49 @@ namespace EngineCore
             transform(index);
         }
 
+        void TransformComponentManager::setPositionOrientation(Entity entity, Vec3 position, Quat orientation)
+        {
+            auto query = getIndex(entity);
+
+            setPositionOrientation(query, position, orientation);
+        }
+
+        void TransformComponentManager::setPositionOrientation(size_t index, Vec3 position, Quat orientation)
+        {
+            {
+                auto [page_idx, idx_in_page] = data_.getIndices(index);
+    
+                auto lock = data_.accquirePageLock(page_idx);
+
+                data_(page_idx, idx_in_page).position = position;
+                data_(page_idx, idx_in_page).orientation = orientation;
+            }
+
+            transform(index);
+        }
+
+        void TransformComponentManager::setTransformations(Entity entity, Vec3 position, Quat orientation, Vec3 scale)
+        {
+            auto query = getIndex(entity);
+
+            setTransformations(query, position, orientation, scale);
+        }
+
+        void TransformComponentManager::setTransformations(size_t index, Vec3 position, Quat orientation, Vec3 scale)
+        {
+            {
+                auto [page_idx, idx_in_page] = data_.getIndices(index);
+
+                auto lock = data_.accquirePageLock(page_idx);
+
+                data_(page_idx, idx_in_page).position = position;
+                data_(page_idx, idx_in_page).orientation = orientation;
+                data_(page_idx, idx_in_page).scale = scale;
+            }
+
+            transform(index);
+        }
+
         void TransformComponentManager::setParent(size_t index, Entity parent)
         {
             {

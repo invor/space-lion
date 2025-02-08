@@ -1,8 +1,8 @@
 #include "AnimationSystems.hpp"
 
 void EngineCore::Animation::animateTurntables(
-    EngineCore::Common::TransformComponentManager & transform_mngr,
-    EngineCore::Animation::TurntableComponentManager & turntable_mngr,
+    EngineCore::Common::TransformComponentManager& transform_mngr,
+    EngineCore::Animation::TurntableComponentManager& turntable_mngr,
     double dt,
     Utility::TaskScheduler& task_scheduler)
 {
@@ -72,7 +72,7 @@ void EngineCore::Animation::animateTagAlong(
                         
                         Vec3 movement_vector = target_front_pos - entity_position;
                         float distance = glm::length(movement_vector);
-                        float deadzone_factor = distance > 0.0f ? std::max(0.0f, (distance - cmp.deadzone)) / distance : 0.0f;
+                        float deadzone_factor = distance > cmp.deadzone ? (distance - cmp.deadzone) / distance : 0.0f;
                         
                         target_front_pos = entity_position + movement_vector * deadzone_factor * std::min(1.0f, (static_cast<float>(dt) / cmp.time_to_target));
                         

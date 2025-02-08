@@ -626,14 +626,14 @@ namespace EngineCore
                         D3D11_BUFFER_DESC desc = { 0 };
                         desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
                         desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-                        desc.ByteWidth = sizeof(BufferDataType) * data->size();
+                        desc.ByteWidth = static_cast<UINT>(sizeof(BufferDataType) * data->size());
                         desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
                         desc.StructureByteStride = sizeof(BufferDataType);
 
                         D3D11_SHADER_RESOURCE_VIEW_DESC shdr_rsrc_view_desc = { 0 };
                         shdr_rsrc_view_desc.Format = DXGI_FORMAT_UNKNOWN;
                         shdr_rsrc_view_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-                        shdr_rsrc_view_desc.Buffer.NumElements = data->size();
+                        shdr_rsrc_view_desc.Buffer.NumElements = static_cast<UINT>(data->size());
 
                         this->m_buffers[idx].resource = std::make_unique<dxowl::Buffer>(
                             m_d3d11_device,

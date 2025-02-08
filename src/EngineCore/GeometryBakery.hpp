@@ -81,7 +81,7 @@ namespace EngineCore
         * \param subdivisions Control the subdivions of the sphere
         * \return Returns shared pointer to the mesh
         */
-        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createIcoSphere(uint subdivions, float radius = 1.0f);
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createIcoSphere(unsigned int subdivions, float radius = 1.0f);
 
         /**
         *
@@ -92,13 +92,13 @@ namespace EngineCore
         * \brief Creates and returns a cylinder geometry
         * \param segments controls the subdivisions of the cylinder
         */
-        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createCylinder(float radius, float height, int segments = 8);
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createCylinder(float radius, float height, unsigned int segments = 8);
 
         /**
         * \brief Creates and returns a truncated cone geometry
         * \param segments controls the subdivision of the truncated cone
         */
-        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createTruncatedCone(float base_radius, float top_radius, float height, int segments = 8);
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createTruncatedCone(float base_radius, float top_radius, float height, unsigned int segments = 8);
 
         /**
         * Special vertex buffer for 3d line shader.
