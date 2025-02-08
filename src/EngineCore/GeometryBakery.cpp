@@ -620,7 +620,7 @@ namespace EngineCore
             return std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr>(vertices, indices, layout);
         }
 
-        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createIcoSphere(uint subdivions, float radius)
+        std::tuple<VertexDataPtr, IndexDataPtr, VertexDataDescriptorPtr> createIcoSphere(unsigned int subdivions, float radius)
         {
             // Create intial icosahedron
             float x = 0.525731112119133606f * radius;
