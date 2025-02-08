@@ -102,10 +102,12 @@ PsOutput Main(PixelShaderInput input) : SV_TARGET
     // calculate depth
     // https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-per-component-math#matrix-ordering
     float4 intPos = float4(sphere_intersection + sphere_pos.xyz, 1.0);
-    float dz = dot(ViewProjection._31_32_33_34, intPos);
-    float dw = dot(ViewProjection._41_42_43_44, intPos);
+    float dz = dot(ViewProjection._13_23_33_43, intPos);
+    float dw = dot(ViewProjection._14_24_34_44, intPos);
     retval.depth = (dz/dw);
-
-    //retval.colour = float4(input.gylph_space_position.xyz, 1.0);
+    //float4 proj_space = mul(float4(sphere_intersection + sphere_pos.xyz, 1.0), ViewProjection);
+    //retval.depth = (proj_space.z/proj_space.w);
+    //retval.colour = float4(retval.depth, 0.0f, 0.0f, 1.0);
+    
     return retval;
 }
