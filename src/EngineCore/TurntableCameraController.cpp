@@ -111,7 +111,7 @@ void Editor::Controls::TurntableCameraController::controlCameraGamepadAction(
 
         auto altitude = glm::length(rot_center_ - cam_position);
 
-        cam_position = cam_position - (v * dz * (altitude / 500.0f));
+        cam_position = cam_position - (v * dz * (altitude / 50.0f));
         transform_mngr.setPosition(camera_transform_idx, cam_position);
     }
 }
