@@ -99,6 +99,7 @@ SET (ENGINECORE_GRAPHICS_HEADER_FILES
         src/EngineCore/RenderPass.hpp
         src/EngineCore/RenderTaskComponentManager.hpp
         src/EngineCore/SunlightComponentManager.hpp
+        src/EngineCore/TurntableCameraController.hpp
         src/EngineCore/LandscapeFeatureCurveComponent.hpp
         #src/EngineCore/LandscapeBrickComponent.hpp
 )
@@ -118,6 +119,7 @@ SET (ENGINECORE_GRAPHICS_SOURCE_FILES
         src/EngineCore/RenderPass.cpp
         src/EngineCore/RenderTaskComponentManager.cpp
         src/EngineCore/SunlightComponentManager.cpp
+        src/EngineCore/TurntableCameraController.cpp
         src/EngineCore/LandscapeFeatureCurveComponent.inl
         #src/EngineCore/LandscapeBrickComponent.inl
 )
