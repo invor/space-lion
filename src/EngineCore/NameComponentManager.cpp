@@ -4,43 +4,24 @@ namespace EngineCore
 {
     namespace Common
     {
-        void NameComponentManager::addComponent(Entity entity, std::string const& debug_name)
+        size_t NameComponentManager::addComponent(Entity entity, std::string debug_name)
         {
-            std::unique_lock<std::mutex> lock(m_dataAccess_mutex);
+            auto index = data_.addComponent(
+                {
+                    entity,
+                    std::move(debug_name)
+                }
+            );
 
-            uint idx = static_cast<uint>(m_data.size());
+            addIndex(entity.id(), index);
 
-            addIndex(entity.id(), idx);
-
-            m_data.push_back(Data(entity, debug_name));
-        }
-
-        void NameComponentManager::addComponent(Entity entity, std::string && debug_name)
-        {
-            std::unique_lock<std::mutex> lock(m_dataAccess_mutex);
-
-            uint idx = static_cast<uint>(m_data.size());
-
-            addIndex(entity.id(), idx);
-
-            m_data.push_back(Data(entity, debug_name));
-        }
-
-        std::string NameComponentManager::getDebugName(Entity entity) const
-        {
-            auto query = getIndex(entity);
-
-            std::string retval;
-
-            if (!query.empty())
-                retval = m_data[query.front()].debug_name;
-
-            return retval;
+            return index;
         }
 
         std::string NameComponentManager::getDebugName(size_t index) const
         {
-            return m_data[index].debug_name;
+            auto [page_idx, idx_in_page] = data_.getIndices(index);
+            return data_(page_idx, idx_in_page).debug_name;
         }
     }
 }

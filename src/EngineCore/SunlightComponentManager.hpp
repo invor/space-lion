@@ -3,57 +3,42 @@
 
 struct Entity;
 
-#include "BaseMultiInstanceComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager2.hpp"
 #include "types.hpp"
 
 namespace EngineCore
 {
     namespace Graphics
     {
-
-        class SunlightComponentManager : public BaseMultiInstanceComponentManager
+        struct SunlightComponentData
         {
-        private:
-            struct Data
-            {
-                uint     used;      ///< number of components currently in use
-                uint     allocated; ///< number of components that the allocated memery can hold
-                uint8_t* buffer;    ///< raw data pointer
+            Entity entity;       ///< entity owning that owns the component
+            Vec3   light_colour; ///< color of the light in rgb values
+            float  lumen;        ///< Luminous power of the light source given in Lumen (lm)
+            float  star_radius;  ///< Radius of the star (used to compute solid angle)
+        };
 
-                Entity* entity;       ///< entity owning that owns the component
-                Vec3*   light_colour; ///< color of the light in rgb values
-                float*  lumen;        ///< Luminous power of the light source given in Lumen (lm)
-                float*  star_radius;  ///< Radius of the star (used to compute solid angle)
-            };
-
-            Data m_data;
-            mutable std::shared_mutex m_data_access_mutex;
-
+        class SunlightComponentManager : public BaseMultiInstanceComponentManager2<SunlightComponentData,1000,1000>
+        {
         public:
-            SunlightComponentManager(uint size);
-            ~SunlightComponentManager();
+            SunlightComponentManager() = default;
+            ~SunlightComponentManager() = default;
 
-            void reallocate(uint size);
+            size_t addComponent(Entity entity, Vec3 light_colour, float lumen, float radius);
 
-            void addComponent(Entity entity, Vec3 light_colour, float lumen, float radius);
+            void setColour(size_t index, Vec3 colour);
 
-            void deleteComonent(Entity entity);
+            void setLumen(size_t index, float lumen);
 
-            uint getComponentCount() const { return m_data.used; }
+            void setStarRadius(size_t index, float radius);
 
-            void setColour(uint index, Vec3 colour);
+            Entity getEntity(size_t index) const;
 
-            void setLumen(uint index, float lumen);
+            Vec3 getColour(size_t index) const;
 
-            void setStarRadius(uint index, float radius);
+            float getLumen(size_t index) const;
 
-            Entity getEntity(uint index) const;
-
-            Vec3 getColour(uint index) const;
-
-            float getLumen(uint index) const;
-
-            float getStarRadius(uint index) const;
+            float getStarRadius(size_t index) const;
         };
 
     }

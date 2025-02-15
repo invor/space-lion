@@ -72,14 +72,14 @@ namespace EngineCore
             struct ComponentData
             {
                 ComponentData(
-                    Entity const       entity,
-                    std::string const& mesh_description,
-                    ResourceID const   mesh_rsrc,
-                    uint32_t const     first_index,
-                    uint32_t const     indices_cnt,
-                    uint32_t const     base_vertex)
+                    Entity      entity,
+                    std::string mesh_description,
+                    ResourceID  mesh_rsrc,
+                    uint32_t    first_index,
+                    uint32_t    indices_cnt,
+                    uint32_t    base_vertex)
                     : entity(entity),
-                    mesh_description(mesh_description),
+                    mesh_description(std::move(mesh_description)),
                     mesh_resource(mesh_rsrc),
                     first_index(first_index),
                     indices_cnt(indices_cnt),

@@ -18,7 +18,7 @@ namespace EngineCore
     class BaseSingleInstanceComponentManager2 : public BaseComponentManager
     {
     protected:
-        Utility::SingleInstanceIndexMap             index_map_;
+        Utility::SingleInstanceIndexMap                                   index_map_;
         Utility::ComponentStorage<ComponentDataType, PageCount, PageSize> data_;
 
         void addIndex(unsigned int entity_id, size_t index);

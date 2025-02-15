@@ -36,7 +36,7 @@ namespace EngineCore
 
         void addIndex(unsigned int entity_id, size_t index);
 
-        void rebuildIndexMap(Utility::ComponentStorage<ComponentDataType, PageCount, PageSize> data);
+        void rebuildIndexMap();
 
     public:
         BaseMultiInstanceComponentManager2() = default;
@@ -82,14 +82,15 @@ namespace EngineCore
     }
 
     template<typename ComponentDataType, size_t PageCount, size_t PageSize>
-    inline void BaseMultiInstanceComponentManager2<ComponentDataType, PageCount, PageSize>::rebuildIndexMap(Utility::ComponentStorage<ComponentDataType, PageCount, PageSize> data)
+    inline void BaseMultiInstanceComponentManager2<ComponentDataType, PageCount, PageSize>::rebuildIndexMap()
     {
         std::unique_lock<std::shared_mutex> index_map_lock(m_index_map_mutex);
 
         m_index_map.clear();
 
-        for (size_t idx = 0; idx < data.size(); ++idx) {
-            auto query = m_index_map.find(data[idx].entity.id());
+        for (size_t idx = 0; idx < data_.getComponentCount(); ++idx) {
+            auto [page_idx, idx_in_page] = data_.getIndices(idx);
+            auto query = m_index_map.find(data_(page_idx, idx_in_page).entity.id());
 
             if (query != m_index_map.end())
             {
@@ -97,7 +98,7 @@ namespace EngineCore
             }
             else
             {
-                m_index_map.insert({ data[idx].entity.id(), {idx} });
+                m_index_map.insert({ data(page_idx, idx_in_page).entity.id(), {idx} });
             }
         }
     }
