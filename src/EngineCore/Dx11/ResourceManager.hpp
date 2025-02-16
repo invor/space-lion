@@ -849,16 +849,18 @@ namespace EngineCore
                 m_id_to_renderTarget_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_renderTarget_idx.insert(std::pair<std::string, size_t>(name, idx));
 
-                std::async([this, idx, desc, shdr_rsrc_view, rndr_tgt_view_desc]() {
+                m_renderThread_tasks.push(
+                    [this, idx, desc, shdr_rsrc_view, rndr_tgt_view_desc]() {
 
-                    this->m_render_targets[idx].resource = std::make_unique<dxowl::RenderTarget>(
-                        m_d3d11_device,
-                        desc,
-                        shdr_rsrc_view,
-                        rndr_tgt_view_desc);
+                        this->m_render_targets[idx].resource = std::make_unique<dxowl::RenderTarget>(
+                            m_d3d11_device,
+                            desc,
+                            shdr_rsrc_view,
+                            rndr_tgt_view_desc);
 
-                    this->m_render_targets[idx].state = READY;
-                });
+                        this->m_render_targets[idx].state = READY;
+                    }
+                );
 
                 return m_render_targets[idx].id;
             }

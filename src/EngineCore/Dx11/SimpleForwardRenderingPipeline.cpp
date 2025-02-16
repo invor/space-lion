@@ -274,7 +274,10 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
             constantBufferData.pSysMem = data.static_mesh_constant_buffers.data();
             constantBufferData.SysMemPitch = 0;
             constantBufferData.SysMemSlicePitch = 0;
-            const CD3D11_BUFFER_DESC constantBufferDesc(sizeof(GeomPassData::StaticMeshConstantBuffer)*data.static_mesh_constant_buffers.size(), D3D11_BIND_CONSTANT_BUFFER);
+            const CD3D11_BUFFER_DESC constantBufferDesc(
+                sizeof(GeomPassData::StaticMeshConstantBuffer) * static_cast<UINT>(data.static_mesh_constant_buffers.size()),
+                D3D11_BIND_CONSTANT_BUFFER
+            );
             winrt::check_hresult(
                 resources.d3d11_device->CreateBuffer(
                     &constantBufferDesc,
@@ -340,7 +343,10 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
                 constantBufferData.pSysMem = data.unlit_constant_buffer.data();
                 constantBufferData.SysMemPitch = 0;
                 constantBufferData.SysMemSlicePitch = 0;
-                const CD3D11_BUFFER_DESC constantBufferDesc(sizeof(GeomPassData::UnlitMeshConstantBuffer) * data.unlit_constant_buffer.size(), D3D11_BIND_CONSTANT_BUFFER);
+                const CD3D11_BUFFER_DESC constantBufferDesc(
+                    sizeof(GeomPassData::UnlitMeshConstantBuffer) * static_cast<UINT>(data.unlit_constant_buffer.size()),
+                    D3D11_BIND_CONSTANT_BUFFER
+                );
                 winrt::check_hresult(
                     resources.d3d11_device->CreateBuffer(
                         &constantBufferDesc,

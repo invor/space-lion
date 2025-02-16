@@ -38,7 +38,7 @@ namespace {
         std::wstring wideText;
         const int wideLength = ::MultiByteToWideChar(CP_UTF8, 0, utf8Text.data(), (int)utf8Text.size(), nullptr, 0);
         if (wideLength == 0) {
-            std::cerr<<"utf8_to_wide get size error.";
+            std::cerr << "utf8_to_wide get size error.";
             return {};
         }
 
@@ -46,7 +46,7 @@ namespace {
         wideText.resize(wideLength, 0);
         const int length = ::MultiByteToWideChar(CP_UTF8, 0, utf8Text.data(), (int)utf8Text.size(), wideText.data(), wideLength);
         if (length != wideLength) {
-            std::cerr<<"utf8_to_wide convert string error.";
+            std::cerr << "utf8_to_wide convert string error.";
             return {};
         }
 
@@ -64,7 +64,7 @@ namespace {
         std::string narrowText;
         int narrowLength = ::WideCharToMultiByte(CP_UTF8, 0, wideText.data(), (int)wideText.size(), nullptr, 0, nullptr, nullptr);
         if (narrowLength == 0) {
-            std::cerr<<"wide_to_utf8 get size error.";
+            std::cerr << "wide_to_utf8 get size error.";
             return {};
         }
 
@@ -73,7 +73,7 @@ namespace {
         const int length =
             ::WideCharToMultiByte(CP_UTF8, 0, wideText.data(), (int)wideText.size(), narrowText.data(), narrowLength, nullptr, nullptr);
         if (length != narrowLength) {
-            std::cerr<<"wide_to_utf8 convert string error.";
+            std::cerr << "wide_to_utf8 convert string error.";
             return {};
         }
 
@@ -112,14 +112,14 @@ namespace {
     class TextTexture {
     public:
         inline TextTexture(
-            ID3D11Device4*          d3d11_device,
-            ID2D1Factory2*          d2d_factory,
-            ID2D1Device1*           d2d_device,
-            ID2D1DeviceContext1*    d2d_context,
-            IDWriteFactory5*        dwrite_factory,
+            ID3D11Device4* d3d11_device,
+            ID2D1Factory2* d2d_factory,
+            ID2D1Device1* d2d_device,
+            ID2D1DeviceContext1* d2d_context,
+            IDWriteFactory5* dwrite_factory,
             IDWriteFontCollection1* custom_font_collection,
             TextTextureInfo         textInfo,
-            std::wstring const&     text)
+            std::wstring const& text)
             : m_textInfo(std::move(textInfo))
         {
             //
@@ -144,8 +144,8 @@ namespace {
             winrt::check_hresult(dwrite_factory->CreateTextLayout(wszText_,
                 cTextLength_,
                 m_textFormat.get(),
-                m_textInfo.Width,
-                m_textInfo.Height,
+                static_cast<FLOAT>(m_textInfo.Width),
+                static_cast<FLOAT>(m_textInfo.Height),
                 m_textLayout.put()));
 
             for (auto const& font_range : m_textInfo.SpecialFontRanges)
@@ -229,15 +229,15 @@ namespace {
     };
 
     void renderText(
-        ID3D11Device4*          d3d11_device,
-        ID2D1Factory2*          d2d_factory,
-        ID2D1Device1*           d2d_device,
-        ID2D1DeviceContext1*    d2d_context,
-        IDWriteFactory5*        dwrite_factory,
+        ID3D11Device4* d3d11_device,
+        ID2D1Factory2* d2d_factory,
+        ID2D1Device1* d2d_device,
+        ID2D1DeviceContext1* d2d_context,
+        IDWriteFactory5* dwrite_factory,
         IDWriteFontCollection1* custom_font_collection,
         TextTextureInfo         textInfo,
-        std::wstring const&     text,
-        ID3D11Texture2D*        target_texture)
+        std::wstring const& text,
+        ID3D11Texture2D* target_texture)
     {
         //
         // Create text format.
@@ -263,8 +263,8 @@ namespace {
         winrt::check_hresult(dwrite_factory->CreateTextLayout(wszText_,
             cTextLength_,
             textFormat.get(),
-            textInfo.Width,
-            textInfo.Height,
+            static_cast<FLOAT>(textInfo.Width),
+            static_cast<FLOAT>(textInfo.Height),
             textLayout.put()));
 
         for (auto const& font_range : textInfo.SpecialFontRanges)
@@ -389,7 +389,7 @@ void EngineCore::Graphics::Dx11::ResourceManager::clearAllResources()
 }
 
 ResourceID EngineCore::Graphics::Dx11::ResourceManager::allocateMeshAsync(
-    std::string const & name,
+    std::string const& name,
     size_t vertex_cnt,
     size_t index_cnt,
     //std::shared_ptr<GenericVertexLayout> const & vertex_layout,
@@ -406,38 +406,39 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::allocateMeshAsync(
         m_id_to_mesh_idx.insert(std::pair<unsigned int, size_t>(m_meshes.back().id.value(), idx));
     }
 
-    std::async([this, idx, vertex_cnt, index_cnt, vertex_layout, index_type, mesh_type](){
+    m_renderThread_tasks.push(
+        [this, idx, vertex_cnt, index_cnt, vertex_layout, index_type, mesh_type]() {
 
-        std::shared_lock<std::shared_mutex> lock(m_meshes_mutex);
+            std::shared_lock<std::shared_mutex> lock(m_meshes_mutex);
 
-        // TODO create DirectX vertex descriptor
-        //Graphics::Dx11::VertexDescriptor vertex_descriptor(*vertex_layout);
-        std::vector<dxowl::VertexDescriptor> vertex_descriptor = (*vertex_layout);
+            // TODO create DirectX vertex descriptor
+            //Graphics::Dx11::VertexDescriptor vertex_descriptor(*vertex_layout);
+            std::vector<dxowl::VertexDescriptor> vertex_descriptor = (*vertex_layout);
 
-        // TODO get number of buffer required for vertex layout and compute byte sizes
-        std::vector<void*> vertex_data_ptrs(vertex_descriptor.size(), nullptr);
-        std::vector<size_t> vertex_data_buffer_byte_sizes;
-        vertex_data_buffer_byte_sizes.reserve(vertex_descriptor.size());
+            // TODO get number of buffer required for vertex layout and compute byte sizes
+            std::vector<void*> vertex_data_ptrs(vertex_descriptor.size(), nullptr);
+            std::vector<size_t> vertex_data_buffer_byte_sizes;
+            vertex_data_buffer_byte_sizes.reserve(vertex_descriptor.size());
 
-        for (auto const& vl : vertex_descriptor){
-            vertex_data_buffer_byte_sizes.push_back(computeVertexByteSize(vl) * vertex_cnt);
-        }
+            for (auto const& vl : vertex_descriptor) {
+                vertex_data_buffer_byte_sizes.push_back(computeVertexByteSize(vl) * vertex_cnt);
+            }
 
-        size_t index_data_byte_size = 4 * index_cnt; //TODO support different index formats
+            size_t index_data_byte_size = 4 * index_cnt; //TODO support different index formats
 
 
-        this->m_meshes[idx].resource = std::make_unique<dxowl::Mesh>(
-            m_d3d11_device,
-            vertex_data_ptrs,
-            vertex_data_buffer_byte_sizes,
-            nullptr,
-            index_data_byte_size,
-            vertex_descriptor,
-            index_type,
-            mesh_type);
+            this->m_meshes[idx].resource = std::make_unique<dxowl::Mesh>(
+                m_d3d11_device,
+                vertex_data_ptrs,
+                vertex_data_buffer_byte_sizes,
+                nullptr,
+                index_data_byte_size,
+                vertex_descriptor,
+                index_type,
+                mesh_type);
 
-        this->m_meshes[idx].state = READY;
-    });
+            this->m_meshes[idx].state = READY;
+        });
 
     return m_meshes.back().id;
 }
@@ -446,7 +447,7 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::allocateMeshAsync(
 //#pragma optimize( "", off )
 //std::future<ResourceID> ResourceManager::createShaderProgramAsync(
 ResourceID ResourceManager::createShaderProgramAsync(
-    std::string const & name,
+    std::string const& name,
     std::shared_ptr<std::vector<ResourceManager::ShaderFilename>> shader_filenames,
     std::shared_ptr<std::vector<dxowl::VertexDescriptor>> vertex_layout)
 {
@@ -476,52 +477,51 @@ ResourceID ResourceManager::createShaderProgramAsync(
 
     auto rsrc_mngr_ptr = this;
 
-    //co_await std::async([&rsrc_mngr_ref, idx, shader_filenames, vertex_layout]() ->std::future <void> {
-    std::async([rsrc_mngr_ptr, idx, shader_filenames, vertex_layout]() {
-        std::vector<byte> vertex_shader;
-        std::vector<byte> geometry_shader;
-        std::vector<byte> pixel_shader;
+    m_renderThread_tasks.push(
+        [rsrc_mngr_ptr, idx, shader_filenames, vertex_layout]() {
+            std::vector<byte> vertex_shader;
+            std::vector<byte> geometry_shader;
+            std::vector<byte> pixel_shader;
 
-        for (auto& shader_filename : *shader_filenames)
-        {
-            switch (shader_filename.second)
+            for (auto& shader_filename : *shader_filenames)
             {
-            case dxowl::ShaderProgram::VertexShader:
-                //vertex_shader = co_await ReadDataAsync(shader_filename.first);
-                vertex_shader = Utility::ReadFileBytes(std::filesystem::path(shader_filename.first));
-                break;
-            case dxowl::ShaderProgram::PixelShader:
-                //pixel_shader = co_await ReadDataAsync(shader_filename.first);
-                pixel_shader = Utility::ReadFileBytes(std::filesystem::path(shader_filename.first));
-                break;
-            case dxowl::ShaderProgram::GeometryShader:
-                //geometry_shader = co_await ReadDataAsync(shader_filename.first);
-                geometry_shader = Utility::ReadFileBytes(std::filesystem::path(shader_filename.first));
-                break;
-            default:
-                break;
+                switch (shader_filename.second)
+                {
+                case dxowl::ShaderProgram::VertexShader:
+                    //vertex_shader = co_await ReadDataAsync(shader_filename.first);
+                    vertex_shader = Utility::ReadFileBytes(std::filesystem::path(shader_filename.first));
+                    break;
+                case dxowl::ShaderProgram::PixelShader:
+                    //pixel_shader = co_await ReadDataAsync(shader_filename.first);
+                    pixel_shader = Utility::ReadFileBytes(std::filesystem::path(shader_filename.first));
+                    break;
+                case dxowl::ShaderProgram::GeometryShader:
+                    //geometry_shader = co_await ReadDataAsync(shader_filename.first);
+                    geometry_shader = Utility::ReadFileBytes(std::filesystem::path(shader_filename.first));
+                    break;
+                default:
+                    break;
+                }
             }
-        }
-        std::unique_lock<std::shared_mutex> shader_lock(rsrc_mngr_ptr->m_shader_programs_mutex);
+            std::unique_lock<std::shared_mutex> shader_lock(rsrc_mngr_ptr->m_shader_programs_mutex);
 
-        rsrc_mngr_ptr->m_shader_programs[idx].resource = std::make_unique<dxowl::ShaderProgram>(
-            rsrc_mngr_ptr->getD3D11Device(),
-            *vertex_layout,
-            vertex_shader,
-            geometry_shader,
-            pixel_shader);
+            rsrc_mngr_ptr->m_shader_programs[idx].resource = std::make_unique<dxowl::ShaderProgram>(
+                rsrc_mngr_ptr->getD3D11Device(),
+                *vertex_layout,
+                vertex_shader,
+                geometry_shader,
+                pixel_shader);
 
-        rsrc_mngr_ptr->m_shader_programs[idx].state = READY;
-    });
+            rsrc_mngr_ptr->m_shader_programs[idx].state = READY;
+        });
 
-    //co_return m_shader_programs.back().id;
     return m_shader_programs.back().id;
 }
 
 ResourceID EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(
-    std::string const & name,
-    std::vector<ShaderData> const & shader_bytedata,
-    std::vector<dxowl::VertexDescriptor> const & vertex_layout)
+    std::string const& name,
+    std::vector<ShaderData> const& shader_bytedata,
+    std::vector<dxowl::VertexDescriptor> const& vertex_layout)
 {
     std::unique_lock<std::shared_mutex> shader_lock(m_shader_programs_mutex);
 
@@ -542,9 +542,9 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(
 
     m_id_to_shader_program_idx.insert(std::pair<unsigned int, size_t>(m_shader_programs.back().id.value(), idx));
 
-    std::pair<const void*, size_t> vertex_shader = {nullptr,0};
-    std::pair<const void*,size_t> geometry_shader = { nullptr,0 };
-    std::pair<const void*,size_t> pixel_shader = { nullptr,0 };
+    std::pair<const void*, size_t> vertex_shader = { nullptr,0 };
+    std::pair<const void*, size_t> geometry_shader = { nullptr,0 };
+    std::pair<const void*, size_t> pixel_shader = { nullptr,0 };
 
     for (auto& shader_filename : shader_bytedata)
     {

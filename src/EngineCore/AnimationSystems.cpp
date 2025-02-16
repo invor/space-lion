@@ -1,5 +1,7 @@
 #include "AnimationSystems.hpp"
 
+#include "utility.hpp"
+
 void EngineCore::Animation::animateTurntables(
     EngineCore::Common::TransformComponentManager& transform_mngr,
     EngineCore::Animation::TurntableComponentManager& turntable_mngr,
@@ -10,12 +12,8 @@ void EngineCore::Animation::animateTurntables(
 
     size_t component_cnt = turntable_mngr.getComponentCount();
 
-    std::vector<std::pair<size_t, size_t>> from_to_pairs;
-    size_t bucket_cnt = 6;
-    for (size_t i = 0; i < bucket_cnt; ++i) {
-        from_to_pairs.push_back({ component_cnt * (float(i) / float(bucket_cnt)), component_cnt * (float(i + 1) / float(bucket_cnt)) });
-    }
-
+    std::vector<std::pair<size_t, size_t>> from_to_pairs = utility::buildComponentProcessingRanges(component_cnt,6);
+    
     for (auto from_to : from_to_pairs) {
         task_scheduler.submitTask(
             [&transform_mngr, &turntable_mngr, from_to, dt]() {
@@ -49,11 +47,7 @@ void EngineCore::Animation::animateTagAlong(
 {
     size_t component_cnt = tagalong_mngr.getComponentCount();
 
-    std::vector<std::pair<size_t, size_t>> from_to_pairs;
-    size_t bucket_cnt = 6;
-    for (size_t i = 0; i < bucket_cnt; ++i) {
-        from_to_pairs.push_back({ component_cnt * (float(i) / float(bucket_cnt)), component_cnt * (float(i + 1) / float(bucket_cnt)) });
-    }
+    std::vector<std::pair<size_t, size_t>> from_to_pairs = utility::buildComponentProcessingRanges(component_cnt, 6);
 
     for (auto from_to : from_to_pairs) {
         task_scheduler.submitTask(
@@ -96,11 +90,7 @@ void EngineCore::Animation::animateBillboards(
 
     size_t component_cnt = billboard_mngr.getComponentCount();
 
-    std::vector<std::pair<size_t, size_t>> from_to_pairs;
-    size_t bucket_cnt = 6;
-    for (size_t i = 0; i < bucket_cnt; ++i) {
-        from_to_pairs.push_back({ component_cnt * (float(i) / float(bucket_cnt)), component_cnt * (float(i + 1) / float(bucket_cnt)) });
-    }
+    std::vector<std::pair<size_t, size_t>> from_to_pairs = utility::buildComponentProcessingRanges(component_cnt, 6);
 
     for (auto from_to : from_to_pairs) {
         task_scheduler.submitTask(
@@ -144,11 +134,7 @@ void EngineCore::Animation::animatioMoveTo(
 {
     size_t component_cnt = moveto_mngr.getComponentCount();
 
-    std::vector<std::pair<size_t, size_t>> from_to_pairs;
-    size_t bucket_cnt = 6;
-    for (size_t i = 0; i < bucket_cnt; ++i) {
-        from_to_pairs.push_back({ component_cnt * (float(i) / float(bucket_cnt)), component_cnt * (float(i + 1) / float(bucket_cnt)) });
-    }
+    std::vector<std::pair<size_t, size_t>> from_to_pairs = utility::buildComponentProcessingRanges(component_cnt, 6);
 
     for (auto from_to : from_to_pairs) {
         task_scheduler.submitTask(

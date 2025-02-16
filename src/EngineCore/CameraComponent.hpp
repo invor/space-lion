@@ -42,35 +42,35 @@ namespace EngineCore
 
             Entity getActiveCamera() const;
 
-            Entity getEntity(uint index) const;
+            Entity getEntity(size_t index) const;
 
             void setCameraAttributes(
-                uint index,
+                size_t index,
                 float near_cp,
                 float far_cp,
                 float fovy = 0.5236f,
                 float aspect_ratio = 16.0 / 9.0f,
                 float exposure = 0.000045f);
 
-            void updateProjectionMatrix(uint index);
+            void updateProjectionMatrix(size_t index);
 
-            Mat4x4 getProjectionMatrix(uint index) const;
+            Mat4x4 getProjectionMatrix(size_t index) const;
 
-            void setNear(uint index, float near_cp);
+            void setNear(size_t index, float near_cp);
 
-            void setFar(uint index, float far_cp);
+            void setFar(size_t index, float far_cp);
 
-            float getFovy(uint index) const;
+            float getFovy(size_t index) const;
 
-            void setFovy(uint index, float fovy);
+            void setFovy(size_t index, float fovy);
 
-            float getAspectRatio(uint index) const;
+            float getAspectRatio(size_t index) const;
 
-            void setAspectRatio(uint index, float aspect_ratio);
+            void setAspectRatio(size_t index, float aspect_ratio);
 
-            float getExposure(uint index) const;
+            float getExposure(size_t index) const;
 
-            void setExposure(uint index, float exposure);
+            void setExposure(size_t index, float exposure);
         };
 
     }

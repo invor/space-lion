@@ -35,7 +35,7 @@ void Editor::Controls::TurntableCameraController::setRotCenter(Vec3 rot_center)
 void Editor::Controls::TurntableCameraController::controlCameraGamepadAction(
     EngineCore::Common::Input::HardwareStateQuery const& input_hardware,
     std::vector<EngineCore::Common::Input::HardwareState> states,
-    float dt)
+    double dt)
 {
     auto& camera_mngr = world_state_.get<EngineCore::Graphics::CameraComponentManager>();
     auto& transform_mngr = world_state_.get<EngineCore::Common::TransformComponentManager>();
@@ -55,33 +55,33 @@ void Editor::Controls::TurntableCameraController::controlCameraGamepadAction(
     auto world_to_view_vec = glm::inverse(view_to_world_vec);
     view_to_world_vec = glm::inverse(view_to_world_vec);
     view_to_world_vec = glm::transpose(view_to_world_vec);
-    Vec3 cam_forward = view_to_world_vec * Vec3(0.0, 0.0, -1.0);
-    Vec3 cam_right = view_to_world_vec * Vec3(1.0, 0.0, 0.0);
-    Vec3 cam_up = view_to_world_vec * Vec3(0.0, 1.0, 0.0);
+    Vec3 cam_forward = view_to_world_vec * Vec3(0.0f, 0.0f, -1.0f);
+    Vec3 cam_right = view_to_world_vec * Vec3(1.0f, 0.0f, 0.0f);
+    Vec3 cam_up = view_to_world_vec * Vec3(0.0f, 1.0f, 0.0f);
 
-    Vec3 world_up_vs = world_to_view_vec * Vec3(0.0, 1.0, 0.0);
+    Vec3 world_up_vs = world_to_view_vec * Vec3(0.0f, 1.0f, 0.0f);
 
-    Vec3 movement = Vec3(0.0, 0.0, 0.0);
+    Vec3 movement = Vec3(0.0f, 0.0f, 0.0f);
 
-    float dead_zone = 0.05;
+    float dead_zone = 0.05f;
 
     // first hardware part is left x axis
-    if (std::sqrt(std::pow(std::abs(states[0]), 2.0) + std::pow(std::abs(states[1]), 2.0)) > dead_zone)
+    if (std::sqrt(std::pow(std::abs(states[0]), 2.0f) + std::pow(std::abs(states[1]), 2.0f)) > dead_zone)
     {
     }
 
-    if (std::sqrt(std::pow(std::abs(states[2]), 2.0) + std::pow(std::abs(states[3]), 2.0)) > dead_zone)
+    if (std::sqrt(std::pow(std::abs(states[2]), 2.0f) + std::pow(std::abs(states[3]), 2.0f)) > dead_zone)
     {
-        float sign_flip_x = std::signbit(states[2]) ? -1.0 : 1.0;
-        float sign_flip_y = std::signbit(states[3]) ? -1.0 : 1.0;
+        float sign_flip_x = std::signbit(states[2]) ? -1.0f : 1.0f;
+        float sign_flip_y = std::signbit(states[3]) ? -1.0f : 1.0f;
 
-        float remapped_state_x = (states[2] - sign_flip_x * dead_zone) / (1.0 - dead_zone);
-        float remapped_state_y = (states[3] - sign_flip_y * dead_zone) / (1.0 - dead_zone);
+        float remapped_state_x = (states[2] - sign_flip_x * dead_zone) / (1.0f - dead_zone);
+        float remapped_state_y = (states[3] - sign_flip_y * dead_zone) / (1.0f - dead_zone);
 
         float factor = 90.0f;
 
         // rotate horizontally
-        auto rot_lon = glm::angleAxis(factor* remapped_state_x * static_cast<float>(dt) * (3.14159265f / 180.0f), glm::vec3(0.0, 1.0, 0.0));
+        auto rot_lon = glm::angleAxis(factor* remapped_state_x * static_cast<float>(dt) * (3.14159265f / 180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         cam_right = glm::rotate(rot_lon, cam_right);
         cam_forward = glm::rotate(rot_lon, cam_forward);
         cam_up = glm::rotate(rot_lon, cam_up);
@@ -103,7 +103,7 @@ void Editor::Controls::TurntableCameraController::controlCameraGamepadAction(
         transform_mngr.rotate(camera_transform_idx, rot_lon * rot_lat);
     }
 
-    if (std::sqrt(std::pow(std::abs(states[4]), 2.0) + std::pow(std::abs(states[5]), 2.0)) > dead_zone)
+    if (std::sqrt(std::pow(std::abs(states[4]), 2.0f) + std::pow(std::abs(states[5]), 2.0f)) > dead_zone)
     {
         float dz = states[4] - states[5];
 

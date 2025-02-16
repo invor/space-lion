@@ -34,7 +34,7 @@ namespace Editor {
             void controlCameraGamepadAction(
                 EngineCore::Common::Input::HardwareStateQuery const& input_hardware,
                 std::vector<EngineCore::Common::Input::HardwareState> states,
-                float dt);
+                double dt);
 
         };
 
