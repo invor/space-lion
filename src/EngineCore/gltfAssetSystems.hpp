@@ -75,14 +75,23 @@ namespace EngineCore
                 }
             }
 
-            inline std::tuple<std::shared_ptr<std::vector<unsigned char>>, std::shared_ptr<std::vector<uint32_t>>> loadMeshAttributeData(std::shared_ptr<tinygltf::Model> const& model, const std::string& attribute) {
+            inline std::tuple<std::shared_ptr<std::vector<unsigned char>>, std::shared_ptr<std::vector<uint32_t>>> loadMeshAttributeData(
+                std::shared_ptr<tinygltf::Model> const& model,
+                size_t node_index,
+                const std::string& attribute)
+            {
+                std::tuple<std::shared_ptr<std::vector<unsigned char>>, std::shared_ptr<std::vector<uint32_t>>> retval = { nullptr, nullptr };
 
                 if (model != nullptr)
                 {
-                    auto attribues = std::make_shared<std::vector<unsigned char>>();
-                    auto indices = std::make_shared<std::vector<uint32_t>>();
+                    auto node = model->nodes[node_index];
 
-                    for (const auto& mesh : model->meshes) {
+                    if (node.mesh != -1) {
+                        auto attribues = std::make_shared<std::vector<unsigned char>>();
+                        auto indices = std::make_shared<std::vector<uint32_t>>();
+
+                        auto& mesh = model->meshes[node.mesh];
+
                         for (const auto& primitive : mesh.primitives)
                         {
                             const auto& indices_accessor = model->accessors[primitive.indices];
@@ -109,14 +118,13 @@ namespace EngineCore
                             const unsigned char* attribute_data = &attribute_buffer.data[attribute_bufferView.byteOffset + attribute_accessor.byteOffset];
                             attribues->insert(attribues->end(), attribute_data, attribute_data + (attribute_accessor.count * attribute_accessor.ByteStride(attribute_bufferView)));
                         }
-                    }
 
-                    return { attribues, indices };
+                        retval = { attribues, indices };
+                    }
                 }
-                else
-                {
-                    return { nullptr, nullptr };
-                }
+
+                return retval
+                    ;
             }
 
             template<typename ResourceManagerType>
