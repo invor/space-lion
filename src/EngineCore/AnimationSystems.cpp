@@ -1,6 +1,7 @@
 #include "AnimationSystems.hpp"
 
 #include "utility.hpp"
+#include <chrono>
 
 void EngineCore::Animation::animateTurntables(
     EngineCore::Common::TransformComponentManager& transform_mngr,
