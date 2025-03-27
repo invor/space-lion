@@ -48,8 +48,11 @@ struct VertexShaderOutput
 cbuffer ModelConstantBuffer : register(b0)
 {
     float4x4 model;
-
-    float4x4 padding0;
+    float4 color;
+    
+    float4 padding0_1;
+    float4 padding0_2;
+    float4 padding0_13;
     float4x4 padding1;
     float4x4 padding2;
 };
@@ -92,10 +95,6 @@ VertexShaderOutput Main(VertexShaderInput input)
         float4(1,1,1,0),
         float4(1,-1,1,1)
     };
-    //position.xy = verts[vertex_in_quad].xy * particles[particle_idx].radius;
-    //position = mul(position, (float3x3) InvView);
-    //output.gylph_space_position = float4(position, 1.0);
-    //position += particles[particle_idx].position;
 
     position.xy = verts[vertex_in_quad].xy * particles[particle_idx].radius;
     
@@ -112,10 +111,9 @@ VertexShaderOutput Main(VertexShaderInput input)
     output.gylph_space_position = float4(position - particle_world_position, 1.0);
     
     output.position = mul(float4(position, 1.0), ViewProjection);
-    output.colour = float4(1.0,1.0,1.0,1.0);
+    output.colour = color;
     output.sphere_params = float4(particle_world_position, particles[particle_idx].radius);
     output.cam_position = mul(float4(0.0, 0.0, 0.0, 1.0), InvView) - float4(particle_world_position, 0.0);
-    //output.cam_direction = 
 
     return output;
 }
