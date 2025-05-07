@@ -205,7 +205,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
             }
 
             auto mtl_comp_idx = mtl_mngr.getIndex(rt.entity);
-            auto texture = mtl_mngr.getTextures(mtl_comp_idx[rt.mtl_component_subidx], MaterialComponentManager::TextureSemantic::ALBEDO);
+            auto texture = mtl_mngr.getTextures(mtl_comp_idx[rt.mtl_component_subidx], MaterialComponentData::TextureSemantic::ALBEDO);
         
             auto mesh_comp_idx = mesh_mngr.getIndex(rt.entity);
             auto draw_params = mesh_mngr.getDrawIndexedParams(mesh_comp_idx[rt.mesh_component_subidx]);

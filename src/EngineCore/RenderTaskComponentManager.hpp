@@ -101,6 +101,8 @@ namespace EngineCore
 
             void setVisibility(size_t index, bool visible);
 
+            void setShaderProgram(Entity entity, ResourceID shader_rsrc);
+
             std::vector<Data> & getComponentData(); //TODO this is not thread safe, is it?
 
             std::vector<Data> getComponentDataCopy() const;
@@ -164,6 +166,23 @@ namespace EngineCore
             std::unique_lock<std::shared_mutex> lock(m_data_mutex);
 
             m_data[index].visible = visible;
+        }
+
+        template<typename TagType>
+        inline void RenderTaskComponentManager<TagType>::setShaderProgram(Entity entity, ResourceID shader_rsrc)
+        {
+            auto index_query = getIndex(entity.id());
+
+            std::unique_lock<std::shared_mutex> lock(m_data_mutex);
+
+            for (auto index : index_query)
+            {
+                m_data[index].shader_prgm = shader_rsrc;
+            }
+
+            std::sort(m_data.begin(), m_data.end());
+
+            rebuildIndexMap(m_data);
         }
 
         template<typename TagType>

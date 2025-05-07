@@ -14,9 +14,10 @@ namespace EngineCore {
 
         struct ParticlesComponentData
         {
-            Entity     entity;         ///< entity that owns the component
-            size_t     particle_count;
-            ResourceID particle_data;
+            Entity                   entity;         ///< entity that owns the component
+            size_t                   particle_count;
+            std::array<ResourceID,2> particles_double_buffer;
+            size_t                   render_buffer;  ///< index of double buffer currently used for rendering
         };
 
         template<typename ResourceManagerType>
@@ -39,8 +40,12 @@ namespace EngineCore {
         {
             auto idx_query = getIndex(entity);
 
-            auto rsrc_id = resource_mngr_->createStructuredBufferAsync(
-                std::to_string(entity.id()) + "_particles_" + std::to_string(idx_query.size()),
+            auto double_buffer_0_rsrc_id = resource_mngr_->createStructuredBufferAsync(
+                std::to_string(entity.id()) + "_particles_" + std::to_string(idx_query.size()) + "_0",
+                particle_data
+            );
+            auto double_buffer_1_rsrc_id = resource_mngr_->createStructuredBufferAsync(
+                std::to_string(entity.id()) + "_particles_" + std::to_string(idx_query.size()) + "_1",
                 particle_data
             );
 
@@ -48,7 +53,8 @@ namespace EngineCore {
                 {
                     entity,
                     particle_data->size(),
-                    rsrc_id
+                    {double_buffer_0_rsrc_id,double_buffer_1_rsrc_id},
+                    0
                 }
             );
 
