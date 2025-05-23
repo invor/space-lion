@@ -177,8 +177,6 @@ namespace EngineCore
             std::vector<Resource<Texture2D>>     m_textures_2d;
             std::vector<Resource<Texture3D>>     m_textures_3d;
 
-            std::vector<std::string>             m_shader_programs_identifier;
-
             std::unordered_map<unsigned int, size_t> m_id_to_buffer_idx;
             std::unordered_map<unsigned int, size_t> m_id_to_mesh_idx;
             std::unordered_map<unsigned int, size_t> m_id_to_shader_program_idx;

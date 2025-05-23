@@ -451,18 +451,13 @@ ResourceID ResourceManager::createShaderProgramAsync(
     std::shared_ptr<std::vector<ResourceManager::ShaderFilename>> shader_filenames,
     std::shared_ptr<std::vector<dxowl::VertexDescriptor>> vertex_layout)
 {
+    // check if program of same name already exits
+    // TODO check shader input layout?
     {
-        std::shared_lock<std::shared_mutex> shader_lock(m_shader_programs_mutex);
-        //TODO search if shader setup already exists
-        for (size_t shader_idx = 0; shader_idx < m_shader_programs_identifier.size(); ++shader_idx)
-        {
-            if (m_shader_programs_identifier[shader_idx] == name)
-            {
-                //TODO check shader input layout
-                //co_return m_shader_programs[shader_idx].id;
-                return m_shader_programs[shader_idx].id;
-            }
-        }
+        std::shared_lock<std::shared_mutex> prgm_lock(m_shader_programs_mutex);
+        auto search = m_name_to_shader_program_idx.find(name);
+        if (search != m_name_to_shader_program_idx.end())
+            return m_shader_programs[search->second].id;
     }
 
     size_t idx = m_shader_programs.size();
@@ -471,7 +466,7 @@ ResourceID ResourceManager::createShaderProgramAsync(
     {
         std::unique_lock<std::shared_mutex> shader_lock(m_shader_programs_mutex);
         m_shader_programs.push_back(Resource<dxowl::ShaderProgram>(rsrc_id));
-        m_shader_programs_identifier.push_back(name);
+        m_name_to_shader_program_idx.insert(std::pair<std::string, size_t>(name, idx));
         m_id_to_shader_program_idx.insert(std::pair<unsigned int, size_t>(m_shader_programs.back().id.value(), idx));
     }
 
@@ -518,29 +513,30 @@ ResourceID ResourceManager::createShaderProgramAsync(
     return m_shader_programs.back().id;
 }
 
-ResourceID EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(
+WeakResource<dxowl::ShaderProgram> EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(
     std::string const& name,
     std::vector<ShaderData> const& shader_bytedata,
     std::vector<dxowl::VertexDescriptor> const& vertex_layout)
 {
-    std::unique_lock<std::shared_mutex> shader_lock(m_shader_programs_mutex);
-
-    //TODO search if shader setup already exists
-    for (size_t shader_idx = 0; shader_idx < m_shader_programs_identifier.size(); ++shader_idx)
+    // search if shader setup already exists
+    // TODO check shader input layout
     {
-        if (m_shader_programs_identifier[shader_idx] == name)
-        {
-            //TODO check shader input layout
-            return m_shader_programs[shader_idx].id;
-        }
+        std::shared_lock<std::shared_mutex> lock(m_shader_programs_mutex);
+        auto search = m_name_to_shader_program_idx.find(name);
+        if (search != m_name_to_shader_program_idx.end())
+            return WeakResource<dxowl::ShaderProgram>(
+                m_shader_programs[search->second].id,
+                m_shader_programs[search->second].resource.get(),
+                m_shader_programs[search->second].state);
     }
 
     size_t idx = m_shader_programs.size();
     ResourceID rsrc_id = generateResourceID();
-    m_shader_programs.push_back(Resource<dxowl::ShaderProgram>(rsrc_id));
-    m_shader_programs_identifier.push_back(name);
 
+    std::unique_lock<std::shared_mutex> shader_lock(m_shader_programs_mutex);
+    m_shader_programs.push_back(Resource<dxowl::ShaderProgram>(rsrc_id));
     m_id_to_shader_program_idx.insert(std::pair<unsigned int, size_t>(m_shader_programs.back().id.value(), idx));
+    m_name_to_shader_program_idx.insert(std::pair<std::string, size_t>(name, idx));
 
     std::pair<const void*, size_t> vertex_shader = { nullptr,0 };
     std::pair<const void*, size_t> geometry_shader = { nullptr,0 };
@@ -579,7 +575,7 @@ ResourceID EngineCore::Graphics::Dx11::ResourceManager::createShaderProgram(
 
     m_shader_programs[idx].state = READY;
 
-    return m_shader_programs.back().id;
+    return WeakResource<dxowl::ShaderProgram>(m_shader_programs.back().id, m_shader_programs.back().resource.get(), m_shader_programs.back().state);
 }
 
 

@@ -285,7 +285,7 @@ namespace EngineCore
                     std::shared_ptr<std::vector<dxowl::VertexDescriptor>> vertex_layout);
 
                 typedef std::tuple<const void*, size_t, dxowl::ShaderProgram::ShaderType> ShaderData;
-                ResourceID createShaderProgram(
+                WeakResource<dxowl::ShaderProgram> createShaderProgram(
                     std::string const& name,
                     std::vector<ShaderData> const& shader_bytedata,
                     std::vector<dxowl::VertexDescriptor> const& vertex_layout);
