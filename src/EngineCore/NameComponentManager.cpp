@@ -23,5 +23,10 @@ namespace EngineCore
             auto [page_idx, idx_in_page] = data_.getIndices(index);
             return data_(page_idx, idx_in_page).debug_name;
         }
+
+        std::string NameComponentManager::getDebugName(Entity entity) const
+        {
+            return getDebugName(getIndex(entity));
+        }
     }
 }

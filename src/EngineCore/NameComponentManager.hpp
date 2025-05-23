@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "BaseMultiInstanceComponentManager2.hpp"
+#include "BaseSingleInstanceComponentManager2.hpp"
 #include "EntityManager.hpp"
 
 namespace EngineCore
@@ -27,12 +27,14 @@ namespace EngineCore
             std::string debug_name;
         };
 
-        class NameComponentManager : public BaseMultiInstanceComponentManager2<NameComponentData,1000,1000>
+        class NameComponentManager : public BaseSingleInstanceComponentManager2<NameComponentData,1000,1000>
         {
         public:
             size_t addComponent(Entity entity, std::string debug_name);
 
             std::string getDebugName(size_t index) const;
+
+            std::string getDebugName(Entity entity) const;
         };
     }
 }
