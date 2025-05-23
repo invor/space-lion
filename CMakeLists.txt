@@ -351,6 +351,7 @@ SET (EXTERNAL_IMGUI_FILES
 
 SET (EXTERNAL_DXOWL_FILES
         src/External/dxowl/include/dxowl/Buffer.hpp
+        src/External/dxowl/include/dxowl/DepthStencil.hpp
         src/External/dxowl/include/dxowl/RenderTarget.hpp
         src/External/dxowl/include/dxowl/ShaderProgram.hpp
         src/External/dxowl/include/dxowl/Mesh.hpp

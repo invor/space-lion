@@ -10,6 +10,7 @@
 #include "GenericTextureLayout.hpp"
 
 #include <dxowl/Buffer.hpp>
+#include <dxowl/DepthStencil.hpp>
 #include <dxowl/Mesh.hpp>
 #include "../MTQueue.hpp"
 #include <dxowl/RenderTarget.hpp>
@@ -543,13 +544,19 @@ namespace EngineCore
 
     #pragma endregion
 
-    #pragma region Create Render Targets
+    #pragma region Create render targets and depth stencil buffers
 
                 ResourceID createRenderTargetAsync(
                     std::string const&                     name,
-                    D3D11_TEXTURE2D_DESC const&               desc,
+                    D3D11_TEXTURE2D_DESC const&            desc,
                     D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view,
                     D3D11_RENDER_TARGET_VIEW_DESC const&   rndr_tgt_view_desc);
+
+                ResourceID createDepthStencilAsync(
+                    std::string const&                     name,
+                    D3D11_TEXTURE2D_DESC const&            desc,
+                    D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view,
+                    D3D11_DEPTH_STENCIL_VIEW_DESC const&   depth_stencil_view_desc);
 
     #pragma endregion
 
@@ -558,6 +565,10 @@ namespace EngineCore
                 WeakResource<dxowl::RenderTarget> getRenderTarget(std::string const& name) const;
 
                 WeakResource<dxowl::RenderTarget> getRenderTarget(ResourceID rsrc_id) const;
+
+                WeakResource<dxowl::DepthStencil> getDepthStencil(std::string const& name) const;
+
+                WeakResource<dxowl::DepthStencil> getDepthStencil(ResourceID rsrc_id) const;
 
     #pragma endregion
 
@@ -569,10 +580,16 @@ namespace EngineCore
                 EngineCore::Utility::MTQueue<std::function<void()>> m_renderThread_tasks;
 
                 std::vector<Resource<dxowl::RenderTarget>> m_render_targets;
-                std::unordered_map<unsigned int, size_t>   m_id_to_renderTarget_idx;
-                std::unordered_map<std::string, size_t>    m_name_to_renderTarget_idx;
+                std::vector<Resource<dxowl::DepthStencil>> m_depth_stencils;
 
-                mutable std::shared_mutex m_renderTargets_mutex;
+                std::unordered_map<unsigned int, size_t>   m_id_to_renderTarget_idx;
+                std::unordered_map<unsigned int, size_t>   m_id_to_depthStencil_idx;
+
+                std::unordered_map<std::string, size_t>    m_name_to_renderTarget_idx;
+                std::unordered_map<std::string, size_t>    m_name_to_depthStencil_idx;
+
+                mutable std::shared_mutex                  m_renderTargets_mutex;
+                mutable std::shared_mutex                  m_depthStencils_mutex;
 
                 struct TextResources {
                     winrt::com_ptr<ID2D1Factory2>           m_d2d_factory;
@@ -898,6 +915,37 @@ namespace EngineCore
                 return m_render_targets[idx].id;
             }
 
+            inline ResourceID ResourceManager::createDepthStencilAsync(
+                std::string const& name, 
+                D3D11_TEXTURE2D_DESC const& desc, 
+                D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view, 
+                D3D11_DEPTH_STENCIL_VIEW_DESC const& depth_stencil_view_desc)
+            {
+                std::unique_lock<std::shared_mutex> lock(m_depthStencils_mutex);
+
+                size_t idx = m_depth_stencils.size();
+                ResourceID rsrc_id = generateResourceID();
+                m_depth_stencils.push_back(Resource<dxowl::DepthStencil>(rsrc_id));
+
+                m_id_to_depthStencil_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
+                m_name_to_depthStencil_idx.insert(std::pair<std::string, size_t>(name, idx));
+
+                m_renderThread_tasks.push(
+                    [this, idx, desc, shdr_rsrc_view, depth_stencil_view_desc]() {
+
+                        this->m_depth_stencils[idx].resource = std::make_unique<dxowl::DepthStencil>(
+                            m_d3d11_device,
+                            desc,
+                            shdr_rsrc_view,
+                            depth_stencil_view_desc);
+
+                        this->m_depth_stencils[idx].state = READY;
+                    }
+                );
+
+                return m_depth_stencils[idx].id;
+            }
+
             inline WeakResource<dxowl::RenderTarget> ResourceManager::getRenderTarget(std::string const& name) const
             {
                 std::shared_lock<std::shared_mutex> rt_lock(m_renderTargets_mutex);
@@ -929,6 +977,42 @@ namespace EngineCore
                     retval.id = m_render_targets[search->second].id;
                     retval.resource = m_render_targets[search->second].resource.get();
                     retval.state = m_render_targets[search->second].state;
+                }
+
+                return retval;
+            }
+
+            inline WeakResource<dxowl::DepthStencil> ResourceManager::getDepthStencil(std::string const& name) const
+            {
+                std::shared_lock<std::shared_mutex> rt_lock(m_depthStencils_mutex);
+
+                auto search = m_name_to_depthStencil_idx.find(name);
+
+                WeakResource<dxowl::DepthStencil> retval(invalidResourceID(), nullptr, NOT_READY);
+
+                if (search != m_name_to_depthStencil_idx.end())
+                {
+                    retval.id = m_depth_stencils[search->second].id;
+                    retval.resource = m_depth_stencils[search->second].resource.get();
+                    retval.state = m_depth_stencils[search->second].state;
+                }
+
+                return retval;
+            }
+
+            inline WeakResource<dxowl::DepthStencil> ResourceManager::getDepthStencil(ResourceID rsrc_id) const
+            {
+                std::shared_lock<std::shared_mutex> rt_lock(m_depthStencils_mutex);
+
+                auto search = m_id_to_depthStencil_idx.find(rsrc_id.value());
+
+                WeakResource<dxowl::DepthStencil> retval(invalidResourceID(), nullptr, NOT_READY);
+
+                if (search != m_id_to_depthStencil_idx.end())
+                {
+                    retval.id = m_depth_stencils[search->second].id;
+                    retval.resource = m_depth_stencils[search->second].resource.get();
+                    retval.state = m_depth_stencils[search->second].state;
                 }
 
                 return retval;
