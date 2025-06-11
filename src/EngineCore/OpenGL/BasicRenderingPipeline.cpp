@@ -140,14 +140,14 @@ namespace EngineCore
                         //auto mtl_idx = mtl_mngr.getIndex(obj.entity);
                         //if (!mtl_idx.empty())
                         {
-                            using TextureSemantic = MaterialComponentManager::TextureSemantic;
+                            using TextureSemantic = MaterialComponentData::TextureSemantic;
                             //auto albedo_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::ALBEDO);
                             //auto roughness_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::METALLIC_ROUGHNESS);
                             //auto normal_textures = mtl_mngr.getTextures(mtl_idx[obj.mtl_component_subidx], TextureSemantic::NORMAL);
 
-                            auto albedo_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::ALBEDO);
-                            auto roughness_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::METALLIC_ROUGHNESS);
-                            auto normal_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::NORMAL);
+                            auto albedo_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::ALBEDO).front();
+                            auto roughness_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::METALLIC_ROUGHNESS).front();
+                            auto normal_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::NORMAL).front();
 
                             //if (!albedo_textures.empty())
                             //{
@@ -543,11 +543,11 @@ namespace EngineCore
 
                             // gather material texture resources
                             {
-                                using TextureSemantic = MaterialComponentManager::TextureSemantic;
+                                using TextureSemantic = MaterialComponentData::TextureSemantic;
 
-                                auto albedo_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::ALBEDO);
-                                auto roughness_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::METALLIC_ROUGHNESS);
-                                auto normal_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::NORMAL);
+                                auto albedo_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::ALBEDO).front();
+                                auto roughness_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::METALLIC_ROUGHNESS).front();
+                                auto normal_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::NORMAL).front();
 
                                 WeakResource<glowl::Texture2D> albedo_tx;
                                 WeakResource<glowl::Texture2D> roughness_tx;
