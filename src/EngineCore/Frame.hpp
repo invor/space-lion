@@ -17,6 +17,21 @@ namespace EngineCore
          * TODO: Optimize for GPU upload later on...
          */
         struct BaseFrame {
+            BaseFrame() = default;
+            ~BaseFrame() = default;
+            BaseFrame(BaseFrame const& other) = delete;
+            BaseFrame& operator=(const BaseFrame&) = delete;
+            BaseFrame& operator=(BaseFrame&& rhs) noexcept
+            {
+                std::swap(m_frameID,rhs.m_frameID);
+                std::swap(m_simulation_dt, rhs.m_simulation_dt);
+                std::swap(m_simulation_time, rhs.m_simulation_time);
+                std::swap(m_render_frameID, rhs.m_render_frameID);
+                std::swap(m_render_dt, rhs.m_render_dt);
+                std::swap(m_render_passes,rhs.m_render_passes);
+                return *this;
+            }
+
             size_t m_frameID = 0; ///< frame id assigned to each frame upon creation
             double m_simulation_dt = 0.0; ///< time elapsed since last frame was created
             std::chrono::steady_clock::time_point m_simulation_time = std::chrono::steady_clock::now();
@@ -115,7 +130,7 @@ namespace EngineCore
         template<typename FrameType>
         FrameType& FrameManager<FrameType>::setUpdateFrame(FrameType&& new_frame)
         {
-            m_frame_tripleBuffer[m_update_frame] = new_frame;
+            m_frame_tripleBuffer[m_update_frame] = std::move(new_frame);
 
             return m_frame_tripleBuffer[m_update_frame];
         }
