@@ -475,6 +475,7 @@ ResourceID ResourceManager::createShaderProgramAsync(
     m_renderThread_tasks.push(
         [rsrc_mngr_ptr, idx, shader_filenames, vertex_layout]() {
             std::vector<byte> vertex_shader;
+            std::vector<byte> compute_shader;
             std::vector<byte> geometry_shader;
             std::vector<byte> pixel_shader;
 
@@ -490,6 +491,9 @@ ResourceID ResourceManager::createShaderProgramAsync(
                     //pixel_shader = co_await ReadDataAsync(shader_filename.first);
                     pixel_shader = Utility::ReadFileBytes(std::filesystem::path(shader_filename.first));
                     break;
+                case dxowl::ShaderProgram::ComputeShader:
+                    compute_shader = Utility::ReadFileBytes(std::filesystem::path(shader_filename.first));
+                    break;
                 case dxowl::ShaderProgram::GeometryShader:
                     //geometry_shader = co_await ReadDataAsync(shader_filename.first);
                     geometry_shader = Utility::ReadFileBytes(std::filesystem::path(shader_filename.first));
@@ -504,6 +508,7 @@ ResourceID ResourceManager::createShaderProgramAsync(
                 rsrc_mngr_ptr->getD3D11Device(),
                 *vertex_layout,
                 vertex_shader,
+                compute_shader,
                 geometry_shader,
                 pixel_shader);
 
@@ -539,6 +544,7 @@ WeakResource<dxowl::ShaderProgram> EngineCore::Graphics::Dx11::ResourceManager::
     m_name_to_shader_program_idx.insert(std::pair<std::string, size_t>(name, idx));
 
     std::pair<const void*, size_t> vertex_shader = { nullptr,0 };
+    std::pair<const void*, size_t> compute_shader = { nullptr,0 };
     std::pair<const void*, size_t> geometry_shader = { nullptr,0 };
     std::pair<const void*, size_t> pixel_shader = { nullptr,0 };
 
@@ -554,6 +560,10 @@ WeakResource<dxowl::ShaderProgram> EngineCore::Graphics::Dx11::ResourceManager::
             pixel_shader.first = std::get<0>(shader_filename);
             pixel_shader.second = std::get<1>(shader_filename);
             break;
+        case dxowl::ShaderProgram::ComputeShader:
+            compute_shader.first = std::get<0>(shader_filename);
+            compute_shader.second = std::get<1>(shader_filename);
+            break;
         case dxowl::ShaderProgram::GeometryShader:
             geometry_shader.first = std::get<0>(shader_filename);
             geometry_shader.second = std::get<1>(shader_filename);
@@ -568,6 +578,8 @@ WeakResource<dxowl::ShaderProgram> EngineCore::Graphics::Dx11::ResourceManager::
         vertex_layout,
         vertex_shader.first,
         vertex_shader.second,
+        compute_shader.first,
+        compute_shader.second,
         geometry_shader.first,
         geometry_shader.second,
         pixel_shader.first,

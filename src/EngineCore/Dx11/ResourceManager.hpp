@@ -502,6 +502,14 @@ namespace EngineCore
                     D3D11_TEXTURE2D_DESC const&               desc,
                     D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view);
 
+                template<
+                    typename TexelDataContainer>
+                ResourceID createTexture2DAsync(
+                    std::string const& name,
+                    std::shared_ptr<std::vector<TexelDataContainer>> const& data,
+                    D3D11_TEXTURE2D_DESC const& desc,
+                    D3D11_UNORDERED_ACCESS_VIEW_DESC unord_acc_view_desc);
+
                 ResourceID createTexture2DAsync(
                     std::string const& name,
                     D3D11_TEXTURE2D_DESC const& desc,
@@ -515,6 +523,14 @@ namespace EngineCore
                     std::vector<TexelDataContainer> const& data,
                     D3D11_TEXTURE2D_DESC const&               desc,
                     D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view);
+
+                template<
+                    typename TexelDataContainer>
+                WeakResource<dxowl::Texture2D> createTexture2D(
+                    std::string const& name,
+                    std::vector<TexelDataContainer> const& data,
+                    D3D11_TEXTURE2D_DESC const& desc,
+                    D3D11_UNORDERED_ACCESS_VIEW_DESC const& unord_acc_view);
 
                 ResourceID createTextTexture2DAsync(
                     std::string const& name,
@@ -835,6 +851,42 @@ namespace EngineCore
                 return m_textures_2d[idx].id;
             }
 
+            template<typename TexelDataContainer>
+            inline ResourceID ResourceManager::createTexture2DAsync(
+                std::string const&                                      name,
+                std::shared_ptr<std::vector<TexelDataContainer>> const& data,
+                D3D11_TEXTURE2D_DESC const&                             desc,
+                D3D11_UNORDERED_ACCESS_VIEW_DESC                        unord_acc_view_desc)
+            {
+                std::unique_lock<std::shared_mutex> lock(m_textures_2d_mutex);
+
+                size_t idx = m_textures_2d.size();
+                ResourceID rsrc_id = generateResourceID();
+                m_textures_2d.push_back(Resource<dxowl::Texture2D>(rsrc_id));
+
+                addTextureIndex(rsrc_id.value(), name, idx);
+
+                m_renderThread_tasks.push(
+                    [this, idx, data, desc, unord_acc_view_desc]() {
+
+                        std::vector<const void*> data_ptrs;
+
+                        for (auto& dc : *data) {
+                            data_ptrs.push_back(dc.data());
+                        }
+
+                        this->m_textures_2d[idx].resource = std::make_unique<dxowl::Texture2D>(
+                            m_d3d11_device,
+                            data_ptrs,
+                            desc,
+                            unord_acc_view_desc);
+                        this->m_textures_2d[idx].state = READY;
+                    }
+                );
+
+                return m_textures_2d[idx].id;
+            }
+
             inline ResourceID ResourceManager::createTexture2DAsync(
                 std::string const& name,
                 D3D11_TEXTURE2D_DESC const& desc,
@@ -880,6 +932,16 @@ namespace EngineCore
                 std::vector<TexelDataContainer> const & data,
                 D3D11_TEXTURE2D_DESC const & desc,
                 D3D11_SHADER_RESOURCE_VIEW_DESC const & shdr_rsrc_view)
+            {
+                return WeakResource<dxowl::Texture2D>();
+            }
+
+            template<typename TexelDataContainer>
+            inline WeakResource<dxowl::Texture2D> ResourceManager::createTexture2D(
+                std::string const& name,
+                std::vector<TexelDataContainer> const& data,
+                D3D11_TEXTURE2D_DESC const& desc,
+                D3D11_UNORDERED_ACCESS_VIEW_DESC const& unord_acc_view)
             {
                 return WeakResource<dxowl::Texture2D>();
             }
