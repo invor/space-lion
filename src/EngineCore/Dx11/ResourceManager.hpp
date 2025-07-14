@@ -508,7 +508,8 @@ namespace EngineCore
                     std::string const& name,
                     std::shared_ptr<std::vector<TexelDataContainer>> const& data,
                     D3D11_TEXTURE2D_DESC const& desc,
-                    D3D11_UNORDERED_ACCESS_VIEW_DESC unord_acc_view_desc);
+                    D3D11_UNORDERED_ACCESS_VIEW_DESC const& unord_acc_view_desc,
+                    D3D11_SHADER_RESOURCE_VIEW_DESC const* shdr_rsrc_view = nullptr);
 
                 ResourceID createTexture2DAsync(
                     std::string const& name,
@@ -530,7 +531,8 @@ namespace EngineCore
                     std::string const& name,
                     std::vector<TexelDataContainer> const& data,
                     D3D11_TEXTURE2D_DESC const& desc,
-                    D3D11_UNORDERED_ACCESS_VIEW_DESC const& unord_acc_view);
+                    D3D11_UNORDERED_ACCESS_VIEW_DESC const& unord_acc_view,
+                    D3D11_SHADER_RESOURCE_VIEW_DESC const* shdr_rsrc_view = nullptr);
 
                 ResourceID createTextTexture2DAsync(
                     std::string const& name,
@@ -856,7 +858,8 @@ namespace EngineCore
                 std::string const&                                      name,
                 std::shared_ptr<std::vector<TexelDataContainer>> const& data,
                 D3D11_TEXTURE2D_DESC const&                             desc,
-                D3D11_UNORDERED_ACCESS_VIEW_DESC                        unord_acc_view_desc)
+                D3D11_UNORDERED_ACCESS_VIEW_DESC const&                 unord_acc_view_desc,
+                D3D11_SHADER_RESOURCE_VIEW_DESC const*                  shdr_rsrc_view)
             {
                 std::unique_lock<std::shared_mutex> lock(m_textures_2d_mutex);
 
@@ -941,7 +944,8 @@ namespace EngineCore
                 std::string const& name,
                 std::vector<TexelDataContainer> const& data,
                 D3D11_TEXTURE2D_DESC const& desc,
-                D3D11_UNORDERED_ACCESS_VIEW_DESC const& unord_acc_view)
+                D3D11_UNORDERED_ACCESS_VIEW_DESC const& unord_acc_view,
+                D3D11_SHADER_RESOURCE_VIEW_DESC const* shdr_rsrc_view)
             {
                 return WeakResource<dxowl::Texture2D>();
             }
