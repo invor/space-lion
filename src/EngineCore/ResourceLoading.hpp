@@ -6,9 +6,10 @@
 #include <vector>
 #include <filesystem>
 #include <fstream>
+#include <windows.h>
+
 #ifdef _UWP
 #include <format>
-#include <windows.h>
 #endif //_UWP
 
 #include <lodepng.h>
@@ -57,8 +58,10 @@ namespace Utility {
         std::filesystem::path fullPath(moduleFilename);
         return fullPath.remove_filename();
 #else
-        return "";
-        //TODO throw exception?
+        wchar_t moduleFilename[MAX_PATH] = {};
+        ::GetModuleFileNameW(nullptr, moduleFilename, (DWORD)std::size(moduleFilename));
+        std::filesystem::path fullPath(moduleFilename);
+        return fullPath.remove_filename();
 #endif
     }
 
