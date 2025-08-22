@@ -33,14 +33,15 @@ namespace Dx11 {
         {
             struct ViewProjectionConstantBuffer {
                 Mat4x4 view_inverse;
+                Mat4x4 proj_inverse;
                 Mat4x4 view_projection;
                 Mat4x4 view;
                 Mat4x4 proj;
             };
             ViewProjectionConstantBuffer view_proj_buffer_data;
 
-
             view_proj_buffer_data.view_inverse = glm::transpose(glm::inverse(m_view_projections[0].view_matrix));
+            view_proj_buffer_data.proj_inverse = glm::transpose(glm::inverse(m_view_projections[0].projection_matrix));
             view_proj_buffer_data.view_projection = glm::transpose(m_view_projections[0].projection_matrix * m_view_projections[0].view_matrix);
             view_proj_buffer_data.view = glm::transpose(m_view_projections[0].view_matrix);
             view_proj_buffer_data.proj = glm::transpose(m_view_projections[0].projection_matrix);

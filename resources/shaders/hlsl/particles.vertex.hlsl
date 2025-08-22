@@ -49,7 +49,7 @@ cbuffer ModelConstantBuffer : register(b0)
 {
     float4x4 model;
     float4 color;
-    
+
     float4 padding0_1;
     float4 padding0_2;
     float4 padding0_13;
@@ -61,6 +61,7 @@ cbuffer ModelConstantBuffer : register(b0)
 cbuffer ViewProjectionConstantBuffer : register(b1)
 {
     float4x4 InvView;
+    float4x4 InvProj;
     float4x4 ViewProjection;
 };
 
@@ -82,12 +83,12 @@ struct VertexShaderInput
 VertexShaderOutput Main(VertexShaderInput input)
 {
     VertexShaderOutput output;
-    
+
     uint particle_idx = input.id / 6;
     uint vertex_in_quad = input.id % 6;
-    
+
     float3 position = float3(0.0, 0.0, 0.0);
-    const float4 verts[6] = { 
+    const float4 verts[6] = {
         float4(-1,1,0,0),
         float4(1,1,1,0),
         float4(-1,-1,0,1),
@@ -97,9 +98,9 @@ VertexShaderOutput Main(VertexShaderInput input)
     };
 
     position.xy = verts[vertex_in_quad].xy * particles[particle_idx].radius;
-    
+
     float3 particle_world_position = mul(float4(particles[particle_idx].position, 1.0), model).xyz;
-    
+
     // Orient the sprite towards the camera.
     float4x4 matOrient = OrientToCamera(particle_world_position, transpose(InvView));
     position = mul(matOrient, float4(position,1.0)).xyz;
@@ -107,9 +108,9 @@ VertexShaderOutput Main(VertexShaderInput input)
     // Move sprite to world position.
     position += particle_world_position;
     position -= matOrient._13_23_33 * particles[particle_idx].radius;
-    
+
     output.gylph_space_position = float4(position - particle_world_position, 1.0);
-    
+
     output.position = mul(float4(position, 1.0), ViewProjection);
     output.colour = color;
     output.sphere_params = float4(particle_world_position, particles[particle_idx].radius);

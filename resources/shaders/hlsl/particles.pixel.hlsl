@@ -13,7 +13,7 @@ cbuffer ModelConstantBuffer : register(b0)
 {
     float4x4 model;
     float4 color;
-    
+
     float4 padding0_1;
     float4 padding0_2;
     float4 padding0_13;
@@ -25,6 +25,7 @@ cbuffer ModelConstantBuffer : register(b0)
 cbuffer ViewProjectionConstantBuffer : register(b1)
 {
     float4x4 InvView;
+    float4x4 InvProj;
     float4x4 ViewProjection;
 };
 
@@ -52,7 +53,7 @@ struct PsOutput {
     float depth : SV_DEPTH;
 };
 
-// The pixel shader passes through the color data. The color data from 
+// The pixel shader passes through the color data. The color data from
 // is interpolated and assigned to a pixel at the rasterization step.
 PsOutput Main(PixelShaderInput input) : SV_TARGET
 {
@@ -77,7 +78,7 @@ PsOutput Main(PixelShaderInput input) : SV_TARGET
     float lambda = d1 - sqrt(radicand);                     // lambda
     float3 sphere_intersection = 0.0.xxx;
 
-    if ((radicand < 0.0f) || (lambda < 0.0f)) 
+    if ((radicand < 0.0f) || (lambda < 0.0f))
     {
 //#define FILL_BILLBOARD
 #if defined(FILL_BILLBOARD)
@@ -102,6 +103,6 @@ PsOutput Main(PixelShaderInput input) : SV_TARGET
     float dz = dot(ViewProjection._13_23_33_43, intPos);
     float dw = dot(ViewProjection._14_24_34_44, intPos);
     retval.depth = (dz/dw);
-    
+
     return retval;
 }
