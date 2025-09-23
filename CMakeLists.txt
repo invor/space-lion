@@ -356,6 +356,7 @@ SET (EXTERNAL_DXOWL_FILES
         src/External/dxowl/include/dxowl/ShaderProgram.hpp
         src/External/dxowl/include/dxowl/Mesh.hpp
         src/External/dxowl/include/dxowl/Texture2D.hpp
+        src/External/dxowl/include/dxowl/Texture2DView.hpp
         src/External/dxowl/include/dxowl/Texture3D.hpp
         src/External/dxowl/include/dxowl/VertexDescriptor.hpp
 )

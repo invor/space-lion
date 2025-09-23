@@ -61,6 +61,16 @@ namespace Dx11 {
                     ));
             }
         }
+
+        inline Mat4x4 getProjectionMatrix() const
+        {
+            return m_view_projections[0].projection_matrix;
+        }
+
+        inline Mat4x4 getViewMatrix() const
+        {
+            return m_view_projections[0].view_matrix;
+        }
     };
 }
 }
