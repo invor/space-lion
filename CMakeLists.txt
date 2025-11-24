@@ -11,6 +11,7 @@ option(UWP "Compile for UWP" OFF)
 
 if(UWP)
 add_compile_definitions(_UWP)
+add_compile_definitions(GLM_FORCE_DEPTH_ZERO_TO_ONE)
 #add_compile_definitions(__cplusplus_winrt)
 endif()
 
