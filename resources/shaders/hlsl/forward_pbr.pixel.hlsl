@@ -73,8 +73,8 @@ float3 blinnPhongShading(
 // is interpolated and assigned to a pixel at the rasterization step.
 min16float4 Main(PixelShaderInput input) : SV_TARGET
 {
-    float3 surface_albedo = albedo_colour;
-    float3 surface_specular_color = specular_colour;
+    float3 surface_albedo = albedo_colour.rgb;
+    float3 surface_specular_color = specular_colour.rgb;
     float  surface_roughness = roughness;
     float3 surface_normal = input.normal;
     float3 light_direction = normalize(float3(1.0f, 1.0f, 1.0f));

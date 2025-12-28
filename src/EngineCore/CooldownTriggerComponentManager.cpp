@@ -19,11 +19,6 @@ size_t EngineCore::Common::CooldownTriggerComponentManager::addComponent(Entity 
     return index;
 }
 
-void EngineCore::Common::CooldownTriggerComponentManager::deleteComponent(Entity entity)
-{
-    //TODO
-}
-
 void EngineCore::Common::CooldownTriggerComponentManager::resetCooldown(Entity entity)
 {
     auto indices = getIndex(entity);
@@ -40,27 +35,4 @@ void EngineCore::Common::CooldownTriggerComponentManager::resetCooldown(size_t i
         data_(indices.first, indices.second).remaining_time = data_(indices.first, indices.second).reset_time;
         data_(indices.first, indices.second).is_active = true;
     }
-}
-
-size_t EngineCore::Common::CooldownTriggerComponentManager::getComponentCount() const
-{
-    return data_.getComponentCount();
-}
-
-bool EngineCore::Common::CooldownTriggerComponentManager::checkComponent(size_t index)
-{
-    auto indices = data_.getIndices(index);
-    return data_.checkComponent(indices.first, indices.second);
-}
-
-EngineCore::Common::CooldownTriggerComponentManager::Data const& EngineCore::Common::CooldownTriggerComponentManager::getComponent(size_t index) const
-{
-    auto indices = data_.getIndices(index);
-    return data_(indices.first, indices.second);
-}
-
-EngineCore::Common::CooldownTriggerComponentManager::Data& EngineCore::Common::CooldownTriggerComponentManager::getComponent(size_t index)
-{
-    auto indices = data_.getIndices(index);
-    return data_(indices.first, indices.second);
 }

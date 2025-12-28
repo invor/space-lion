@@ -2,48 +2,34 @@
 #define MoveToComponentManager_hpp
 
 // space-lion includes
-#include "BaseSingleInstanceComponentManager.hpp"
+#include "BaseSingleInstanceComponentManager2.hpp"
 #include "ComponentStorage.hpp"
 
 namespace EngineCore
 {
     namespace Animation
     {
-
-        class MoveToComponentManager : public BaseSingleInstanceComponentManager
+        enum class Space
         {
-        public:
-            enum class Space
-            {
-                GLOBAL,
-                LOCAL
-            };
+            GLOBAL,
+            LOCAL
+        };
 
-            struct Data
-            {
-                Entity entity;           ///< entity that owns the component
-                Vec3   target_position;  ///< target position of the movement
-                float  speed;            ///< movement speed in m/s
-                Space  move_orientation; ///< space in which the movement occurs (local or global)
-            };
+        struct MoveToComponentData
+        {
+            Entity entity;           ///< entity that owns the component
+            Vec3   target_position;  ///< target position of the movement
+            float  speed;            ///< movement speed in m/s
+            Space  move_orientation; ///< space in which the movement occurs (local or global)
+        };
 
-        private:
-
-            Utility::ComponentStorage<Data, 1000, 1000> data_;
-
+        class MoveToComponentManager : public BaseSingleInstanceComponentManager2<MoveToComponentData, 1000, 1000>
+        {
         public:
             MoveToComponentManager() = default;
             ~MoveToComponentManager() = default;
 
             size_t addComponent(Entity entity, Vec3 target_position, float speed = 1.0f, Space move_orientation = Space::LOCAL);
-
-            void deleteComponent(Entity entity);
-
-            size_t getComponentCount() const;
-
-            bool checkComponent(size_t index) const;
-
-            Data const& getComponent(size_t index) const;
 
             void setTargetPosition(Entity entity, Vec3 target_position);
 

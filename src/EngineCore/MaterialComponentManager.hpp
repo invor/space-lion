@@ -9,7 +9,7 @@
 #include <array>
 #include <unordered_map>
 
-#include "BaseMultiInstanceComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager2.hpp"
 #include "BaseResourceManager.hpp"
 #include "EntityManager.hpp"
 
@@ -17,22 +17,38 @@ namespace EngineCore
 {
     namespace Graphics
     {
-        class MaterialComponentManager : public BaseMultiInstanceComponentManager
+        struct MaterialComponentData
+        {
+            enum TextureSemantic { ALBEDO, NORMAL, SPECULAR, METALLIC_ROUGHNESS, ROUGHNESS };
+
+            Entity               entity;
+            std::string          material_name;
+
+            ResourceID           shader_program;
+
+            std::array<float, 4> albedo_colour;
+            std::array<float, 4> specular_colour;
+            float                roughness;
+
+            std::vector<std::pair<TextureSemantic, ResourceID>> textures;
+
+            bool                 double_sided;
+        };
+
+        class MaterialComponentManager : public BaseMultiInstanceComponentManager2<MaterialComponentData, 100, 100>
         {
         public:
 
-            enum TextureSemantic { ALBEDO, NORMAL, SPECULAR, METALLIC_ROUGHNESS, ROUGHNESS };
-
             MaterialComponentManager()
-                : BaseMultiInstanceComponentManager() {}
+                : BaseMultiInstanceComponentManager2() {}
             ~MaterialComponentManager() = default;
 
-            void addComponent(
+            size_t addComponent(
                 Entity      entity,
                 std::string material_name,
                 ResourceID  shader_program);
 
-            void addComponent(
+            size_t addComponent(
                 Entity entity,
                 std::string          material_name,
                 ResourceID           shader_program,
@@ -41,7 +57,7 @@ namespace EngineCore
                 float                roughness);
 
             template <typename ResourceIDContainer>
-            void addComponent(
+            size_t addComponent(
                 Entity               entity,
                 std::string          material_name,
                 ResourceID           shader_program,
@@ -51,77 +67,32 @@ namespace EngineCore
                 ResourceIDContainer  textures);
 
             inline std::array<float, 4> getAlbedoColour(size_t idx) const {
-                std::shared_lock<std::shared_mutex> lock(m_data_mutex);
-
-                return m_component_data[idx].albedo_colour;
+                auto [page_idx, idx_in_page] = data_.getIndices(idx);
+                return data_(page_idx, idx_in_page).albedo_colour;
             }
 
-            inline void setAlbedoColour(size_t idx, std::array<float, 4> albedo_colour) const {
-                std::shared_lock<std::shared_mutex> lock(m_data_mutex);
-
-                m_component_data[idx].albedo_colour = albedo_colour;
+            inline void setAlbedoColour(size_t idx, std::array<float, 4> albedo_colour) {
+                auto [page_idx, idx_in_page] = data_.getIndices(idx);
+                data_(page_idx, idx_in_page).albedo_colour = albedo_colour;
             }
 
             inline std::array<float, 4> getSpecularColour(size_t idx) const {
-                std::shared_lock<std::shared_mutex> lock(m_data_mutex);
-
-                return m_component_data[idx].specular_colour;
+                auto [page_idx, idx_in_page] = data_.getIndices(idx);
+                return data_(page_idx, idx_in_page).specular_colour;
             }
 
             inline float getRoughness(size_t idx) const {
-                std::shared_lock<std::shared_mutex> lock(m_data_mutex);
-
-                return m_component_data[idx].roughness;
+                auto [page_idx, idx_in_page] = data_.getIndices(idx);
+                return data_(page_idx, idx_in_page).roughness;
             }
 
-            ResourceID getTextures(size_t component_idx, TextureSemantic semantic) const;
-
-        private:
-
-            struct ComponentData
-            {
-                ComponentData(
-                    Entity                         entity,
-                    std::string                    name,
-                    ResourceID                     shader_prgm,
-                    std::array<float, 4>           albedo_colour,
-                    std::array<float, 4>           specular_colour,
-                    float                          roughness,
-                    std::vector<std::pair<TextureSemantic,ResourceID>> const& textures,
-                    bool double_sided = false
-                )
-                    : entity(entity),
-                    material_name(name),
-                    shader_program(shader_prgm),
-                    albedo_colour(albedo_colour),
-                    specular_colour(specular_colour),
-                    roughness(roughness),
-                    textures(textures.begin(),textures.end()),
-                    double_sided(double_sided)
-                {}
-
-                Entity                  entity;
-                std::string             material_name;
-
-                ResourceID              shader_program;
-
-                std::array<float, 4>    albedo_colour;
-                std::array<float, 4>    specular_colour;
-                float                   roughness;
-
-                //std::unordered_multimap<TextureSemantic,ResourceID> textures;
-
-                std::vector<std::pair<TextureSemantic, ResourceID>> textures;
-
-                bool                    double_sided;
-            };
-
-            mutable std::vector<ComponentData> m_component_data;
-            mutable std::shared_mutex  m_data_mutex;
+            std::vector<ResourceID> getTextures(
+                size_t idx, 
+                MaterialComponentData::TextureSemantic semantic) const;
         };
 
         template <typename ResourceIDContainer>
-        void MaterialComponentManager::addComponent(
+        size_t MaterialComponentManager::addComponent(
             Entity               entity,
             std::string          material_name,
             ResourceID           shader_program,
@@ -130,19 +101,21 @@ namespace EngineCore
             float                roughness,
             ResourceIDContainer  textures)
         {
-            std::unique_lock<std::shared_mutex> lock(m_data_mutex);
+            auto index = data_.addComponent(
+                {
+                    entity,
+                    std::move(material_name),
+                    shader_program,
+                    albedo_colour,
+                    specular_colour,
+                    roughness,
+                    std::vector<std::pair<MaterialComponentData::TextureSemantic, ResourceID>>(textures.begin(), textures.end())
+                }
+            );
 
-            addIndex(entity.id(), m_component_data.size());
+            addIndex(entity.id(), index);
 
-            m_component_data.push_back(ComponentData(
-                entity,
-                material_name,
-                shader_program,
-                albedo_colour,
-                specular_colour,
-                roughness,
-                std::vector<std::pair<TextureSemantic, ResourceID>>(textures.begin(), textures.end())
-            ));
+            return index;
         }
     }
 }

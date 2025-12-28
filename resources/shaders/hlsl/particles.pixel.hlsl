@@ -6,15 +6,17 @@ struct PixelShaderInput
     float4 gylph_space_position : TEXCOORD0;
     float4 sphere_params : TEXCOORD1; // world-space position (xyz) and radius (w) of the particle.
     nointerpolation float4 cam_position : TEXCOORD2; // glyph-space camera position
-    //nointerpolation float4 cam_direction : TEXCOORD3;
 };
 
 // A constant buffer that stores the model transform.
 cbuffer ModelConstantBuffer : register(b0)
 {
     float4x4 model;
-    
-    float4x4 padding0;
+    float4 color;
+
+    float4 padding0_1;
+    float4 padding0_2;
+    float4 padding0_13;
     float4x4 padding1;
     float4x4 padding2;
 };
@@ -23,16 +25,17 @@ cbuffer ModelConstantBuffer : register(b0)
 cbuffer ViewProjectionConstantBuffer : register(b1)
 {
     float4x4 InvView;
+    float4x4 InvProj;
     float4x4 ViewProjection;
 };
 
-struct Particle
-{
-    float3 position;
-    float radius;
-};
-
-StructuredBuffer<Particle> particles : register(t2);
+//struct Particle
+//{
+//    float3 position;
+//    float radius;
+//};
+//
+//StructuredBuffer<Particle> particles : register(t2);
 
 float3 LocalLighting(const in float3 ray, const in float3 normal,
     const in float3 light_dir, const in float3 colour)
@@ -50,20 +53,15 @@ struct PsOutput {
     float depth : SV_DEPTH;
 };
 
-// The pixel shader passes through the color data. The color data from 
+// The pixel shader passes through the color data. The color data from
 // is interpolated and assigned to a pixel at the rasterization step.
 PsOutput Main(PixelShaderInput input) : SV_TARGET
 {
     PsOutput retval = (PsOutput) 0;
-    
-    //retval.colour = float4(1.0, 0.0, 1.0, 1.0);
-    //retval.depth = input.position.z;
-    //return retval;
 
     float3 normal;
     //float4 light_dir = normalize(input.cam_direction);
     float4 light_dir = float4(1.0,1.0,1.0,0.0);
-
 
     float4 cam_pos = input.cam_position;
     float4 sphere_pos = float4(input.sphere_params.xyz, 1.0);
@@ -80,7 +78,7 @@ PsOutput Main(PixelShaderInput input) : SV_TARGET
     float lambda = d1 - sqrt(radicand);                     // lambda
     float3 sphere_intersection = 0.0.xxx;
 
-    if ((radicand < 0.0f) || (lambda < 0.0f)) 
+    if ((radicand < 0.0f) || (lambda < 0.0f))
     {
 //#define FILL_BILLBOARD
 #if defined(FILL_BILLBOARD)
@@ -105,9 +103,6 @@ PsOutput Main(PixelShaderInput input) : SV_TARGET
     float dz = dot(ViewProjection._13_23_33_43, intPos);
     float dw = dot(ViewProjection._14_24_34_44, intPos);
     retval.depth = (dz/dw);
-    //float4 proj_space = mul(float4(sphere_intersection + sphere_pos.xyz, 1.0), ViewProjection);
-    //retval.depth = (proj_space.z/proj_space.w);
-    //retval.colour = float4(retval.depth, 0.0f, 0.0f, 1.0);
-    
+
     return retval;
 }

@@ -2,69 +2,37 @@
 #define BoundingBoxComponent_hpp
 
 #include "EntityManager.hpp"
-#include "BaseMultiInstanceComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager2.hpp"
 #include "types.hpp"
 
 namespace EngineCore
 {
     namespace Graphics
     {
+        enum class BBAlignment {
+            AXIS_ALIGNED,
+            OBJECT_ALIGNED
+        };
 
-        class BoundingBoxComponentManager : public BaseMultiInstanceComponentManager
+        struct BoundingBoxData
+        {
+            Entity      entity; ///< entity owning the component
+            Vec3        min;
+            Vec3        max;
+            BBAlignment alignment; ///< Alignment of the bounding box (axis- or object-aligned)
+        };
+
+        class BoundingBoxComponentManager : public BaseMultiInstanceComponentManager2<BoundingBoxData,1000,1000>
         {
         public:
-            BoundingBoxComponentManager(uint size);
-            ~BoundingBoxComponentManager();
+            BoundingBoxComponentManager() = default;
+            ~BoundingBoxComponentManager() = default;
 
-            enum class BBAlignment {
-                AXIS_ALIGNED,
-                OBJECT_ALIGNED
-            };
+            size_t addComponent(Entity entity, Vec3 min, Vec3 max, BBAlignment alignment);
 
-            void reallocate(uint size);
+            BBAlignment getAlignment(size_t index) const;
 
-            void addComponent(Entity entity, float width, float height, float depth, BBAlignment alignment);
-
-            void deleteComponent(Entity entity);
-
-            uint getComponentCount() const;
-
-            Entity getEntity(uint index) const;
-
-            float getWidth(uint index) const;
-
-            float getHeight(uint index) const;
-
-            float getDepth(uint index) const;
-
-            BBAlignment getAlignment(uint index) const;
-
-            void setWidth(uint index, float width);
-
-            void setHeight(uint index, float height);
-
-            void setDepth(uint index, float depth);
-
-            void setAlignment(uint index, BBAlignment alignment);
-
-            std::vector<Entity> getListOfEntities() const;
-
-        private:
-            struct Data
-            {
-                uint         used;      ///< number of components currently in use
-                uint         allocated; ///< number of components that the allocated memory can hold
-                uint8_t*     buffer;    ///< raw data pointer
-
-                Entity*      entity;    ///< entity owning the component
-                float*       width;     ///< Width of the bounding box
-                float*       height;    ///< Height of the bounding box
-                float*       depth;     ///< Depth of the bounding box
-                BBAlignment* alignment; ///< Alignment of the bounding box (axis- or object-aligned)
-            };
-
-            Data m_data;
-            mutable std::shared_mutex m_data_access_mutex;
+            void setAlignment(size_t index, BBAlignment alignment);
         };
 
     }

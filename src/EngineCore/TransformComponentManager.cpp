@@ -5,7 +5,7 @@ namespace EngineCore
     namespace Common
     {
         TransformComponentManager::TransformComponentManager()
-            : BaseSingleInstanceComponentManager()
+            : BaseSingleInstanceComponentManager2<TransformComponentData, 100000, 1000>()
         {}
 
         TransformComponentManager::~TransformComponentManager()
@@ -41,18 +41,6 @@ namespace EngineCore
             transform(index);
 
             return index;
-        }
-
-        void TransformComponentManager::deleteComponent(Entity entity)
-        {
-            auto query = getIndex(entity);
-
-            data_.deleteComponent(query);
-        }
-
-        size_t TransformComponentManager::getComponentCount() const
-        {
-            return data_.getComponentCount();
         }
 
         void TransformComponentManager::translate(Entity entity, Vec3 translation)

@@ -2,7 +2,7 @@
 #define TransformComponent_h
 
 // space-lion includes
-#include "BaseSingleInstanceComponentManager.hpp"
+#include "BaseSingleInstanceComponentManager2.hpp"
 #include "ComponentStorage.hpp"
 #include "EntityManager.hpp"
 #include "types.hpp"
@@ -16,25 +16,22 @@ namespace EngineCore
 {
     namespace Common
     {
-        class TransformComponentManager : public BaseSingleInstanceComponentManager
+        struct TransformComponentData
         {
-        public:
-            struct Data
-            {
-                Entity entity;          ///< entity that owns the component
-                Mat4x4 world_transform; ///< the actual transformation (aka model matrix)
-                Vec3 position;          ///< local position (equals global position if component has no parent)
-                Quat orientation;       ///< local orientation (...)
-                Vec3 scale;             ///< local scale (...)
+            Entity entity;          ///< entity that owns the component
+            Mat4x4 world_transform; ///< the actual transformation (aka model matrix)
+            Vec3 position;          ///< local position (equals global position if component has no parent)
+            Quat orientation;       ///< local orientation (...)
+            Vec3 scale;             ///< local scale (...)
 
-                size_t parent;          ///< index to parent (equals components own index if comp. has no parent)
-                size_t first_child;     ///< index to child (...)
-                size_t next_sibling;    ///< index to sibling (...)
-            };
+            size_t parent;          ///< index to parent (equals components own index if comp. has no parent)
+            size_t first_child;     ///< index to child (...)
+            size_t next_sibling;    ///< index to sibling (...)
+        };
+
+        class TransformComponentManager : public BaseSingleInstanceComponentManager2<TransformComponentData, 100000, 1000>
+        {
         private:
-
-            Utility::ComponentStorage<Data, 100000, 1000> data_;
-
             void transform(size_t index);
 
         public:
@@ -42,10 +39,6 @@ namespace EngineCore
             ~TransformComponentManager();
 
             size_t addComponent(Entity entity, Vec3 position = Vec3(), Quat orientation = Quat(), Vec3 scale = Vec3(1.0));
-
-            void deleteComponent(Entity entity);
-
-            size_t getComponentCount() const;
 
             void translate(Entity entity, Vec3 translation);
 

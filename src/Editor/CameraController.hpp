@@ -40,13 +40,13 @@ namespace Controls{
         void controlCameraKeyboardAction(
             EngineCore::Common::Input::HardwareStateQuery const& input_hardware,
             std::vector<EngineCore::Common::Input::HardwareState> states,
-            float dt);
+            double dt);
 
         /** Callback function for gamepad controls, i.e. action to take based on a queried input state */
         void controlCameraGamepadAction(
             EngineCore::Common::Input::HardwareStateQuery const& input_hardware,
             std::vector<EngineCore::Common::Input::HardwareState> states,
-            float dt);
+            double dt);
 
     };
 

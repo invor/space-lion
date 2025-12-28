@@ -6,36 +6,35 @@
 #include <unordered_map>
 #include <vector>
 
-#include "BaseMultiInstanceComponentManager.hpp"
+#include "BaseSingleInstanceComponentManager2.hpp"
 #include "EntityManager.hpp"
 
 namespace EngineCore
 {
     namespace Common
     {
-        class NameComponentManager : public BaseMultiInstanceComponentManager
+        struct NameComponentData
         {
-        private:
-            struct Data
-            {
-                Data(Entity entity, std::string const& debug_name)
-                    : entity(entity), debug_name(debug_name) {}
-                Data(Entity entity, std::string && debug_name)
-                    : entity(entity), debug_name(std::move(debug_name)) {}
+            NameComponentData()
+                : entity(), debug_name("") {
+            }
 
-                Entity entity;
-                std::string debug_name;
-            };
+            NameComponentData(Entity entity, std::string debug_name)
+                : entity(entity), debug_name(std::move(debug_name)) {
+            }
 
-            std::vector<Data> m_data;
-            std::mutex m_dataAccess_mutex;
+            Entity entity;
+            std::string debug_name;
+        };
 
+        class NameComponentManager : public BaseSingleInstanceComponentManager2<NameComponentData,1000,1000>
+        {
         public:
-            void addComponent(Entity entity, std::string const& debug_name);
-            void addComponent(Entity entity, std::string && debug_name);
+            size_t addComponent(Entity entity, std::string debug_name);
+
+            std::string getDebugName(size_t index) const;
 
             std::string getDebugName(Entity entity) const;
-            std::string getDebugName(size_t index) const;
         };
     }
 }

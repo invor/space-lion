@@ -2,59 +2,42 @@
 #define PointlightComponent_h
 
 #include "EntityManager.hpp"
-#include "BaseMultiInstanceComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager2.hpp"
 #include "types.hpp"
 
 namespace EngineCore
 {
     namespace Graphics
     {
-
-        class PointlightComponentManager : public BaseMultiInstanceComponentManager
+        struct PointlightComponentData
         {
-        private:
-            struct Data
-            {
-                uint     used;      ///< number of components currently in use
-                uint     allocated; ///< number of components that the allocated memory can hold
-                uint8_t* buffer;    ///< raw data pointer
+            Entity entity;       ///< entity owning the component
+            Vec3   light_colour; ///< color of the light in rgb values
+            float  lumen;        ///< Luminous power of the light source given in Lumen (lm)
+            float  radius;       ///< Maximum radius
+        };
 
-                Entity* entity;       ///< entity owning the component
-                Vec3*   light_colour; ///< color of the light in rgb values
-                float*  lumen;        ///< Luminous power of the light source given in Lumen (lm)
-                float*  radius;       ///< Maximum radius
-            };
-
-            Data m_data;
-            mutable std::shared_mutex m_data_access_mutex;
-
+        class PointlightComponentManager : public BaseMultiInstanceComponentManager2<PointlightComponentData,1000,1000>
+        {
         public:
-            PointlightComponentManager(uint size);
-            ~PointlightComponentManager();
+            PointlightComponentManager() = default;
+            ~PointlightComponentManager() = default;
 
-            void reallocate(uint size);
+            size_t addComponent(Entity entity, Vec3 light_colour, float lumen, float radius);
 
-            void addComponent(Entity entity, Vec3 light_colour, float lumen, float radius);
+            Entity getEntity(size_t index) const;
 
-            void deleteComponent(Entity entity);
+            Vec3 getColour(size_t index) const;
 
-            uint getComponentCount() const;
+            float getLumen(size_t index) const;
 
-            Entity getEntity(uint index) const;
+            float getRadius(size_t index) const;
 
-            Vec3 getColour(uint index) const;
+            void setColour(size_t index, Vec3 colour);
 
-            float getLumen(uint index) const;
+            void setLumen(size_t index, float lumen);
 
-            float getRadius(uint index) const;
-
-            void setColour(uint index, Vec3 colour);
-
-            void setLumen(uint index, float lumen);
-
-            void setRadius(uint index, float radius);
-
-            std::vector<Entity> getListOfEntities() const;
+            void setRadius(size_t index, float radius);
         };
 
     }

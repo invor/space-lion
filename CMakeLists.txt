@@ -11,6 +11,7 @@ option(UWP "Compile for UWP" OFF)
 
 if(UWP)
 add_compile_definitions(_UWP)
+add_compile_definitions(GLM_FORCE_DEPTH_ZERO_TO_ONE)
 #add_compile_definitions(__cplusplus_winrt)
 endif()
 
@@ -54,7 +55,9 @@ SET (ENGINECORE_ANIMATION_SOURCE_FILES
 SET (ENGINECORE_COMMON_HEADER_FILES
         src/EngineCore/BaseComponentManager.hpp
         src/EngineCore/BaseMultiInstanceComponentManager.hpp
+        src/EngineCore/BaseMultiInstanceComponentManager2.hpp
         src/EngineCore/BaseSingleInstanceComponentManager.hpp
+        src/EngineCore/BaseSingleInstanceComponentManager2.hpp
         src/EngineCore/BSplineComponent.hpp
         src/EngineCore/CooldownTriggerComponentManager.hpp
         src/EngineCore/EntityManager.hpp
@@ -97,6 +100,7 @@ SET (ENGINECORE_GRAPHICS_HEADER_FILES
         src/EngineCore/RenderPass.hpp
         src/EngineCore/RenderTaskComponentManager.hpp
         src/EngineCore/SunlightComponentManager.hpp
+        src/EngineCore/TurntableCameraController.hpp
         src/EngineCore/LandscapeFeatureCurveComponent.hpp
         #src/EngineCore/LandscapeBrickComponent.hpp
 )
@@ -116,6 +120,7 @@ SET (ENGINECORE_GRAPHICS_SOURCE_FILES
         src/EngineCore/RenderPass.cpp
         src/EngineCore/RenderTaskComponentManager.cpp
         src/EngineCore/SunlightComponentManager.cpp
+        src/EngineCore/TurntableCameraController.cpp
         src/EngineCore/LandscapeFeatureCurveComponent.inl
         #src/EngineCore/LandscapeBrickComponent.inl
 )
@@ -347,10 +352,12 @@ SET (EXTERNAL_IMGUI_FILES
 
 SET (EXTERNAL_DXOWL_FILES
         src/External/dxowl/include/dxowl/Buffer.hpp
+        src/External/dxowl/include/dxowl/DepthStencil.hpp
         src/External/dxowl/include/dxowl/RenderTarget.hpp
         src/External/dxowl/include/dxowl/ShaderProgram.hpp
         src/External/dxowl/include/dxowl/Mesh.hpp
         src/External/dxowl/include/dxowl/Texture2D.hpp
+        src/External/dxowl/include/dxowl/Texture2DView.hpp
         src/External/dxowl/include/dxowl/Texture3D.hpp
         src/External/dxowl/include/dxowl/VertexDescriptor.hpp
 )

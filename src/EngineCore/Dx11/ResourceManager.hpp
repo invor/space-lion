@@ -10,11 +10,13 @@
 #include "GenericTextureLayout.hpp"
 
 #include <dxowl/Buffer.hpp>
+#include <dxowl/DepthStencil.hpp>
 #include <dxowl/Mesh.hpp>
 #include "../MTQueue.hpp"
 #include <dxowl/RenderTarget.hpp>
 #include <dxowl/ShaderProgram.hpp>
 #include <dxowl/Texture2D.hpp>
+#include <dxowl/Texture2DView.hpp>
 #include <dxowl/Texture3D.hpp>
 #include <dxowl/VertexDescriptor.hpp>
 
@@ -54,7 +56,7 @@ namespace EngineCore
         namespace Dx11
         {
 
-            class ResourceManager : public BaseResourceManager<dxowl::Buffer, dxowl::Mesh, dxowl::ShaderProgram, dxowl::Texture2D, dxowl::Texture3D>
+            class ResourceManager : public BaseResourceManager<dxowl::Buffer, dxowl::Mesh, dxowl::ShaderProgram, dxowl::Texture2D, dxowl::Texture2DView, dxowl::Texture3D>
             {
             public:
                 typedef dxowl::VertexDescriptor VertexLayout;
@@ -84,6 +86,11 @@ namespace EngineCore
                 template<typename BufferDataType>
                 ResourceID createStructuredBufferAsync(
                     std::string const& name,
+                    std::shared_ptr<std::vector<BufferDataType>> const& data);
+
+                template<typename BufferDataType>
+                void updateStructuredBufferAsync(
+                    ResourceID rsrc_id,
                     std::shared_ptr<std::vector<BufferDataType>> const& data);
     #pragma endregion
 
@@ -279,7 +286,7 @@ namespace EngineCore
                     std::shared_ptr<std::vector<dxowl::VertexDescriptor>> vertex_layout);
 
                 typedef std::tuple<const void*, size_t, dxowl::ShaderProgram::ShaderType> ShaderData;
-                ResourceID createShaderProgram(
+                WeakResource<dxowl::ShaderProgram> createShaderProgram(
                     std::string const& name,
                     std::vector<ShaderData> const& shader_bytedata,
                     std::vector<dxowl::VertexDescriptor> const& vertex_layout);
@@ -510,6 +517,16 @@ namespace EngineCore
                     D3D11_TEXTURE2D_DESC const&               desc,
                     D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view);
 
+                ResourceID createTexture2DViewAsync(
+                    std::string const& name,
+                    ID3D11Texture2D* texture,
+                    D3D11_UNORDERED_ACCESS_VIEW_DESC const& unord_acc_view_desc);
+
+                WeakResource<dxowl::Texture2DView> createTexture2DView(
+                    std::string const& name,
+                    ID3D11Texture2D* texture,
+                    D3D11_UNORDERED_ACCESS_VIEW_DESC const& unord_acc_view_desc);
+
                 ResourceID createTextTexture2DAsync(
                     std::string const& name,
                     std::wstring const& text,
@@ -538,13 +555,19 @@ namespace EngineCore
 
     #pragma endregion
 
-    #pragma region Create Render Targets
+    #pragma region Create render targets and depth stencil buffers
 
                 ResourceID createRenderTargetAsync(
                     std::string const&                     name,
-                    D3D11_TEXTURE2D_DESC const&               desc,
+                    D3D11_TEXTURE2D_DESC const&            desc,
                     D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view,
                     D3D11_RENDER_TARGET_VIEW_DESC const&   rndr_tgt_view_desc);
+
+                ResourceID createDepthStencilAsync(
+                    std::string const&                     name,
+                    D3D11_TEXTURE2D_DESC const&            desc,
+                    D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view,
+                    D3D11_DEPTH_STENCIL_VIEW_DESC const&   depth_stencil_view_desc);
 
     #pragma endregion
 
@@ -553,6 +576,10 @@ namespace EngineCore
                 WeakResource<dxowl::RenderTarget> getRenderTarget(std::string const& name) const;
 
                 WeakResource<dxowl::RenderTarget> getRenderTarget(ResourceID rsrc_id) const;
+
+                WeakResource<dxowl::DepthStencil> getDepthStencil(std::string const& name) const;
+
+                WeakResource<dxowl::DepthStencil> getDepthStencil(ResourceID rsrc_id) const;
 
     #pragma endregion
 
@@ -564,10 +591,16 @@ namespace EngineCore
                 EngineCore::Utility::MTQueue<std::function<void()>> m_renderThread_tasks;
 
                 std::vector<Resource<dxowl::RenderTarget>> m_render_targets;
-                std::unordered_map<unsigned int, size_t>   m_id_to_renderTarget_idx;
-                std::unordered_map<std::string, size_t>    m_name_to_renderTarget_idx;
+                std::vector<Resource<dxowl::DepthStencil>> m_depth_stencils;
 
-                mutable std::shared_mutex m_renderTargets_mutex;
+                std::unordered_map<unsigned int, size_t>   m_id_to_renderTarget_idx;
+                std::unordered_map<unsigned int, size_t>   m_id_to_depthStencil_idx;
+
+                std::unordered_map<std::string, size_t>    m_name_to_renderTarget_idx;
+                std::unordered_map<std::string, size_t>    m_name_to_depthStencil_idx;
+
+                mutable std::shared_mutex                  m_renderTargets_mutex;
+                mutable std::shared_mutex                  m_depthStencils_mutex;
 
                 struct TextResources {
                     winrt::com_ptr<ID2D1Factory2>           m_d2d_factory;
@@ -620,9 +653,6 @@ namespace EngineCore
 
                 m_renderThread_tasks.push(
                     [this,idx,data]() {
-
-
-
                         D3D11_BUFFER_DESC desc = { 0 };
                         desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
                         desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -645,18 +675,49 @@ namespace EngineCore
                     }
                 );
 
-                //auto result = std::async([this, idx, data, desc, shdr_rsrc_view]() {
-                //
-                //    //this->m_textures_2d[idx].resource = std::make_unique<Texture2D>(
-                //    //    m_device_resources->GetD3DDevice(),
-                //    //    *data,
-                //    //    desc,
-                //    //    shdr_rsrc_view);
-                //    //
-                //    this->m_textures_2d[idx].state = READY;
-                //});
-
                 return m_buffers[idx].id;
+            }
+
+            template<typename BufferDataType>
+            inline void ResourceManager::updateStructuredBufferAsync(
+                ResourceID rsrc_id,
+                std::shared_ptr<std::vector<BufferDataType>> const& data)
+            {
+                std::unique_lock<std::shared_mutex> lock(m_buffers_mutex);
+
+                auto query = m_id_to_buffer_idx.find(rsrc_id.value());
+
+                if (query != m_id_to_buffer_idx.end())
+                {
+                    auto idx = query->second;
+
+                    m_renderThread_tasks.push(
+                        [this, idx, data]() {
+                            D3D11_BUFFER_DESC desc = { 0 };
+                            desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+                            desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+                            desc.ByteWidth = static_cast<UINT>(sizeof(BufferDataType) * data->size());
+                            desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+                            desc.StructureByteStride = sizeof(BufferDataType);
+
+                            D3D11_SHADER_RESOURCE_VIEW_DESC shdr_rsrc_view_desc = { 0 };
+                            shdr_rsrc_view_desc.Format = DXGI_FORMAT_UNKNOWN;
+                            shdr_rsrc_view_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+                            shdr_rsrc_view_desc.Buffer.NumElements = static_cast<UINT>(data->size());
+
+                            std::unique_lock<std::shared_mutex> lock(m_buffers_mutex);
+
+                            //TODO check if this becomes dangerous if buffer is in use as a weak resource
+                            this->m_buffers[idx].resource = std::make_unique<dxowl::Buffer>(
+                                m_d3d11_device,
+                                desc,
+                                shdr_rsrc_view_desc,
+                                *(data));
+
+                            this->m_buffers[idx].state = READY;
+                        }
+                    );
+                }
             }
 
             template<typename VertexContainer, typename IndexContainer>
@@ -824,6 +885,60 @@ namespace EngineCore
                 return m_textures_2d[idx].id;
             }
 
+            inline ResourceID ResourceManager::createTexture2DViewAsync(
+                std::string const& name,
+                ID3D11Texture2D* texture,
+                D3D11_UNORDERED_ACCESS_VIEW_DESC const& unord_acc_view_desc)
+            {
+                std::unique_lock<std::shared_mutex> lock(m_texture_2d_views_mutex);
+
+                size_t idx = m_texture_2d_views.size();
+                ResourceID rsrc_id = generateResourceID();
+                m_texture_2d_views.push_back(Resource<dxowl::Texture2DView>(rsrc_id));
+
+                addTextureViewIndex(rsrc_id.value(), name, idx);
+
+                m_renderThread_tasks.push(
+                    [this, idx, texture, unord_acc_view_desc]() {
+
+                        this->m_texture_2d_views[idx].resource = std::make_unique<dxowl::Texture2DView>(
+                            m_d3d11_device,
+                            texture,
+                            unord_acc_view_desc);
+
+                        this->m_texture_2d_views[idx].state = READY;
+                    }
+                );
+
+                return m_texture_2d_views[idx].id;
+            }
+
+            inline WeakResource<dxowl::Texture2DView> ResourceManager::createTexture2DView(
+                std::string const& name,
+                ID3D11Texture2D* texture,
+                D3D11_UNORDERED_ACCESS_VIEW_DESC const& unord_acc_view_desc)
+            {
+                std::unique_lock<std::shared_mutex> lock(m_texture_2d_views_mutex);
+
+                size_t idx = m_texture_2d_views.size();
+                ResourceID rsrc_id = generateResourceID();
+                m_texture_2d_views.push_back(Resource<dxowl::Texture2DView>(rsrc_id));
+
+                addTextureViewIndex(rsrc_id.value(), name, idx);
+
+                this->m_texture_2d_views[idx].resource = std::make_unique<dxowl::Texture2DView>(
+                    m_d3d11_device,
+                    texture,
+                    unord_acc_view_desc);
+
+                this->m_texture_2d_views[idx].state = READY;
+
+                return WeakResource<dxowl::Texture2DView>(
+                    m_texture_2d_views[idx].id,
+                    m_texture_2d_views[idx].resource.get(),
+                    m_texture_2d_views[idx].state);
+            }
+
             template<typename TexelDataContainer>
             inline WeakResource<dxowl::Texture2D> ResourceManager::createTexture2D(
                 std::string const & name,
@@ -849,18 +964,51 @@ namespace EngineCore
                 m_id_to_renderTarget_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
                 m_name_to_renderTarget_idx.insert(std::pair<std::string, size_t>(name, idx));
 
-                std::async([this, idx, desc, shdr_rsrc_view, rndr_tgt_view_desc]() {
+                m_renderThread_tasks.push(
+                    [this, idx, desc, shdr_rsrc_view, rndr_tgt_view_desc]() {
 
-                    this->m_render_targets[idx].resource = std::make_unique<dxowl::RenderTarget>(
-                        m_d3d11_device,
-                        desc,
-                        shdr_rsrc_view,
-                        rndr_tgt_view_desc);
+                        this->m_render_targets[idx].resource = std::make_unique<dxowl::RenderTarget>(
+                            m_d3d11_device,
+                            desc,
+                            shdr_rsrc_view,
+                            rndr_tgt_view_desc);
 
-                    this->m_render_targets[idx].state = READY;
-                });
+                        this->m_render_targets[idx].state = READY;
+                    }
+                );
 
                 return m_render_targets[idx].id;
+            }
+
+            inline ResourceID ResourceManager::createDepthStencilAsync(
+                std::string const& name, 
+                D3D11_TEXTURE2D_DESC const& desc, 
+                D3D11_SHADER_RESOURCE_VIEW_DESC const& shdr_rsrc_view, 
+                D3D11_DEPTH_STENCIL_VIEW_DESC const& depth_stencil_view_desc)
+            {
+                std::unique_lock<std::shared_mutex> lock(m_depthStencils_mutex);
+
+                size_t idx = m_depth_stencils.size();
+                ResourceID rsrc_id = generateResourceID();
+                m_depth_stencils.push_back(Resource<dxowl::DepthStencil>(rsrc_id));
+
+                m_id_to_depthStencil_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
+                m_name_to_depthStencil_idx.insert(std::pair<std::string, size_t>(name, idx));
+
+                m_renderThread_tasks.push(
+                    [this, idx, desc, shdr_rsrc_view, depth_stencil_view_desc]() {
+
+                        this->m_depth_stencils[idx].resource = std::make_unique<dxowl::DepthStencil>(
+                            m_d3d11_device,
+                            desc,
+                            shdr_rsrc_view,
+                            depth_stencil_view_desc);
+
+                        this->m_depth_stencils[idx].state = READY;
+                    }
+                );
+
+                return m_depth_stencils[idx].id;
             }
 
             inline WeakResource<dxowl::RenderTarget> ResourceManager::getRenderTarget(std::string const& name) const
@@ -894,6 +1042,42 @@ namespace EngineCore
                     retval.id = m_render_targets[search->second].id;
                     retval.resource = m_render_targets[search->second].resource.get();
                     retval.state = m_render_targets[search->second].state;
+                }
+
+                return retval;
+            }
+
+            inline WeakResource<dxowl::DepthStencil> ResourceManager::getDepthStencil(std::string const& name) const
+            {
+                std::shared_lock<std::shared_mutex> rt_lock(m_depthStencils_mutex);
+
+                auto search = m_name_to_depthStencil_idx.find(name);
+
+                WeakResource<dxowl::DepthStencil> retval(invalidResourceID(), nullptr, NOT_READY);
+
+                if (search != m_name_to_depthStencil_idx.end())
+                {
+                    retval.id = m_depth_stencils[search->second].id;
+                    retval.resource = m_depth_stencils[search->second].resource.get();
+                    retval.state = m_depth_stencils[search->second].state;
+                }
+
+                return retval;
+            }
+
+            inline WeakResource<dxowl::DepthStencil> ResourceManager::getDepthStencil(ResourceID rsrc_id) const
+            {
+                std::shared_lock<std::shared_mutex> rt_lock(m_depthStencils_mutex);
+
+                auto search = m_id_to_depthStencil_idx.find(rsrc_id.value());
+
+                WeakResource<dxowl::DepthStencil> retval(invalidResourceID(), nullptr, NOT_READY);
+
+                if (search != m_id_to_depthStencil_idx.end())
+                {
+                    retval.id = m_depth_stencils[search->second].id;
+                    retval.resource = m_depth_stencils[search->second].resource.get();
+                    retval.state = m_depth_stencils[search->second].state;
                 }
 
                 return retval;

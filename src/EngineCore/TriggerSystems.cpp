@@ -1,5 +1,7 @@
 #include "TriggerSystems.hpp"
 
+#include "utility.hpp"
+
 void EngineCore::Common::checkProximityTriggers(
     EngineCore::Common::TransformComponentManager& transform_mngr,
     EngineCore::Common::ProximityTriggerComponentManager& proximity_trigger_mngr,
@@ -8,11 +10,7 @@ void EngineCore::Common::checkProximityTriggers(
 {
     size_t component_cnt = proximity_trigger_mngr.getComponentCount();
 
-    std::vector<std::pair<size_t, size_t>> from_to_pairs;
-    size_t bucket_cnt = 6;
-    for (size_t i = 0; i < bucket_cnt; ++i) {
-        from_to_pairs.push_back({ component_cnt * (float(i) / float(bucket_cnt)), component_cnt * (float(i + 1) / float(bucket_cnt)) });
-    }
+    std::vector<std::pair<size_t, size_t>> from_to_pairs = utility::buildComponentProcessingRanges(component_cnt, 6);
 
     for (auto from_to : from_to_pairs) {
         task_scheduler.submitTask(
@@ -51,11 +49,7 @@ void EngineCore::Common::updateCooldownTriggers(
 {
     size_t component_cnt = cooldown_trigger_mngr.getComponentCount();
 
-    std::vector<std::pair<size_t, size_t>> from_to_pairs;
-    size_t bucket_cnt = 6;
-    for (size_t i = 0; i < bucket_cnt; ++i) {
-        from_to_pairs.push_back({ component_cnt * (float(i) / float(bucket_cnt)), component_cnt * (float(i + 1) / float(bucket_cnt)) });
-    }
+    std::vector<std::pair<size_t, size_t>> from_to_pairs = utility::buildComponentProcessingRanges(component_cnt, 6);
 
     for (auto from_to : from_to_pairs) {
         task_scheduler.submitTask(
@@ -65,7 +59,7 @@ void EngineCore::Common::updateCooldownTriggers(
                     if (cooldown_trigger_mngr.checkComponent(i)) {
                         auto& cmp = cooldown_trigger_mngr.getComponent(i);
                         if (cmp.is_active) {
-                            cmp.remaining_time -= dt;
+                            cmp.remaining_time -= static_cast<float>(dt);
 
                             if (cmp.remaining_time <= 0.0f) {
                                 cmp.cooldown_callback();

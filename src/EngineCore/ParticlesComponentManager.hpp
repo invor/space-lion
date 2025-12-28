@@ -2,7 +2,7 @@
 #define ParticlesComponentManager_hpp
 
 #include "BaseResourceManager.hpp"
-#include "BaseMultiInstanceComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager2.hpp"
 #include "ComponentStorage.hpp"
 
 namespace EngineCore {
@@ -12,19 +12,18 @@ namespace EngineCore {
             struct Particles {};
         }
 
+        struct ParticlesComponentData
+        {
+            Entity                   entity;         ///< entity that owns the component
+            size_t                   particle_count;
+            std::array<ResourceID,2> particles_double_buffer;
+            size_t                   render_buffer;  ///< index of double buffer currently used for rendering
+        };
+
         template<typename ResourceManagerType>
-        class ParticlesComponentManager : public BaseMultiInstanceComponentManager
+        class ParticlesComponentManager : public BaseMultiInstanceComponentManager2<ParticlesComponentData,1000,1000>
         {
         private:
-            struct Data
-            {
-                Entity     entity;         ///< entity that owns the component
-                size_t     particle_count;
-                ResourceID particle_data;
-            };
-
-            EngineCore::Utility::ComponentStorage<Data, 1000, 1000> data_;
-
             ResourceManagerType* resource_mngr_;
 
         public:
@@ -33,16 +32,6 @@ namespace EngineCore {
 
             template<typename ParticleType>
             size_t addComponent(Entity entity, std::shared_ptr<std::vector<ParticleType>> particle_data);
-
-            void deleteComponent(Entity entity);
-
-            size_t getComponentCount() const;
-
-            bool checkComponent(size_t index);
-
-            Data const& getComponent(size_t index) const;
-
-            //Data& getComponent(size_t index);
         };
 
         template<typename ResourceManagerType>
@@ -51,8 +40,12 @@ namespace EngineCore {
         {
             auto idx_query = getIndex(entity);
 
-            auto rsrc_id = resource_mngr_->createStructuredBufferAsync(
-                std::to_string(entity.id()) + "_particles_" + std::to_string(idx_query.size()),
+            auto double_buffer_0_rsrc_id = resource_mngr_->createStructuredBufferAsync(
+                std::to_string(entity.id()) + "_particles_" + std::to_string(idx_query.size()) + "_0",
+                particle_data
+            );
+            auto double_buffer_1_rsrc_id = resource_mngr_->createStructuredBufferAsync(
+                std::to_string(entity.id()) + "_particles_" + std::to_string(idx_query.size()) + "_1",
                 particle_data
             );
 
@@ -60,13 +53,12 @@ namespace EngineCore {
                 {
                     entity,
                     particle_data->size(),
-                    rsrc_id
+                    {double_buffer_0_rsrc_id,double_buffer_1_rsrc_id},
+                    0
                 }
             );
 
             addIndex(entity.id(), index);
-
-            auto [page_idx, idx_in_page] = data_.getIndices(index);
 
             return index;
         }
@@ -76,41 +68,6 @@ namespace EngineCore {
             : resource_mngr_(rsrc_mngr)
         {
         }
-
-        template<typename ResourceManagerType>
-        inline void ParticlesComponentManager<ResourceManagerType>::deleteComponent(Entity entity)
-        {
-            //TODO
-        }
-
-        template<typename ResourceManagerType>
-        inline size_t ParticlesComponentManager<ResourceManagerType>::getComponentCount() const
-        {
-            return data_.getComponentCount();
-        }
-
-        template<typename ResourceManagerType>
-        inline bool ParticlesComponentManager<ResourceManagerType>::checkComponent(size_t index)
-        {
-            auto indices = data_.getIndices(index);
-            return data_.checkComponent(indices.first, indices.second);
-        }
-
-        template<typename ResourceManagerType>
-        inline ParticlesComponentManager<ResourceManagerType>::Data const& ParticlesComponentManager<ResourceManagerType>::getComponent(size_t index) const
-        {
-            auto [page_idx, idx_in_page] = data_.getIndices(index);
-
-            return data_(page_idx, idx_in_page);
-        }
-
-        //EngineCore::Graphics::ParticlesComponentManager::Data& EngineCore::Graphics::ParticlesComponentManager::getComponent(size_t index)
-        //{
-        //    // TODO: insert return statement here
-        //    return data_.getComponentCopy(data_.getIndices(index));
-        //}
-
-
     }
 }
 

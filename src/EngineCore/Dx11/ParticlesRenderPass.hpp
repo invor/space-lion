@@ -19,9 +19,10 @@ namespace EngineCore {
             {
                 struct Data {
                     struct ParticlesConstantBuffer {
-                        Mat4x4 transform;
+                        Mat4x4              transform;
+                        std::array<float,4> color;
 
-                        Vec4   padding[12];
+                        Vec4                padding[11];
                     };
 
                     struct RenderTaskData
@@ -69,17 +70,15 @@ namespace EngineCore {
                             if (rt.visible) {
                                 data.particles_cbs.push_back(Data::ParticlesConstantBuffer());
 
-                                auto transform_idx = transform_mngr.getIndex(rt.entity);
-                                if (transform_idx < (std::numeric_limits<size_t>::max)())
-                                {
-                                    data.particles_cbs.back().transform = glm::transpose(transform_mngr.getWorldTransformation(transform_idx));
-                                }
+                                data.particles_cbs.back().transform = glm::transpose(transform_mngr.getWorldTransformation(rt.cached_transform_idx));
+                                data.particles_cbs.back().color = mtl_mngr.getAlbedoColour(rt.cached_material_idx);
 
                                 auto particles_indices = particles_mngr.getIndex(rt.entity);
                                 EngineCore::Graphics::ResourceID particles_rsrc;
                                 unsigned int particles_cnt = 0;
                                 if (!particles_indices.empty()) {
-                                    particles_rsrc = particles_mngr.getComponent(particles_indices.front()).particle_data;
+                                    auto& particles_component = particles_mngr.getComponent(particles_indices.front());
+                                    particles_rsrc = particles_component.particles_double_buffer[particles_component.render_buffer];
                                     particles_cnt = static_cast<unsigned int>(particles_mngr.getComponent(particles_indices.front()).particle_count);
                                 }
 
@@ -114,14 +113,16 @@ namespace EngineCore {
                                 ));
                         }
 
-                        resources.particles_resources.reserve(data.particles_cbs.size());
+                        resources.particles_resources.resize(data.particles_rtd.size());
 
                         for (size_t rt_idx = 0; rt_idx < data.particles_rtd.size(); ++rt_idx)
                         {
                             EngineCore::Graphics::WeakResource<dxowl::ShaderProgram> shader_prgm = resource_mngr.getShaderProgramResource(data.particles_rtd[rt_idx].shader_resource);
                             EngineCore::Graphics::WeakResource<dxowl::Buffer> particles_buffer = resource_mngr.getBufferResource(data.particles_rtd[rt_idx].particles_resource);
 
-                            resources.particles_resources.push_back(
+                            auto shdr_rsrc_view = particles_buffer.resource->getShaderResourceView();
+
+                            resources.particles_resources[rt_idx] =
                                 {
                                     shader_prgm,
                                     constant_buffer,
@@ -129,8 +130,7 @@ namespace EngineCore {
                                     static_cast<UINT>(sizeof(Data::ParticlesConstantBuffer) / sizeof(Vec4)),
                                     particles_buffer,
                                     data.particles_rtd[rt_idx].particles_cnt
-                                }
-                            );
+                                };
                         }
                     },
                     [&frame, &resource_mngr](Data const& data, Resources const& resources) {

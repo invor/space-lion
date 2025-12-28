@@ -35,7 +35,7 @@ namespace EngineCore
             inline bool operator==(const ResourceID& rhs) const { return m_id == rhs.value(); }
             inline bool operator!=(const ResourceID& rhs) const { return m_id != rhs.value(); }
 
-            template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
+            template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture2DView, typename Texture3D>
             friend class BaseResourceManager;
             template<typename ResourceType>
             friend struct WeakResource;
@@ -79,6 +79,7 @@ namespace EngineCore
             typename Mesh,
             typename ShaderProgram,
             typename Texture2D,
+            typename Texture2DView,
             typename Texture3D>
             class BaseResourceManager
         {
@@ -109,6 +110,10 @@ namespace EngineCore
             WeakResource<Texture2D> getTexture2DResource(ResourceID rsrc_id);
 
             WeakResource<Texture2D> getTexture2DResource(std::string name);
+
+            WeakResource<Texture2DView> getTexture2DViewResource(ResourceID rsrc_id);
+
+            WeakResource<Texture2DView> getTexture2DViewResource(std::string name);
 
             WeakResource<Texture3D> getTexture3DResource(ResourceID rsrc_id);
 
@@ -149,6 +154,11 @@ namespace EngineCore
                 m_name_to_textures_2d_idx.insert(std::pair<std::string, size_t>(name, index));
             }
 
+            inline void addTextureViewIndex(unsigned int rsrc_id, std::string name, size_t index) {
+                m_id_to_texture_2d_views_idx.insert(std::pair<unsigned int, size_t>(rsrc_id, index));
+                m_name_to_texture_2d_views_idx.insert(std::pair<std::string, size_t>(name, index));
+            }
+
             ResourceID generateResourceID() {
                 std::unique_lock<std::mutex> rsrcID_lock(m_rsrcID_mutex);
                 return ResourceID(m_resource_cnt++);
@@ -175,31 +185,33 @@ namespace EngineCore
             std::vector<Resource<Mesh>>          m_meshes;
             std::vector<Resource<ShaderProgram>> m_shader_programs;
             std::vector<Resource<Texture2D>>     m_textures_2d;
+            std::vector<Resource<Texture2DView>> m_texture_2d_views;
             std::vector<Resource<Texture3D>>     m_textures_3d;
-
-            std::vector<std::string>             m_shader_programs_identifier;
 
             std::unordered_map<unsigned int, size_t> m_id_to_buffer_idx;
             std::unordered_map<unsigned int, size_t> m_id_to_mesh_idx;
             std::unordered_map<unsigned int, size_t> m_id_to_shader_program_idx;
             std::unordered_map<unsigned int, size_t> m_id_to_textures_2d_idx;
+            std::unordered_map<unsigned int, size_t> m_id_to_texture_2d_views_idx;
             std::unordered_map<unsigned int, size_t> m_id_to_textures_3d_idx;
 
             std::unordered_map<std::string, size_t> m_name_to_buffer_idx;
             std::unordered_map<std::string, size_t> m_name_to_mesh_idx;
             std::unordered_map<std::string, size_t> m_name_to_shader_program_idx;
             std::unordered_map<std::string, size_t> m_name_to_textures_2d_idx;
+            std::unordered_map<std::string, size_t> m_name_to_texture_2d_views_idx;
             std::unordered_map<std::string, size_t> m_name_to_textures_3d_idx;
 
             mutable std::shared_mutex m_buffers_mutex;
             mutable std::shared_mutex m_meshes_mutex;
             mutable std::shared_mutex m_shader_programs_mutex;
             mutable std::shared_mutex m_textures_2d_mutex;
+            mutable std::shared_mutex m_texture_2d_views_mutex;
             mutable std::shared_mutex m_textures_3d_mutex;
         };
 
-        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
-        inline WeakResource<Buffer> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getBufferResource(ResourceID rsrc_id)
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture2DView, typename Texture3D>
+        inline WeakResource<Buffer> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture2DView, Texture3D>::getBufferResource(ResourceID rsrc_id)
         {
             std::shared_lock<std::shared_mutex> lock(m_buffers_mutex);
 
@@ -218,8 +230,8 @@ namespace EngineCore
             return retval;
         }
 
-        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
-        inline WeakResource<Buffer> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getBufferResource(std::string const& rsrc_name)
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture2DView, typename Texture3D>
+        inline WeakResource<Buffer> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture2DView, Texture3D>::getBufferResource(std::string const& rsrc_name)
         {
             WeakResource<Buffer> retval;
 
@@ -236,8 +248,8 @@ namespace EngineCore
             return retval;
         }
 
-        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
-        inline WeakResource<Mesh> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getMeshResource(ResourceID rsrc_id)
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture2DView, typename Texture3D>
+        inline WeakResource<Mesh> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture2DView, Texture3D>::getMeshResource(ResourceID rsrc_id)
         {
             std::shared_lock<std::shared_mutex> lock(m_meshes_mutex);
 
@@ -256,8 +268,8 @@ namespace EngineCore
             return retval;
         }
 
-        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
-        inline WeakResource<ShaderProgram> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getShaderProgramResource(ResourceID rsrc_id)
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture2DView, typename Texture3D>
+        inline WeakResource<ShaderProgram> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture2DView, Texture3D>::getShaderProgramResource(ResourceID rsrc_id)
         {
             std::shared_lock<std::shared_mutex> lock(m_shader_programs_mutex);
 
@@ -276,8 +288,8 @@ namespace EngineCore
             return retval;
         }
 
-        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
-        inline WeakResource<ShaderProgram> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getShaderProgramResource(std::string rsrc_name)
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture2DView, typename Texture3D>
+        inline WeakResource<ShaderProgram> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture2DView, Texture3D>::getShaderProgramResource(std::string rsrc_name)
         {
             std::shared_lock<std::shared_mutex> lock(m_shader_programs_mutex);
 
@@ -296,8 +308,8 @@ namespace EngineCore
             return retval;
         }
 
-        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
-        inline WeakResource<Texture2D> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getTexture2DResource(ResourceID rsrc_id)
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture2DView, typename Texture3D>
+        inline WeakResource<Texture2D> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture2DView, Texture3D>::getTexture2DResource(ResourceID rsrc_id)
         {
             std::shared_lock<std::shared_mutex> lock(m_textures_2d_mutex);
 
@@ -316,8 +328,8 @@ namespace EngineCore
             return retval;
         }
 
-        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
-        inline WeakResource<Texture2D> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getTexture2DResource(std::string name)
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture2DView, typename Texture3D>
+        inline WeakResource<Texture2D> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture2DView, Texture3D>::getTexture2DResource(std::string name)
         {
             std::shared_lock<std::shared_mutex> lock(m_textures_2d_mutex);
 
@@ -336,8 +348,48 @@ namespace EngineCore
             return retval;
         }
 
-        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
-        inline WeakResource<Texture3D> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getTexture3DResource(ResourceID rsrc_id)
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture2DView, typename Texture3D>
+        inline WeakResource<Texture2DView> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture2DView, Texture3D>::getTexture2DViewResource(ResourceID rsrc_id)
+        {
+            std::shared_lock<std::shared_mutex> lock(m_texture_2d_views_mutex);
+
+            WeakResource<Texture2DView> retval(rsrc_id, nullptr, NOT_READY);
+
+            auto query = m_name_to_texture_2d_views_idx.find(rsrc_id.value());
+
+            if (query != m_name_to_texture_2d_views_idx.end())
+            {
+                retval = WeakResource<Texture2DView>(
+                    m_texture_2d_views[query->second].id,
+                    m_texture_2d_views[query->second].resource.get(),
+                    m_texture_2d_views[query->second].state);
+            }
+
+            return retval;
+        }
+
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture2DView, typename Texture3D>
+        inline WeakResource<Texture2DView> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture2DView, Texture3D>::getTexture2DViewResource(std::string name)
+        {
+            std::shared_lock<std::shared_mutex> lock(m_texture_2d_views_mutex);
+
+            WeakResource<Texture2DView> retval(invalidResourceID(), nullptr, NOT_READY);
+
+            auto query = m_name_to_texture_2d_views_idx.find(name);
+
+            if (query != m_name_to_texture_2d_views_idx.end())
+            {
+                retval = WeakResource<Texture2DView>(
+                    m_texture_2d_views[query->second].id,
+                    m_texture_2d_views[query->second].resource.get(),
+                    m_texture_2d_views[query->second].state);
+            }
+
+            return retval;
+        }
+
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture2DView, typename Texture3D>
+        inline WeakResource<Texture3D> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture2DView, Texture3D>::getTexture3DResource(ResourceID rsrc_id)
         {
             std::shared_lock<std::shared_mutex> lock(m_textures_3d_mutex);
 
@@ -356,8 +408,8 @@ namespace EngineCore
             return retval;
         }
 
-        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture3D>
-        inline WeakResource<Texture3D> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture3D>::getTexture3DResource(std::string name)
+        template<typename Buffer, typename Mesh, typename ShaderProgram, typename Texture2D, typename Texture2DView, typename Texture3D>
+        inline WeakResource<Texture3D> BaseResourceManager<Buffer, Mesh, ShaderProgram, Texture2D, Texture2DView, Texture3D>::getTexture3DResource(std::string name)
         {
             std::shared_lock<std::shared_mutex> lock(m_textures_3d_mutex);
 

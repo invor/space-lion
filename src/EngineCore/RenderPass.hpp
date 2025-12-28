@@ -90,20 +90,15 @@ namespace EngineCore
                     delete m_pass;
             }
 
-            RenderPass(RenderPass const& other) : m_description(other.m_description), m_pass(other.m_pass->clone()) {}
-            RenderPass(RenderPass&& other) : RenderPass() {
+            RenderPass(RenderPass&& other) noexcept 
+                : RenderPass()
+            {
                 std::swap(m_description, other.m_description);
                 std::swap(m_pass, other.m_pass);
             }
 
-            RenderPass& operator=(RenderPass const& rhs)
-            {
-                delete m_pass;
-                m_pass = rhs.m_pass->clone();
-
-                return *this;
-            }
-
+            RenderPass(RenderPass const& other) = delete;
+            RenderPass& operator=(RenderPass const& rhs) = delete;
             RenderPass& operator=(RenderPass&& other) = delete;
 
             void setupData() { m_pass->setupData(); }

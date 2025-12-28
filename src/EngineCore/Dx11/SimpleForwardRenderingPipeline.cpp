@@ -205,7 +205,7 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
             }
 
             auto mtl_comp_idx = mtl_mngr.getIndex(rt.entity);
-            auto texture = mtl_mngr.getTextures(mtl_comp_idx[rt.mtl_component_subidx], MaterialComponentManager::TextureSemantic::ALBEDO);
+            auto texture = mtl_mngr.getTextures(mtl_comp_idx[rt.mtl_component_subidx], MaterialComponentData::TextureSemantic::ALBEDO);
         
             auto mesh_comp_idx = mesh_mngr.getIndex(rt.entity);
             auto draw_params = mesh_mngr.getDrawIndexedParams(mesh_comp_idx[rt.mesh_component_subidx]);
@@ -274,7 +274,10 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
             constantBufferData.pSysMem = data.static_mesh_constant_buffers.data();
             constantBufferData.SysMemPitch = 0;
             constantBufferData.SysMemSlicePitch = 0;
-            const CD3D11_BUFFER_DESC constantBufferDesc(sizeof(GeomPassData::StaticMeshConstantBuffer)*data.static_mesh_constant_buffers.size(), D3D11_BIND_CONSTANT_BUFFER);
+            const CD3D11_BUFFER_DESC constantBufferDesc(
+                sizeof(GeomPassData::StaticMeshConstantBuffer) * static_cast<UINT>(data.static_mesh_constant_buffers.size()),
+                D3D11_BIND_CONSTANT_BUFFER
+            );
             winrt::check_hresult(
                 resources.d3d11_device->CreateBuffer(
                     &constantBufferDesc,
@@ -340,7 +343,10 @@ void EngineCore::Graphics::Dx11::setupSimpleForwardRenderingPipeline(
                 constantBufferData.pSysMem = data.unlit_constant_buffer.data();
                 constantBufferData.SysMemPitch = 0;
                 constantBufferData.SysMemSlicePitch = 0;
-                const CD3D11_BUFFER_DESC constantBufferDesc(sizeof(GeomPassData::UnlitMeshConstantBuffer) * data.unlit_constant_buffer.size(), D3D11_BIND_CONSTANT_BUFFER);
+                const CD3D11_BUFFER_DESC constantBufferDesc(
+                    sizeof(GeomPassData::UnlitMeshConstantBuffer) * static_cast<UINT>(data.unlit_constant_buffer.size()),
+                    D3D11_BIND_CONSTANT_BUFFER
+                );
                 winrt::check_hresult(
                     resources.d3d11_device->CreateBuffer(
                         &constantBufferDesc,

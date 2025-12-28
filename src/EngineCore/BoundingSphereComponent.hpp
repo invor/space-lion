@@ -2,49 +2,32 @@
 #define BoundingSphereComponent_hpp
 
 #include "EntityManager.hpp"
-#include "BaseMultiInstanceComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager2.hpp"
 #include "types.hpp"
 
 namespace EngineCore
 {
     namespace Graphics
     {
+        struct BoundingSphereComponentData
+        {
+            Entity entity; ///< entity owning the component
+            float  radius; ///< Radius of the bounding sphere
+        };
 
-        class BoundingSphereComponentManager : public BaseMultiInstanceComponentManager
+        class BoundingSphereComponentManager : public BaseMultiInstanceComponentManager2<BoundingSphereComponentData,1000,1000>
         {
         public:
-            BoundingSphereComponentManager(uint size);
-            ~BoundingSphereComponentManager();
+            BoundingSphereComponentManager() = default;
+            ~BoundingSphereComponentManager() = default;
 
-            void reallocate(uint size);
+            size_t addComponent(Entity entity, float radius);
 
-            void addComponent(Entity entity, float radius);
+            Entity getEntity(size_t index) const;
 
-            void deleteComponent(Entity entity);
+            float getRadius(size_t index) const;
 
-            uint getComponentCount() const;
-
-            Entity getEntity(uint index) const;
-
-            float getRadius(uint index) const;
-
-            void setRadius(uint index, float radius);
-
-            std::vector<Entity> getListOfEntities() const;
-
-        private:
-            struct Data
-            {
-                uint     used;      ///< number of components currently in use
-                uint     allocated; ///< number of components that the allocated memory can hold
-                uint8_t* buffer;    ///< raw data pointer
-
-                Entity* entity;     ///< entity owning the component
-                float* radius;      ///< Radius of the bounding sphere
-            };
-
-            Data m_data;
-            mutable std::shared_mutex m_data_access_mutex;
+            void setRadius(size_t index, float radius);
         };
 
     }

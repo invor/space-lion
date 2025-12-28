@@ -22,7 +22,7 @@ namespace EngineCore {
 
             size_t addComponent(T component);
 
-            void deleteComponent(size_t component_index);
+            void deleteComponent(size_t page_index, size_t index_in_page);
 
             size_t getComponentCount() const;
 
@@ -30,7 +30,7 @@ namespace EngineCore {
             
             T const& operator()(size_t page_index, size_t index_in_page) const;
 
-            T getComponentCopy(size_t component_index) const;
+            T getComponentCopy(size_t page_index, size_t index_in_page) const;
 
             bool checkComponent(size_t page_index, size_t index_in_page) const;
 
@@ -123,13 +123,14 @@ namespace EngineCore {
         }
 
         template<typename T, size_t PageCount, size_t PageSize>
-        inline void ComponentStorage<T, PageCount, PageSize>::deleteComponent(size_t component_index)
+        inline void ComponentStorage<T, PageCount, PageSize>::deleteComponent(size_t page_index, size_t index_in_page)
         {
             std::unique_lock<std::mutex> lock(add_component_mutex_);
 
-            free_list_.push(component_index);
+            components_[page_index].storage->operator[](index_in_page).first = false;
 
-            // TODO actually somehow mark components as invalid?
+            auto component_index = (page_index * PageSize) + index_in_page;
+            free_list_.push(component_index);
         }
 
         template<typename T, size_t PageCount, size_t PageSize>
@@ -155,10 +156,8 @@ namespace EngineCore {
         }
 
         template<typename T, size_t PageCount, size_t PageSize>
-        inline T ComponentStorage<T, PageCount, PageSize>::getComponentCopy(size_t component_index) const
+        inline T ComponentStorage<T, PageCount, PageSize>::getComponentCopy(size_t page_index, size_t index_in_page) const
         {
-            auto [page_index, index_in_page] = getIndices(component_index);
-
             assert(components_[page_index].storage != nullptr);
 
             return components_[page_index].storage->at(index_in_page).second;

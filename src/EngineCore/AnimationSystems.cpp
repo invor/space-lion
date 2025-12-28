@@ -1,5 +1,6 @@
 #include "AnimationSystems.hpp"
 
+#include "utility.hpp"
 #include <chrono>
 
 void EngineCore::Animation::animateTurntables(
@@ -10,21 +11,21 @@ void EngineCore::Animation::animateTurntables(
 {
     auto t_0 = std::chrono::high_resolution_clock::now();
 
-    std::vector<EngineCore::Animation::TurntableComponentManager::Data> tt_cmps = turntable_mngr.getComponentDataCopy();
+    size_t component_cnt = turntable_mngr.getComponentCount();
 
-    std::vector<std::pair<size_t, size_t>> from_to_pairs;
-    size_t bucket_cnt = 6;
-    for (size_t i = 0; i < bucket_cnt; ++i) {
-        from_to_pairs.push_back({ tt_cmps.size() * (float(i) / float(bucket_cnt)), tt_cmps.size() * (float(i + 1) / float(bucket_cnt)) });
-    }
-
+    std::vector<std::pair<size_t, size_t>> from_to_pairs = utility::buildComponentProcessingRanges(component_cnt,6);
+    
     for (auto from_to : from_to_pairs) {
         task_scheduler.submitTask(
-            [&transform_mngr, &tt_cmps, from_to, dt]() {
+            [&transform_mngr, &turntable_mngr, from_to, dt]() {
                 for (size_t i = from_to.first; i < from_to.second; ++i)
                 {
-                    auto transform_idx = transform_mngr.getIndex((tt_cmps)[i].entity);
-                    transform_mngr.rotateLocal(transform_idx, glm::angleAxis(static_cast<float>((tt_cmps)[i].angle * dt), (tt_cmps)[i].axis));
+                    if (turntable_mngr.checkComponent(i)) {
+                        auto const& cmp = turntable_mngr.getComponent(i);
+
+                        auto transform_idx = transform_mngr.getIndex(cmp.entity);
+                        transform_mngr.rotateLocal(transform_idx, glm::angleAxis(static_cast<float>(cmp.angle * dt), cmp.axis));
+                    }
                 }
             }
         );
@@ -42,56 +43,88 @@ void EngineCore::Animation::animateTurntables(
 void EngineCore::Animation::animateTagAlong(
     EngineCore::Common::TransformComponentManager& transform_mngr,
     EngineCore::Animation::TagAlongComponentManager& tagalong_mngr,
-    double dt)
+    double dt,
+    Utility::TaskScheduler& task_scheduler)
 {
-    auto tag_cmps = tagalong_mngr.getTagComponentDataCopy();
+    size_t component_cnt = tagalong_mngr.getComponentCount();
 
-    for (auto& cmp : tag_cmps)
-    {
-        size_t target_idx = transform_mngr.getIndex(cmp.target);
-        Mat4x4 target_xform = transform_mngr.getWorldTransformation(target_idx);
-        Vec3 target_front_pos = Vec3(target_xform * Vec4(cmp.offset, 1.0f));
+    std::vector<std::pair<size_t, size_t>> from_to_pairs = utility::buildComponentProcessingRanges(component_cnt, 6);
 
-        size_t entity_idx = transform_mngr.getIndex(cmp.entity);
-        Vec3 entity_position = transform_mngr.getWorldPosition(entity_idx);
+    for (auto from_to : from_to_pairs) {
+        task_scheduler.submitTask(
+            [&transform_mngr, &tagalong_mngr, from_to, dt]() {
+                for (size_t i = from_to.first; i < from_to.second; ++i)
+                {
+                    if (tagalong_mngr.checkComponent(i)) {
+                        auto const& cmp = tagalong_mngr.getComponent(i);
 
-        Vec3 movement_vector = target_front_pos - entity_position;
-        float distance = glm::length(movement_vector);
-        float deadzone_factor = distance > cmp.deadzone ? (distance - cmp.deadzone) / distance : 0.0f;
-
-        target_front_pos = entity_position + movement_vector * deadzone_factor * std::min(1.0f, (static_cast<float>(dt) / cmp.time_to_target));
-
-        transform_mngr.setPosition(entity_idx, target_front_pos);
+                        size_t target_idx = transform_mngr.getIndex(cmp.target);
+                        Mat4x4 target_xform = transform_mngr.getWorldTransformation(target_idx);
+                        Vec3 target_front_pos = Vec3(target_xform * Vec4(cmp.offset, 1.0f));
+                        
+                        size_t entity_idx = transform_mngr.getIndex(cmp.entity);
+                        Vec3 entity_position = transform_mngr.getWorldPosition(entity_idx);
+                        
+                        Vec3 movement_vector = target_front_pos - entity_position;
+                        float distance = glm::length(movement_vector);
+                        float deadzone_factor = distance > cmp.deadzone ? (distance - cmp.deadzone) / distance : 0.0f;
+                        
+                        target_front_pos = entity_position + movement_vector * deadzone_factor * std::min(1.0f, (static_cast<float>(dt) / cmp.time_to_target));
+                        
+                        transform_mngr.setPosition(entity_idx, target_front_pos);
+                    }
+                }
+            }
+        );
     }
+
+    task_scheduler.waitWhileBusy();
 }
 
 
 void EngineCore::Animation::animateBillboards(
     EngineCore::Common::TransformComponentManager& transform_mngr,
     EngineCore::Animation::BillboardComponentManager& billboard_mngr,
-    double dt)
+    double dt,
+    Utility::TaskScheduler& task_scheduler)
 {
-    auto billboard_cmps = billboard_mngr.getBillboardComponentDataCopy();
 
-    for (auto& cmp : billboard_cmps) {
-        size_t target_idx = transform_mngr.getIndex(cmp.target);
-        size_t entity_idx = transform_mngr.getIndex(cmp.entity);
+    size_t component_cnt = billboard_mngr.getComponentCount();
 
-        Vec3 target_pos = transform_mngr.getPosition(target_idx);
-        Vec3 entity_pos = transform_mngr.getPosition(entity_idx);
+    std::vector<std::pair<size_t, size_t>> from_to_pairs = utility::buildComponentProcessingRanges(component_cnt, 6);
 
-        Entity parent = transform_mngr.getParent(entity_idx);
-        if (parent != EntityManager::invalidEntity())
-        {
-            Mat4x4 to_parent_space = glm::inverse(transform_mngr.getWorldTransformation(transform_mngr.getIndex(parent)));
-            target_pos = Vec3(to_parent_space * Vec4(target_pos, 1.0f));
-        }
+    for (auto from_to : from_to_pairs) {
+        task_scheduler.submitTask(
+            [&transform_mngr, &billboard_mngr, from_to, dt]() {
+                for (size_t i = from_to.first; i < from_to.second; ++i)
+                {
+                    if (billboard_mngr.checkComponent(i)) {
+                        auto const& cmp = billboard_mngr.getComponent(i);
 
-        // Mirror target position to make +z face the original target
-        auto mirrored_target_pos = target_pos - 2.0f * (target_pos - entity_pos);
-        auto r = glm::toQuat(glm::inverse(glm::lookAt(entity_pos, mirrored_target_pos, Vec3(0.0f, 1.0f, 0.0f))));
-        transform_mngr.setOrientation(entity_idx, r);
+                        size_t target_idx = transform_mngr.getIndex(cmp.target);
+                        size_t entity_idx = transform_mngr.getIndex(cmp.entity);
+
+                        Vec3 target_pos = transform_mngr.getPosition(target_idx);
+                        Vec3 entity_pos = transform_mngr.getPosition(entity_idx);
+
+                        Entity parent = transform_mngr.getParent(entity_idx);
+                        if (parent != EntityManager::invalidEntity())
+                        {
+                            Mat4x4 to_parent_space = glm::inverse(transform_mngr.getWorldTransformation(transform_mngr.getIndex(parent)));
+                            target_pos = Vec3(to_parent_space * Vec4(target_pos, 1.0f));
+                        }
+
+                        // Mirror target position to make +z face the original target
+                        auto mirrored_target_pos = target_pos - 2.0f * (target_pos - entity_pos);
+                        auto r = glm::toQuat(glm::inverse(glm::lookAt(entity_pos, mirrored_target_pos, Vec3(0.0f, 1.0f, 0.0f))));
+                        transform_mngr.setOrientation(entity_idx, r);
+                    }
+                }
+            }
+        );
     }
+
+    task_scheduler.waitWhileBusy();
 }
 
 void EngineCore::Animation::animatioMoveTo(
@@ -102,11 +135,7 @@ void EngineCore::Animation::animatioMoveTo(
 {
     size_t component_cnt = moveto_mngr.getComponentCount();
 
-    std::vector<std::pair<size_t, size_t>> from_to_pairs;
-    size_t bucket_cnt = 6;
-    for (size_t i = 0; i < bucket_cnt; ++i) {
-        from_to_pairs.push_back({ component_cnt * (float(i) / float(bucket_cnt)), component_cnt * (float(i + 1) / float(bucket_cnt)) });
-    }
+    std::vector<std::pair<size_t, size_t>> from_to_pairs = utility::buildComponentProcessingRanges(component_cnt, 6);
 
     for (auto from_to : from_to_pairs) {
         task_scheduler.submitTask(
@@ -118,7 +147,7 @@ void EngineCore::Animation::animatioMoveTo(
 
                         auto transform_idx = transform_mngr.getIndex(cmp.entity);
 
-                        if (cmp.move_orientation == MoveToComponentManager::Space::LOCAL)
+                        if (cmp.move_orientation == Space::LOCAL)
                         {
                             auto current_position = transform_mngr.getPosition(transform_idx);
                             auto move_direction = cmp.target_position - current_position;

@@ -457,7 +457,7 @@ namespace EngineCore
                             float roughness = 0.8f;
                             std::array<float, 4> specular_colour = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-                            typedef MaterialComponentManager::TextureSemantic TextureSemantic;
+                            typedef MaterialComponentData::TextureSemantic TextureSemantic;
                             std::vector< std::pair<TextureSemantic, ResourceID>> textures;
 
                             std::string identifier_string =

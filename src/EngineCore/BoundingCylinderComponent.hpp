@@ -2,27 +2,27 @@
 #define BoundingCylinderComponent_hpp
 
 #include "EntityManager.hpp"
-#include "BaseMultiInstanceComponentManager.hpp"
+#include "BaseMultiInstanceComponentManager2.hpp"
 #include "types.hpp"
 
 namespace EngineCore
 {
     namespace Graphics
     {
+        struct BoundingCylinderComponentData
+        {
+            Entity entity; ///< entity owning the component
+            float  radius; ///< Radius of the bounding cylinder
+            float  height; ///< height of the bounding cylinder
+        };
 
-        class BoundingCylinderComponentManager : public BaseMultiInstanceComponentManager
+        class BoundingCylinderComponentManager : public BaseMultiInstanceComponentManager2<BoundingCylinderComponentData,1000,1000>
         {
         public:
-            BoundingCylinderComponentManager(uint size);
-            ~BoundingCylinderComponentManager();
+            BoundingCylinderComponentManager() = default;
+            ~BoundingCylinderComponentManager() = default;
 
-            void reallocate(uint size);
-
-            void addComponent(Entity entity, float radius, float height);
-
-            void deleteComponent(Entity entity);
-
-            uint getComponentCount() const;
+            size_t addComponent(Entity entity, float radius, float height);
 
             Entity getEntity(uint index) const;
 
@@ -33,23 +33,6 @@ namespace EngineCore
             void setRadius(uint index, float radius);
 
             void setHeight(uint index, float height);
-
-            std::vector<Entity> getListOfEntities() const;
-
-        private:
-            struct Data
-            {
-                uint     used;      ///< number of components currently in use
-                uint     allocated; ///< number of components that the allocated memory can hold
-                uint8_t* buffer;    ///< raw data pointer
-
-                Entity* entity;     ///< entity owning the component
-                float* radius;      ///< Radius of the bounding cylinder
-                float* height;      ///< height of the bounding cylinder
-            };
-
-            Data m_data;
-            mutable std::shared_mutex m_data_access_mutex;
         };
 
     }
