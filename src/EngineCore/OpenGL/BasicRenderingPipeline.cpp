@@ -545,9 +545,23 @@ namespace EngineCore
                             {
                                 using TextureSemantic = MaterialComponentData::TextureSemantic;
 
-                                auto albedo_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::ALBEDO).front();
-                                auto roughness_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::METALLIC_ROUGHNESS).front();
-                                auto normal_texture = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::NORMAL).front();
+                                ResourceID albedo_texture;
+                                ResourceID roughness_texture;
+                                ResourceID normal_texture;
+
+                                auto albedo_textures = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::ALBEDO);
+                                auto roughness_textures = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::METALLIC_ROUGHNESS);
+                                auto normal_textures = mtl_mngr.getTextures(obj.cached_material_idx, TextureSemantic::NORMAL);
+
+                                if(!albedo_textures.empty()){
+                                    albedo_texture = albedo_textures.front();
+                                }
+                                if (!roughness_textures.empty()){
+                                    roughness_texture = roughness_textures.front();
+                                }
+                                if (!normal_textures.empty()) {
+                                    normal_texture = normal_textures.front();
+                                }
 
                                 WeakResource<glowl::Texture2D> albedo_tx;
                                 WeakResource<glowl::Texture2D> roughness_tx;

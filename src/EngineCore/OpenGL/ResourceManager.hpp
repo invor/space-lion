@@ -46,6 +46,7 @@ namespace EngineCore
                 glowl::Mesh,
                 glowl::GLSLProgram,
                 glowl::Texture2D,
+                glowl::Texture2DView,
                 glowl::Texture3D>
             {
             public:
