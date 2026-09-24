@@ -442,10 +442,11 @@ namespace EngineCore
                     GLvoid * data,
                     bool generateMipmap = false);
 
+                template<typename TexelDataContainer>
                 ResourceID createTexture2DArrayAsync(
                     std::string const& name,
                     const glowl::TextureLayout & layout,
-                    GLvoid * data,
+                    std::shared_ptr<TexelDataContainer> const& data,
                     bool generateMipmap = false);
 #pragma endregion
 
@@ -486,6 +487,13 @@ namespace EngineCore
                     GLenum usage = GL_DYNAMIC_DRAW);
 
                 template<typename Container>
+                ResourceID createBufferObjectAsync(
+                    std::string const& name,
+                    GLenum target,
+                    std::shared_ptr<Container> const& datastorage,
+                    GLenum usage = GL_DYNAMIC_DRAW);
+
+                template<typename Container>
                 WeakResource<glowl::BufferObject> updateBufferObject(ResourceID id, Container const& datastorage)
                 {
                     return updateBufferObject(id, datastorage.data(), static_cast<GLsizeiptr>(datastorage.size() * sizeof(Container::value_type)));
@@ -508,6 +516,8 @@ namespace EngineCore
                     GLvoid const* data,
                     GLsizeiptr byte_size
                 );
+
+
 
                 WeakResource<glowl::Texture2DArray> getTexture2DArray(ResourceID id) const;
                 WeakResource<glowl::FramebufferObject> getFramebufferObject(std::string const& name) const;
@@ -707,6 +717,39 @@ namespace EngineCore
                 return m_textures_2d[idx].id;
             }
 
+            template<typename TexelDataContainer>
+            inline ResourceID ResourceManager::createTexture2DArrayAsync(
+                std::string const& name,
+                const glowl::TextureLayout& layout,
+                std::shared_ptr<TexelDataContainer> const& data,
+                bool generateMipmap)
+            {
+                {
+                    std::shared_lock<std::shared_mutex> tex_lock(m_texArr_mutex);
+                    auto search = m_name_to_textureArray_idx.find(name);
+                    if (search != m_name_to_textureArray_idx.end())
+                        return m_textureArrays[search->second].id;
+                }
+
+                std::unique_lock<std::shared_mutex> lock(m_texArr_mutex);
+
+                size_t idx = m_textureArrays.size();
+                ResourceID rsrc_id = generateResourceID();
+
+                m_textureArrays.push_back(Resource<glowl::Texture2DArray>(rsrc_id));
+                m_id_to_textureArray_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
+                m_name_to_textureArray_idx.insert(std::pair<std::string, size_t>(name, idx));
+
+                m_renderThread_tasks.push([this, idx, name, layout, data, generateMipmap]() {
+                    std::unique_lock<std::shared_mutex> tex_lock(m_texArr_mutex);
+
+                    m_textureArrays[idx].resource = std::make_unique<glowl::Texture2DArray>(name, layout, data->data(), generateMipmap);
+                    m_textureArrays[idx].state = READY;
+                    });
+
+                return m_textureArrays[idx].id;
+            }
+
             template<typename Container>
             WeakResource<glowl::BufferObject> ResourceManager::createBufferObject(
                 std::string const& name,
@@ -725,7 +768,6 @@ namespace EngineCore
                 }
 
                 std::unique_lock<std::shared_mutex> lock(m_buffers_mutex);
-
                 size_t idx = m_buffers.size();
                 ResourceID rsrc_id = generateResourceID();
 
@@ -740,6 +782,39 @@ namespace EngineCore
                     m_buffers[idx].id,
                     m_buffers[idx].resource.get(),
                     m_buffers[idx].state);
+            }
+
+            template<typename Container>
+            ResourceID ResourceManager::createBufferObjectAsync(
+                std::string const& name,
+                GLenum target,
+                std::shared_ptr<Container> const& datastorage,
+                GLenum usage)
+            {
+                {
+                    std::shared_lock<std::shared_mutex> lock(m_buffers_mutex);
+                    auto search = m_name_to_buffer_idx.find(name);
+                    if (search != m_name_to_buffer_idx.end())
+                        return m_buffers[search->second].id;
+                }
+
+                std::unique_lock<std::shared_mutex> lock(m_buffers_mutex);
+
+                size_t idx = m_buffers.size();
+                ResourceID rsrc_id = generateResourceID();
+
+                m_buffers.push_back(Resource<glowl::BufferObject>(rsrc_id));
+                m_id_to_buffer_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
+                m_name_to_buffer_idx.insert(std::pair<std::string, size_t>(name, idx));
+
+                m_renderThread_tasks.push([this, idx, name, target, datastorage, usage]() {
+                    std::unique_lock<std::shared_mutex> lock(m_buffers_mutex);
+
+                    m_buffers[idx].resource = std::make_unique<glowl::BufferObject>(target, *datastorage, usage);
+                    m_buffers[idx].state = READY;
+                    });
+
+                return m_buffers[idx].id;
             }
         }
     }
