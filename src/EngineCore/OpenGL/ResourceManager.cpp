@@ -550,38 +550,6 @@ namespace EngineCore
                     m_textureArrays[idx].state);
             }
 
-            ResourceID ResourceManager::createTexture2DArrayAsync(
-                std::string const& name,
-                const glowl::TextureLayout & layout,
-                GLvoid * data,
-                bool generateMipmap)
-            {
-                {
-                    std::shared_lock<std::shared_mutex> tex_lock(m_texArr_mutex);
-                    auto search = m_name_to_textureArray_idx.find(name);
-                    if (search != m_name_to_textureArray_idx.end())
-                        return m_textureArrays[search->second].id;
-                }
-
-                std::unique_lock<std::shared_mutex> lock(m_texArr_mutex);
-
-                size_t idx = m_textureArrays.size();
-                ResourceID rsrc_id = generateResourceID();
-
-                m_textureArrays.push_back(Resource<glowl::Texture2DArray>(rsrc_id));
-                m_id_to_textureArray_idx.insert(std::pair<unsigned int, size_t>(rsrc_id.value(), idx));
-                m_name_to_textureArray_idx.insert(std::pair<std::string, size_t>(name, idx));
-
-                m_renderThread_tasks.push([this, idx, name, layout, data, generateMipmap]() {
-                    std::unique_lock<std::shared_mutex> tex_lock(m_texArr_mutex);
-
-                    m_textureArrays[idx].resource = std::make_unique<glowl::Texture2DArray>(name, layout, data, generateMipmap);
-                    m_textureArrays[idx].state = READY;
-                });
-
-                return m_textureArrays[idx].id;
-            }
-
             WeakResource<glowl::Texture3D> ResourceManager::createTexture3D(
                 const std::string name,
                 glowl::TextureLayout const& layout,
