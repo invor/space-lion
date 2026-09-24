@@ -96,6 +96,8 @@ SET (ENGINECORE_GRAPHICS_HEADER_FILES
         src/EngineCore/MeshComponentManager.hpp
         src/EngineCore/OceanComponent.hpp
         src/EngineCore/ParticlesComponentManager.hpp
+        src/EngineCore/DynamicPtexMeshComponent.hpp
+        src/EngineCore/DynamicPtexMeshSystems.hpp
         src/EngineCore/PointlightComponent.hpp
         src/EngineCore/RenderPass.hpp
         src/EngineCore/RenderTaskComponentManager.hpp
@@ -116,6 +118,7 @@ SET (ENGINECORE_GRAPHICS_SOURCE_FILES
         src/EngineCore/MaterialComponentManager.cpp
         src/EngineCore/MeshComponentManager.cpp
         src/EngineCore/OceanComponent.cpp
+        src/EngineCore/DynamicPtexMeshComponent.cpp
         src/EngineCore/PointlightComponent.cpp
         src/EngineCore/RenderPass.cpp
         src/EngineCore/RenderTaskComponentManager.cpp
@@ -163,7 +166,7 @@ SET (ENGINECORE_UTILITY_HEADER_FILES
         src/EngineCore/ComponentStorage.hpp
         src/EngineCore/MTQueue.hpp
         src/EngineCore/ResourceLoading.hpp
-	src/EngineCore/RingBuffer.hpp
+        src/EngineCore/RingBuffer.hpp
         src/EngineCore/SingleInstanceIndexMap.hpp
         src/EngineCore/TaskScheduler.hpp
         src/EngineCore/types.hpp
@@ -236,6 +239,19 @@ target_include_directories(
 
 source_group(External\\lodepng\\ FILES ${EXTERNAL_LODEPNG_FILES})
 
+# add external okayply PLY loader header-only lib
+SET (EXTERNAL_OKAYPLY_FILES
+        src/External/okayply/okayply.h
+)
+
+target_include_directories(
+        SpaceLion PUBLIC
+        "${PROJECT_SOURCE_DIR}/src/External/okayply/"
+)
+
+source_group(External\\okayply\\ FILES ${EXTERNAL_OKAYPLY_FILES})
+
+# add external implot lib
 SET (EXTERNAL_IMPLOT_FILES
         src/External/implot/implot.h
         src/External/implot/implot.cpp
