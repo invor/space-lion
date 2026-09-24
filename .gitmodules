@@ -24,4 +24,4 @@
 	url = https://github.com/epezent/implot
 [submodule "src/External/okayply"]
 	path = src/External/okayply
-	url = https://github.com/invor/okayply
+	url = http://github.com/invor/okayply
