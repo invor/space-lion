@@ -85,7 +85,7 @@ namespace EngineCore
         // check if valid index is given for entity
         // (avoids adding an invalid index to free list of component storage)
         if (index != Utility::SingleInstanceIndexMap::invalidIndex()) {
-            index_map_.deleteIndex(entity);
+            index_map_.deleteIndex(entity.id());
 
             auto [page_idx, idx_in_page] = data_.getIndices(index);
             data_.deleteComponent(page_idx, idx_in_page);
