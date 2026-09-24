@@ -65,8 +65,6 @@ namespace EngineCore
 
             std::vector<TextureSlot> vistaTiles_;
 
-            size_t updated_primitives_;
-
             //GPU resourcecs
             ResourceID mesh_;
             ResourceID shader_;

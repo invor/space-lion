@@ -351,7 +351,7 @@ namespace EngineCore
             //}
 
             // classify distance values based on LOD bin sizes
-            std::vector<int> classification(patch_cnt);
+            std::vector<int> classification(patch_cnt, max_lod_lvl);
             size_t remaining_patches = patch_cnt;
 
             //std::vector<float> lod_distance_steps({ 11.5f,23.0f,45.0f,88.0f,175.0f,999999.0f }); // values measured for optimal mipmap level
@@ -364,10 +364,10 @@ namespace EngineCore
             {
                 while ((remaining_lod_bin_size[lod_bin] == 0) || (ptex_component.patch_info_[patch_idx].distance >= lod_distance_steps[lod_bin]))
                 {
+                    ++lod_bin;
+
                     if (lod_bin == max_lod_lvl)
                         break;
-
-                    ++lod_bin;
                 }
 
                 classification[patch_idx] = lod_bin;
@@ -464,45 +464,53 @@ namespace EngineCore
 
                 std::copy(ptex_component.availableTiles_[i].begin(), ptex_component.availableTiles_[i].end(), ptex_component.availableTiles_uploadBuffer_.begin() + copied_elements);
 
-                copied_elements += ptex_component.availableTiles_[i].size();
+                
 
                 //available_tiles_log << "Available tiles:" << ptex_component.availableTiles[i].size() << std::endl;
 
                 ptex_component.availableTiles_indexOffsets_.push_back(copied_elements);
+                copied_elements += ptex_component.availableTiles_[i].size();
             }
 
             if (tgt_copied_elements > 0)
                 std::cout << bin_size_log.str() << available_tiles_log.str();
 
 
-            //  // assign tiles on the CPU for debugging (without updating the texture content)
-            //  std::vector<unsigned int> assigned_tiles_per_level(update_patches_tgt.size());
-            //  for (size_t lod_lvl = 0; lod_lvl < (update_patches_tgt.size() - 1); ++lod_lvl)
-            //  {
-            //      for (size_t update_patch_idx = 0; update_patch_idx < update_patches_tgt[lod_lvl].size(); ++update_patch_idx)
-            //      {
-            //          unsigned int patch_idx = update_patches_tgt[lod_lvl][update_patch_idx];
-            //  
-            //          (*ptex_component.ptex_params_)[patch_idx].texture_index
-            //              = ptex_component.availableTiles_[lod_lvl][assigned_tiles_per_level[lod_lvl]].tex_idx;
-            //          (*ptex_component.ptex_params_)[patch_idx].base_slice
-            //              = ptex_component.availableTiles_[lod_lvl][assigned_tiles_per_level[lod_lvl]].base_slice;
-            //  
-            //          assigned_tiles_per_level[lod_lvl] += 1;
-            //      }
-            //  }
-            //  // assign vista level seperately as it is not part of the available tiles collection (since direct mapping between vista tiles and primitives exits)
-            //  for (size_t update_patch_idx = 0; update_patch_idx < update_patches_tgt.back().size(); ++update_patch_idx)
-            //  {
-            //      unsigned int patch_idx = update_patches_tgt.back()[update_patch_idx];
-            //  
-            //      (*ptex_component.ptex_params_)[patch_idx].texture_index
-            //          = ptex_component.vistaTiles_[assigned_tiles_per_level.back()].tex_idx;
-            //      (*ptex_component.ptex_params_)[patch_idx].base_slice
-            //          = ptex_component.vistaTiles_[assigned_tiles_per_level.back()].base_slice;
-            //  
-            //      assigned_tiles_per_level.back() += 1;
-            //  }
+            for (size_t lod_lvl = 0; lod_lvl < (update_patches_tgt.size() - 1); ++lod_lvl) {
+                if (update_patches_tgt[lod_lvl].size() > ptex_component.availableTiles_[lod_lvl].size())
+                {
+                    std::cerr << "Hass" << std::endl;
+                }
+            }
+
+            // assign tiles on the CPU for debugging (without updating the texture content)
+            std::vector<unsigned int> assigned_tiles_per_level(update_patches_tgt.size());
+            for (size_t lod_lvl = 0; lod_lvl < (update_patches_tgt.size() - 1); ++lod_lvl)
+            {
+                for (size_t update_patch_idx = 0; update_patch_idx < update_patches_tgt[lod_lvl].size(); ++update_patch_idx)
+                {
+                    unsigned int patch_idx = update_patches_tgt[lod_lvl][update_patch_idx];
+            
+                    (*ptex_component.ptex_params_)[patch_idx].texture_index
+                        = ptex_component.availableTiles_[lod_lvl][assigned_tiles_per_level[lod_lvl]].tex_idx;
+                    (*ptex_component.ptex_params_)[patch_idx].base_slice
+                        = ptex_component.availableTiles_[lod_lvl][assigned_tiles_per_level[lod_lvl]].base_slice;
+            
+                    assigned_tiles_per_level[lod_lvl] += 1;
+                }
+            }
+            // assign vista level seperately as it is not part of the available tiles collection (since direct mapping between vista tiles and primitives exits)
+            for (size_t update_patch_idx = 0; update_patch_idx < update_patches_tgt.back().size(); ++update_patch_idx)
+            {
+                unsigned int patch_idx = update_patches_tgt.back()[update_patch_idx];
+            
+                (*ptex_component.ptex_params_)[patch_idx].texture_index
+                    = ptex_component.vistaTiles_[assigned_tiles_per_level.back()].tex_idx;
+                (*ptex_component.ptex_params_)[patch_idx].base_slice
+                    = ptex_component.vistaTiles_[assigned_tiles_per_level.back()].base_slice;
+            
+                assigned_tiles_per_level.back() += 1;
+            }
 
             // After available texture tiles are copied to upload buffer, remove as many as will be used by update patches
             for (size_t i = 0; i < ptex_component.availableTiles_.size(); ++i)
@@ -513,8 +521,6 @@ namespace EngineCore
             }
 
             //TODO THREAD SAFETY 
-
-            ptex_component.updated_primitives_ += tgt_copied_elements;
         }
 
         template<typename ResourceManagerType>
