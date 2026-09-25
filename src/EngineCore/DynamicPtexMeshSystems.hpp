@@ -356,7 +356,8 @@ namespace EngineCore
 
             //std::vector<float> lod_distance_steps({ 11.5f,23.0f,45.0f,88.0f,175.0f,999999.0f }); // values measured for optimal mipmap level
             //std::vector<float> lod_distance_steps({ 12.0f,24.0f,48.0f,96.0f,192.0f,999999.0f }); // values measured for optimal mipmap level
-            std::vector<float> lod_distance_steps({ 3.5f,4.5f,5.5f,7.0f,9.0f,999999.0f }); // values measured for optimal mipmap level
+            //std::vector<float> lod_distance_steps({ 3.5f,4.5f,5.5f,7.0f,9.0f,999999.0f }); // values measured for optimal mipmap level
+            std::vector<float> lod_distance_steps({ 1.5f,3.0f,6.0f,12.0f,24.0f,999999.0f }); // values measured for optimal mipmap level
             std::vector<uint> remaining_lod_bin_size = ptex_component.lod_bin_sizes_;
 
             int lod_bin = 0;
@@ -364,10 +365,10 @@ namespace EngineCore
             {
                 while ((remaining_lod_bin_size[lod_bin] == 0) || (ptex_component.patch_info_[patch_idx].distance >= lod_distance_steps[lod_bin]))
                 {
-                    ++lod_bin;
-
                     if (lod_bin == max_lod_lvl)
                         break;
+
+                    ++lod_bin;
                 }
 
                 classification[patch_idx] = lod_bin;
@@ -538,7 +539,7 @@ namespace EngineCore
             int layers = 2048;
 
             // TODO query GPU vendor and subsequently the available video memory to make an assumption about how much memory I want to spend on Ptex textures
-            size_t available_ptex_memory = 1500000000; // GPU memory available for ptex textures given in byte
+            size_t available_ptex_memory = 1000000000; // GPU memory available for ptex textures given in byte
             size_t used_ptex_memory = 0;
             size_t texture_array_cnt = 0;
 
@@ -549,7 +550,8 @@ namespace EngineCore
             texture_array_cnt += vista_tiles_array_cnt;
 
             // if more than ~0.5GB of available memory left, use 256x256 detail tiles
-            ptex_component.lod_lvls_ = ((available_ptex_memory - used_ptex_memory) > 1000000000) ? 6 : 5;
+            //ptex_component.lod_lvls_ = ((available_ptex_memory - used_ptex_memory) > 750000000) ? 6 : 5;
+            ptex_component.lod_lvls_ = ((available_ptex_memory - used_ptex_memory) > 750000000) ? 4 : 3;
             ptex_component.lod_bin_sizes_.resize(ptex_component.lod_lvls_);
 
             // create patch info storage and initialize lod classification to vista level
@@ -722,8 +724,8 @@ namespace EngineCore
         //TODO update texture tiles function (GPU, probably should be called duríng the resource setup step in the rendering pipeline)
 
         template<typename ResourceManagerType>
-        inline Entity createPtexMesh(
-            EntityManager& entity_mngr,
+        inline void createPtexMesh(
+            Entity entity,
             ResourceManagerType& resource_mngr,
             EngineCore::Graphics::CameraComponentManager& camera_mngr,
             EngineCore::Graphics::MaterialComponentManager& mtl_mngr,
@@ -739,7 +741,7 @@ namespace EngineCore
 
             DynamicPtexMeshComponentData ptex_component_data;
 
-            ptex_component_data.entity = entity_mngr.create();
+            ptex_component_data.entity = entity;
             ptex_component_data.mesh_vertex_data_ = std::get<1>(mesh_data);
             ptex_component_data.mesh_index_data_ = std::get<2>(mesh_data);
 
@@ -849,8 +851,6 @@ namespace EngineCore
 
             // "finalize" by adding a render task
             renderTask_mngr.addComponent(ptex_component_data.entity, mesh_rsrcID, 0, ptex_mesh_shader_rsrc, 0, xform_idx, 0, mtl_idx);
-
-            return ptex_component_data.entity;
         }
     }
 }
