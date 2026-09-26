@@ -236,11 +236,7 @@ namespace EngineCore
 
             size_t quad_cnt = ptex_component.ptex_params_->size();
 
-
-
-
             std::vector<std::pair<size_t, size_t>> from_to_pairs = utility::buildComponentProcessingRanges(quad_cnt, 12);
-
 
             for (auto from_to : from_to_pairs) {
                 task_scheduler.submitTask(
@@ -253,9 +249,9 @@ namespace EngineCore
                         Entity camera_entity = camera_mngr.getActiveCamera();
                         Mat4x4 view_mx = glm::inverse(transform_mngr.getWorldTransformation(transform_mngr.getIndex(camera_entity)));
                         Mat4x4 proj_mx = camera_mngr.getProjectionMatrix(camera_mngr.getIndex(camera_entity).front());
-                        Mat4x4 view_proj_mx = proj_mx * view_mx;
+                        Mat4x4 model_view_proj_mx = proj_mx * view_mx * mesh_model_mx;
 
-                        Vec3 camera_position = Vec3(glm::inverse(view_mx) * Vec4(0.0, 0.0, 0.0, 1.0));
+                        Vec3 camera_position = Vec3(glm::inverse(view_mx * mesh_model_mx) * Vec4(0.0, 0.0, 0.0, 1.0));
 
                         for (size_t quad_idx = from_to.first; quad_idx < from_to.second; ++quad_idx)
                         {
@@ -273,8 +269,6 @@ namespace EngineCore
                                 patch_vertices[i].y = ptex_component.mesh_vertex_data_->front()[patch_indices[i] * 3 + 1];
                                 patch_vertices[i].z = ptex_component.mesh_vertex_data_->front()[patch_indices[i] * 3 + 2];
                                 patch_vertices[i].w = 1.0;
-
-                                patch_vertices[i] = mesh_model_mx * patch_vertices[i];
 
                                 midpoint += Vec3(patch_vertices[i]);
                             }
@@ -297,7 +291,7 @@ namespace EngineCore
                                 // Transform patch vertices to clip space
                                 //vec4 cs_pos = proj_mx * view_mx * model_mx * patch_vertices[i];
 
-                                Vec4 cs_pos = view_proj_mx * patch_vertices[i];
+                                Vec4 cs_pos = model_view_proj_mx * patch_vertices[i];
 
                                 cs_pos.w = cs_pos.w * 1.25;
 
@@ -358,7 +352,7 @@ namespace EngineCore
             //std::vector<float> lod_distance_steps({ 12.0f,24.0f,48.0f,96.0f,192.0f,999999.0f }); // values measured for optimal mipmap level
             //std::vector<float> lod_distance_steps({ 3.5f,4.5f,5.5f,7.0f,9.0f,999999.0f }); // values measured for optimal mipmap level
             std::vector<float> lod_distance_steps({ 1.5f,3.0f,6.0f,12.0f,24.0f,999999.0f }); // values measured for optimal mipmap level
-            std::vector<uint> remaining_lod_bin_size = ptex_component.lod_bin_sizes_;
+            std::vector<size_t> remaining_lod_bin_size = ptex_component.lod_bin_sizes_;
 
             int lod_bin = 0;
             for (auto patch_idx : patch_indices)
@@ -383,6 +377,8 @@ namespace EngineCore
             // Vista LoD doesnt need to be included for freed and available slots
             std::vector<std::vector<DynamicPtexMeshComponentData::TextureSlot>> freed_slots(ptex_component.availableTiles_.size());
 
+            //std::vector<int> new_classification = classification;
+
             for (size_t patch_idx = 0; patch_idx < classification.size(); ++patch_idx)
             {
                 size_t previous_classification = ptex_component.patch_info_[patch_idx].lod_classification;
@@ -404,10 +400,21 @@ namespace EngineCore
                     }
 
                     ptex_component.patch_info_[patch_idx].lod_classification = classification[patch_idx]; // update stored classification
+                    //new_classification[patch_idx] = classification[patch_idx];
 
                     ++update_patches_cnt;
                 }
             }
+
+            //if (update_patches_cnt < 1000)
+            //{
+            //    return;
+            //}
+            //
+            //for (size_t ci = 0; ci < new_classification.size(); ++ci)
+            //{
+            //    ptex_component.patch_info_[ci].lod_classification = new_classification[ci];
+            //}
 
             // copy update patches to continous memory
             ptex_component.updatePatches_tgt_.clear();
@@ -539,7 +546,7 @@ namespace EngineCore
             int layers = 2048;
 
             // TODO query GPU vendor and subsequently the available video memory to make an assumption about how much memory I want to spend on Ptex textures
-            size_t available_ptex_memory = 1000000000; // GPU memory available for ptex textures given in byte
+            size_t available_ptex_memory = 500000000; // GPU memory available for ptex textures given in byte
             size_t used_ptex_memory = 0;
             size_t texture_array_cnt = 0;
 
@@ -551,7 +558,7 @@ namespace EngineCore
 
             // if more than ~0.5GB of available memory left, use 256x256 detail tiles
             //ptex_component.lod_lvls_ = ((available_ptex_memory - used_ptex_memory) > 750000000) ? 6 : 5;
-            ptex_component.lod_lvls_ = ((available_ptex_memory - used_ptex_memory) > 750000000) ? 4 : 3;
+            ptex_component.lod_lvls_ = ((available_ptex_memory - used_ptex_memory) > 250000000) ? 5 : 4;
             ptex_component.lod_bin_sizes_.resize(ptex_component.lod_lvls_);
 
             // create patch info storage and initialize lod classification to vista level
@@ -603,6 +610,7 @@ namespace EngineCore
             }
 
             // CPU-side storage of vista tiles
+            size_t primitive_idx = 0;
             ptex_component.vistaTiles_.resize(ptex_component.lod_bin_sizes_[ptex_component.lod_lvls_ - 1]);
             for (auto& slot : ptex_component.vistaTiles_)
             {
@@ -612,6 +620,14 @@ namespace EngineCore
                 slot = new_slot;
 
                 assigned_tiles += 1;
+
+                // update ptex component params with vista lod, note that there are more tiles than primitives as tile are always multiples of max texture array size
+                if (primitive_idx < (*ptex_component.ptex_params_).size())
+                {
+                    (*ptex_component.ptex_params_)[primitive_idx].texture_index = new_slot.tex_idx;
+                    (*ptex_component.ptex_params_)[primitive_idx].base_slice = new_slot.base_slice;
+                    ++primitive_idx;
+                }
             }
 
             //std::cout << "Num texture arrays: " << texture_array_cnt << std::endl;
@@ -764,14 +780,6 @@ namespace EngineCore
 
                 ptex_component_data.ptex_params_->emplace_back(std::move(params));
             }
-            // create per patch parameter buffer
-            // side note: buffer creation in OpenGL and DX currently doesn't match up yet
-            auto ptex_params_rsrcID = resource_mngr.createBufferObjectAsync(
-                filepath + "_ptex_paramas",
-                0x90D2,//GL_SHADER_STORAGE_BUFFER
-                ptex_component_data.ptex_params_
-            );
-            ptex_component_data.ptex_params_buffer_ = ptex_params_rsrcID;
 
             // create shader for rendering the ptex surface
             std::string shader_root = "../HeatmapVisualization/shaders/";
@@ -845,6 +853,17 @@ namespace EngineCore
             auto xform_idx = transform_mngr.addComponent(ptex_component_data.entity);
 
             allocatePtexTextureTiles(resource_mngr, mtl_mngr, ptex_mngr, ptex_component_data.entity);
+
+            // create per patch parameter buffer
+            // side note: buffer creation in OpenGL and DX currently doesn't match up yet
+            auto ptex_params_rsrcID = resource_mngr.createBufferObjectAsync(
+                filepath + "_ptex_paramas",
+                0x90D2,//GL_SHADER_STORAGE_BUFFER
+                ptex_mngr.getComponent(ptex_idx).ptex_params_
+            );
+            ptex_mngr.getComponent(ptex_idx).ptex_params_buffer_ = ptex_params_rsrcID;
+
+            //TODO submit task to 
 
             //computePatchDistances(transform_mngr, camera_mngr, ptex_mngr, ptex_component_data.entity);
             //computeTextureTileUpdateLists(ptex_mngr, ptex_component_data.entity);

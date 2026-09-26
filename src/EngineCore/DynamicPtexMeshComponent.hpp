@@ -39,8 +39,8 @@ namespace EngineCore
             std::shared_ptr<std::vector<PtexParameters>> ptex_params_;
 
             
-            size_t            lod_lvls_; // Number of details levels for texture tiles
-            std::vector<uint> lod_bin_sizes_; // store number of texture tiles per LOD level
+            size_t              lod_lvls_; // Number of details levels for texture tiles
+            std::vector<size_t> lod_bin_sizes_; // store number of texture tiles per LOD level
             
             std::vector<uint32_t> updatePatches_tgt_;
             std::vector<size_t> update_bin_sizes_;
