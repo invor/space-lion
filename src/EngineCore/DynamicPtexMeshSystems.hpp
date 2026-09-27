@@ -351,7 +351,7 @@ namespace EngineCore
             //std::vector<float> lod_distance_steps({ 11.5f,23.0f,45.0f,88.0f,175.0f,999999.0f }); // values measured for optimal mipmap level
             //std::vector<float> lod_distance_steps({ 12.0f,24.0f,48.0f,96.0f,192.0f,999999.0f }); // values measured for optimal mipmap level
             //std::vector<float> lod_distance_steps({ 3.5f,4.5f,5.5f,7.0f,9.0f,999999.0f }); // values measured for optimal mipmap level
-            std::vector<float> lod_distance_steps({ 1.5f,3.0f,6.0f,12.0f,24.0f,999999.0f }); // values measured for optimal mipmap level
+            std::vector<float> lod_distance_steps({ 1.5f,3.0f,6.0f,11.0f,20.0f,999999.0f }); // values measured for optimal mipmap level
             std::vector<size_t> remaining_lod_bin_size = ptex_component.lod_bin_sizes_;
 
             int lod_bin = 0;
