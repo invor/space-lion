@@ -225,6 +225,10 @@ namespace EngineCore
             Utility::TaskScheduler& task_scheduler,
             Entity entity)
         {
+            static size_t updates_counter = 0;
+            static double update_time_sum = 0.0;
+            auto t_0 = std::chrono::steady_clock::now();
+
             //TODO ptex component not thread safe like this...
             auto ptex_idx = ptex_mngr.getIndex(entity);
             if (ptex_idx == EngineCore::Utility::SingleInstanceIndexMap::invalidIndex())
@@ -317,6 +321,16 @@ namespace EngineCore
             }
 
             task_scheduler.waitWhileBusy();
+
+            ++updates_counter;
+            auto t_1 = std::chrono::steady_clock::now();
+            std::chrono::duration<double, std::milli> time = (t_1 - t_0);
+            update_time_sum += time.count();
+            if ((updates_counter % 100) == 0)
+            {
+                std::cout << "Patch distances (100 frame avg) - " << update_time_sum / 100.0 << "ms" << std::endl;
+                update_time_sum = 0.0;
+            }
         }
 
         //TODO (CPU-side) computation of update tiles after computing patch distances
@@ -324,6 +338,10 @@ namespace EngineCore
             EngineCore::Graphics::DynamicPtexMeshComponentManager& ptex_mngr,
             Entity entity)
         {
+            static size_t updates_counter = 0;
+            static double update_time_sum = 0.0;
+            auto t_0 = std::chrono::steady_clock::now();
+
             auto& ptex_component = ptex_mngr.getComponent(ptex_mngr.getIndex(entity));
 
             // sort distance values, keep track of original indices
@@ -528,7 +546,17 @@ namespace EngineCore
                 ptex_component.availableTiles_[i].erase(it1, it2);
             }
 
-            //TODO THREAD SAFETY 
+            //TODO THREAD SAFETY
+
+            ++updates_counter;
+            auto t_1 = std::chrono::steady_clock::now();
+            std::chrono::duration<double, std::milli> time = (t_1 - t_0);
+            update_time_sum += time.count();
+            if ((updates_counter % 100) == 0)
+            {
+                std::cout << "Update patches (100 frame avg) - " << update_time_sum/100.0 << "ms" << std::endl;
+                update_time_sum = 0.0;
+            }
         }
 
         template<typename ResourceManagerType>
@@ -662,7 +690,7 @@ namespace EngineCore
                 tile_layout.depth = layers;
                 tile_layout.levels = 2;
 
-                tile_layout.int_parameters.push_back({ GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER });
+                tile_layout.int_parameters.push_back({ GL_TEXTURE_WRAP_S,GL_CLAMP_TO_BORDER });
                 tile_layout.int_parameters.push_back({ GL_TEXTURE_WRAP_T,GL_CLAMP_TO_BORDER });
                 tile_layout.int_parameters.push_back({ GL_TEXTURE_WRAP_R,GL_CLAMP_TO_BORDER });
                 //tile_layout.int_parameters.push_back({ GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST });
